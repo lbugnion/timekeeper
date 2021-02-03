@@ -1,0 +1,5 @@
+### Negotiate
+GET http://localhost:7071/api/negotiate
+
+### Send message
+GET http://localhost:7071/api/start

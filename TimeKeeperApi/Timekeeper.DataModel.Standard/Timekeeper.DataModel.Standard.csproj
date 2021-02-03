@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Timekeeper.DataModel\Constants.cs" Link="Constants.cs" />
+    <Compile Include="..\Timekeeper.DataModel\StartClockMessage.cs" Link="StartClockMessage.cs" />
+  </ItemGroup>
+
+</Project>
