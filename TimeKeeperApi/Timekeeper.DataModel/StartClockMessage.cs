@@ -10,6 +10,30 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public TimeSpan CountDown
+        {
+            get;
+            set;
+        }
+
+        public TimeSpan Yellow
+        {
+            get;
+            set;
+        }
+
+        public TimeSpan Red
+        {
+            get;
+            set;
+        }
+
+        public bool BlinkIfOver
+        {
+            get;
+            set;
+        }
+
         public override string ToString()
         {
             return ServerTime.ToString();

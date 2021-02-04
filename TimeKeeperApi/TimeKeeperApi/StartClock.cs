@@ -8,6 +8,7 @@ using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Timekeeper.DataModel;
 using System;
 using Newtonsoft.Json.Linq;
+using TimeKeeperApi.DataModel;
 
 namespace TimeKeeperApi
 {

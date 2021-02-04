@@ -1,0 +1,14 @@
+﻿@page "/guest"
+@inject HttpClient Http
+@inject ILogger<Guest> Log
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+
+<h1>Guest</h1>
+
+<div class="clock-area">
+    <p><span class="clock-text">@Handler.ClockDisplay</span></p>
+</div>
+
+<div class="message-area">
+    <p><span style="">@Handler.CurrentMessage</span></p>
+</div>

@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Include="..\Timekeeper.DataModel\Constants.cs" Link="Constants.cs" />
+    <Compile Include="..\Timekeeper.DataModel\HostToGuestMessage.cs" Link="HostToGuestMessage.cs" />
     <Compile Include="..\Timekeeper.DataModel\StartClockMessage.cs" Link="StartClockMessage.cs" />
   </ItemGroup>
 
