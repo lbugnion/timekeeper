@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,8 +12,6 @@ namespace TimekeeperClient.Model
 {
     public class SignalRGuest : SignalRHandler
     {
-        private TimeSpan _offset;
-
         public SignalRGuest(
             IConfiguration config, 
             ILogger log, 
@@ -20,27 +19,19 @@ namespace TimekeeperClient.Model
         {
         }
 
-        private async Task ReceiveStartClock(StartClockMessage message)
+        private async Task ReceiveStartClock(string message)
         {
             _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
 
-            _startDateTime = message.ServerTime;
-            _offset = DateTime.Now - _startDateTime;
-            _countDown = message.CountDown;
-            _clockIsRunning = true;
+            _clockSettings = JsonConvert.DeserializeObject<StartClockMessage>(message);
 
-            await Task.Run(() =>
-            {
-                do
-                {
-                    if (_clockIsRunning)
-                    {
-                        var elapsed = DateTime.Now - _startDateTime + _offset;
-                        ClockDisplay = (_countDown - elapsed).ToString("hh:mm:ss");
-                    }
-                }
-                while (_clockIsRunning);
-            });
+            _log.LogDebug($"BlinkIfOver: {_clockSettings.BlinkIfOver}");
+            _log.LogDebug($"CountDown: {_clockSettings.CountDown}");
+            _log.LogDebug($"Red: {_clockSettings.Red}");
+            _log.LogDebug($"ServerTime: {_clockSettings.ServerTime}");
+            _log.LogDebug($"Yellow: {_clockSettings.Yellow}");
+
+            await RunClock();
         }
 
         public override async Task Connect()
@@ -51,7 +42,7 @@ namespace TimekeeperClient.Model
 
             await CreateConnection();
 
-            _connection.On<StartClockMessage>(Constants.StartClockMessageName, ReceiveStartClock);
+            _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
             _connection.On<HostToGuestMessage>(Constants.HostToGuestMessageName, DisplayMessage);
             _connection.On(Constants.StopClockMessage, StopClock);
 

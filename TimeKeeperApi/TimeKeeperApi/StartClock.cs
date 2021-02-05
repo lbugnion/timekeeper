@@ -9,6 +9,8 @@ using Timekeeper.DataModel;
 using System;
 using Newtonsoft.Json.Linq;
 using TimeKeeperApi.DataModel;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace TimeKeeperApi
 {
@@ -18,7 +20,7 @@ namespace TimeKeeperApi
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Function, 
-                "get", 
+                "post", 
                 Route = "start")] 
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
@@ -27,15 +29,24 @@ namespace TimeKeeperApi
         {
             log.LogInformation("-> StartClock");
 
-            await queue.AddAsync(
-                new SignalRMessage
-                {
-                    Target = Constants.StartClockMessageName,
-                    Arguments = new[] { "Hello world" }
-                });
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var message = JsonConvert.DeserializeObject<StartClockMessage>(requestBody);
+
+            try
+            {
+                await queue.AddAsync(
+                    new SignalRMessage
+                    {
+                        Target = Constants.StartClockMessageName,
+                        Arguments = new object[] { requestBody }
+                    });
+            }
+            catch
+            {
+
+            }
 
             log.LogTrace("Sent");
-
             return new OkObjectResult("OK");
         }
     }

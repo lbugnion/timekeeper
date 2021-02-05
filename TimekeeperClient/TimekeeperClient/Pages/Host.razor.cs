@@ -1,7 +1,6 @@
 ﻿using TimekeeperClient.Model;
 using System.Threading.Tasks;
 using System;
-using Microsoft.Extensions.Logging;
 
 namespace TimekeeperClient.Pages
 {
@@ -17,7 +16,7 @@ namespace TimekeeperClient.Pages
         {
             if (Handler != null)
             {
-                Handler.UpdateUi += HandlerUpdateUi;
+                Handler.UpdateUi -= HandlerUpdateUi;
             }
         }
 
@@ -42,8 +41,6 @@ namespace TimekeeperClient.Pages
 
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
-            Log.LogTrace("HandlerUpdateUi");
-
             if (Handler.IsRed)
             {
                 BackgroundClassName = Index.RedBackgroundClassName;

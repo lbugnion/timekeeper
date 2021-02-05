@@ -1,5 +1,13 @@
 ### Negotiate
 GET http://localhost:7071/api/negotiate
 
-### Send message
-GET http://localhost:7071/api/start
+### Start clock
+POST http://localhost:7071/api/start
+
+{
+    "ServerTime":"2021-02-05T21:21:39.324+01:00",
+    "CountDown":"00:01:30",
+    "Yellow":"00:01:00",
+    "Red":"00:00:30",
+    "BlinkIfOver":true
+}

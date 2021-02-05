@@ -19,20 +19,62 @@ namespace TimekeeperClient.Model
         protected bool _clockIsRunning;
         protected IConfiguration _config;
         protected HubConnection _connection;
-        protected TimeSpan _countDown;
         protected HttpClient _http;
         protected ILogger _log;
-
-        protected DateTime _startDateTime;
         protected string _hostName;
-        private string clockDisplay;
+        private string _clockDisplay;
+
+        public bool IsYellow
+        {
+            get;
+            protected set;
+        }
+
+        public bool IsRed
+        {
+            get;
+            protected set;
+        }
+
+        protected StartClockMessage _clockSettings;
+
+        protected async Task RunClock()
+        {
+            _clockIsRunning = true;
+
+            await Task.Run(async () =>
+            {
+                do
+                {
+                    if (_clockIsRunning)
+                    {
+                        var elapsed = DateTime.Now - _clockSettings.ServerTime;
+                        var remains = _clockSettings.CountDown - elapsed;
+                        ClockDisplay = remains.ToString(@"hh\:mm\:ss");
+
+                        if (remains.TotalSeconds < _clockSettings.Red.TotalSeconds)
+                        {
+                            IsRed = true;
+                        }
+
+                        if (remains.TotalSeconds < _clockSettings.Yellow.TotalSeconds)
+                        {
+                            IsYellow = true;
+                        }
+                    }
+
+                    await Task.Delay(1000);
+                }
+                while (_clockIsRunning);
+            });
+        }
 
         public string ClockDisplay
         {
-            get => clockDisplay;
+            get => _clockDisplay;
             protected set
             {
-                clockDisplay = value;
+                _clockDisplay = value;
                 UpdateUi?.Invoke(this, EventArgs.Empty);
             }
         }

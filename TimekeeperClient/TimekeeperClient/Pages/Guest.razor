@@ -3,12 +3,15 @@
 @inject ILogger<Guest> Log
 @inject Microsoft.Extensions.Configuration.IConfiguration Config
 
-<h1>Guest</h1>
+<div style="width: 100%; height: 100%"
+     class="@BackgroundClassName">
+    <h1>Guest</h1>
 
-<div class="clock-area">
-    <p><span class="clock-text">@Handler.ClockDisplay</span></p>
-</div>
+    <div class="clock-area">
+        <p><span class="clock-text">@Handler.ClockDisplay</span></p>
+    </div>
 
-<div class="message-area">
-    <p><span style="">@Handler.CurrentMessage</span></p>
+    <div class="message-area">
+        <p><span class="message-text">@Handler.CurrentMessage</span></p>
+    </div>
 </div>

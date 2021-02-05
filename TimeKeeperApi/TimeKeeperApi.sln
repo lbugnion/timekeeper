@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeKeeperApi", "TimeKeeperApi\TimeKeeperApi.csproj", "{8FEE76D3-8B8C-4542-AC41-73C99E7B05F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timekeeper.DataModel", "Timekeeper.DataModel\Timekeeper.DataModel.csproj", "{69EF51F2-6BD3-42B7-BC35-8AFE1DEC8D11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.DataModel", "Timekeeper.DataModel\Timekeeper.DataModel.csproj", "{69EF51F2-6BD3-42B7-BC35-8AFE1DEC8D11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timekeeper.DataModel.Standard", "Timekeeper.DataModel.Standard\Timekeeper.DataModel.Standard.csproj", "{2C5462E9-5108-4ECC-A6E5-128D71409811}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.DataModel.Standard", "Timekeeper.DataModel.Standard\Timekeeper.DataModel.Standard.csproj", "{2C5462E9-5108-4ECC-A6E5-128D71409811}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

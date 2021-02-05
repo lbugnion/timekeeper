@@ -1,24 +1,59 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using TimekeeperClient.Model;
 
 namespace TimekeeperClient.Pages
 {
-    public partial class Guest
+    public partial class Guest : IDisposable
     {
+        public string BackgroundClassName
+        {
+            get;
+            private set;
+        }
+
         public SignalRGuest Handler
         {
             get;
             private set;
         }
 
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
+        }
+
         protected override async Task OnInitializedAsync()
         {
+            BackgroundClassName = Index.NormalBackgroundClassName;
+
             Handler = new SignalRGuest(
                 Config,
                 Log,
                 Http);
 
+            Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect();
+        }
+
+        private void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            if (Handler.IsRed)
+            {
+                BackgroundClassName = Index.RedBackgroundClassName;
+            }
+            else
+            {
+                if (Handler.IsYellow)
+                {
+                    BackgroundClassName = Index.YellowBackgroundClassName;
+                }
+            }
+
+            StateHasChanged();
         }
     }
 }
