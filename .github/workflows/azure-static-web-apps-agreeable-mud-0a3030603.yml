@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - V0.1
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - V0.1
+    paths:
+    - 'TimekeeperClient/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:
@@ -27,7 +28,7 @@ jobs:
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match you app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "TimekeeperClient" # App source code path
+          app_location: "TimekeeperClient/TimekeeperClient" # App source code path
           api_location: "api" # Api source code path - optional
           output_location: "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
