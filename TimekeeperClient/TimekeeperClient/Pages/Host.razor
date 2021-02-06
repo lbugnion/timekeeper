@@ -3,32 +3,33 @@
 @inject ILogger<Host> Log
 @inject Microsoft.Extensions.Configuration.IConfiguration Config
 
-<div style="width: 100%; height: 100%"
-     class="@BackgroundClassName">
-    <h1>Host</h1>
+<div class="background-area @BackgroundClassName">
+    <main>
+        <h1>Host</h1>
 
-    <div class="clock-area">
-        <p><span class="clock-text">@Handler.ClockDisplay</span></p>
-    </div>
+        <div class="clock-area">
+            <p><span class="clock-text">@Handler.ClockDisplay</span></p>
+        </div>
 
-    <div class="message-area">
-        <p><span class="message-text">@Handler.CurrentMessage</span></p>
-    </div>
+        <div class="message-area">
+            <p><span class="message-text">@Handler.CurrentMessage</span></p>
+        </div>
 
-    <div class="controls-area">
-        <button @onclick="@Handler.StartClock">Start the clock</button>
+        <div class="controls-area">
+            <button disabled="@Handler.IsStartDisabled" 
+                    @onclick="@Handler.StartClock">Start the clock</button>
+            <button disabled="@Handler.IsStopDisabled" 
+                    @onclick="@Handler.StopAllClocks">Stop the clock</button>
 
-        <br /><br />
+            <div class="send-message-area">
+                <input @bind-value="@Handler.InputMessage" class="input-text" />
+                <button @onclick="@Handler.SendMessage">Send Message</button>
+            </div>
+        </div>
+    </main>
 
-        <button @onclick="@Handler.StopAllClocks">Stop the clock</button>
-
-        <br /><br />
-
-        <input @bind-value="@Handler.InputMessage" />
-
-        <br />
-
-        <button @onclick="@Handler.SendMessage">SendMessage</button>
-    </div>
+    <footer>
+        <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+    </footer>
 </div>
 

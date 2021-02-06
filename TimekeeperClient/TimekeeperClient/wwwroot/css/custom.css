@@ -1,4 +1,17 @@
-﻿.background-red {
+﻿html, body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    font-family: 'Segoe UI Light', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.background-red {
     background-color: red;
 }
 
@@ -16,4 +29,52 @@
 
 .message-text {
     font-size: 2em;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 5px;
+}
+
+main {
+    padding: 20px;
+}
+
+p {
+    margin-bottom: 10px;
+}
+
+.background-area {
+    width: 100%;
+    height: 100%;
+}
+
+.status-message {
+    font-size: 1em;
+}
+
+.error-message {
+    color: white;
+    background: red;
+    font-weight: bold;
+}
+
+.controls-area {
+    margin-top: 20px;
+}
+
+.send-message-area {
+
+}
+
+button {
+    margin: 5px;
+    width: 200px;
+}
+
+.input-text {
+    margin: 5px;
+    width: 192px;
 }

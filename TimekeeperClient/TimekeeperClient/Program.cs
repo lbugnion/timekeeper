@@ -3,7 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
+
+// Set version number for the assembly.
+[assembly: AssemblyVersion("0.1.*")]
 
 namespace TimekeeperClient
 {

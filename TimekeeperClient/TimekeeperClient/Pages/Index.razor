@@ -1,7 +1,15 @@
 ﻿@page "/"
+@inject ILogger<Index> Log
 
-<h1>Timekeeper</h1>
+<main>
+    <h1>Timekeeper</h1>
 
-<p><a href="/host">Log in as the host</a></p>
+    <p><a href="/host">Log in as the host</a></p>
 
-<p><a href="/guest">Log in as a guest</a></p>
+    <p><a href="/guest">Log in as a guest</a></p>
+</main>
+
+<footer>
+Version: @ClientVersion
+</footer>
+

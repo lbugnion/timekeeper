@@ -10,11 +10,30 @@ namespace TimekeeperClient.Model
 {
     public class SignalRHost : SignalRHandler
     {
+        public bool IsStartDisabled
+        {
+            get;
+            private set;
+        }
+
+        public bool IsStopDisabled
+        {
+            get;
+            private set;
+        }
+
         public SignalRHost(
             IConfiguration config, 
             ILogger log, 
             HttpClient http) : base(config, log, http)
         {
+            IsStopDisabled = true;
+        }
+
+        protected override void DisplayMessage(string message)
+        {
+            base.DisplayMessage(message);
+            Status = "Message sent";
         }
 
         public async Task StartClock()
@@ -25,6 +44,9 @@ namespace TimekeeperClient.Model
             }
 
             _log.LogInformation("HIGHLIGHT---> SignalRHost.StartClock");
+
+            IsStartDisabled = true;
+            IsStopDisabled = false;
 
             _clockSettings = new StartClockMessage
             {
@@ -47,7 +69,7 @@ namespace TimekeeperClient.Model
                 }
                 else
                 {
-                    CurrentMessage = "Unable to communicate with clients";
+                    ErrorStatus = "Unable to communicate with clients";
                     // TODO Show a warning message
                 }
             }
@@ -64,12 +86,21 @@ namespace TimekeeperClient.Model
 
             IsBusy = true;
 
-            await CreateConnection();
-            await _connection.StartAsync();
+            var ok = (await CreateConnection())
+                && (await StartConnection());
 
-            IsConnected = true;
+            if (ok)
+            {
+                IsConnected = true;
+                IsInError = false;
+            }
+            else
+            {
+                IsInError = true;
+                IsConnected = false;
+            }
+
             IsBusy = false;
-
             _log.LogInformation("SignalRHost.ConnectToServer ->");
         }
 
@@ -99,8 +130,20 @@ namespace TimekeeperClient.Model
             StopClock(null);
 
             // Notify clients
-            var stopClockUrl = $"{_hostName}/api/stop";
-            await _http.GetAsync(stopClockUrl);
+
+            try
+            {
+                var stopClockUrl = $"{_hostName}/api/stop";
+                await _http.GetAsync(stopClockUrl);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Error sending stop instruction: {ex.Message}");
+                ErrorStatus = "Couldn't reach the guests";
+            }
+
+            IsStartDisabled = false;
+            IsStopDisabled = true;
         }
     }
 }

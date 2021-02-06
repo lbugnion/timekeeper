@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -19,9 +18,15 @@ namespace TimekeeperClient.Model
         {
         }
 
+        protected override void DisplayMessage(string message)
+        {
+            base.DisplayMessage(message);
+            Status = "Received host message";
+        }
+
         private async Task ReceiveStartClock(string message)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
             _clockSettings = JsonConvert.DeserializeObject<StartClockMessage>(message);
 
@@ -32,26 +37,45 @@ namespace TimekeeperClient.Model
             _log.LogDebug($"Yellow: {_clockSettings.Yellow}");
 
             await RunClock();
+            Status = "Clock started";
+            _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
 
         public override async Task Connect()
         {
-            _log.LogInformation("-> SignalRGuest.ConnectToServer");
+            _log.LogInformation("-> SignalRGuest.Connect");
 
             IsBusy = true;
 
-            await CreateConnection();
+            var ok = await CreateConnection();
 
-            _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
-            _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
-            _connection.On<object>(Constants.StopClockMessage, StopClock);
+            if (ok)
+            {
+                _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
+                _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
+                _connection.On<object>(Constants.StopClockMessage, StopClock);
 
-            await _connection.StartAsync();
+                ok = await StartConnection();
 
-            IsConnected = true;
+                if (ok)
+                {
+                    IsConnected = true;
+                    IsInError = false;
+                }
+                else
+                {
+                    IsConnected = false;
+                    IsInError = true;
+                }
+            }
+            else
+            {
+                IsConnected = false;
+                IsInError = true;
+            }
+
             IsBusy = false;
-
-            _log.LogInformation("SignalRGuest.ConnectToServer ->");
+            _log.LogInformation("SignalRGuest.Connect ->");
         }
     }
 }
