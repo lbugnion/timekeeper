@@ -43,8 +43,8 @@ namespace TimekeeperClient.Model
             await CreateConnection();
 
             _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
-            _connection.On<HostToGuestMessage>(Constants.HostToGuestMessageName, DisplayMessage);
-            _connection.On(Constants.StopClockMessage, StopClock);
+            _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
+            _connection.On<object>(Constants.StopClockMessage, StopClock);
 
             await _connection.StartAsync();
 

@@ -11,3 +11,11 @@ POST http://localhost:7071/api/start
     "Red":"00:00:30",
     "BlinkIfOver":true
 }
+
+### Stop clock
+GET http://localhost:7071/api/stop
+
+### Send message
+POST http://localhost:7071/api/send
+
+Hello world again

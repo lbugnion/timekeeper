@@ -73,9 +73,30 @@ namespace TimekeeperClient.Model
             _log.LogInformation("SignalRHost.ConnectToServer ->");
         }
 
+        public string InputMessage
+        {
+            get;
+            set;
+        }
+
+        public async Task SendMessage()
+        {
+            _log.LogInformation("-> SendMessage");
+
+            if (string.IsNullOrEmpty(InputMessage))
+            {
+                return;
+            }
+
+            var content = new StringContent(InputMessage);
+
+            var sendMessageUrl = $"{_hostName}/api/send";
+            await _http.PostAsync(sendMessageUrl, content);
+        }
+
         public async Task StopAllClocks()
         {
-            StopClock();
+            StopClock(null);
 
             // Notify clients
             var stopClockUrl = $"{_hostName}/api/stop";

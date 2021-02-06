@@ -21,6 +21,14 @@
         <br /><br />
 
         <button @onclick="@Handler.StopAllClocks">Stop the clock</button>
+
+        <br /><br />
+
+        <input @bind-value="@Handler.InputMessage" />
+
+        <br />
+
+        <button @onclick="@Handler.SendMessage">SendMessage</button>
     </div>
 </div>
 

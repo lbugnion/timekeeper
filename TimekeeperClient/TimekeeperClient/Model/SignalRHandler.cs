@@ -42,7 +42,7 @@ namespace TimekeeperClient.Model
         {
             _clockIsRunning = true;
 
-            await Task.Run(async () =>
+            Task.Run(async () =>
             {
                 do
                 {
@@ -97,6 +97,7 @@ namespace TimekeeperClient.Model
             protected set;
         }
 
+
         public SignalRHandler(
             IConfiguration config,
             ILogger log,
@@ -110,9 +111,14 @@ namespace TimekeeperClient.Model
             _http = http;
         }
 
-        protected void DisplayMessage(HostToGuestMessage message)
+        protected void DisplayMessage(string message)
         {
-            CurrentMessage = message.Message;
+            _log.LogInformation("HIGHLIGHT---> DisplayMessage");
+            _log.LogDebug(message);
+
+            CurrentMessage = message;
+
+            UpdateUi?.Invoke(this, EventArgs.Empty);
         }
 
         protected async Task CreateConnection()
@@ -133,7 +139,7 @@ namespace TimekeeperClient.Model
                 .Build();
         }
 
-        protected void StopClock()
+        protected void StopClock(object args)
         {
             _log.LogInformation("HIGHLIGHT---> StopClock");
             _clockIsRunning = false;
