@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Reflection;
 
 namespace TimekeeperClient.Pages
@@ -10,6 +12,12 @@ namespace TimekeeperClient.Pages
         public const string NormalBackgroundClassName = "background-normal";
 
         public string ClientVersion
+        {
+            get;
+            private set;
+        }
+
+        public string Environment
         {
             get;
             private set;
@@ -27,6 +35,14 @@ namespace TimekeeperClient.Pages
                 Log.LogDebug($"Full version: {version}");
                 ClientVersion = $"V{version.ToString(4)}";
                 Log.LogDebug($"clientVersion: {ClientVersion}");
+
+                var environment = Config.GetValue<string>("Environment");
+                if (environment == "Production")
+                {
+                    environment = string.Empty;
+                }
+
+                Environment = environment;
             }
             catch
             {

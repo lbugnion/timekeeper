@@ -43,7 +43,7 @@ namespace TimekeeperClient.Model
                 return;
             }
 
-            _log.LogInformation("HIGHLIGHT---> SignalRHost.StartClock");
+            _log.LogInformation("-> SignalRHost.StartClock");
 
             IsStartDisabled = true;
             IsStopDisabled = false;
@@ -60,8 +60,16 @@ namespace TimekeeperClient.Model
             try
             {
                 var content = new StringContent(JsonConvert.SerializeObject(_clockSettings));
-                var startClockUrl = $"{_hostName}/api/start";
-                var response = await _http.PostAsync(startClockUrl, content);
+
+                var functionKey = _config.GetValue<string>(StartClockKeyKey);
+                _log.LogDebug($"functionKey: {functionKey}");
+
+                var startClockUrl = $"{_hostName}/start";
+                _log.LogDebug($"startClockUrl: {startClockUrl}");
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, startClockUrl);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                var response = await _http.SendAsync(httpRequest);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -119,22 +127,63 @@ namespace TimekeeperClient.Model
                 return;
             }
 
-            var content = new StringContent(InputMessage);
+            try
+            {
+                var content = new StringContent(InputMessage);
 
-            var sendMessageUrl = $"{_hostName}/api/send";
-            await _http.PostAsync(sendMessageUrl, content);
+                var functionKey = _config.GetValue<string>(SendMessageKeyKey);
+                _log.LogDebug($"functionKey: {functionKey}");
+
+                var sendMessageUrl = $"{_hostName}/send";
+                _log.LogDebug($"startClockUrl: {sendMessageUrl}");
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, sendMessageUrl);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Content = content;
+
+                var response = await _http.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _log.LogError($"Cannot send message: {response.ReasonPhrase}");
+                    ErrorStatus = "Error sending message";
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Cannot send message: {ex.Message}");
+                ErrorStatus = "Error sending message";
+            }
         }
 
         public async Task StopAllClocks()
         {
+            _log.LogInformation("HIGHLIGHT---> StopAllClocks");
+
             StopClock(null);
 
             // Notify clients
 
             try
             {
-                var stopClockUrl = $"{_hostName}/api/stop";
-                await _http.GetAsync(stopClockUrl);
+                var functionKey = _config.GetValue<string>(StopClockKeyKey);
+                _log.LogDebug($"functionKey: {functionKey}");
+
+                var stopClockUrl = $"{_hostName}/stop";
+                _log.LogDebug($"stopClockUrl: {stopClockUrl}");
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, stopClockUrl);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                var response = await _http.SendAsync(httpRequest);
+
+                _log.LogDebug($"Response code: {response.StatusCode}");
+                _log.LogDebug($"Response phrase: {response.ReasonPhrase}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _log.LogError($"Error sending stop instruction: {response.ReasonPhrase}");
+                    ErrorStatus = "Couldn't reach the guests";
+                }
             }
             catch (Exception ex)
             {
@@ -144,6 +193,7 @@ namespace TimekeeperClient.Model
 
             IsStartDisabled = false;
             IsStopDisabled = true;
+            _log.LogInformation("HIGHLIGHT--StopAllClocks ->");
         }
     }
 }

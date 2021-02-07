@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject ILogger<Index> Log
+@inject IConfiguration Config 
 
 <main>
     <h1>Timekeeper</h1>
@@ -10,6 +11,6 @@
 </main>
 
 <footer>
-Version: @ClientVersion
+Version: @ClientVersion @Environment
 </footer>
 

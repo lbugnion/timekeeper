@@ -13,6 +13,11 @@ namespace TimekeeperClient.Model
     public abstract class SignalRHandler
     {
         protected const string HostNameKey = "HostName";
+        protected const string NegotiateKeyKey = "NegotiateKey";
+        protected const string SendMessageKeyKey = "SendMessageKey";
+        protected const string StartClockKeyKey = "StartClockKey";
+        protected const string StopClockKeyKey = "StopClockKey";
+        protected const string FunctionCodeHeaderKey = "x-functions-key";
 
         public event EventHandler UpdateUi;
 
@@ -167,8 +172,28 @@ namespace TimekeeperClient.Model
 
             try
             {
-                var negotiateJson = await _http.GetStringAsync($"{_hostName}/api/negotiate");
-                negotiateInfo = JsonConvert.DeserializeObject<NegotiateInfo>(negotiateJson);
+                var functionKey = _config.GetValue<string>(NegotiateKeyKey);
+                _log.LogDebug($"functionKey: {functionKey}");
+
+                var negotiateUrl = $"{_hostName}/negotiate";
+                _log.LogDebug($"negotiateUrl: {negotiateUrl}");
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                var response = await _http.SendAsync(httpRequest);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var negotiateJson = await response.Content.ReadAsStringAsync();
+                    negotiateInfo = JsonConvert.DeserializeObject<NegotiateInfo>(negotiateJson);
+                }
+                else
+                {
+                    _log.LogError($"Error reaching the function: {response.ReasonPhrase}");
+                    ErrorStatus = "Error with the backend, please contact support";
+                    _log.LogInformation("SignalRHandler.CreateConnection ->");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
