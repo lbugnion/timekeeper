@@ -69,6 +69,8 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, startClockUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Content = content;
+
                 var response = await _http.SendAsync(httpRequest);
 
                 if (response.IsSuccessStatusCode)

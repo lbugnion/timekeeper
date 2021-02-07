@@ -1,8 +1,10 @@
 ### Negotiate
-GET http://localhost:7071/api/negotiate
+GET {{function-url}}/negotiate
+x-functions-key: {{NegotiateKey}}
 
 ### Start clock
-POST http://localhost:7071/api/start
+POST {{function-url}}/start
+x-functions-key: {{StartClockKey}}
 
 {
     "ServerTime":"2021-02-05T21:21:39.324+01:00",
@@ -13,9 +15,11 @@ POST http://localhost:7071/api/start
 }
 
 ### Stop clock
-GET http://localhost:7071/api/stop
+GET {{function-url}}/stop
+x-functions-key: {{StopClockKey}}
 
 ### Send message
-POST http://localhost:7071/api/send
+POST {{function-url}}/send
+x-functions-key: {{SendMessageKey}}
 
 Hello world again

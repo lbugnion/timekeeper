@@ -28,6 +28,8 @@ namespace TimekeeperClient.Model
         {
             _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
+            _log.LogDebug($"message: {message}");
+
             _clockSettings = JsonConvert.DeserializeObject<StartClockMessage>(message);
 
             _log.LogDebug($"BlinkIfOver: {_clockSettings.BlinkIfOver}");
