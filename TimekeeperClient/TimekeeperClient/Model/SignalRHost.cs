@@ -52,8 +52,8 @@ namespace TimekeeperClient.Model
             {
                 BlinkIfOver = true, // TODO Make configurable
                 CountDown = TimeSpan.FromSeconds(90), // TODO Make configurable
-                Red = TimeSpan.FromSeconds(30), // TODO Make configurable
-                Yellow = TimeSpan.FromMinutes(1), // TODO Make configurable
+                Red = TimeSpan.FromSeconds(80), // TODO Make configurable
+                Yellow = TimeSpan.FromSeconds(85), // TODO Make configurable
                 ServerTime = DateTime.Now
             };
 
@@ -160,7 +160,7 @@ namespace TimekeeperClient.Model
 
         public async Task StopAllClocks()
         {
-            _log.LogInformation("HIGHLIGHT---> StopAllClocks");
+            _log.LogInformation("-> StopAllClocks");
 
             StopClock(null);
 
@@ -195,7 +195,7 @@ namespace TimekeeperClient.Model
 
             IsStartDisabled = false;
             IsStopDisabled = true;
-            _log.LogInformation("HIGHLIGHT--StopAllClocks ->");
+            _log.LogInformation("StopAllClocks ->");
         }
     }
 }

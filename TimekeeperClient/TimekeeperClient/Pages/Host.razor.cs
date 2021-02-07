@@ -1,6 +1,7 @@
 ﻿using TimekeeperClient.Model;
 using System.Threading.Tasks;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace TimekeeperClient.Pages
 {
@@ -43,12 +44,14 @@ namespace TimekeeperClient.Pages
         {
             if (Handler.IsRed)
             {
+                Log.LogTrace("IsRed");
                 BackgroundClassName = Index.RedBackgroundClassName;
             }
             else
             {
                 if (Handler.IsYellow)
                 {
+                    Log.LogTrace("IsYellow");
                     BackgroundClassName = Index.YellowBackgroundClassName;
                 }
             }

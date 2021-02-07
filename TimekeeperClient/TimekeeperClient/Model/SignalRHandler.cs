@@ -87,13 +87,17 @@ namespace TimekeeperClient.Model
                         var remains = _clockSettings.CountDown - elapsed;
                         ClockDisplay = remains.ToString(@"hh\:mm\:ss");
 
-                        if (remains.TotalSeconds < _clockSettings.Red.TotalSeconds)
+                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Red.TotalSeconds + 1)
                         {
+                            _log.LogDebug($"_clockSettings.Red.TotalSeconds {_clockSettings.Red.TotalSeconds}");
+                            _log.LogDebug($"remains.TotalSeconds {remains.TotalSeconds}");
                             IsRed = true;
                         }
 
-                        if (remains.TotalSeconds < _clockSettings.Yellow.TotalSeconds)
+                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Yellow.TotalSeconds + 1)
                         {
+                            _log.LogDebug($"_clockSettings.Yellow.TotalSeconds {_clockSettings.Yellow.TotalSeconds}");
+                            _log.LogDebug($"remains.TotalSeconds {remains.TotalSeconds}");
                             IsYellow = true;
                         }
                     }
@@ -249,7 +253,7 @@ namespace TimekeeperClient.Model
 
         protected void StopClock(object _)
         {
-            _log.LogInformation("HIGHLIGHT---> StopClock");
+            _log.LogInformation("-> StopClock");
             _clockIsRunning = false;
             Status = "Clock was stopped";
         }
