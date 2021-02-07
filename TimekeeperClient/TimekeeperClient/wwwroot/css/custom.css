@@ -4,6 +4,15 @@
 
 h1, h2 {
     font-family: 'Segoe UI Light', Tahoma, Geneva, Verdana, sans-serif;
+    color: darkblue;
+}
+
+article {
+    padding: 10px 15px 10px 15px;
+}
+
+footer {
+    background-color: cornflowerblue;
 }
 
 .background-red {
@@ -24,11 +33,6 @@ h1, h2 {
 
 .message-text {
     font-size: 2em;
-}
-
-.background-area {
-    width: 100%;
-    height: 100%;
 }
 
 .status-message {
@@ -56,4 +60,17 @@ button {
 .input-text {
     margin: 5px;
     width: 192px;
+}
+
+blockquote {
+    background-color: aliceblue;
+    padding: 10px;
+}
+
+article p, blockquote {
+    max-width: 500px;
+}
+
+article p, article ul, blockquote {
+    max-width: 480px;
 }

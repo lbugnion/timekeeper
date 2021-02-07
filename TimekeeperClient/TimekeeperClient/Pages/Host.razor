@@ -3,8 +3,8 @@
 @inject ILogger<Host> Log
 @inject IConfiguration Config
 
-<div class="background-area @BackgroundClassName">
-    <main>
+<main class="@BackgroundClassName">
+    <article>
         <h1>Host</h1>
 
         <div class="clock-area">
@@ -16,20 +16,25 @@
         </div>
 
         <div class="controls-area">
-            <button disabled="@Handler.IsStartDisabled" 
-                    @onclick="@Handler.StartClock">Start the clock</button>
-            <button disabled="@Handler.IsStopDisabled" 
-                    @onclick="@Handler.StopAllClocks">Stop the clock</button>
+            <button disabled="@Handler.IsStartDisabled"
+                    @onclick="@Handler.StartClock">
+                Start the clock
+            </button>
+            <button disabled="@Handler.IsStopDisabled"
+                    @onclick="@Handler.StopAllClocks">
+                Stop the clock
+            </button>
 
             <div class="send-message-area">
                 <input @bind-value="@Handler.InputMessage" class="input-text" />
                 <button @onclick="@Handler.SendMessage">Send Message</button>
             </div>
         </div>
-    </main>
+    </article>
+</main>
 
-    <footer>
-        <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
-    </footer>
-</div>
+<footer>
+    <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+</footer>
+
 

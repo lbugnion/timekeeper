@@ -1,10 +1,12 @@
 ﻿@page "/"
 @inject ILogger<Index> Log
-@inject IConfiguration Config 
+@inject IConfiguration Config
 
 <main>
     <article>
         <h1>Timekeeper</h1>
+
+        <blockquote>Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and his guests (for example on a live stream) to keep track of time.</blockquote>
 
         <p>This is a proof of concept application.</p>
 
@@ -38,6 +40,5 @@
 </main>
 
 <footer>
-Version: @ClientVersion @Environment
+    Version: @ClientVersion @Environment
 </footer>
-

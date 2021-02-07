@@ -3,8 +3,8 @@
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
 
-<div class="background-area @BackgroundClassName">
-    <main>
+<main class="background-area @BackgroundClassName">
+    <article>
         <h1>Guest</h1>
 
         <div class="clock-area">
@@ -14,9 +14,9 @@
         <div class="message-area">
             <p><span class="message-text">@Handler.CurrentMessage</span></p>
         </div>
-    </main>
+    </article>
+</main>
 
-    <footer>
-        <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
-    </footer>
-</div>
+<footer>
+    <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+</footer>
