@@ -131,6 +131,8 @@ namespace TimekeeperClient.Model
 
             try
             {
+                CurrentMessage = InputMessage;
+
                 var content = new StringContent(InputMessage);
 
                 var functionKey = _config.GetValue<string>(SendMessageKeyKey);
