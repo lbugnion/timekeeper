@@ -24,7 +24,7 @@ namespace TimekeeperClient.Model
             Status = "Received host message";
         }
 
-        private async Task ReceiveStartClock(string message)
+        private void ReceiveStartClock(string message)
         {
             _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
@@ -38,7 +38,7 @@ namespace TimekeeperClient.Model
             _log.LogDebug($"ServerTime: {_clockSettings.ServerTime}");
             _log.LogDebug($"Yellow: {_clockSettings.Yellow}");
 
-            await RunClock();
+            RunClock();
             Status = "Clock started";
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }

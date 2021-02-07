@@ -21,7 +21,6 @@ namespace TimekeeperClient.Model
 
         public event EventHandler UpdateUi;
 
-        protected bool _clockIsRunning;
         protected IConfiguration _config;
         protected HubConnection _connection;
         protected HttpClient _http;
@@ -57,6 +56,16 @@ namespace TimekeeperClient.Model
             }
         }
 
+        public bool IsClockRunning
+        {
+            get => _isClockRunning;
+            protected set
+            {
+                _isClockRunning = value;
+                UpdateUi?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         public bool IsYellow
         {
             get;
@@ -72,16 +81,18 @@ namespace TimekeeperClient.Model
         protected StartClockMessage _clockSettings;
         private string _status;
         private string _errorStatus;
+        private bool _isClockRunning;
 
-        protected async Task RunClock()
+        protected void RunClock()
         {
-            _clockIsRunning = true;
+            IsClockRunning = true;
+            Status = "Clock is running";
 
             Task.Run(async () =>
             {
                 do
                 {
-                    if (_clockIsRunning)
+                    if (IsClockRunning)
                     {
                         var elapsed = DateTime.Now - _clockSettings.ServerTime;
                         var remains = _clockSettings.CountDown - elapsed;
@@ -89,22 +100,18 @@ namespace TimekeeperClient.Model
 
                         if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Red.TotalSeconds + 1)
                         {
-                            _log.LogDebug($"_clockSettings.Red.TotalSeconds {_clockSettings.Red.TotalSeconds}");
-                            _log.LogDebug($"remains.TotalSeconds {remains.TotalSeconds}");
                             IsRed = true;
                         }
 
                         if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Yellow.TotalSeconds + 1)
                         {
-                            _log.LogDebug($"_clockSettings.Yellow.TotalSeconds {_clockSettings.Yellow.TotalSeconds}");
-                            _log.LogDebug($"remains.TotalSeconds {remains.TotalSeconds}");
                             IsYellow = true;
                         }
                     }
 
                     await Task.Delay(1000);
                 }
-                while (_clockIsRunning);
+                while (IsClockRunning);
             });
         }
 
@@ -246,7 +253,7 @@ namespace TimekeeperClient.Model
             }
 
             Status = "Connected!";
-            
+
             _log.LogInformation("SignalRHandler.StartConnection ->");
             return true;
         }
@@ -254,7 +261,7 @@ namespace TimekeeperClient.Model
         protected void StopClock(object _)
         {
             _log.LogInformation("-> StopClock");
-            _clockIsRunning = false;
+            IsClockRunning = false;
             Status = "Clock was stopped";
         }
 

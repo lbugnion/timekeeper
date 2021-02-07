@@ -45,12 +45,17 @@ namespace TimekeeperClient.Pages
             {
                 BackgroundClassName = Index.RedBackgroundClassName;
             }
+            else if (Handler.IsYellow)
+            {
+                BackgroundClassName = Index.YellowBackgroundClassName;
+            }
+            else if (Handler.IsClockRunning)
+            {
+                BackgroundClassName = Index.RunningBackgroundClassName;
+            }
             else
             {
-                if (Handler.IsYellow)
-                {
-                    BackgroundClassName = Index.YellowBackgroundClassName;
-                }
+                BackgroundClassName = Index.NormalBackgroundClassName;
             }
 
             StateHasChanged();

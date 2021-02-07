@@ -38,7 +38,7 @@ namespace TimekeeperClient.Model
 
         public async Task StartClock()
         {
-            if (_clockIsRunning)
+            if (IsClockRunning)
             {
                 return;
             }
@@ -75,7 +75,7 @@ namespace TimekeeperClient.Model
 
                 if (response.IsSuccessStatusCode)
                 {
-                    await RunClock();
+                    RunClock();
                 }
                 else
                 {

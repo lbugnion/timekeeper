@@ -9,6 +9,7 @@ namespace TimekeeperClient.Pages
     {
         public const string RedBackgroundClassName = "background-red";
         public const string YellowBackgroundClassName = "background-yellow";
+        public const string RunningBackgroundClassName = "background-running";
         public const string NormalBackgroundClassName = "background-normal";
 
         public string ClientVersion

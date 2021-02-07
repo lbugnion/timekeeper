@@ -16,11 +16,15 @@ footer {
 }
 
 .background-red {
-    background-color: red;
+    background-color: #FF6B77;
 }
 
 .background-yellow {
-    background-color: gold;
+    background-color: #FFFB91;
+}
+
+.background-running {
+    background-color: #3AFFA9;
 }
 
 .background-normal {
