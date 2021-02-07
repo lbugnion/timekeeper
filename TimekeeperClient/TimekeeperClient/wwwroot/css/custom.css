@@ -44,8 +44,7 @@ footer {
 }
 
 .error-message {
-    color: white;
-    background: red;
+    color: red;
     font-weight: bold;
 }
 

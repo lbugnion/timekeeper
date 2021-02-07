@@ -50,10 +50,9 @@ namespace TimekeeperClient.Model
 
             _clockSettings = new StartClockMessage
             {
-                BlinkIfOver = true, // TODO Make configurable
-                CountDown = TimeSpan.FromSeconds(60), // TODO Make configurable
-                Red = TimeSpan.FromSeconds(30), // TODO Make configurable
-                Yellow = TimeSpan.FromSeconds(45), // TODO Make configurable
+                CountDown = TimeSpan.FromSeconds(30), // TODO Make configurable
+                Red = TimeSpan.FromSeconds(10), // TODO Make configurable
+                Yellow = TimeSpan.FromSeconds(20), // TODO Make configurable
                 ServerTime = DateTime.Now
             };
 
@@ -80,13 +79,11 @@ namespace TimekeeperClient.Model
                 else
                 {
                     ErrorStatus = "Unable to communicate with clients";
-                    // TODO Show a warning message
                 }
             }
             catch
             {
                 CurrentMessage = "Unable to communicate with clients";
-                // TODO Show a warning message
             }
         }
 

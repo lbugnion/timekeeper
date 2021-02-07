@@ -96,6 +96,18 @@ namespace TimekeeperClient.Model
                     {
                         var elapsed = DateTime.Now - _clockSettings.ServerTime;
                         var remains = _clockSettings.CountDown - elapsed;
+
+                        _log.LogDebug($"remains {remains.TotalSeconds}");
+
+                        if (remains.TotalSeconds < 0)
+                        {
+                            IsClockRunning = false;
+                            IsRed = false;
+                            IsYellow = false;
+                            ClockDisplay = "00:00:00";
+                            return;
+                        }
+
                         ClockDisplay = remains.ToString(@"hh\:mm\:ss");
 
                         if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Red.TotalSeconds + 1)
@@ -262,6 +274,8 @@ namespace TimekeeperClient.Model
         {
             _log.LogInformation("-> StopClock");
             IsClockRunning = false;
+            IsRed = false;
+            IsYellow = false;
             Status = "Clock was stopped";
         }
 

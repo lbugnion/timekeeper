@@ -32,7 +32,6 @@ namespace TimekeeperClient.Model
 
             _clockSettings = JsonConvert.DeserializeObject<StartClockMessage>(message);
 
-            _log.LogDebug($"BlinkIfOver: {_clockSettings.BlinkIfOver}");
             _log.LogDebug($"CountDown: {_clockSettings.CountDown}");
             _log.LogDebug($"Red: {_clockSettings.Red}");
             _log.LogDebug($"ServerTime: {_clockSettings.ServerTime}");
