@@ -20,6 +20,7 @@ namespace TimekeeperClient.Model
         protected const string FunctionCodeHeaderKey = "x-functions-key";
 
         public event EventHandler UpdateUi;
+        public event EventHandler CountdownFinished;
 
         protected IConfiguration _config;
         protected HubConnection _connection;
@@ -27,6 +28,11 @@ namespace TimekeeperClient.Model
         protected ILogger _log;
         protected string _hostName;
         private string _clockDisplay;
+
+        protected void RaiseUpdateEvent()
+        {
+            UpdateUi?.Invoke(this, EventArgs.Empty);
+        }
 
         public string Status
         {
@@ -62,7 +68,7 @@ namespace TimekeeperClient.Model
             protected set
             {
                 _isClockRunning = value;
-                UpdateUi?.Invoke(this, EventArgs.Empty);
+                RaiseUpdateEvent();
             }
         }
 
@@ -97,14 +103,14 @@ namespace TimekeeperClient.Model
                         var elapsed = DateTime.Now - _clockSettings.ServerTime;
                         var remains = _clockSettings.CountDown - elapsed;
 
-                        _log.LogDebug($"remains {remains.TotalSeconds}");
-
                         if (remains.TotalSeconds < 0)
                         {
                             IsClockRunning = false;
                             IsRed = false;
                             IsYellow = false;
+                            Status = "Countdown finished";
                             ClockDisplay = "00:00:00";
+                            CountdownFinished?.Invoke(this, EventArgs.Empty);
                             return;
                         }
 
@@ -133,7 +139,7 @@ namespace TimekeeperClient.Model
             protected set
             {
                 _clockDisplay = value;
-                UpdateUi?.Invoke(this, EventArgs.Empty);
+                RaiseUpdateEvent();
             }
         }
 
@@ -166,9 +172,9 @@ namespace TimekeeperClient.Model
             ILogger log,
             HttpClient http)
         {
-            ClockDisplay = "00:00:00";
             CurrentMessage = "Welcome!";
             Status = "Please wait...";
+            ClockDisplay = "00:00:00";
 
             _config = config;
             _log = log;
@@ -181,7 +187,7 @@ namespace TimekeeperClient.Model
             _log.LogDebug(message);
 
             CurrentMessage = message;
-            UpdateUi?.Invoke(this, EventArgs.Empty);
+            RaiseUpdateEvent();
         }
 
         protected async Task<bool> CreateConnection()
@@ -273,10 +279,10 @@ namespace TimekeeperClient.Model
         protected void StopClock(object _)
         {
             _log.LogInformation("-> StopClock");
-            IsClockRunning = false;
             IsRed = false;
             IsYellow = false;
             Status = "Clock was stopped";
+            IsClockRunning = false;
         }
 
         public abstract Task Connect();

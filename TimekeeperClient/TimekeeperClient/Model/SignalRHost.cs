@@ -28,6 +28,15 @@ namespace TimekeeperClient.Model
             HttpClient http) : base(config, log, http)
         {
             IsStopDisabled = true;
+            base.CountdownFinished += SignalRHostCountdownFinished;
+        }
+
+        private void SignalRHostCountdownFinished(object sender, EventArgs e)
+        {
+            _log.LogInformation("HIGHLIGHT--> SignalRHostCountdownFinished");
+            IsStartDisabled = false;
+            IsStopDisabled = true;
+            RaiseUpdateEvent();
         }
 
         protected override void DisplayMessage(string message)
