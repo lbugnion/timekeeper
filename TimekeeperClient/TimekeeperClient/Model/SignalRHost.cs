@@ -59,9 +59,9 @@ namespace TimekeeperClient.Model
 
             _clockSettings = new StartClockMessage
             {
-                CountDown = TimeSpan.FromSeconds(30), // TODO Make configurable
-                Red = TimeSpan.FromSeconds(10), // TODO Make configurable
-                Yellow = TimeSpan.FromSeconds(20), // TODO Make configurable
+                CountDown = TimeSpan.FromMinutes(5), // TODO Make configurable
+                Red = TimeSpan.FromSeconds(30), // TODO Make configurable
+                Yellow = TimeSpan.FromMinutes(2), // TODO Make configurable
                 ServerTime = DateTime.Now
             };
 
