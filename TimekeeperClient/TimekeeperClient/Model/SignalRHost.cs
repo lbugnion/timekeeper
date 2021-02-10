@@ -33,7 +33,7 @@ namespace TimekeeperClient.Model
 
         private void SignalRHostCountdownFinished(object sender, EventArgs e)
         {
-            _log.LogInformation("HIGHLIGHT--> SignalRHostCountdownFinished");
+            _log.LogInformation("-> SignalRHostCountdownFinished");
             IsStartDisabled = false;
             IsStopDisabled = true;
             RaiseUpdateEvent();
@@ -139,7 +139,16 @@ namespace TimekeeperClient.Model
             {
                 CurrentMessage = InputMessage;
 
-                var content = new StringContent(InputMessage);
+                _log.LogDebug($"HIGHLIGHT--GroupName: {Program.GroupInfo.GroupId}");
+
+                var messageToSend = new GroupMessage
+                {
+                    GroupName = Program.GroupInfo.GroupId,
+                    Message = InputMessage
+                };
+
+                var json = JsonConvert.SerializeObject(messageToSend);
+                var content = new StringContent(json);
 
                 var functionKey = _config.GetValue<string>(SendMessageKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");

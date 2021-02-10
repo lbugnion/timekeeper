@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Timekeeper.DataModel;
 
 // Set version number for the assembly.
 [assembly: AssemblyVersion("0.1.*")]
@@ -13,8 +14,19 @@ namespace TimekeeperClient
 {
     public class Program
     {
+        public static GroupInfo GroupInfo
+        {
+            get;
+            set;
+        }
+
         public static async Task Main(string[] args)
         {
+            GroupInfo = new GroupInfo
+            {
+                UserId = Guid.NewGuid().ToString()
+            };
+
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 

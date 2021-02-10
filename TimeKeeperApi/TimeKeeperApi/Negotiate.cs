@@ -16,7 +16,9 @@ namespace TimeKeeperApi
                 "get", 
                 Route = "negotiate")] 
             HttpRequest req,
-            [SignalRConnectionInfo(HubName = Constants.HubName)]
+            [SignalRConnectionInfo(
+                HubName = Constants.HubName, 
+                UserId = "{headers.x-timekeeper-userid}")]
             SignalRConnectionInfo connectionInfo,
             ILogger log)
         {

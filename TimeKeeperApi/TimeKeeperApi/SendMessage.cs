@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TimeKeeperApi.DataModel;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
+using Timekeeper.DataModel;
 
 namespace TimeKeeperApi
 {
@@ -28,6 +29,7 @@ namespace TimeKeeperApi
             log.LogInformation("-> SendMessage");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var messageInfo = JsonConvert.DeserializeObject<GroupMessage>(requestBody);
 
             log.LogDebug(requestBody);
 
@@ -35,7 +37,8 @@ namespace TimeKeeperApi
                 new SignalRMessage
                 {
                     Target = Constants.HostToGuestMessageName,
-                    Arguments = new [] { requestBody }
+                    Arguments = new [] { messageInfo.Message },
+                    GroupName = messageInfo.GroupName
                 });
 
             log.LogTrace("Sent");

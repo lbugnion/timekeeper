@@ -1,6 +1,7 @@
 ### Negotiate
 GET {{function-url}}/negotiate
 x-functions-key: {{NegotiateKey}}
+x-timekeeper-userid: 1234
 
 ### Start clock
 POST {{function-url}}/start
