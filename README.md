@@ -1,6 +1,6 @@
 # Timekeeper
 
-> Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and his guests (for example on a live stream) to keep track of time.
+> Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
 
 This is a proof of concept application.
 
