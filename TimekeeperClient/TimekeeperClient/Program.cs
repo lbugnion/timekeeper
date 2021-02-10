@@ -8,12 +8,25 @@ using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.1.9999.*")]
+[assembly: AssemblyVersion("0.1.8888.*")]
 
 namespace TimekeeperClient
 {
     public class Program
     {
+        public static bool IsExperimental
+        {
+            get
+            {
+                var version = Assembly
+                    .GetExecutingAssembly()
+                    .GetName()
+                    .Version;
+
+                return version.Build == 8888;
+            }
+        }
+
         public static GroupInfo GroupInfo
         {
             get;

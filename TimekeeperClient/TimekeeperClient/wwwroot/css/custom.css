@@ -70,6 +70,11 @@ blockquote {
     padding: 10px;
 }
 
+blockquote.warning {
+    background-color: bisque;
+    padding: 10px;
+}
+
 article p, blockquote {
     max-width: 500px;
 }

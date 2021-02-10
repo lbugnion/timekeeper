@@ -8,6 +8,11 @@
 
         <blockquote>Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.</blockquote>
 
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
+
         <h2>Try it by yourself</h2>
 
         <p><input @bind-value="@Program.GroupInfo.GroupId" /></p>

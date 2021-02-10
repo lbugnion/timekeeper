@@ -7,6 +7,11 @@
     <article>
         <h1>Host</h1>
 
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
+
         <div class="clock-area">
             <p><span class="clock-text">@Handler.ClockDisplay</span></p>
         </div>
