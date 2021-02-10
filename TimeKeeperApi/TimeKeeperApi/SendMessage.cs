@@ -1,15 +1,14 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TimeKeeperApi.DataModel;
-using Microsoft.Azure.WebJobs.Extensions.SignalRService;
+using System.IO;
+using System.Threading.Tasks;
 using Timekeeper.DataModel;
+using TimeKeeperApi.DataModel;
 
 namespace TimeKeeperApi
 {
@@ -18,9 +17,9 @@ namespace TimeKeeperApi
         [FunctionName(nameof(SendMessage))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "post", 
-                Route = "send")] 
+                AuthorizationLevel.Function,
+                "post",
+                Route = "send")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
@@ -37,8 +36,8 @@ namespace TimeKeeperApi
                 new SignalRMessage
                 {
                     Target = Constants.HostToGuestMessageName,
-                    Arguments = new [] { messageInfo.Message },
-                    GroupName = messageInfo.GroupName
+                    Arguments = new[] { messageInfo.Message },
+                    GroupName = messageInfo.GroupId
                 });
 
             log.LogTrace("Sent");

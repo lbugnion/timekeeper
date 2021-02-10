@@ -18,27 +18,6 @@ namespace TimekeeperClient.Pages
             private set;
         }
 
-        public void Dispose()
-        {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
-        }
-
-        protected override async Task OnInitializedAsync()
-        {
-            BackgroundClassName = Index.NormalBackgroundClassName;
-
-            Handler = new SignalRGuest(
-                Config,
-                Log,
-                Http);
-
-            Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
-        }
-
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             if (Handler.IsRed)
@@ -59,6 +38,27 @@ namespace TimekeeperClient.Pages
             }
 
             StateHasChanged();
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            BackgroundClassName = Index.NormalBackgroundClassName;
+
+            Handler = new SignalRGuest(
+                Config,
+                Log,
+                Http);
+
+            Handler.UpdateUi += HandlerUpdateUi;
+            await Handler.Connect();
+        }
+
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
         }
     }
 }

@@ -12,16 +12,10 @@ namespace TimekeeperClient.Model
     public class SignalRGuest : SignalRHandler
     {
         public SignalRGuest(
-            IConfiguration config, 
-            ILogger log, 
+            IConfiguration config,
+            ILogger log,
             HttpClient http) : base(config, log, http)
         {
-        }
-
-        protected override void DisplayMessage(string message)
-        {
-            base.DisplayMessage(message);
-            Status = "Received host message";
         }
 
         private void ReceiveStartClock(string message)
@@ -40,6 +34,12 @@ namespace TimekeeperClient.Model
             RunClock();
             Status = "Clock started";
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
+        }
+
+        protected override void DisplayMessage(string message)
+        {
+            base.DisplayMessage(message);
+            Status = "Received host message";
         }
 
         public override async Task Connect()

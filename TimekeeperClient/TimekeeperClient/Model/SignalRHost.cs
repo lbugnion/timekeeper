@@ -10,6 +10,12 @@ namespace TimekeeperClient.Model
 {
     public class SignalRHost : SignalRHandler
     {
+        public string InputMessage
+        {
+            get;
+            set;
+        }
+
         public bool IsStartDisabled
         {
             get;
@@ -23,8 +29,8 @@ namespace TimekeeperClient.Model
         }
 
         public SignalRHost(
-            IConfiguration config, 
-            ILogger log, 
+            IConfiguration config,
+            ILogger log,
             HttpClient http) : base(config, log, http)
         {
             IsStopDisabled = true;
@@ -43,6 +49,79 @@ namespace TimekeeperClient.Model
         {
             base.DisplayMessage(message);
             Status = "Message sent";
+        }
+
+        public override async Task Connect()
+        {
+            _log.LogInformation("-> SignalRHost.ConnectToServer");
+
+            IsBusy = true;
+
+            var ok = (await CreateConnection())
+                && (await StartConnection());
+
+            if (ok)
+            {
+                IsConnected = true;
+                IsInError = false;
+            }
+            else
+            {
+                IsInError = true;
+                IsConnected = false;
+            }
+
+            IsBusy = false;
+            _log.LogInformation("SignalRHost.ConnectToServer ->");
+        }
+
+        public async Task SendMessage()
+        {
+            _log.LogInformation("-> SendMessage");
+
+            if (string.IsNullOrEmpty(InputMessage))
+            {
+                return;
+            }
+
+            try
+            {
+                CurrentMessage = InputMessage;
+
+                _log.LogDebug($"HIGHLIGHT--GroupName: {Program.GroupInfo.GroupId}");
+
+                var messageToSend = new GroupMessage
+                {
+                    GroupId = Program.GroupInfo.GroupId,
+                    Message = InputMessage
+                };
+
+                var json = JsonConvert.SerializeObject(messageToSend);
+                var content = new StringContent(json);
+
+                var functionKey = _config.GetValue<string>(SendMessageKeyKey);
+                _log.LogDebug($"functionKey: {functionKey}");
+
+                var sendMessageUrl = $"{_hostName}/send";
+                _log.LogDebug($"startClockUrl: {sendMessageUrl}");
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, sendMessageUrl);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Content = content;
+
+                var response = await _http.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _log.LogError($"Cannot send message: {response.ReasonPhrase}");
+                    ErrorStatus = "Error sending message";
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Cannot send message: {ex.Message}");
+                ErrorStatus = "Error sending message";
+            }
         }
 
         public async Task StartClock()
@@ -93,85 +172,6 @@ namespace TimekeeperClient.Model
             catch
             {
                 CurrentMessage = "Unable to communicate with clients";
-            }
-        }
-
-        public override async Task Connect()
-        {
-            _log.LogInformation("-> SignalRHost.ConnectToServer");
-
-            IsBusy = true;
-
-            var ok = (await CreateConnection())
-                && (await StartConnection());
-
-            if (ok)
-            {
-                IsConnected = true;
-                IsInError = false;
-            }
-            else
-            {
-                IsInError = true;
-                IsConnected = false;
-            }
-
-            IsBusy = false;
-            _log.LogInformation("SignalRHost.ConnectToServer ->");
-        }
-
-        public string InputMessage
-        {
-            get;
-            set;
-        }
-
-        public async Task SendMessage()
-        {
-            _log.LogInformation("-> SendMessage");
-
-            if (string.IsNullOrEmpty(InputMessage))
-            {
-                return;
-            }
-
-            try
-            {
-                CurrentMessage = InputMessage;
-
-                _log.LogDebug($"HIGHLIGHT--GroupName: {Program.GroupInfo.GroupId}");
-
-                var messageToSend = new GroupMessage
-                {
-                    GroupName = Program.GroupInfo.GroupId,
-                    Message = InputMessage
-                };
-
-                var json = JsonConvert.SerializeObject(messageToSend);
-                var content = new StringContent(json);
-
-                var functionKey = _config.GetValue<string>(SendMessageKeyKey);
-                _log.LogDebug($"functionKey: {functionKey}");
-
-                var sendMessageUrl = $"{_hostName}/send";
-                _log.LogDebug($"startClockUrl: {sendMessageUrl}");
-
-                var httpRequest = new HttpRequestMessage(HttpMethod.Post, sendMessageUrl);
-                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Content = content;
-
-                var response = await _http.SendAsync(httpRequest);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _log.LogError($"Cannot send message: {response.ReasonPhrase}");
-                    ErrorStatus = "Error sending message";
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.LogError($"Cannot send message: {ex.Message}");
-                ErrorStatus = "Error sending message";
             }
         }
 

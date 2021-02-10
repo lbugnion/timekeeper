@@ -2,7 +2,7 @@
 {
     public class GroupMessage
     {
-        public string GroupName
+        public string GroupId
         {
             get;
             set;

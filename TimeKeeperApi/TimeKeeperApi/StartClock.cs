@@ -1,16 +1,12 @@
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
-using Timekeeper.DataModel;
-using System;
-using Newtonsoft.Json.Linq;
-using TimeKeeperApi.DataModel;
+using Microsoft.Extensions.Logging;
 using System.IO;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
+using TimeKeeperApi.DataModel;
 
 namespace TimeKeeperApi
 {
@@ -19,9 +15,9 @@ namespace TimeKeeperApi
         [FunctionName(nameof(StartClock))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "post", 
-                Route = "start")] 
+                AuthorizationLevel.Function,
+                "post",
+                Route = "start")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,

@@ -12,127 +12,25 @@ namespace TimekeeperClient.Model
 {
     public abstract class SignalRHandler
     {
+        public event EventHandler CountdownFinished;
+        public event EventHandler UpdateUi;
+
+        private string _clockDisplay;
+        private string _errorStatus;
+        private bool _isClockRunning;
+        private string _status;
+        protected const string FunctionCodeHeaderKey = "x-functions-key";
         protected const string HostNameKey = "HostName";
         protected const string NegotiateKeyKey = "NegotiateKey";
         protected const string SendMessageKeyKey = "SendMessageKey";
         protected const string StartClockKeyKey = "StartClockKey";
         protected const string StopClockKeyKey = "StopClockKey";
-        protected const string FunctionCodeHeaderKey = "x-functions-key";
-
-        public event EventHandler UpdateUi;
-        public event EventHandler CountdownFinished;
-
+        protected StartClockMessage _clockSettings;
         protected IConfiguration _config;
         protected HubConnection _connection;
-
+        protected string _hostName;
         protected HttpClient _http;
         protected ILogger _log;
-        protected string _hostName;
-        private string _clockDisplay;
-
-        protected void RaiseUpdateEvent()
-        {
-            UpdateUi?.Invoke(this, EventArgs.Empty);
-        }
-
-        public string Status
-        {
-            get => _status;
-            protected set
-            {
-                _status = value;
-
-                if (!string.IsNullOrEmpty(_status))
-                {
-                    ErrorStatus = string.Empty;
-                }
-            }
-        }
-
-        public string ErrorStatus
-        {
-            get => _errorStatus;
-            protected set
-            {
-                _errorStatus = value;
-
-                if (!string.IsNullOrEmpty(_errorStatus))
-                {
-                    Status = string.Empty;
-                }
-            }
-        }
-
-        public bool IsClockRunning
-        {
-            get => _isClockRunning;
-            protected set
-            {
-                _isClockRunning = value;
-                RaiseUpdateEvent();
-            }
-        }
-
-        public bool IsYellow
-        {
-            get;
-            protected set;
-        }
-
-        public bool IsRed
-        {
-            get;
-            protected set;
-        }
-
-        protected StartClockMessage _clockSettings;
-        private string _status;
-        private string _errorStatus;
-        private bool _isClockRunning;
-
-        protected void RunClock()
-        {
-            IsClockRunning = true;
-            Status = "Clock is running";
-
-            Task.Run(async () =>
-            {
-                do
-                {
-                    if (IsClockRunning)
-                    {
-                        var elapsed = DateTime.Now - _clockSettings.ServerTime;
-                        var remains = _clockSettings.CountDown - elapsed;
-
-                        if (remains.TotalSeconds < 0)
-                        {
-                            IsClockRunning = false;
-                            IsRed = false;
-                            IsYellow = false;
-                            Status = "Countdown finished";
-                            ClockDisplay = "00:00:00";
-                            CountdownFinished?.Invoke(this, EventArgs.Empty);
-                            return;
-                        }
-
-                        ClockDisplay = remains.ToString(@"hh\:mm\:ss");
-
-                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Red.TotalSeconds + 1)
-                        {
-                            IsRed = true;
-                        }
-
-                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Yellow.TotalSeconds + 1)
-                        {
-                            IsYellow = true;
-                        }
-                    }
-
-                    await Task.Delay(1000);
-                }
-                while (IsClockRunning);
-            });
-        }
 
         public string ClockDisplay
         {
@@ -150,10 +48,34 @@ namespace TimekeeperClient.Model
             protected set;
         }
 
+        public string ErrorStatus
+        {
+            get => _errorStatus;
+            protected set
+            {
+                _errorStatus = value;
+
+                if (!string.IsNullOrEmpty(_errorStatus))
+                {
+                    Status = string.Empty;
+                }
+            }
+        }
+
         public bool IsBusy
         {
             get;
             protected set;
+        }
+
+        public bool IsClockRunning
+        {
+            get => _isClockRunning;
+            protected set
+            {
+                _isClockRunning = value;
+                RaiseUpdateEvent();
+            }
         }
 
         public bool IsConnected
@@ -166,6 +88,32 @@ namespace TimekeeperClient.Model
         {
             get;
             protected set;
+        }
+
+        public bool IsRed
+        {
+            get;
+            protected set;
+        }
+
+        public bool IsYellow
+        {
+            get;
+            protected set;
+        }
+
+        public string Status
+        {
+            get => _status;
+            protected set
+            {
+                _status = value;
+
+                if (!string.IsNullOrEmpty(_status))
+                {
+                    ErrorStatus = string.Empty;
+                }
+            }
         }
 
         public SignalRHandler(
@@ -182,13 +130,49 @@ namespace TimekeeperClient.Model
             _http = http;
         }
 
-        protected virtual void DisplayMessage(string message)
+        private async Task<bool> RegisterToGroup()
         {
-            _log.LogInformation("-> DisplayMessage");
-            _log.LogDebug(message);
+            try
+            {
+                //var functionKey = _config.GetValue<string>(RegisterKeyKey);
+                //_log.LogDebug($"functionKey: {functionKey}");
 
-            CurrentMessage = message;
-            RaiseUpdateEvent();
+                var registerUrl = $"{_hostName}/register";
+                _log.LogDebug($"registerUrl: {registerUrl}");
+                _log.LogDebug($"HIGHLIGHT--GroupId: {Program.GroupInfo.GroupId}");
+                _log.LogDebug($"HIGHLIGHT--UserId: {Program.GroupInfo.UserId}");
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
+                //httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+
+                var registerInfo = new GroupInfo
+                {
+                    GroupId = Program.GroupInfo.GroupId,
+                    UserId = Program.GroupInfo.UserId
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(registerInfo));
+                httpRequest.Content = content;
+
+                var response = await _http.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _log.LogError($"Error registering for group: {response.ReasonPhrase}");
+                    ErrorStatus = "Error with the backend, please contact support";
+                    _log.LogInformation("SignalRHandler.CreateConnection ->");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Error reaching the function: {ex.Message}");
+                ErrorStatus = "Error with the backend, please contact support";
+                _log.LogInformation("SignalRHandler.CreateConnection ->");
+                return false;
+            }
+
+            return true;
         }
 
         protected async Task<bool> CreateConnection()
@@ -262,49 +246,62 @@ namespace TimekeeperClient.Model
             return true;
         }
 
-        private async Task<bool> RegisterToGroup()
+        protected virtual void DisplayMessage(string message)
         {
-            try
+            _log.LogInformation("-> DisplayMessage");
+            _log.LogDebug(message);
+
+            CurrentMessage = message;
+            RaiseUpdateEvent();
+        }
+
+        protected void RaiseUpdateEvent()
+        {
+            UpdateUi?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected void RunClock()
+        {
+            IsClockRunning = true;
+            Status = "Clock is running";
+
+            Task.Run(async () =>
             {
-                //var functionKey = _config.GetValue<string>(RegisterKeyKey);
-                //_log.LogDebug($"functionKey: {functionKey}");
-
-                var registerUrl = $"{_hostName}/register";
-                _log.LogDebug($"registerUrl: {registerUrl}");
-                _log.LogDebug($"HIGHLIGHT--GroupId: {Program.GroupInfo.GroupId}");
-                _log.LogDebug($"HIGHLIGHT--UserId: {Program.GroupInfo.UserId}");
-
-                var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
-                //httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-
-                var registerInfo = new GroupInfo
+                do
                 {
-                    GroupId = Program.GroupInfo.GroupId,
-                    UserId = Program.GroupInfo.UserId
-                };
+                    if (IsClockRunning)
+                    {
+                        var elapsed = DateTime.Now - _clockSettings.ServerTime;
+                        var remains = _clockSettings.CountDown - elapsed;
 
-                var content = new StringContent(JsonConvert.SerializeObject(registerInfo));
-                httpRequest.Content = content;
+                        if (remains.TotalSeconds < 0)
+                        {
+                            IsClockRunning = false;
+                            IsRed = false;
+                            IsYellow = false;
+                            Status = "Countdown finished";
+                            ClockDisplay = "00:00:00";
+                            CountdownFinished?.Invoke(this, EventArgs.Empty);
+                            return;
+                        }
 
-                var response = await _http.SendAsync(httpRequest);
+                        ClockDisplay = remains.ToString(@"hh\:mm\:ss");
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    _log.LogError($"Error registering for group: {response.ReasonPhrase}");
-                    ErrorStatus = "Error with the backend, please contact support";
-                    _log.LogInformation("SignalRHandler.CreateConnection ->");
-                    return false;
+                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Red.TotalSeconds + 1)
+                        {
+                            IsRed = true;
+                        }
+
+                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Yellow.TotalSeconds + 1)
+                        {
+                            IsYellow = true;
+                        }
+                    }
+
+                    await Task.Delay(1000);
                 }
-            }
-            catch (Exception ex)
-            {
-                _log.LogError($"Error reaching the function: {ex.Message}");
-                ErrorStatus = "Error with the backend, please contact support";
-                _log.LogInformation("SignalRHandler.CreateConnection ->");
-                return false;
-            }
-
-            return true;
+                while (IsClockRunning);
+            });
         }
 
         protected async Task<bool> StartConnection()

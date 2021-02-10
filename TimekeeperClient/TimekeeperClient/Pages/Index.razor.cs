@@ -1,16 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Reflection;
 
 namespace TimekeeperClient.Pages
 {
     public partial class Index
     {
-        public const string RedBackgroundClassName = "background-red";
-        public const string YellowBackgroundClassName = "background-yellow";
-        public const string RunningBackgroundClassName = "background-running";
         public const string NormalBackgroundClassName = "background-normal";
+        public const string RedBackgroundClassName = "background-red";
+        public const string RunningBackgroundClassName = "background-running";
+        public const string YellowBackgroundClassName = "background-yellow";
 
         public string ClientVersion
         {

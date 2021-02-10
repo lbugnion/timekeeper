@@ -2,13 +2,13 @@
 {
     public class GroupInfo
     {
-        public string UserId
+        public string GroupId
         {
             get;
             set;
         }
 
-        public string GroupId
+        public string UserId
         {
             get;
             set;

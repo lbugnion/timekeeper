@@ -4,7 +4,7 @@ namespace Timekeeper.DataModel
 {
     public class StartClockMessage
     {
-        public DateTime ServerTime
+        public bool BlinkIfOver
         {
             get;
             set;
@@ -16,19 +16,19 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public TimeSpan Yellow
-        {
-            get;
-            set;
-        }
-
         public TimeSpan Red
         {
             get;
             set;
         }
 
-        public bool BlinkIfOver
+        public DateTime ServerTime
+        {
+            get;
+            set;
+        }
+
+        public TimeSpan Yellow
         {
             get;
             set;
