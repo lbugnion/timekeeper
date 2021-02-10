@@ -7,6 +7,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
+using TimeKeeperApi.DataModel;
 
 namespace TimekeeperClient.Model
 {
@@ -25,6 +26,8 @@ namespace TimekeeperClient.Model
         protected const string SendMessageKeyKey = "SendMessageKey";
         protected const string StartClockKeyKey = "StartClockKey";
         protected const string StopClockKeyKey = "StopClockKey";
+        protected const string RegisterKeyKey = "RegisterKey";
+        protected const string UnregisterKeyKey = "UnregisterKey";
         protected StartClockMessage _clockSettings;
         protected IConfiguration _config;
         protected HubConnection _connection;
@@ -134,20 +137,21 @@ namespace TimekeeperClient.Model
         {
             try
             {
-                //var functionKey = _config.GetValue<string>(RegisterKeyKey);
-                //_log.LogDebug($"functionKey: {functionKey}");
-
                 var registerUrl = $"{_hostName}/register";
                 _log.LogDebug($"registerUrl: {registerUrl}");
+
+                var functionKey = _config.GetValue<string>(RegisterKeyKey);
+                _log.LogDebug($"functionKey: {functionKey}");
+
                 _log.LogDebug($"HIGHLIGHT--GroupId: {Program.GroupInfo.GroupId}");
                 _log.LogDebug($"HIGHLIGHT--UserId: {Program.GroupInfo.UserId}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
-                //httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
 
-                var registerInfo = new GroupInfo
+                var registerInfo = new UserInfo
                 {
-                    GroupId = Program.GroupInfo.GroupId,
                     UserId = Program.GroupInfo.UserId
                 };
 
@@ -194,7 +198,7 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add("x-timekeeper-userid", Program.GroupInfo.UserId);
+                httpRequest.Headers.Add(Constants.UserIdHeaderKey, Program.GroupInfo.UserId);
 
                 _log.LogDebug($"HIGHLIGHT--UserId: {Program.GroupInfo.UserId}");
 
@@ -240,6 +244,11 @@ namespace TimekeeperClient.Model
             }
 
             var ok = await RegisterToGroup(); // TODO handle failure
+
+            if (!ok)
+            {
+                return false;
+            }
 
             Status = "Ready...";
             _log.LogInformation("SignalRHandler.CreateConnection ->");

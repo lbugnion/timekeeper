@@ -62,17 +62,20 @@ namespace TimekeeperClient.Model
                 {
                     IsConnected = true;
                     IsInError = false;
+                    CurrentMessage = "Ready";
                 }
                 else
                 {
                     IsConnected = false;
                     IsInError = true;
+                    CurrentMessage = "Error";
                 }
             }
             else
             {
                 IsConnected = false;
                 IsInError = true;
+                CurrentMessage = "Error";
             }
 
             IsBusy = false;

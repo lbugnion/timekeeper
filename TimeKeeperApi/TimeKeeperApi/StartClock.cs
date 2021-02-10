@@ -4,6 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using TimeKeeperApi.DataModel;
@@ -25,6 +26,15 @@ namespace TimeKeeperApi
         {
             log.LogInformation("-> StartClock");
 
+            var groupId = req.GetGroupId();
+            log.LogDebug($"groupId: {groupId}");
+
+            if (groupId == Guid.Empty)
+            {
+                log.LogError("No groupId found in headers");
+                return new BadRequestObjectResult("Invalid request");
+            }
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
             log.LogDebug(requestBody);
@@ -33,7 +43,8 @@ namespace TimeKeeperApi
                 new SignalRMessage
                 {
                     Target = Constants.StartClockMessageName,
-                    Arguments = new[] { requestBody }
+                    Arguments = new[] { requestBody },
+                    GroupName = groupId.ToString()
                 });
 
             log.LogTrace("Sent");

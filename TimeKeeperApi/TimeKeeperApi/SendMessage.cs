@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -27,8 +28,16 @@ namespace TimeKeeperApi
         {
             log.LogInformation("-> SendMessage");
 
+            var groupId = req.GetGroupId();
+            log.LogDebug($"groupId: {groupId}");
+
+            if (groupId == Guid.Empty)
+            {
+                log.LogError("No groupId found in headers");
+                return new BadRequestObjectResult("Invalid request");
+            }
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var messageInfo = JsonConvert.DeserializeObject<GroupMessage>(requestBody);
 
             log.LogDebug(requestBody);
 
@@ -36,8 +45,8 @@ namespace TimeKeeperApi
                 new SignalRMessage
                 {
                     Target = Constants.HostToGuestMessageName,
-                    Arguments = new[] { messageInfo.Message },
-                    GroupName = messageInfo.GroupId
+                    Arguments = new[] { requestBody },
+                    GroupName = groupId.ToString()
                 });
 
             log.LogTrace("Sent");

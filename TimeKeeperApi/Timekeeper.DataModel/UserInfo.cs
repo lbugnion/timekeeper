@@ -1,6 +1,6 @@
 ﻿namespace Timekeeper.DataModel
 {
-    public class GroupMessage
+    public class UserInfo
     {
         public string GroupId
         {
@@ -8,7 +8,7 @@
             set;
         }
 
-        public string Message
+        public string UserId
         {
             get;
             set;

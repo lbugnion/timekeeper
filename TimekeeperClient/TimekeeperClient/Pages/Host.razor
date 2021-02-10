@@ -31,8 +31,10 @@
             </button>
 
             <div class="send-message-area">
-                <input @bind-value="@Handler.InputMessage" class="input-text" />
-                <button @onclick="@Handler.SendMessage">Send Message</button>
+                <input @bind-value="@Handler.InputMessage" 
+                       class="input-text" />
+                <button disabled="@Handler.IsSendMessageDisabled" 
+                        @onclick="@Handler.SendMessage">Send Message</button>
             </div>
         </div>
     </article>

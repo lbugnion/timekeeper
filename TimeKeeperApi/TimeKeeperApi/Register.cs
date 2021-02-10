@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -12,10 +13,10 @@ using TimeKeeperApi.DataModel;
 
 namespace TimeKeeperApi
 {
-    public static class Register
+    public static class RegisterUsers
     {
-        [FunctionName("Register")]
-        public static async Task<IActionResult> RunRegister(
+        [FunctionName(nameof(Register))]
+        public static async Task<IActionResult> Register(
             [HttpTrigger(
                 AuthorizationLevel.Function,
                 "post",
@@ -25,22 +26,33 @@ namespace TimeKeeperApi
             IAsyncCollector<SignalRGroupAction> signalRGroupActions,
             ILogger log)
         {
+            log.LogInformation("-> Register");
+
+            var groupId = req.GetGroupId();
+            log.LogDebug($"groupId: {groupId}");
+
+            if (groupId == Guid.Empty)
+            {
+                log.LogError("No groupId found in headers");
+                return new BadRequestObjectResult("Invalid request");
+            }
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var userInfo = JsonConvert.DeserializeObject<GroupInfo>(requestBody);
+            var userInfo = JsonConvert.DeserializeObject<UserInfo>(requestBody);
 
             await signalRGroupActions.AddAsync(
                 new SignalRGroupAction
                 {
                     UserId = userInfo.UserId,
-                    GroupName = userInfo.GroupId,
+                    GroupName = groupId.ToString(),
                     Action = GroupAction.Add
                 });
 
             return new OkObjectResult("OK");
         }
 
-        [FunctionName("Unregister")]
-        public static async Task<IActionResult> RunUnregister(
+        [FunctionName(nameof(Unregister))]
+        public static async Task<IActionResult> Unregister(
             [HttpTrigger(
                 AuthorizationLevel.Function,
                 "post",
@@ -50,14 +62,25 @@ namespace TimeKeeperApi
             IAsyncCollector<SignalRGroupAction> signalRGroupActions,
             ILogger log)
         {
+            log.LogInformation("-> Unregister");
+
+            var groupId = req.GetGroupId();
+            log.LogDebug($"groupId: {groupId}");
+
+            if (groupId == Guid.Empty)
+            {
+                log.LogError("No groupId found in headers");
+                return new BadRequestObjectResult("Invalid request");
+            }
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var userInfo = JsonConvert.DeserializeObject<GroupInfo>(requestBody);
+            var userInfo = JsonConvert.DeserializeObject<UserInfo>(requestBody);
 
             await signalRGroupActions.AddAsync(
                 new SignalRGroupAction
                 {
                     UserId = userInfo.UserId,
-                    GroupName = userInfo.GroupId,
+                    GroupName = groupId.ToString(),
                     Action = GroupAction.Remove
                 });
 

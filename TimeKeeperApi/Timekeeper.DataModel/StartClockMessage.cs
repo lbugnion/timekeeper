@@ -4,12 +4,6 @@ namespace Timekeeper.DataModel
 {
     public class StartClockMessage
     {
-        public bool BlinkIfOver
-        {
-            get;
-            set;
-        }
-
         public TimeSpan CountDown
         {
             get;

@@ -27,7 +27,7 @@ namespace TimekeeperClient
             }
         }
 
-        public static GroupInfo GroupInfo
+        public static UserInfo GroupInfo
         {
             get;
             set;
@@ -35,7 +35,7 @@ namespace TimekeeperClient
 
         public static async Task Main(string[] args)
         {
-            GroupInfo = new GroupInfo
+            GroupInfo = new UserInfo
             {
                 UserId = Guid.NewGuid().ToString()
             };

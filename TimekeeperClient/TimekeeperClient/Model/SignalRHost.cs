@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
+using TimeKeeperApi.DataModel;
 
 namespace TimekeeperClient.Model
 {
@@ -14,6 +15,12 @@ namespace TimekeeperClient.Model
         {
             get;
             set;
+        }
+
+        public bool IsSendMessageDisabled
+        {
+            get;
+            private set;
         }
 
         public bool IsStartDisabled
@@ -56,6 +63,9 @@ namespace TimekeeperClient.Model
             _log.LogInformation("-> SignalRHost.ConnectToServer");
 
             IsBusy = true;
+            IsStartDisabled = true;
+            IsStopDisabled = true;
+            IsSendMessageDisabled = true;
 
             var ok = (await CreateConnection())
                 && (await StartConnection());
@@ -64,11 +74,19 @@ namespace TimekeeperClient.Model
             {
                 IsConnected = true;
                 IsInError = false;
+                IsStartDisabled = false;
+                IsStopDisabled = true;
+                IsSendMessageDisabled = false;
+                CurrentMessage = "Ready";
             }
             else
             {
                 IsInError = true;
                 IsConnected = false;
+                IsStartDisabled = true;
+                IsStopDisabled = true;
+                IsSendMessageDisabled = true;
+                CurrentMessage = "Error";
             }
 
             IsBusy = false;
@@ -90,14 +108,7 @@ namespace TimekeeperClient.Model
 
                 _log.LogDebug($"HIGHLIGHT--GroupName: {Program.GroupInfo.GroupId}");
 
-                var messageToSend = new GroupMessage
-                {
-                    GroupId = Program.GroupInfo.GroupId,
-                    Message = InputMessage
-                };
-
-                var json = JsonConvert.SerializeObject(messageToSend);
-                var content = new StringContent(json);
+                var content = new StringContent(InputMessage);
 
                 var functionKey = _config.GetValue<string>(SendMessageKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
@@ -107,6 +118,7 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, sendMessageUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
                 httpRequest.Content = content;
 
                 var response = await _http.SendAsync(httpRequest);
@@ -156,6 +168,7 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, startClockUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
                 httpRequest.Content = content;
 
                 var response = await _http.SendAsync(httpRequest);
@@ -193,6 +206,7 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, stopClockUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
                 var response = await _http.SendAsync(httpRequest);
 
                 _log.LogDebug($"Response code: {response.StatusCode}");
