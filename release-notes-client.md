@@ -1,4 +1,4 @@
-# Release notes for [Client](https://github.com/lbugnion/timekeeper/projects/2)
+# Release notes for [Client](https://github.com/lbugnion/timekeeper/projects/1)
 
 ## Known issues (still open)
 
