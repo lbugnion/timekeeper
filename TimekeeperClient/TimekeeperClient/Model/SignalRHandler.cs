@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -31,6 +32,19 @@ namespace TimekeeperClient.Model
         protected StartClockMessage _clockSettings;
         protected IConfiguration _config;
         protected HubConnection _connection;
+
+        public bool IsStopSessionDisabled 
+        { 
+            get; 
+            protected set; 
+        }
+
+        public bool IsStartSessionDisabled 
+        { 
+            get; 
+            protected set; 
+        }
+
         protected string _hostName;
         protected HttpClient _http;
         protected ILogger _log;
@@ -121,6 +135,7 @@ namespace TimekeeperClient.Model
 
         public SignalRHandler(
             IConfiguration config,
+            ILocalStorageService localStorage,
             ILogger log,
             HttpClient http)
         {
@@ -129,8 +144,76 @@ namespace TimekeeperClient.Model
             ClockDisplay = "00:00:00";
 
             _config = config;
+            _localStorage = localStorage;
             _log = log;
             _http = http;
+        }
+
+        public Session CurrentSession
+        {
+            get;
+            private set;
+        }
+
+        private readonly ILocalStorageService _localStorage;
+
+        public async Task<bool> InitializeSession()
+        {
+            _log.LogInformation("HIGHLIGHT---> InitializeSession");
+
+            var json = await _localStorage.GetItemAsStringAsync(
+                Constants.SessionStorageKey);
+
+            _log.LogDebug($"HIGHLIGHT--json: {json}");
+
+            if (!string.IsNullOrEmpty(json))
+            {
+                CurrentSession = JsonConvert.DeserializeObject<Session>(json);
+                _log.LogDebug($"HIGHLIGHT--CurrentSession.SessionId: {CurrentSession.SessionId}");
+            }
+            else
+            {
+                CurrentSession = new Session
+                {
+                    SessionId = Guid.NewGuid().ToString()
+                };
+
+                _log.LogDebug($"HIGHLIGHT--CurrentSession.SessionId: {CurrentSession.SessionId}");
+
+                json = JsonConvert.SerializeObject(CurrentSession);
+
+                await _localStorage.SetItemAsync(
+                    Constants.SessionStorageKey,
+                    json);
+
+                _log.LogTrace("HIGHLIGHT--Session saved to storage");
+            }
+
+            _log.LogInformation("HIGHLIGHT--InitializeSession ->");
+            return true;
+        }
+
+        public async Task StopSession()
+        {
+            _log.LogInformation("HIGHLIGHT---> StopSession");
+
+            if (_connection != null)
+            {
+                await _connection.StopAsync();
+                await _connection.DisposeAsync();
+                _connection = null;
+                _log.LogTrace("Connection is stopped and disposed");
+            }
+
+            CurrentSession = null;
+            await _localStorage.RemoveItemAsync(Constants.SessionStorageKey);
+            _log.LogTrace("CurrentSession is deleted");
+
+            IsStartSessionDisabled = false;
+            IsStopSessionDisabled = true;
+            Status = "Disconnected";
+
+            _log.LogInformation("HIGHLIGHT--StopSession ->");
         }
 
         private async Task<bool> RegisterToGroup()
@@ -143,12 +226,12 @@ namespace TimekeeperClient.Model
                 var functionKey = _config.GetValue<string>(RegisterKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
 
-                _log.LogDebug($"HIGHLIGHT--GroupId: {Program.GroupInfo.GroupId}");
-                _log.LogDebug($"HIGHLIGHT--UserId: {Program.GroupInfo.UserId}");
+                _log.LogDebug($"HIGHLIGHT--SessionId: {CurrentSession.SessionId}");
+                _log.LogDebug($"UserId: {Program.GroupInfo.UserId}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
 
                 var registerInfo = new UserInfo
                 {
@@ -200,7 +283,7 @@ namespace TimekeeperClient.Model
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.UserIdHeaderKey, Program.GroupInfo.UserId);
 
-                _log.LogDebug($"HIGHLIGHT--UserId: {Program.GroupInfo.UserId}");
+                _log.LogDebug($"UserId: {Program.GroupInfo.UserId}");
 
                 var response = await _http.SendAsync(httpRequest);
 
@@ -234,7 +317,11 @@ namespace TimekeeperClient.Model
                     {
                         options.AccessTokenProvider = async () => negotiateInfo.AccessToken;
                     })
+                    .WithAutomaticReconnect()
                     .Build();
+
+                _connection.Reconnecting += ConnectionReconnecting;
+                _connection.Reconnected += ConnectionReconnected;
             }
             catch (Exception ex)
             {
@@ -253,6 +340,28 @@ namespace TimekeeperClient.Model
             Status = "Ready...";
             _log.LogInformation("SignalRHandler.CreateConnection ->");
             return true;
+        }
+
+        private Task ConnectionReconnected(string arg)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            Status = "Reconnected!";
+            tcs.SetResult(true);
+            return tcs.Task;
+        }
+
+        private Task ConnectionReconnecting(Exception arg)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            
+            ErrorStatus = "Lost connection, trying to reconnect...";
+            IsBusy = true;
+            IsConnected = false;
+            IsInError = true;
+
+
+            tcs.SetResult(true);
+            return tcs.Task;
         }
 
         protected virtual void DisplayMessage(string message)

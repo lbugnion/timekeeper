@@ -2,6 +2,7 @@
 @inject HttpClient Http
 @inject ILogger<Host> Log
 @inject IConfiguration Config
+@inject ILocalStorageService LocalStorage
 
 <main class="@BackgroundClassName">
     <article>
@@ -31,11 +32,38 @@
             </button>
 
             <div class="send-message-area">
-                <input @bind-value="@Handler.InputMessage" 
+                <input @bind-value="@Handler.InputMessage"
                        class="input-text" />
-                <button disabled="@Handler.IsSendMessageDisabled" 
-                        @onclick="@Handler.SendMessage">Send Message</button>
+                <button disabled="@Handler.IsSendMessageDisabled"
+                        @onclick="@Handler.SendMessage">
+                    Send Message
+                </button>
             </div>
+
+            <h2>Connection</h2>
+
+            <button disabled="@Handler.IsStopSessionDisabled"
+                    @onclick="@Handler.StopSession">
+                Stop session
+            </button>
+
+            @if (Handler.CurrentSession != null)
+            {
+                <div class="session-information-area">
+                    <p>
+                        Send this link to your guests so they can connect to the session:
+                        <br />
+                        <span class="session-id"><a href="https://www.timekeeper.cloud/@Handler.CurrentSession.SessionId">https://www.timekeeper.cloud/@Handler.CurrentSession.SessionId</a></span>
+                    </p>
+
+                    <p>
+                        Session ID:
+                        <br />
+                        <span class="session-id">@Handler.CurrentSession.SessionId</span>
+                    </p>
+                </div>
+            }
+
         </div>
     </article>
 </main>

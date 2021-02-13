@@ -46,6 +46,7 @@ namespace TimekeeperClient.Pages
 
             Handler = new SignalRGuest(
                 Config,
+                LocalStorage,
                 Log,
                 Http);
 

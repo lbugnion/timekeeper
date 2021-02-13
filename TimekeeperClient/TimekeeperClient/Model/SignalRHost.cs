@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Blazored.LocalStorage;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -35,10 +36,17 @@ namespace TimekeeperClient.Model
             private set;
         }
 
+        public bool IsSessionActive
+        {
+            get;
+            private set;
+        }
+
         public SignalRHost(
             IConfiguration config,
+            ILocalStorageService localStorage,
             ILogger log,
-            HttpClient http) : base(config, log, http)
+            HttpClient http) : base(config, localStorage, log, http)
         {
             IsStopDisabled = true;
             base.CountdownFinished += SignalRHostCountdownFinished;
@@ -66,26 +74,30 @@ namespace TimekeeperClient.Model
             IsStartDisabled = true;
             IsStopDisabled = true;
             IsSendMessageDisabled = true;
+            IsStartSessionDisabled = true;
+            IsStopSessionDisabled = true;
 
-            var ok = (await CreateConnection())
+            var ok = (await InitializeSession()) 
+                && (await CreateConnection())
                 && (await StartConnection());
 
             if (ok)
             {
                 IsConnected = true;
-                IsInError = false;
-                IsStartDisabled = false;
-                IsStopDisabled = true;
+                IsStopDisabled = false;
                 IsSendMessageDisabled = false;
+                IsStopSessionDisabled = false;
                 CurrentMessage = "Ready";
             }
             else
             {
-                IsInError = true;
                 IsConnected = false;
                 IsStartDisabled = true;
                 IsStopDisabled = true;
                 IsSendMessageDisabled = true;
+                IsStartSessionDisabled = false;
+                IsStopSessionDisabled = true;
+                IsStopSessionDisabled = true;
                 CurrentMessage = "Error";
             }
 
@@ -106,7 +118,7 @@ namespace TimekeeperClient.Model
             {
                 CurrentMessage = InputMessage;
 
-                _log.LogDebug($"HIGHLIGHT--GroupName: {Program.GroupInfo.GroupId}");
+                _log.LogDebug($"HIGHLIGHT--SessionID: {CurrentSession.SessionId}");
 
                 var content = new StringContent(InputMessage);
 
@@ -118,7 +130,7 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, sendMessageUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
                 httpRequest.Content = content;
 
                 var response = await _http.SendAsync(httpRequest);
@@ -168,7 +180,7 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, startClockUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
                 httpRequest.Content = content;
 
                 var response = await _http.SendAsync(httpRequest);
@@ -206,7 +218,7 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, stopClockUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, Program.GroupInfo.GroupId);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
                 var response = await _http.SendAsync(httpRequest);
 
                 _log.LogDebug($"Response code: {response.StatusCode}");

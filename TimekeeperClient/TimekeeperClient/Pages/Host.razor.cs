@@ -46,6 +46,7 @@ namespace TimekeeperClient.Pages
 
             Handler = new SignalRHost(
                 Config,
+                LocalStorage,
                 Log,
                 Http);
 

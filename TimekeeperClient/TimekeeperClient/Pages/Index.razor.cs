@@ -50,5 +50,10 @@ namespace TimekeeperClient.Pages
                 ClientVersion = "N/A";
             }
         }
+
+        public void LogInHost()
+        {
+            Nav.NavigateTo("/host");
+        }
     }
 }

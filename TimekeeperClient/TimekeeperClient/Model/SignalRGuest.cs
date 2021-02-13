@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -13,8 +14,9 @@ namespace TimekeeperClient.Model
     {
         public SignalRGuest(
             IConfiguration config,
+            ILocalStorageService localStorage,
             ILogger log,
-            HttpClient http) : base(config, log, http)
+            HttpClient http) : base(config, localStorage, log, http)
         {
         }
 
@@ -61,20 +63,17 @@ namespace TimekeeperClient.Model
                 if (ok)
                 {
                     IsConnected = true;
-                    IsInError = false;
                     CurrentMessage = "Ready";
                 }
                 else
                 {
                     IsConnected = false;
-                    IsInError = true;
                     CurrentMessage = "Error";
                 }
             }
             else
             {
                 IsConnected = false;
-                IsInError = true;
                 CurrentMessage = "Error";
             }
 

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject ILogger<Index> Log
 @inject IConfiguration Config
+@inject NavigationManager Nav
 
 <main>
     <article>
@@ -15,11 +16,9 @@
 
         <h2>Try it by yourself</h2>
 
-        <p><input @bind-value="@Program.GroupInfo.GroupId" /></p>
+        <button @onclick="LogInHost">Log in as the host</button>
 
-        <p><a href="/host">Log in as the host</a></p>
-
-        <p><a href="/guest">Log in as a guest</a></p>
+        <button>Log in as a guest</button>
 
         <h2>This is a proof of concept application.</h2>
 

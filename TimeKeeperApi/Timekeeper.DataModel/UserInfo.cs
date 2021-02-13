@@ -2,12 +2,6 @@
 {
     public class UserInfo
     {
-        public string GroupId
-        {
-            get;
-            set;
-        }
-
         public string UserId
         {
             get;
