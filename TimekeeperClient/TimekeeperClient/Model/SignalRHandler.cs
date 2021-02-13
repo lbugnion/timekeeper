@@ -157,7 +157,11 @@ namespace TimekeeperClient.Model
 
         private readonly ILocalStorageService _localStorage;
 
-        public async Task<bool> InitializeSession()
+        public async Task<bool> InitializeSession(
+#if DEBUG
+            string debugSessionId = null
+#endif
+            )
         {
             _log.LogInformation("HIGHLIGHT---> InitializeSession");
 
@@ -175,7 +179,11 @@ namespace TimekeeperClient.Model
             {
                 CurrentSession = new Session
                 {
+#if DEBUG
+                    SessionId = string.IsNullOrEmpty(debugSessionId) ? Guid.NewGuid().ToString() : debugSessionId
+#else
                     SessionId = Guid.NewGuid().ToString()
+#endif
                 };
 
                 _log.LogDebug($"HIGHLIGHT--CurrentSession.SessionId: {CurrentSession.SessionId}");

@@ -83,14 +83,19 @@ namespace TimekeeperClient.Model
 
             if (ok)
             {
+                _log.LogTrace("HIGHLIGHT--OK");
+
                 IsConnected = true;
-                IsStopDisabled = false;
+                IsStartDisabled = false;
+                IsStopDisabled = true;
                 IsSendMessageDisabled = false;
                 IsStopSessionDisabled = false;
                 CurrentMessage = "Ready";
             }
             else
             {
+                _log.LogTrace("HIGHLIGHT--NOT OK");
+
                 IsConnected = false;
                 IsStartDisabled = true;
                 IsStopDisabled = true;

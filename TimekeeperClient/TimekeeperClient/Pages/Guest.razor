@@ -20,6 +20,13 @@
         <div class="message-area">
             <p><span class="message-text">@Handler.CurrentMessage</span></p>
         </div>
+
+        <div>
+            @if (Handler.CurrentSession != null)
+            {
+                @Handler.CurrentSession.SessionId
+            }
+        </div>
     </article>
 </main>
 

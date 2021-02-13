@@ -50,7 +50,14 @@ namespace TimekeeperClient.Model
 
             IsBusy = true;
 
-            var ok = await CreateConnection();
+            // TODO REMOVE DEBUG CODE
+#if DEBUG
+            var ok = await InitializeSession("d857f80b-aa3a-4abe-b76b-fbdb2fec47e8")
+                && await CreateConnection();
+#else
+            var ok = await InitializeSession()
+                && await CreateConnection();
+#endif
 
             if (ok)
             {
