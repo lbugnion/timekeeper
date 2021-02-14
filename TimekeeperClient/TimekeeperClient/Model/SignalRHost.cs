@@ -83,7 +83,7 @@ namespace TimekeeperClient.Model
 
             if (ok)
             {
-                _log.LogTrace("HIGHLIGHT--OK");
+                _log.LogTrace("OK");
 
                 IsConnected = true;
                 IsStartDisabled = false;
@@ -94,15 +94,14 @@ namespace TimekeeperClient.Model
             }
             else
             {
-                _log.LogTrace("HIGHLIGHT--NOT OK");
+                _log.LogTrace("NOT OK");
 
                 IsConnected = false;
                 IsStartDisabled = true;
                 IsStopDisabled = true;
                 IsSendMessageDisabled = true;
                 IsStartSessionDisabled = false;
-                IsStopSessionDisabled = true;
-                IsStopSessionDisabled = true;
+                IsStopSessionDisabled = false;
                 CurrentMessage = "Error";
             }
 
@@ -122,8 +121,6 @@ namespace TimekeeperClient.Model
             try
             {
                 CurrentMessage = InputMessage;
-
-                _log.LogDebug($"HIGHLIGHT--SessionID: {CurrentSession.SessionId}");
 
                 var content = new StringContent(InputMessage);
 

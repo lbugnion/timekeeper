@@ -1,12 +1,15 @@
 ﻿@page "/guest"
+@page "/guest/{Session}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
-@inject ILocalStorageService LocalStorage 
+@inject ILocalStorageService LocalStorage
 
 <main class="background-area @BackgroundClassName">
     <article>
         <h1>Guest</h1>
+
+        <h2>@Session</h2>
 
         @if (Program.IsExperimental)
         {

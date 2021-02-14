@@ -13,7 +13,7 @@ namespace TimekeeperClient.Pages
         public const string YellowBackgroundClassName = "background-yellow";
 
         [Parameter]
-        public string SessionId
+        public string Session
         {
             get;
             set;
@@ -34,6 +34,13 @@ namespace TimekeeperClient.Pages
         protected override void OnInitialized()
         {
             Log.LogInformation("-> Index.OnInitialized");
+            Log.LogDebug($"HIGHLIGHT--Session: {Session}");
+
+            if (!string.IsNullOrEmpty(Session))
+            {
+                Nav.NavigateTo($"/guest/{Session}");
+                return;
+            }
 
             try
             {

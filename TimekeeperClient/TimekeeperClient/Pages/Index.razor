@@ -1,5 +1,5 @@
 ﻿@page "/"
-@page "/session/{sessionId}"
+@page "/{Session}"
 @inject ILogger<Index> Log
 @inject IConfiguration Config
 @inject NavigationManager Nav
@@ -8,7 +8,7 @@
     <article>
         <h1>Timekeeper</h1>
 
-        <h2>@SessionId</h2>
+        <h2>@Session</h2>
 
         <blockquote>Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.</blockquote>
 
