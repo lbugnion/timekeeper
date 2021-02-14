@@ -33,7 +33,7 @@ namespace TimeKeeperApi
 
             if (groupId == Guid.Empty)
             {
-                log.LogError("No groupId found in headers");
+                log.LogError("No groupId (GUID) found in headers");
                 return new BadRequestObjectResult("Invalid request");
             }
 
