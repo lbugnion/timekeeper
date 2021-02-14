@@ -158,37 +158,37 @@ namespace TimekeeperClient.Model
         private readonly ILocalStorageService _localStorage;
 
         public async Task<bool> InitializeSession(
-#if DEBUG
-            string debugSessionId = null
-#endif
-            )
+            string sessionId = null)
         {
             _log.LogInformation("HIGHLIGHT---> InitializeSession");
+            _log.LogDebug($"HIGHLIGHT--sessionId: {sessionId}");
 
-            var json = await _localStorage.GetItemAsStringAsync(
-                Constants.SessionStorageKey);
-
-            _log.LogDebug($"HIGHLIGHT--json: {json}");
-
-            if (!string.IsNullOrEmpty(json))
+            if (string.IsNullOrEmpty(sessionId))
             {
-                CurrentSession = JsonConvert.DeserializeObject<Session>(json);
-                _log.LogDebug($"HIGHLIGHT--CurrentSession.SessionId: {CurrentSession.SessionId}");
+                var json = await _localStorage.GetItemAsStringAsync(
+                    Constants.SessionStorageKey);
+
+                _log.LogDebug($"json: {json}");
+
+                if (!string.IsNullOrEmpty(json))
+                {
+                    CurrentSession = JsonConvert.DeserializeObject<Session>(json);
+                    _log.LogDebug($"HIGHLIGHT--Found CurrentSession.SessionId: {CurrentSession.SessionId}");
+                }
             }
-            else
+
+            if (CurrentSession == null)
             {
+                _log.LogTrace("HIGHLIGHT--CurrentSession is null");
+
                 CurrentSession = new Session
                 {
-#if DEBUG
-                    SessionId = string.IsNullOrEmpty(debugSessionId) ? Guid.NewGuid().ToString() : debugSessionId
-#else
-                    SessionId = Guid.NewGuid().ToString()
-#endif
+                    SessionId = string.IsNullOrEmpty(sessionId) ? Guid.NewGuid().ToString() : sessionId
                 };
 
-                _log.LogDebug($"HIGHLIGHT--CurrentSession.SessionId: {CurrentSession.SessionId}");
+                _log.LogDebug($"HIGHLIGHT--New CurrentSession.SessionId: {CurrentSession.SessionId}");
 
-                json = JsonConvert.SerializeObject(CurrentSession);
+                var json = JsonConvert.SerializeObject(CurrentSession);
 
                 await _localStorage.SetItemAsync(
                     Constants.SessionStorageKey,
@@ -203,7 +203,7 @@ namespace TimekeeperClient.Model
 
         public async Task StopSession()
         {
-            _log.LogInformation("HIGHLIGHT---> StopSession");
+            _log.LogInformation("-> StopSession");
 
             if (_connection != null)
             {
@@ -221,7 +221,7 @@ namespace TimekeeperClient.Model
             IsStopSessionDisabled = true;
             Status = "Disconnected";
 
-            _log.LogInformation("HIGHLIGHT--StopSession ->");
+            _log.LogInformation("StopSession ->");
         }
 
         private async Task<bool> RegisterToGroup()
@@ -234,7 +234,7 @@ namespace TimekeeperClient.Model
                 var functionKey = _config.GetValue<string>(RegisterKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
 
-                _log.LogDebug($"HIGHLIGHT--SessionId: {CurrentSession.SessionId}");
+                _log.LogDebug($"SessionId: {CurrentSession.SessionId}");
                 _log.LogDebug($"UserId: {Program.GroupInfo.UserId}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);

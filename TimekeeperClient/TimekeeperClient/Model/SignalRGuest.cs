@@ -12,12 +12,16 @@ namespace TimekeeperClient.Model
 {
     public class SignalRGuest : SignalRHandler
     {
+        private string _session;
+
         public SignalRGuest(
             IConfiguration config,
             ILocalStorageService localStorage,
             ILogger log,
-            HttpClient http) : base(config, localStorage, log, http)
+            HttpClient http,
+            string session) : base(config, localStorage, log, http)
         {
+            _session = session;
         }
 
         private void ReceiveStartClock(string message)
@@ -50,14 +54,8 @@ namespace TimekeeperClient.Model
 
             IsBusy = true;
 
-            // TODO REMOVE DEBUG CODE
-#if DEBUG
-            var ok = await InitializeSession("d857f80b-aa3a-4abe-b76b-fbdb2fec47e8")
+            var ok = await InitializeSession(_session)
                 && await CreateConnection();
-#else
-            var ok = await InitializeSession()
-                && await CreateConnection();
-#endif
 
             if (ok)
             {

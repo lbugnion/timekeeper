@@ -18,6 +18,14 @@ namespace TimekeeperClient.Pages
             private set;
         }
 
+        public string GuestUrl
+        {
+            get
+            {
+                return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
+            }
+        }
+
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             if (Handler.IsRed)

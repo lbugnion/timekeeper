@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
 using TimekeeperClient.Model;
 
@@ -6,6 +7,13 @@ namespace TimekeeperClient.Pages
 {
     public partial class Guest : IDisposable
     {
+        [Parameter]
+        public string Session
+        {
+            get;
+            set;
+        }
+
         public string BackgroundClassName
         {
             get;
@@ -48,7 +56,8 @@ namespace TimekeeperClient.Pages
                 Config,
                 LocalStorage,
                 Log,
-                Http);
+                Http,
+                Session);
 
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect();
