@@ -4,15 +4,19 @@ name: Deploy function to Staging (Test branch)
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ Test ]
+    branches:
+      - Test
     paths:
     - 'TimeKeeperApi/**'
   pull_request:
-    branches: [ Test ]
+    branches:
+      - Test
     paths:
     - 'TimeKeeperApi/**'
 
   workflow_dispatch:
+    branches:
+      - Test
 
 env:
   AZURE_FUNCTIONAPP_NAME: timekeep
