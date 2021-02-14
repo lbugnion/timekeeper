@@ -1,9 +1,9 @@
-name: CI/CD client experimental
+name: CI/CD client staging
 
 on:
   push:
     branches:
-      - V0.2
+      - Staging
     paths:
     - 'TimekeeperClient/**'
 
