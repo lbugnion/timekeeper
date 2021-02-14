@@ -3,6 +3,7 @@
 @inject ILogger<Host> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
+@inject NavigationManager Nav
 
 <main class="@BackgroundClassName">
     <article>
@@ -53,13 +54,7 @@
                     <p>
                         Send this link to your guests so they can connect to the session:
                         <br />
-                        <span class="session-id"><a href="https://www.timekeeper.cloud/@Handler.CurrentSession.SessionId">https://www.timekeeper.cloud/@Handler.CurrentSession.SessionId</a></span>
-                    </p>
-
-                    <p>
-                        Session ID:
-                        <br />
-                        <span class="session-id">@Handler.CurrentSession.SessionId</span>
+                        <span class="session-id"><a href="@GuestUrl">@GuestUrl</a></span>
                     </p>
                 </div>
             }
