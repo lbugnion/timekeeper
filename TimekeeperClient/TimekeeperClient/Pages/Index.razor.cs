@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
@@ -10,6 +11,13 @@ namespace TimekeeperClient.Pages
         public const string RedBackgroundClassName = "background-red";
         public const string RunningBackgroundClassName = "background-running";
         public const string YellowBackgroundClassName = "background-yellow";
+
+        [Parameter]
+        public string SessionId
+        {
+            get;
+            set;
+        }
 
         public string ClientVersion
         {
@@ -25,6 +33,8 @@ namespace TimekeeperClient.Pages
 
         protected override void OnInitialized()
         {
+            Log.LogInformation("-> Index.OnInitialized");
+
             try
             {
                 var version = Assembly
