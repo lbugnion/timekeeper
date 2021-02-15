@@ -1,18 +1,25 @@
 ﻿@page "/"
+@page "/{Session}"
 @inject ILogger<Index> Log
 @inject IConfiguration Config
+@inject NavigationManager Nav
 
 <main>
     <article>
         <h1>Timekeeper</h1>
 
+        <h2>@Session</h2>
+
         <blockquote>Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.</blockquote>
+
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
 
         <h2>Try it by yourself</h2>
 
-        <p><a href="/host">Log in as the host</a></p>
-
-        <p><a href="/guest">Log in as a guest</a></p>
+        <button @onclick="LogInHost">Log in as the host</button>
 
         <h2>This is a proof of concept application.</h2>
 

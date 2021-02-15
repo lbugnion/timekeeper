@@ -1,43 +1,29 @@
-﻿using TimekeeperClient.Model;
+﻿using System;
 using System.Threading.Tasks;
-using System;
-using Microsoft.Extensions.Logging;
+using TimekeeperClient.Model;
 
 namespace TimekeeperClient.Pages
 {
     public partial class Host : IDisposable
     {
+        public string BackgroundClassName
+        {
+            get;
+            private set;
+        }
+
         public SignalRHost Handler
         {
             get;
             private set;
         }
 
-        public void Dispose()
+        public string GuestUrl
         {
-            if (Handler != null)
+            get
             {
-                Handler.UpdateUi -= HandlerUpdateUi;
+                return $"{Nav.BaseUri}{Handler.CurrentSession.SessionId}";
             }
-        }
-
-        protected override async Task OnInitializedAsync()
-        {
-            BackgroundClassName = Index.NormalBackgroundClassName;
-
-            Handler = new SignalRHost(
-                Config,
-                Log,
-                Http);
-
-            Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
-        }
-
-        public string BackgroundClassName
-        {
-            get;
-            private set;
         }
 
         private void HandlerUpdateUi(object sender, EventArgs e)
@@ -60,6 +46,28 @@ namespace TimekeeperClient.Pages
             }
 
             StateHasChanged();
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            BackgroundClassName = Index.NormalBackgroundClassName;
+
+            Handler = new SignalRHost(
+                Config,
+                LocalStorage,
+                Log,
+                Http);
+
+            Handler.UpdateUi += HandlerUpdateUi;
+            await Handler.Connect();
+        }
+
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
         }
     }
 }

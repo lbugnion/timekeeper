@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Threading.Tasks;
 using TimekeeperClient.Model;
 
@@ -6,6 +7,13 @@ namespace TimekeeperClient.Pages
 {
     public partial class Guest : IDisposable
     {
+        [Parameter]
+        public string Session
+        {
+            get;
+            set;
+        }
+
         public string BackgroundClassName
         {
             get;
@@ -16,27 +24,6 @@ namespace TimekeeperClient.Pages
         {
             get;
             private set;
-        }
-
-        public void Dispose()
-        {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
-        }
-
-        protected override async Task OnInitializedAsync()
-        {
-            BackgroundClassName = Index.NormalBackgroundClassName;
-
-            Handler = new SignalRGuest(
-                Config,
-                Log,
-                Http);
-
-            Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
         }
 
         private void HandlerUpdateUi(object sender, EventArgs e)
@@ -59,6 +46,29 @@ namespace TimekeeperClient.Pages
             }
 
             StateHasChanged();
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            BackgroundClassName = Index.NormalBackgroundClassName;
+
+            Handler = new SignalRGuest(
+                Config,
+                LocalStorage,
+                Log,
+                Http,
+                Session);
+
+            Handler.UpdateUi += HandlerUpdateUi;
+            await Handler.Connect();
+        }
+
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
         }
     }
 }

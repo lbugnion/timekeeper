@@ -4,7 +4,7 @@ namespace Model
 {
     public class NegotiateInfo
     {
-        public Uri Url
+        public string AccessToken
         {
             get;
             set;
@@ -28,7 +28,7 @@ namespace Model
             }
         }
 
-        public string AccessToken
+        public Uri Url
         {
             get;
             set;

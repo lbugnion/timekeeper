@@ -1,11 +1,18 @@
 ﻿@page "/guest"
+@page "/guest/{Session}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
+@inject ILocalStorageService LocalStorage
 
 <main class="background-area @BackgroundClassName">
     <article>
         <h1>Guest</h1>
+
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
 
         <div class="clock-area">
             <p><span class="clock-text">@Handler.ClockDisplay</span></p>
@@ -13,6 +20,13 @@
 
         <div class="message-area">
             <p><span class="message-text">@Handler.CurrentMessage</span></p>
+        </div>
+
+        <div>
+            @if (Handler.CurrentSession != null)
+            {
+                <p>Current session: @Handler.CurrentSession.SessionId</p>
+            }
         </div>
     </article>
 </main>

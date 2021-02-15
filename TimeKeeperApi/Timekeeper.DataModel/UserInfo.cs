@@ -1,8 +1,8 @@
 ﻿namespace Timekeeper.DataModel
 {
-    public class HostToGuestMessage
+    public class UserInfo
     {
-        public string Message
+        public string UserId
         {
             get;
             set;

@@ -8,8 +8,6 @@ on:
     - 'TimekeeperClient/**'
 
   workflow_dispatch:
-    branches:
-      - main
 
 jobs:
   build_and_deploy_job:

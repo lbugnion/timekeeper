@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -11,17 +12,16 @@ namespace TimekeeperClient.Model
 {
     public class SignalRGuest : SignalRHandler
     {
-        public SignalRGuest(
-            IConfiguration config, 
-            ILogger log, 
-            HttpClient http) : base(config, log, http)
-        {
-        }
+        private string _session;
 
-        protected override void DisplayMessage(string message)
+        public SignalRGuest(
+            IConfiguration config,
+            ILocalStorageService localStorage,
+            ILogger log,
+            HttpClient http,
+            string session) : base(config, localStorage, log, http)
         {
-            base.DisplayMessage(message);
-            Status = "Received host message";
+            _session = session;
         }
 
         private void ReceiveStartClock(string message)
@@ -42,13 +42,20 @@ namespace TimekeeperClient.Model
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
 
+        protected override void DisplayMessage(string message)
+        {
+            base.DisplayMessage(message);
+            Status = "Received host message";
+        }
+
         public override async Task Connect()
         {
             _log.LogInformation("-> SignalRGuest.Connect");
 
             IsBusy = true;
 
-            var ok = await CreateConnection();
+            var ok = await InitializeSession(_session)
+                && await CreateConnection();
 
             if (ok)
             {
@@ -61,18 +68,18 @@ namespace TimekeeperClient.Model
                 if (ok)
                 {
                     IsConnected = true;
-                    IsInError = false;
+                    CurrentMessage = "Ready";
                 }
                 else
                 {
                     IsConnected = false;
-                    IsInError = true;
+                    CurrentMessage = "Error";
                 }
             }
             else
             {
                 IsConnected = false;
-                IsInError = true;
+                CurrentMessage = "Error";
             }
 
             IsBusy = false;

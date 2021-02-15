@@ -1,8 +1,8 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
+using Microsoft.Extensions.Logging;
 using TimeKeeperApi.DataModel;
 
 namespace TimeKeeperApi
@@ -12,11 +12,13 @@ namespace TimeKeeperApi
         [FunctionName(nameof(Negotiate))]
         public static SignalRConnectionInfo Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "get", 
-                Route = "negotiate")] 
+                AuthorizationLevel.Function,
+                "get",
+                Route = "negotiate")]
             HttpRequest req,
-            [SignalRConnectionInfo(HubName = Constants.HubName)]
+            [SignalRConnectionInfo(
+                HubName = Constants.HubName,
+                UserId = "{headers.x-timekeeper-userid}")]
             SignalRConnectionInfo connectionInfo,
             ILogger log)
         {

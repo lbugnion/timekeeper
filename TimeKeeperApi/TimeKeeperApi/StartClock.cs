@@ -1,16 +1,13 @@
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
-using Timekeeper.DataModel;
+using Microsoft.Extensions.Logging;
 using System;
-using Newtonsoft.Json.Linq;
-using TimeKeeperApi.DataModel;
 using System.IO;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
+using TimeKeeperApi.DataModel;
 
 namespace TimeKeeperApi
 {
@@ -19,15 +16,24 @@ namespace TimeKeeperApi
         [FunctionName(nameof(StartClock))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function, 
-                "post", 
-                Route = "start")] 
+                AuthorizationLevel.Function,
+                "post",
+                Route = "start")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
             log.LogInformation("-> StartClock");
+
+            var groupId = req.GetGroupId();
+            log.LogDebug($"groupId: {groupId}");
+
+            if (groupId == Guid.Empty)
+            {
+                log.LogError("No groupId found in headers");
+                return new BadRequestObjectResult("Invalid request");
+            }
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
@@ -37,7 +43,8 @@ namespace TimeKeeperApi
                 new SignalRMessage
                 {
                     Target = Constants.StartClockMessageName,
-                    Arguments = new[] { requestBody }
+                    Arguments = new[] { requestBody },
+                    GroupName = groupId.ToString()
                 });
 
             log.LogTrace("Sent");
