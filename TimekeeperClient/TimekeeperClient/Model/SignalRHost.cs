@@ -75,7 +75,7 @@ namespace TimekeeperClient.Model
             IsStopDisabled = true;
             IsSendMessageDisabled = true;
             IsStartSessionDisabled = true;
-            IsStopSessionDisabled = true;
+            IsDeleteSessionDisabled = true;
 
             var ok = (await InitializeSession()) 
                 && (await CreateConnection())
@@ -89,7 +89,7 @@ namespace TimekeeperClient.Model
                 IsStartDisabled = false;
                 IsStopDisabled = true;
                 IsSendMessageDisabled = false;
-                IsStopSessionDisabled = false;
+                IsDeleteSessionDisabled = false;
                 CurrentMessage = "Ready";
             }
             else
@@ -101,7 +101,7 @@ namespace TimekeeperClient.Model
                 IsStopDisabled = true;
                 IsSendMessageDisabled = true;
                 IsStartSessionDisabled = false;
-                IsStopSessionDisabled = false;
+                IsDeleteSessionDisabled = false;
                 CurrentMessage = "Error";
             }
 
