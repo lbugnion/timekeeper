@@ -22,7 +22,7 @@ namespace TimekeeperClient.Pages
         {
             get
             {
-                return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
+                return $"{Nav.BaseUri}{Handler.CurrentSession.SessionId}";
             }
         }
 

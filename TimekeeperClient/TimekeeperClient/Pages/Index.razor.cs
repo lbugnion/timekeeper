@@ -72,10 +72,5 @@ namespace TimekeeperClient.Pages
         {
             Nav.NavigateTo("/host");
         }
-
-        public void LogInGuest()
-        {
-            Nav.NavigateTo("/guest");
-        }
     }
 }

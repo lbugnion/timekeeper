@@ -9,8 +9,6 @@
     <article>
         <h1>Guest</h1>
 
-        <h2>@Session</h2>
-
         @if (Program.IsExperimental)
         {
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
@@ -27,7 +25,7 @@
         <div>
             @if (Handler.CurrentSession != null)
             {
-                @Handler.CurrentSession.SessionId
+                <p>Current session: @Handler.CurrentSession.SessionId</p>
             }
         </div>
     </article>
