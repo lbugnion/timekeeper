@@ -1,12 +1,12 @@
-name: API deploy to Staging
+name: API deploy to Prod
 
 on:
   push:
-    branches: [ Staging ]
+    branches: [ main ]
     paths:
     - 'TimeKeeperApi/**'
   pull_request:
-    branches: [ Staging ]
+    branches: [ main ]
     paths:
     - 'TimeKeeperApi/**'
 

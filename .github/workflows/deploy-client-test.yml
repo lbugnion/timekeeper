@@ -1,4 +1,4 @@
-name: CI/CD client test
+name: Client deploy to Test
 
 on:
   push:

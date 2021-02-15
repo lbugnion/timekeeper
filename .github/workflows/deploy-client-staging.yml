@@ -1,4 +1,4 @@
-name: CI/CD client staging
+name: Client deploy to Staging
 
 on:
   push:
