@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.1.8888.*")]
+[assembly: AssemblyVersion("0.2.*")]
 
 namespace TimekeeperClient
 {

@@ -82,3 +82,12 @@ article p, blockquote {
 article p, article ul, blockquote {
     max-width: 480px;
 }
+
+.session-information-area {
+    margin-top: 20px;
+}
+
+.session-information-area h3 {
+    margin-bottom: 10px;
+    font-weight: bold;
+}

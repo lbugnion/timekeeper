@@ -51,11 +51,9 @@
             @if (Handler.CurrentSession != null)
             {
                 <div class="session-information-area">
-                    <p>
-                        Send this link to your guests so they can connect to the session:
-                        <br />
-                        <span class="session-id"><a href="@GuestUrl">@GuestUrl</a></span>
-                    </p>
+                    <h3>Send this link to your guests so they can connect to the session:</h3>
+
+                    <p><a href="@GuestUrl">@GuestUrl</a></p>
                 </div>
             }
 
