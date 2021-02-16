@@ -31,6 +31,10 @@ footer {
     background-color: white;
 }
 
+.clock-area {
+    margin-top: 20px;
+}
+
 .clock-text {
     font-size: 3em;
 }
@@ -50,6 +54,7 @@ footer {
 
 .controls-area {
     margin-top: 20px;
+    margin-left: -5px;
 }
 
 .send-message-area {
@@ -90,4 +95,28 @@ article p, article ul, blockquote {
 .session-information-area h3 {
     margin-bottom: 10px;
     font-weight: bold;
+}
+
+.edit-link {
+    margin-top: -15px;
+    margin-left: 5px;
+    font-size: 1em;
+}
+
+a:link, a:visited {
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: purple;
+    text-decoration: underline;
+}
+
+.h1-edit-field {
+    font-size: 3em;
+    font-family: 'Segoe UI Light', Tahoma, Geneva, Verdana, sans-serif;
+    color: darkblue;
+    width: 430px;
+    margin-bottom: 20px;
 }

@@ -6,6 +6,12 @@ namespace TimekeeperClient.Pages
 {
     public partial class Host : IDisposable
     {
+        public bool IsEditingSessionName
+        {
+            get;
+            private set;
+        }
+
         public string BackgroundClassName
         {
             get;
@@ -13,6 +19,12 @@ namespace TimekeeperClient.Pages
         }
 
         public SignalRHost Handler
+        {
+            get;
+            private set;
+        }
+
+        public string SessionName
         {
             get;
             private set;
@@ -50,6 +62,10 @@ namespace TimekeeperClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            IsEditingSessionName = false;
+            SessionName = "Loading...";
+            EditSessionNameLinkText = EditSessionNameText;
+
             BackgroundClassName = Index.NormalBackgroundClassName;
 
             Handler = new SignalRHost(
@@ -60,6 +76,7 @@ namespace TimekeeperClient.Pages
 
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect();
+            SessionName = Handler.CurrentSession.SessionName;
         }
 
         public void Dispose()
@@ -68,6 +85,31 @@ namespace TimekeeperClient.Pages
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
             }
+        }
+
+        public async Task EditSessionName()
+        {
+            IsEditingSessionName = !IsEditingSessionName;
+
+            if (IsEditingSessionName)
+            {
+                EditSessionNameLinkText = SaveSessionNameText;
+            }
+            else
+            {
+                EditSessionNameLinkText = EditSessionNameText;
+                Handler.CurrentSession.SessionName = SessionName;
+                await Handler.SaveCurrentSession();
+            }
+        }
+
+        private const string EditSessionNameText = "edit session name";
+        private const string SaveSessionNameText = "save session name";
+
+        public string EditSessionNameLinkText
+        {
+            get;
+            private set;
         }
     }
 }

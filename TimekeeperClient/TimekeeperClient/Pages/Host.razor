@@ -7,7 +7,20 @@
 
 <main class="@BackgroundClassName">
     <article>
-        <h1>Host</h1>
+
+        @if (IsEditingSessionName)
+        {
+            <input class="h1-edit-field" @bind-value="@SessionName" />
+        }
+        else
+        {
+            <h1>@SessionName</h1>
+        }
+
+        @if (!Handler.IsBusy)
+        {
+            <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
+        }
 
         @if (Program.IsExperimental)
         {

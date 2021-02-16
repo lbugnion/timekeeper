@@ -183,22 +183,28 @@ namespace TimekeeperClient.Model
 
                 CurrentSession = new Session
                 {
-                    SessionId = string.IsNullOrEmpty(sessionId) ? Guid.NewGuid().ToString() : sessionId
+                    SessionId = string.IsNullOrEmpty(sessionId) ? Guid.NewGuid().ToString() : sessionId,
+                    SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                 };
 
                 _log.LogDebug($"HIGHLIGHT--New CurrentSession.SessionId: {CurrentSession.SessionId}");
-
-                var json = JsonConvert.SerializeObject(CurrentSession);
-
-                await _localStorage.SetItemAsync(
-                    Constants.SessionStorageKey,
-                    json);
-
-                _log.LogTrace("HIGHLIGHT--Session saved to storage");
+                
+                await SaveCurrentSession();
             }
 
             _log.LogInformation("HIGHLIGHT--InitializeSession ->");
             return true;
+        }
+
+        public async Task SaveCurrentSession()
+        {
+            var json = JsonConvert.SerializeObject(CurrentSession);
+
+            await _localStorage.SetItemAsync(
+                Constants.SessionStorageKey,
+                json);
+
+            _log.LogTrace("HIGHLIGHT--Session saved to storage");
         }
 
         public async Task DeleteSession()
