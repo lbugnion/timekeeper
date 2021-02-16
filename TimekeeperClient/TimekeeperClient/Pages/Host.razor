@@ -53,24 +53,26 @@
                     Send Message
                 </button>
             </div>
+        </div>
 
-            <h2>Connection</h2>
+        <h2>Connection</h2>
 
+        <div class="controls-area">
             <button disabled="@Handler.IsDeleteSessionDisabled"
                     @onclick="@Handler.DeleteSession">
                 Delete session
             </button>
-
-            @if (Handler.CurrentSession != null)
-            {
-                <div class="session-information-area">
-                    <h3>Send this link to your guests so they can connect to the session:</h3>
-
-                    <p><a href="@GuestUrl">@GuestUrl</a></p>
-                </div>
-            }
-
         </div>
+
+        @if (Handler.CurrentSession != null)
+        {
+            <div class="session-information-area">
+                <h3>Send this link to your guests so they can connect to the session:</h3>
+
+                <p><a href="@GuestUrl">@GuestUrl</a></p>
+            </div>
+        }
+
     </article>
 </main>
 
