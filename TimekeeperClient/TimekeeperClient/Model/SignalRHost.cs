@@ -172,17 +172,10 @@ namespace TimekeeperClient.Model
             IsDisconnectDisabled = true;
             IsReconnectDisabled = true;
 
-            _clockSettings = new StartClockMessage
-            {
-                CountDown = TimeSpan.FromMinutes(5), // TODO Make configurable
-                Red = TimeSpan.FromSeconds(30), // TODO Make configurable
-                Yellow = TimeSpan.FromSeconds(120), // TODO Make configurable
-                ServerTime = DateTime.Now
-            };
-
             try
             {
-                var content = new StringContent(JsonConvert.SerializeObject(_clockSettings));
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(CurrentSession.ClockMessage));
 
                 var functionKey = _config.GetValue<string>(StartClockKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");

@@ -1,4 +1,6 @@
-﻿namespace TimekeeperClient.Model
+﻿using Timekeeper.DataModel;
+
+namespace TimekeeperClient.Model
 {
     public class Session
     {
@@ -9,6 +11,12 @@
         }
 
         public string SessionId
+        {
+            get;
+            set;
+        }
+
+        public StartClockMessage ClockMessage
         {
             get;
             set;

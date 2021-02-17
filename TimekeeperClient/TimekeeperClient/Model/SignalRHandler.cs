@@ -29,7 +29,6 @@ namespace TimekeeperClient.Model
         protected const string StopClockKeyKey = "StopClockKey";
         protected const string RegisterKeyKey = "RegisterKey";
         protected const string UnregisterKeyKey = "UnregisterKey";
-        protected StartClockMessage _clockSettings;
         protected IConfiguration _config;
         protected HubConnection _connection;
 
@@ -184,7 +183,15 @@ namespace TimekeeperClient.Model
                 CurrentSession = new Session
                 {
                     SessionId = string.IsNullOrEmpty(sessionId) ? Guid.NewGuid().ToString() : sessionId,
-                    SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+
+                    ClockMessage = new StartClockMessage
+                    {
+                        CountDown = TimeSpan.FromMinutes(5), // TODO Make configurable
+                        Red = TimeSpan.FromSeconds(30), // TODO Make configurable
+                        Yellow = TimeSpan.FromSeconds(120), // TODO Make configurable
+                        ServerTime = DateTime.Now
+                    }
                 };
 
                 _log.LogDebug($"HIGHLIGHT--New CurrentSession.SessionId: {CurrentSession.SessionId}");
@@ -403,8 +410,8 @@ namespace TimekeeperClient.Model
                 {
                     if (IsClockRunning)
                     {
-                        var elapsed = DateTime.Now - _clockSettings.ServerTime;
-                        var remains = _clockSettings.CountDown - elapsed;
+                        var elapsed = DateTime.Now - CurrentSession.ClockMessage.ServerTime;
+                        var remains = CurrentSession.ClockMessage.CountDown - elapsed;
 
                         if (remains.TotalSeconds < 0)
                         {
@@ -419,12 +426,12 @@ namespace TimekeeperClient.Model
 
                         ClockDisplay = remains.ToString(@"hh\:mm\:ss");
 
-                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Red.TotalSeconds + 1)
+                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.Red.TotalSeconds + 1)
                         {
                             IsRed = true;
                         }
 
-                        if (Math.Floor(remains.TotalSeconds) <= _clockSettings.Yellow.TotalSeconds + 1)
+                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.Yellow.TotalSeconds + 1)
                         {
                             IsYellow = true;
                         }

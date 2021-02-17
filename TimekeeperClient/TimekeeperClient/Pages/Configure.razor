@@ -1,7 +1,23 @@
 ﻿@page "/configure"
+@inject ILocalStorageService LocalStorage
+@inject ILogger<Configure> Log
 
-<h3>Configure</h3>
+<h1>Configure</h1>
 
-@code {
+@if (CurrentSession != null)
+{
+    <p>@CurrentSession.SessionName</p>
 
+    <p>@CurrentSession.SessionId</p>
+
+    @if (CurrentSession.ClockMessage != null)
+    {
+        <p>@CurrentSession.ClockMessage.CountDown</p>
+
+        <p>@CurrentSession.ClockMessage.Red</p>
+
+        <p>@CurrentSession.ClockMessage.Yellow</p>
+
+        <p>@CurrentSession.ClockMessage.ServerTime</p>
+    }
 }

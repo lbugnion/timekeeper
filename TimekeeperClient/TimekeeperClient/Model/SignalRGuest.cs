@@ -30,12 +30,12 @@ namespace TimekeeperClient.Model
 
             _log.LogDebug($"message: {message}");
 
-            _clockSettings = JsonConvert.DeserializeObject<StartClockMessage>(message);
+            CurrentSession.ClockMessage = JsonConvert.DeserializeObject<StartClockMessage>(message);
 
-            _log.LogDebug($"CountDown: {_clockSettings.CountDown}");
-            _log.LogDebug($"Red: {_clockSettings.Red}");
-            _log.LogDebug($"ServerTime: {_clockSettings.ServerTime}");
-            _log.LogDebug($"Yellow: {_clockSettings.Yellow}");
+            _log.LogDebug($"CountDown: {CurrentSession.ClockMessage.CountDown}");
+            _log.LogDebug($"Red: {CurrentSession.ClockMessage.Red}");
+            _log.LogDebug($"ServerTime: {CurrentSession.ClockMessage.ServerTime}");
+            _log.LogDebug($"Yellow: {CurrentSession.ClockMessage.Yellow}");
 
             RunClock();
             Status = "Clock started";
