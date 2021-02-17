@@ -36,7 +36,7 @@ namespace TimekeeperClient.Model
             private set;
         }
 
-        public bool IsSessionActive
+        public bool IsConfigureSessionDisabled
         {
             get;
             private set;
@@ -57,6 +57,9 @@ namespace TimekeeperClient.Model
             _log.LogInformation("-> SignalRHostCountdownFinished");
             IsStartDisabled = false;
             IsStopDisabled = true;
+            IsConfigureSessionDisabled = false;
+            IsDisconnectDisabled = false;
+            IsReconnectDisabled = true;
             RaiseUpdateEvent();
         }
 
@@ -74,8 +77,9 @@ namespace TimekeeperClient.Model
             IsStartDisabled = true;
             IsStopDisabled = true;
             IsSendMessageDisabled = true;
-            IsStartSessionDisabled = true;
-            IsDeleteSessionDisabled = true;
+            IsDisconnectDisabled = true;
+            IsReconnectDisabled = true;
+            IsConfigureSessionDisabled = true;
 
             var ok = (await InitializeSession()) 
                 && (await CreateConnection())
@@ -89,7 +93,9 @@ namespace TimekeeperClient.Model
                 IsStartDisabled = false;
                 IsStopDisabled = true;
                 IsSendMessageDisabled = false;
-                IsDeleteSessionDisabled = false;
+                IsDisconnectDisabled = false;
+                IsReconnectDisabled = true;
+                IsConfigureSessionDisabled = false;
                 CurrentMessage = "Ready";
             }
             else
@@ -100,8 +106,9 @@ namespace TimekeeperClient.Model
                 IsStartDisabled = true;
                 IsStopDisabled = true;
                 IsSendMessageDisabled = true;
-                IsStartSessionDisabled = false;
-                IsDeleteSessionDisabled = false;
+                IsDisconnectDisabled = false;
+                IsReconnectDisabled = true;
+                IsConfigureSessionDisabled = false;
                 CurrentMessage = "Error";
             }
 
@@ -161,6 +168,9 @@ namespace TimekeeperClient.Model
 
             IsStartDisabled = true;
             IsStopDisabled = false;
+            IsConfigureSessionDisabled = true;
+            IsDisconnectDisabled = true;
+            IsReconnectDisabled = true;
 
             _clockSettings = new StartClockMessage
             {
@@ -240,6 +250,9 @@ namespace TimekeeperClient.Model
 
             IsStartDisabled = false;
             IsStopDisabled = true;
+            IsConfigureSessionDisabled = false;
+            IsDisconnectDisabled = false;
+            IsReconnectDisabled = true;
             _log.LogInformation("StopAllClocks ->");
         }
     }

@@ -111,5 +111,15 @@ namespace TimekeeperClient.Pages
             get;
             private set;
         }
+
+        public void ConfigureSession()
+        {
+            Nav.NavigateTo("/configure");
+        }
+
+        public void Reconnect()
+        {
+            Nav.NavigateTo("/host", forceLoad: true);
+        }
     }
 }
