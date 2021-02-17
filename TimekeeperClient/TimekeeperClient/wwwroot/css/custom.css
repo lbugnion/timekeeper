@@ -120,3 +120,58 @@ a:hover {
     width: 430px;
     margin-bottom: 20px;
 }
+
+.config-time {
+    width: 100%;
+    margin-top: 0px;
+}
+
+.medium-input-text, .short-input-text {
+    font-size: 1.5em;
+    margin-top: 5px;
+}
+
+.medium-input-text {
+}
+
+.short-input-text {
+    width: 50px;
+}
+
+.form-label {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.form-explanation, .form-explanation-color {
+    font-size: 0.9em;
+    font-style: italic;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.form-explanation-color {
+    padding: 5px;
+}
+
+.valid {
+}
+
+.invalid {
+    background-color: bisque;
+}
+
+li.validation-message {
+    color: red;
+    font-weight: bold;
+}
+
+.edit-area {
+    margin-bottom: 20px;
+    max-width: 300px;
+}
+
+.edit-area p {
+    margin-top: 4px;
+    margin-bottom: 5px;
+}

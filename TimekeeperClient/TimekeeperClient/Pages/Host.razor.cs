@@ -12,12 +12,6 @@ namespace TimekeeperClient.Pages
             private set;
         }
 
-        public string BackgroundClassName
-        {
-            get;
-            private set;
-        }
-
         public SignalRHost Handler
         {
             get;
@@ -40,23 +34,6 @@ namespace TimekeeperClient.Pages
 
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
-            if (Handler.IsRed)
-            {
-                BackgroundClassName = Index.RedBackgroundClassName;
-            }
-            else if (Handler.IsYellow)
-            {
-                BackgroundClassName = Index.YellowBackgroundClassName;
-            }
-            else if (Handler.IsClockRunning)
-            {
-                BackgroundClassName = Index.RunningBackgroundClassName;
-            }
-            else
-            {
-                BackgroundClassName = Index.NormalBackgroundClassName;
-            }
-
             StateHasChanged();
         }
 
@@ -65,8 +42,6 @@ namespace TimekeeperClient.Pages
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
-
-            BackgroundClassName = Index.NormalBackgroundClassName;
 
             Handler = new SignalRHost(
                 Config,
@@ -99,7 +74,7 @@ namespace TimekeeperClient.Pages
             {
                 EditSessionNameLinkText = EditSessionNameText;
                 Handler.CurrentSession.SessionName = SessionName;
-                await Handler.SaveCurrentSession();
+                Handler.CurrentSession.Save();
             }
         }
 

@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Linq;
 using System.Threading.Tasks;
 using TimeKeeperApi.DataModel;
 using TimekeeperClient.Model;
@@ -14,26 +16,39 @@ namespace TimekeeperClient.Pages
             private set;
         }
 
+        public EditContext CurrentEditContext
+        {
+            get;
+            private set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
 
-            var json = await LocalStorage.GetItemAsStringAsync(
-                Constants.SessionStorageKey);
+            CurrentSession = await Session.GetFromStorage();
 
-            Log.LogDebug($"json: {json}");
-
-            if (!string.IsNullOrEmpty(json))
-            {
-                CurrentSession = JsonConvert.DeserializeObject<Session>(json);
-                Log.LogDebug($"HIGHLIGHT--Found CurrentSession.SessionId: {CurrentSession.SessionId}");
-            }
-            else
+            if (CurrentSession == null)
             {
                 // TODO Notify the user
             }
 
+            CurrentEditContext = new EditContext(CurrentSession);
+            CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
+
             Log.LogInformation("OnInitializedAsync ->");
+        }
+
+        private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
+        {
+            Log.LogInformation("HIGHLIGHT---> CurrentEditContextOnValidationStateChanged");
+
+            if (CurrentEditContext.GetValidationMessages().Count() == 0)
+            {
+                Log.LogTrace("HIGHLIGHT--Saving");
+
+                await CurrentSession.Save();
+            }
         }
     }
 }

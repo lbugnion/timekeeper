@@ -14,6 +14,10 @@ namespace TimekeeperClient.Model
 {
     public abstract class SignalRHandler
     {
+        public const string DefaultRunningColor = "#3AFFA9";
+        public const string DefaultPayAttentionColor = "#FFFB91";
+        public const string DefaultAlmostDoneColor = "#FF6B77";
+
         public event EventHandler CountdownFinished;
         public event EventHandler UpdateUi;
 
@@ -106,16 +110,10 @@ namespace TimekeeperClient.Model
             protected set;
         }
 
-        public bool IsRed
+        public string BackgroundColor
         {
             get;
-            protected set;
-        }
-
-        public bool IsYellow
-        {
-            get;
-            protected set;
+            private set;
         }
 
         public string Status
@@ -141,9 +139,11 @@ namespace TimekeeperClient.Model
             CurrentMessage = "Welcome!";
             Status = "Please wait...";
             ClockDisplay = "00:00:00";
+            BackgroundColor = "#FFFFFF";
 
             _config = config;
             _localStorage = localStorage;
+            Session.SetLocalStorage(_localStorage);
             _log = log;
             _http = http;
         }
@@ -159,26 +159,17 @@ namespace TimekeeperClient.Model
         public async Task<bool> InitializeSession(
             string sessionId = null)
         {
-            _log.LogInformation("HIGHLIGHT---> InitializeSession");
-            _log.LogDebug($"HIGHLIGHT--sessionId: {sessionId}");
+            _log.LogInformation("-> InitializeSession");
+            _log.LogDebug($"sessionId: {sessionId}");
 
             if (string.IsNullOrEmpty(sessionId))
             {
-                var json = await _localStorage.GetItemAsStringAsync(
-                    Constants.SessionStorageKey);
-
-                _log.LogDebug($"json: {json}");
-
-                if (!string.IsNullOrEmpty(json))
-                {
-                    CurrentSession = JsonConvert.DeserializeObject<Session>(json);
-                    _log.LogDebug($"HIGHLIGHT--Found CurrentSession.SessionId: {CurrentSession.SessionId}");
-                }
+                CurrentSession = await Session.GetFromStorage();
             }
 
             if (CurrentSession == null)
             {
-                _log.LogTrace("HIGHLIGHT--CurrentSession is null");
+                _log.LogTrace("CurrentSession is null");
 
                 CurrentSession = new Session
                 {
@@ -187,31 +178,24 @@ namespace TimekeeperClient.Model
 
                     ClockMessage = new StartClockMessage
                     {
-                        CountDown = TimeSpan.FromMinutes(5), // TODO Make configurable
-                        Red = TimeSpan.FromSeconds(30), // TODO Make configurable
-                        Yellow = TimeSpan.FromSeconds(120), // TODO Make configurable
-                        ServerTime = DateTime.Now
+                        CountDown = TimeSpan.FromMinutes(5),
+                        AlmostDone = TimeSpan.FromSeconds(30),
+                        PayAttention = TimeSpan.FromSeconds(120),
+                        RunningColor = DefaultRunningColor,
+                        PayAttentionColor = DefaultPayAttentionColor,
+                        AlmostDoneColor = DefaultAlmostDoneColor
                     }
                 };
 
-                _log.LogDebug($"HIGHLIGHT--New CurrentSession.SessionId: {CurrentSession.SessionId}");
+                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
                 
-                await SaveCurrentSession();
+                await CurrentSession.Save();
+
+                _log.LogTrace("Session saved to storage");
             }
 
-            _log.LogInformation("HIGHLIGHT--InitializeSession ->");
+            _log.LogInformation("InitializeSession ->");
             return true;
-        }
-
-        public async Task SaveCurrentSession()
-        {
-            var json = JsonConvert.SerializeObject(CurrentSession);
-
-            await _localStorage.SetItemAsync(
-                Constants.SessionStorageKey,
-                json);
-
-            _log.LogTrace("HIGHLIGHT--Session saved to storage");
         }
 
         public async Task Disconnect()
@@ -226,8 +210,8 @@ namespace TimekeeperClient.Model
                 _log.LogTrace("Connection is stopped and disposed");
             }
 
+            await CurrentSession.DeleteFromStorage();
             CurrentSession = null;
-            await _localStorage.RemoveItemAsync(Constants.SessionStorageKey);
             _log.LogTrace("CurrentSession is deleted");
 
             IsDisconnectDisabled = true;
@@ -399,10 +383,11 @@ namespace TimekeeperClient.Model
             UpdateUi?.Invoke(this, EventArgs.Empty);
         }
 
-        protected void RunClock()
+        protected void RunClock(StartClockMessage activeClock)
         {
             IsClockRunning = true;
             Status = "Clock is running";
+            BackgroundColor = activeClock.RunningColor;
 
             Task.Run(async () =>
             {
@@ -410,31 +395,32 @@ namespace TimekeeperClient.Model
                 {
                     if (IsClockRunning)
                     {
-                        var elapsed = DateTime.Now - CurrentSession.ClockMessage.ServerTime;
-                        var remains = CurrentSession.ClockMessage.CountDown - elapsed;
+                        var elapsed = DateTime.Now - activeClock.ServerTime;
+                        var remains = activeClock.CountDown - elapsed;
 
                         if (remains.TotalSeconds < 0)
                         {
                             IsClockRunning = false;
-                            IsRed = false;
-                            IsYellow = false;
+                            BackgroundColor = "#FFFFFF";
                             Status = "Countdown finished";
                             ClockDisplay = "00:00:00";
                             CountdownFinished?.Invoke(this, EventArgs.Empty);
                             return;
                         }
 
+                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.PayAttention.TotalSeconds)
+                        {
+                            _log.LogDebug($"ATTENTION Set background to {activeClock.PayAttentionColor}");
+                            BackgroundColor = activeClock.PayAttentionColor;
+                        }
+
+                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.AlmostDone.TotalSeconds)
+                        {
+                            _log.LogDebug($"ALMOSTDONE Set background to {activeClock.AlmostDoneColor}");
+                            BackgroundColor = activeClock.AlmostDoneColor;
+                        }
+
                         ClockDisplay = remains.ToString(@"hh\:mm\:ss");
-
-                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.Red.TotalSeconds + 1)
-                        {
-                            IsRed = true;
-                        }
-
-                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.Yellow.TotalSeconds + 1)
-                        {
-                            IsYellow = true;
-                        }
                     }
 
                     await Task.Delay(1000);
@@ -467,8 +453,7 @@ namespace TimekeeperClient.Model
         protected void StopClock(object _)
         {
             _log.LogInformation("-> StopClock");
-            IsRed = false;
-            IsYellow = false;
+            BackgroundColor = "#FFFFFF";
             Status = "Clock was stopped";
             IsClockRunning = false;
         }

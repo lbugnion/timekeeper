@@ -34,7 +34,7 @@ namespace TimekeeperClient.Pages
         protected override void OnInitialized()
         {
             Log.LogInformation("-> Index.OnInitialized");
-            Log.LogDebug($"HIGHLIGHT--Session: {Session}");
+            Log.LogDebug($"Session: {Session}");
 
             if (!string.IsNullOrEmpty(Session))
             {

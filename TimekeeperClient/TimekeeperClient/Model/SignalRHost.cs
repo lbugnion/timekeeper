@@ -174,8 +174,12 @@ namespace TimekeeperClient.Model
 
             try
             {
-                var content = new StringContent(
-                    JsonConvert.SerializeObject(CurrentSession.ClockMessage));
+                var activeClock = CurrentSession.ClockMessage.GetFresh();
+
+                var json = JsonConvert.SerializeObject(activeClock);
+                var content = new StringContent(json);
+
+                _log.LogDebug($"HIGHLIGHT--json: {json}");
 
                 var functionKey = _config.GetValue<string>(StartClockKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
@@ -192,7 +196,7 @@ namespace TimekeeperClient.Model
 
                 if (response.IsSuccessStatusCode)
                 {
-                    RunClock();
+                    RunClock(activeClock);
                 }
                 else
                 {

@@ -14,12 +14,6 @@ namespace TimekeeperClient.Pages
             set;
         }
 
-        public string BackgroundClassName
-        {
-            get;
-            private set;
-        }
-
         public SignalRGuest Handler
         {
             get;
@@ -28,30 +22,11 @@ namespace TimekeeperClient.Pages
 
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
-            if (Handler.IsRed)
-            {
-                BackgroundClassName = Index.RedBackgroundClassName;
-            }
-            else if (Handler.IsYellow)
-            {
-                BackgroundClassName = Index.YellowBackgroundClassName;
-            }
-            else if (Handler.IsClockRunning)
-            {
-                BackgroundClassName = Index.RunningBackgroundClassName;
-            }
-            else
-            {
-                BackgroundClassName = Index.NormalBackgroundClassName;
-            }
-
             StateHasChanged();
         }
 
         protected override async Task OnInitializedAsync()
         {
-            BackgroundClassName = Index.NormalBackgroundClassName;
-
             Handler = new SignalRGuest(
                 Config,
                 LocalStorage,
