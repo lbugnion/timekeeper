@@ -198,7 +198,7 @@ namespace TimekeeperClient.Model
             return true;
         }
 
-        public async Task Disconnect()
+        public virtual async Task Disconnect()
         {
             _log.LogInformation("-> Disconnect");
 

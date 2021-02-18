@@ -52,6 +52,12 @@ namespace TimekeeperClient.Model
             base.CountdownFinished += SignalRHostCountdownFinished;
         }
 
+        public override async Task Disconnect()
+        {
+            await base.Disconnect();
+            IsConfigureSessionDisabled = true;
+        }
+
         private void SignalRHostCountdownFinished(object sender, EventArgs e)
         {
             _log.LogInformation("-> SignalRHostCountdownFinished");
