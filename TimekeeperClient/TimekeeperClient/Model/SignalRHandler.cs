@@ -36,13 +36,13 @@ namespace TimekeeperClient.Model
         protected IConfiguration _config;
         protected HubConnection _connection;
 
-        public bool IsDisconnectDisabled 
+        public bool IsDeleteSessionDisabled 
         { 
             get; 
             protected set; 
         }
 
-        public bool IsReconnectDisabled
+        public bool IsCreateNewSessionDisabled
         {
             get;
             protected set;
@@ -198,9 +198,9 @@ namespace TimekeeperClient.Model
             return true;
         }
 
-        public virtual async Task Disconnect()
+        public virtual async Task DeleteSession()
         {
-            _log.LogInformation("-> Disconnect");
+            _log.LogInformation("-> DeleteSession");
 
             if (_connection != null)
             {
@@ -214,11 +214,22 @@ namespace TimekeeperClient.Model
             CurrentSession = null;
             _log.LogTrace("CurrentSession is deleted");
 
-            IsDisconnectDisabled = true;
-            IsReconnectDisabled = false;
+            IsDeleteSessionDisabled = true;
+            IsCreateNewSessionDisabled = false;
             Status = "Disconnected";
 
-            _log.LogInformation("Disconnect ->");
+            _log.LogInformation("DeleteSession ->");
+        }
+
+        public async Task Disconnect()
+        {
+            if (_connection != null)
+            {
+                await _connection.StopAsync();
+                await _connection.DisposeAsync();
+                _connection = null;
+                _log.LogTrace("Connection is stopped and disposed");
+            }
         }
 
         private async Task<bool> RegisterToGroup()

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using TimekeeperClient.Model;
 
@@ -54,12 +55,16 @@ namespace TimekeeperClient.Pages
             SessionName = Handler.CurrentSession.SessionName;
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
+            Log.LogTrace("HIGHLIGHT--Dispose");
+
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
             }
+
+            await Handler.Disconnect();
         }
 
         public async Task EditSessionName()
@@ -74,7 +79,7 @@ namespace TimekeeperClient.Pages
             {
                 EditSessionNameLinkText = EditSessionNameText;
                 Handler.CurrentSession.SessionName = SessionName;
-                Handler.CurrentSession.Save();
+                await Handler.CurrentSession.Save();
             }
         }
 

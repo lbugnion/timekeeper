@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using TimekeeperClient.Model;
@@ -38,12 +39,16 @@ namespace TimekeeperClient.Pages
             await Handler.Connect();
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
+            Log.LogTrace("HIGHLIGHT--Dispose");
+
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
             }
+
+            await Handler.Disconnect();
         }
     }
 }

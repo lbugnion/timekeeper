@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -52,9 +54,9 @@ namespace TimekeeperClient.Model
             base.CountdownFinished += SignalRHostCountdownFinished;
         }
 
-        public override async Task Disconnect()
+        public override async Task DeleteSession()
         {
-            await base.Disconnect();
+            await base.DeleteSession();
             IsConfigureSessionDisabled = true;
         }
 
@@ -64,8 +66,8 @@ namespace TimekeeperClient.Model
             IsStartDisabled = false;
             IsStopDisabled = true;
             IsConfigureSessionDisabled = false;
-            IsDisconnectDisabled = false;
-            IsReconnectDisabled = true;
+            IsDeleteSessionDisabled = false;
+            IsCreateNewSessionDisabled = true;
             RaiseUpdateEvent();
         }
 
@@ -83,8 +85,8 @@ namespace TimekeeperClient.Model
             IsStartDisabled = true;
             IsStopDisabled = true;
             IsSendMessageDisabled = true;
-            IsDisconnectDisabled = true;
-            IsReconnectDisabled = true;
+            IsDeleteSessionDisabled = true;
+            IsCreateNewSessionDisabled = true;
             IsConfigureSessionDisabled = true;
 
             var ok = (await InitializeSession()) 
@@ -99,8 +101,8 @@ namespace TimekeeperClient.Model
                 IsStartDisabled = false;
                 IsStopDisabled = true;
                 IsSendMessageDisabled = false;
-                IsDisconnectDisabled = false;
-                IsReconnectDisabled = true;
+                IsDeleteSessionDisabled = false;
+                IsCreateNewSessionDisabled = true;
                 IsConfigureSessionDisabled = false;
                 CurrentMessage = "Ready";
             }
@@ -112,8 +114,8 @@ namespace TimekeeperClient.Model
                 IsStartDisabled = true;
                 IsStopDisabled = true;
                 IsSendMessageDisabled = true;
-                IsDisconnectDisabled = false;
-                IsReconnectDisabled = true;
+                IsDeleteSessionDisabled = false;
+                IsCreateNewSessionDisabled = true;
                 IsConfigureSessionDisabled = false;
                 CurrentMessage = "Error";
             }
@@ -175,8 +177,8 @@ namespace TimekeeperClient.Model
             IsStartDisabled = true;
             IsStopDisabled = false;
             IsConfigureSessionDisabled = true;
-            IsDisconnectDisabled = true;
-            IsReconnectDisabled = true;
+            IsDeleteSessionDisabled = true;
+            IsCreateNewSessionDisabled = true;
 
             try
             {
@@ -185,7 +187,7 @@ namespace TimekeeperClient.Model
                 var json = JsonConvert.SerializeObject(activeClock);
                 var content = new StringContent(json);
 
-                _log.LogDebug($"HIGHLIGHT--json: {json}");
+                _log.LogDebug($"json: {json}");
 
                 var functionKey = _config.GetValue<string>(StartClockKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
@@ -254,9 +256,15 @@ namespace TimekeeperClient.Model
             IsStartDisabled = false;
             IsStopDisabled = true;
             IsConfigureSessionDisabled = false;
-            IsDisconnectDisabled = false;
-            IsReconnectDisabled = true;
+            IsDeleteSessionDisabled = false;
+            IsCreateNewSessionDisabled = true;
             _log.LogInformation("StopAllClocks ->");
+        }
+
+        public IList<GuestMessage> ConnectedGuests
+        {
+            get;
+            private set;
         }
     }
 }

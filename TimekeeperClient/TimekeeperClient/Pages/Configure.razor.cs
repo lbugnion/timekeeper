@@ -41,11 +41,11 @@ namespace TimekeeperClient.Pages
 
         private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
         {
-            Log.LogInformation("HIGHLIGHT---> CurrentEditContextOnValidationStateChanged");
+            Log.LogInformation("-> CurrentEditContextOnValidationStateChanged");
 
             if (CurrentEditContext.GetValidationMessages().Count() == 0)
             {
-                Log.LogTrace("HIGHLIGHT--Saving");
+                Log.LogTrace("Saving");
 
                 await CurrentSession.Save();
             }
