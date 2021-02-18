@@ -55,18 +55,7 @@
             </div>
         </div>
 
-        <h2>Connection</h2>
-
-        <div class="controls-area">
-            <button disabled="@Handler.IsDisconnectDisabled"
-                    @onclick="@Handler.Disconnect">
-                Disconnect
-            </button>
-            <button disabled="@Handler.IsReconnectDisabled"
-                    @onclick="@Reconnect">
-                Reconnect
-            </button>
-        </div>
+        <h2>Session</h2>
 
         @if (Handler.CurrentSession != null)
         {
@@ -75,7 +64,49 @@
 
                 <p><a href="@GuestUrl">@GuestUrl</a></p>
             </div>
+
+            <div class="session-information-area">
+                <h3>Connected guests</h3>
+
+                @if (Handler.ConnectedGuests.Count == 0)
+                {
+                    <p>There are no connected guests at the moment.</p>
+                }
+                else
+                {
+                    <p>
+                        There are @Handler.ConnectedGuests.Count connected guest(s).
+                        <a href="#"
+                           @onclick="ToggleIsGuestListExpanded"
+                           @onclick:preventDefault="true">(@GuestListLinkText)</a>
+                    </p>
+
+                    @if (IsGuestListExpanded)
+                    {
+                        <ul>
+                            <li>@AnonymousGuests anonymous guests</li>
+
+                            @foreach (var guest in NamedGuests)
+                            {
+                                <li>@guest.DisplayName</li>
+                            }
+                        </ul>
+                    }
+                }
+            </div>
         }
+
+
+        <div class="controls-area">
+            <button disabled="@Handler.IsDeleteSessionDisabled"
+                    @onclick="@Handler.Disconnect">
+                Delete the session
+            </button>
+            <button disabled="@Handler.IsCreateNewSessionDisabled"
+                    @onclick="@Reconnect">
+                Create a new session
+            </button>
+        </div>
 
         <h2>Configure</h2>
 

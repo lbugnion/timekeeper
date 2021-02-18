@@ -1,6 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Timekeeper.DataModel;
 using TimekeeperClient.Model;
 
 namespace TimekeeperClient.Pages
@@ -100,6 +104,60 @@ namespace TimekeeperClient.Pages
         public void Reconnect()
         {
             Nav.NavigateTo("/host", forceLoad: true);
+        }
+
+        public void TEMPOAddGuest()
+        {
+            Handler.ConnectedGuests.Add(new GuestMessage
+            {
+                GuestId = Guid.NewGuid().ToString()
+            });
+        }
+
+        public void TEMPOAddName()
+        {
+            var random = new Random();
+            var next = random.Next(0, Handler.ConnectedGuests.Count);
+
+            Handler
+                .ConnectedGuests[next]
+                .CustomName = $"Name # {Handler.ConnectedGuests.IndexOf(Handler.ConnectedGuests[next])}";
+        }
+
+        public int AnonymousGuests
+        {
+            get
+            {
+                return Handler.ConnectedGuests.Count(g => string.IsNullOrEmpty(g.CustomName));
+            }
+        }
+
+        public IList<GuestMessage> NamedGuests
+        {
+            get
+            {
+                return Handler.ConnectedGuests
+                    .Where(g => !string.IsNullOrEmpty(g.CustomName))
+                    .ToList();
+            }
+        }
+
+        public bool IsGuestListExpanded
+        {
+            get;
+            private set;
+        }
+
+        public string GuestListLinkText
+        {
+            get;
+            private set;
+        }
+
+        public void ToggleIsGuestListExpanded()
+        {
+            IsGuestListExpanded = !IsGuestListExpanded;
+            GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
         }
     }
 }

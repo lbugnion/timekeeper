@@ -52,6 +52,7 @@ namespace TimekeeperClient.Model
         {
             IsStopDisabled = true;
             base.CountdownFinished += SignalRHostCountdownFinished;
+            ConnectedGuests = new List<GuestMessage>();
         }
 
         public override async Task DeleteSession()
