@@ -1,10 +1,12 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -90,22 +92,41 @@ namespace TimekeeperClient.Model
             IsCreateNewSessionDisabled = true;
             IsConfigureSessionDisabled = true;
 
-            var ok = (await InitializeSession()) 
-                && (await CreateConnection())
-                && (await StartConnection());
+            var ok = await InitializeSession()
+                && await CreateConnection();
 
             if (ok)
             {
-                _log.LogTrace("OK");
+                _connection.On<string>(Constants.GuestToHostMessageName, ReceiveGuestMessage);
 
-                IsConnected = true;
-                IsStartDisabled = false;
-                IsStopDisabled = true;
-                IsSendMessageDisabled = false;
-                IsDeleteSessionDisabled = false;
-                IsCreateNewSessionDisabled = true;
-                IsConfigureSessionDisabled = false;
-                CurrentMessage = "Ready";
+                ok = await StartConnection();
+
+                if (ok)
+                {
+                    _log.LogTrace("OK");
+
+                    IsConnected = true;
+                    IsStartDisabled = false;
+                    IsStopDisabled = true;
+                    IsSendMessageDisabled = false;
+                    IsDeleteSessionDisabled = false;
+                    IsCreateNewSessionDisabled = true;
+                    IsConfigureSessionDisabled = false;
+                    CurrentMessage = "Ready";
+                }
+                else
+                {
+                    _log.LogTrace("NOT OK");
+
+                    IsConnected = false;
+                    IsStartDisabled = true;
+                    IsStopDisabled = true;
+                    IsSendMessageDisabled = true;
+                    IsDeleteSessionDisabled = false;
+                    IsCreateNewSessionDisabled = true;
+                    IsConfigureSessionDisabled = false;
+                    CurrentMessage = "Error";
+                }
             }
             else
             {
@@ -125,6 +146,55 @@ namespace TimekeeperClient.Model
             _log.LogInformation("SignalRHost.ConnectToServer ->");
         }
 
+        public void ReceiveGuestMessage(string json)
+        {
+            _log.LogInformation("HIGHLIGHT---> SignalRHost.ReceiveGuestMessage");
+            _log.LogDebug(json);
+
+            var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
+
+            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
+
+            if (messageGuest == null
+                || string.IsNullOrEmpty(messageGuest.GuestId))
+            {
+                _log.LogWarning($"No GuestId found");
+                return;
+            }
+
+            var success = Guid.TryParse(messageGuest.GuestId, out Guid guestGuid);
+
+            if (!success)
+            {
+                _log.LogWarning($"GuestId is not a GUID");
+                return;
+            }
+
+            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == messageGuest.GuestId);
+
+            if (existingGuest == null)
+            {
+                _log.LogTrace("No existing guest found");
+
+                ConnectedGuests.Add(new GuestMessage
+                {
+                    GuestId = messageGuest.GuestId,
+                    CustomName = messageGuest.CustomName
+                });
+
+                _log.LogTrace("Added");
+            }
+            else
+            {
+                _log.LogDebug($"Existing guest found: Old name {existingGuest.DisplayName}");
+                existingGuest.CustomName = messageGuest.CustomName;
+                _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
+            }
+
+            RaiseUpdateEvent();
+            _log.LogInformation("HIGHLIGHT--SignalRHost.ReceiveGuestMessage ->");
+        }
+
         public async Task SendMessage()
         {
             _log.LogInformation("-> SendMessage");
@@ -137,14 +207,13 @@ namespace TimekeeperClient.Model
             try
             {
                 CurrentMessage = InputMessage;
-
                 var content = new StringContent(InputMessage);
 
                 var functionKey = _config.GetValue<string>(SendMessageKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
 
                 var sendMessageUrl = $"{_hostName}/send";
-                _log.LogDebug($"startClockUrl: {sendMessageUrl}");
+                _log.LogDebug($"sendMessageUrl: {sendMessageUrl}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, sendMessageUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);

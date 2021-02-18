@@ -29,6 +29,7 @@ namespace TimekeeperClient.Model
         protected const string HostNameKey = "HostName";
         protected const string NegotiateKeyKey = "NegotiateKey";
         protected const string SendMessageKeyKey = "SendMessageKey";
+        protected const string AnnounceGuestKeyKey = "AnnounceGuestKey";
         protected const string StartClockKeyKey = "StartClockKey";
         protected const string StopClockKeyKey = "StopClockKey";
         protected const string RegisterKeyKey = "RegisterKey";

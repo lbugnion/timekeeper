@@ -48,7 +48,9 @@ namespace TimekeeperClient.Pages
             {
                 EditGuestNameLinkText = EditGuestNameText;
                 Handler.GuestInfo.Message.CustomName = GuestName;
+                GuestName = Handler.GuestInfo.Message.DisplayName;
                 await Handler.GuestInfo.Save();
+                await Handler.Announce();
             }
         }
 
@@ -79,8 +81,8 @@ namespace TimekeeperClient.Pages
                 Session);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
             await Handler.InitializeGuestInfo();
+            await Handler.Connect();
 
             GuestName = Handler.GuestInfo.Message.DisplayName;
 

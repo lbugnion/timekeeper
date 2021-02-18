@@ -84,7 +84,10 @@
                     @if (IsGuestListExpanded)
                     {
                         <ul>
-                            <li>@AnonymousGuests anonymous guests</li>
+                            @if (@AnonymousGuests > 0)
+                            {
+                                <li>@AnonymousGuests anonymous guest(s)</li>
+                            }
 
                             @foreach (var guest in NamedGuests)
                             {
@@ -95,7 +98,6 @@
                 }
             </div>
         }
-
 
         <div class="controls-area">
             <button disabled="@Handler.IsDeleteSessionDisabled"

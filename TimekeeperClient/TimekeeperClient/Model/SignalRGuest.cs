@@ -94,6 +94,13 @@ namespace TimekeeperClient.Model
                 {
                     IsConnected = true;
                     CurrentMessage = "Ready";
+                    ok = await Announce();
+
+                    if (!ok)
+                    {
+                        IsConnected = false;
+                        CurrentMessage = "Error";
+                    }
                 }
                 else
                 {
@@ -109,6 +116,39 @@ namespace TimekeeperClient.Model
 
             IsBusy = false;
             _log.LogInformation("SignalRGuest.Connect ->");
+        }
+
+        public async Task<bool> Announce()
+        {
+            _log.LogInformation("HIGHLIGHT---> Announce");
+
+            var json = JsonConvert.SerializeObject(GuestInfo.Message);
+            _log.LogDebug($"json: {json}");
+
+            var content = new StringContent(json);
+
+            var functionKey = _config.GetValue<string>(AnnounceGuestKeyKey);
+            _log.LogDebug($"functionKey: {functionKey}");
+
+            var announceUrl = $"{_hostName}/announce";
+            _log.LogDebug($"announceUrl: {announceUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, announceUrl);
+            httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+            httpRequest.Content = content;
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _log.LogError($"Cannot send message: {response.ReasonPhrase}");
+                _log.LogInformation("HIGHLIGHT--Announce ->");
+                return false;
+            }
+
+            _log.LogInformation("HIGHLIGHT--Announce ->");
+            return true;
         }
     }
 }

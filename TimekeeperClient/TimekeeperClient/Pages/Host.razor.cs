@@ -47,6 +47,7 @@ namespace TimekeeperClient.Pages
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
+            GuestListLinkText = "show";
 
             Handler = new SignalRHost(
                 Config,
@@ -104,24 +105,6 @@ namespace TimekeeperClient.Pages
         public void Reconnect()
         {
             Nav.NavigateTo("/host", forceLoad: true);
-        }
-
-        public void TEMPOAddGuest()
-        {
-            Handler.ConnectedGuests.Add(new GuestMessage
-            {
-                GuestId = Guid.NewGuid().ToString()
-            });
-        }
-
-        public void TEMPOAddName()
-        {
-            var random = new Random();
-            var next = random.Next(0, Handler.ConnectedGuests.Count);
-
-            Handler
-                .ConnectedGuests[next]
-                .CustomName = $"Name # {Handler.ConnectedGuests.IndexOf(Handler.ConnectedGuests[next])}";
         }
 
         public int AnonymousGuests
