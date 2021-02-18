@@ -7,7 +7,19 @@
 
 <main style="background-color: @Handler.BackgroundColor">
     <article>
-        <h1>Guest</h1>
+        @if (IsEditingGuestName)
+        {
+            <input class="h1-edit-field" @bind-value="@GuestName" />
+        }
+        else
+        {
+            <h1>@GuestName</h1>
+        }
+
+        @if (!Handler.IsBusy)
+        {
+            <div class="edit-link"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
+        }
 
         @if (Program.IsExperimental)
         {

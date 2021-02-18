@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -14,6 +15,12 @@ namespace TimekeeperClient.Model
     {
         private string _session;
 
+        public Guest GuestInfo
+        {
+            get;
+            private set;
+        }
+
         public SignalRGuest(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -21,13 +28,31 @@ namespace TimekeeperClient.Model
             HttpClient http,
             string session) : base(config, localStorage, log, http)
         {
+            _log.LogInformation("> SignalRGuest()");
+
             _session = session;
+            Guest.SetLocalStorage(localStorage, log);
+        }
+
+        public async Task InitializeGuestInfo()
+        {
+            _log.LogInformation("> InitializeGuestInfo");
+
+            GuestInfo = await Guest.GetFromStorage();
+
+            if (GuestInfo == null)
+            {
+                _log.LogTrace("GuestInfo is null");
+                GuestInfo = new Guest();
+            }
+
+            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
+            _log.LogInformation("InitializeGuestInfo ->");
         }
 
         private void ReceiveStartClock(string message)
         {
             _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
-
             _log.LogDebug($"message: {message}");
 
             CurrentSession.ClockMessage = JsonConvert.DeserializeObject<StartClockMessage>(message);

@@ -15,6 +15,43 @@ namespace TimekeeperClient.Pages
             set;
         }
 
+        private const string EditGuestNameText = "edit your name";
+        private const string SaveGuestNameText = "save your name";
+
+        public string EditGuestNameLinkText
+        {
+            get;
+            private set;
+        }
+
+        public bool IsEditingGuestName
+        {
+            get;
+            private set;
+        }
+
+        public string GuestName
+        {
+            get;
+            private set;
+        }
+
+        public async Task EditGuestName()
+        {
+            IsEditingGuestName = !IsEditingGuestName;
+
+            if (IsEditingGuestName)
+            {
+                EditGuestNameLinkText = SaveGuestNameText;
+            }
+            else
+            {
+                EditGuestNameLinkText = EditGuestNameText;
+                Handler.GuestInfo.Message.CustomName = GuestName;
+                await Handler.GuestInfo.Save();
+            }
+        }
+
         public SignalRGuest Handler
         {
             get;
@@ -28,6 +65,12 @@ namespace TimekeeperClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogInformation("-> OnInitializedAsync");
+
+            IsEditingGuestName = false;
+            GuestName = "Loading...";
+            EditGuestNameLinkText = EditGuestNameText;
+
             Handler = new SignalRGuest(
                 Config,
                 LocalStorage,
@@ -37,11 +80,17 @@ namespace TimekeeperClient.Pages
 
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect();
+            await Handler.InitializeGuestInfo();
+
+            GuestName = Handler.GuestInfo.Message.DisplayName;
+
+            Log.LogDebug($"GuestName: {GuestName}");
+            Log.LogInformation("OnInitializedAsync ->");
         }
 
         public async void Dispose()
         {
-            Log.LogTrace("HIGHLIGHT--Dispose");
+            Log.LogTrace("Dispose");
 
             if (Handler != null)
             {

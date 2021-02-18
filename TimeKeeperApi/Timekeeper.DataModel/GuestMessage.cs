@@ -1,4 +1,6 @@
-﻿namespace Timekeeper.DataModel
+﻿using Newtonsoft.Json;
+
+namespace Timekeeper.DataModel
 {
     public class GuestMessage
     {
@@ -14,6 +16,7 @@
             set;
         }
 
+        [JsonIgnore]
         public string DisplayName
         {
             get
