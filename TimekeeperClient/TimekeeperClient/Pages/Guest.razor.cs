@@ -3,11 +3,19 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using TimekeeperClient.Model;
+using TimekeeperClient.Model.HelloWorld;
 
 namespace TimekeeperClient.Pages
 {
     public partial class Guest : IDisposable
     {
+        public Days Today
+        {
+            get;
+            set;
+        }
+
+
         [Parameter]
         public string Session
         {
@@ -38,6 +46,8 @@ namespace TimekeeperClient.Pages
 
         public async Task EditGuestName()
         {
+            Today = new Days(Log);
+
             IsEditingGuestName = !IsEditingGuestName;
 
             if (IsEditingGuestName)

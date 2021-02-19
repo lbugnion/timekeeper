@@ -175,3 +175,8 @@ li.validation-message {
     margin-top: 4px;
     margin-bottom: 5px;
 }
+
+.background {
+    width: 100%;
+    height: 100%;
+}

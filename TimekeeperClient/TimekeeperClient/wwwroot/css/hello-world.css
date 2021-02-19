@@ -63,7 +63,21 @@ header {
     padding: 10px 20px;
 }
 
-article {
-    position: fixed;
-    top: 90px;
+main {
+    padding: 100px 0 1.5em 0; /* Footer height */
+}
+
+.clock-text {
+    font-size: 5em;
+    margin-top: -10px;
+}
+
+.message-text {
+    font-size: 3em;
+    line-height: 1em;
+}
+
+.message-area {
+    margin-top: 10px;
+    margin-bottom: 20px;
 }

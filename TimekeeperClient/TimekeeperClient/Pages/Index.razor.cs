@@ -2,11 +2,18 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using TimekeeperClient.Model.HelloWorld;
 
 namespace TimekeeperClient.Pages
 {
     public partial class Index
     {
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         [Parameter]
         public string Session
         {
@@ -33,12 +40,14 @@ namespace TimekeeperClient.Pages
 
             if (!string.IsNullOrEmpty(Session))
             {
-                Nav.NavigateTo($"/guest/{Session}");
+                Nav.NavigateTo($"/helloworld-backstage/guest/{Session}");
                 return;
             }
 
             try
             {
+                Today = new Days(Log);
+
                 var version = Assembly
                     .GetExecutingAssembly()
                     .GetName()
@@ -65,7 +74,7 @@ namespace TimekeeperClient.Pages
 
         public void LogInHost()
         {
-            Nav.NavigateTo("/host");
+            Nav.NavigateTo("/helloworld-backstage/host");
         }
     }
 }

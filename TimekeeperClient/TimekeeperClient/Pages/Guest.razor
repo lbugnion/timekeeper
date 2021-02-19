@@ -1,9 +1,16 @@
-﻿@page "/guest"
-@page "/guest/{Session}"
+﻿@page "/helloworld-backstage/guest"
+@page "/helloworld-backstage/guest/{Session}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
+
+<header class="@Today.BackgroundClass">
+
+    <img src="@Today.ImagePath"
+         style="width: 300px;" />
+
+</header>
 
 <main style="background-color: @Handler.BackgroundColor">
     <article>
@@ -43,6 +50,6 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Today.FooterClass">
     <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
 </footer>

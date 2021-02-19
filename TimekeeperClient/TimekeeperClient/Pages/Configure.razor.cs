@@ -5,11 +5,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using TimeKeeperApi.DataModel;
 using TimekeeperClient.Model;
+using TimekeeperClient.Model.HelloWorld;
 
 namespace TimekeeperClient.Pages
 {
     public partial class Configure
     {
+        public Days Today
+        {
+            get;
+            set;
+        }
+
+
         public Session CurrentSession
         {
             get;
@@ -25,6 +33,8 @@ namespace TimekeeperClient.Pages
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
+
+            Today = new Days(Log);
 
             CurrentSession = await Session.GetFromStorage();
 

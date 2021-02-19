@@ -6,11 +6,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using TimekeeperClient.Model;
+using TimekeeperClient.Model.HelloWorld;
 
 namespace TimekeeperClient.Pages
 {
     public partial class Host : IDisposable
     {
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         public bool IsEditingSessionName
         {
             get;
@@ -33,7 +40,7 @@ namespace TimekeeperClient.Pages
         {
             get
             {
-                return $"{Nav.BaseUri}{Handler.CurrentSession.SessionId}";
+                return $"{Nav.BaseUri}helloworld-backstage/{Handler.CurrentSession.SessionId}";
             }
         }
 
@@ -44,6 +51,8 @@ namespace TimekeeperClient.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Today = new Days(Log);
+
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
@@ -99,12 +108,12 @@ namespace TimekeeperClient.Pages
 
         public void ConfigureSession()
         {
-            Nav.NavigateTo("/configure");
+            Nav.NavigateTo("/helloworld-backstage/configure");
         }
 
         public void CreateNewSession()
         {
-            Nav.NavigateTo("/host", forceLoad: true);
+            Nav.NavigateTo("/helloworld-backstage/host", forceLoad: true);
         }
 
         public int AnonymousGuests
