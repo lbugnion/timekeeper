@@ -52,6 +52,15 @@ footer {
     font-size: 1em;
 }
 
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 7px 5px 0 5px;
+    overflow: hidden;
+    font-size: 1em;
+}
+
 p {
     margin-bottom: 10px;
     font-size: 1em;

@@ -1,0 +1,49 @@
+﻿.background-day-mon {
+    background-color: #233BC2;
+}
+
+.background-day-tue {
+    background-color: #8120BA;
+}
+
+.background-day-wed {
+    background-color: #05574C;
+}
+
+.background-day-thu {
+    background-color: #595959;
+}
+
+.background-day-fri {
+    background-color: #1A3B1F;
+}
+
+.foreground-day-mon {
+    color: #233BC2;
+}
+
+.foreground-day-tue {
+    color: #8120BA;
+}
+
+.foreground-day-wed {
+    color: #05574C;
+}
+
+.foreground-day-thu {
+    color: #595959;
+}
+
+.foreground-day-fri {
+    color: #1A3B1F;
+}
+
+header {
+    height: 80px;
+    padding: 10px 20px;
+}
+
+article {
+    position: fixed;
+    top: 90px;
+}

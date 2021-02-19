@@ -7,11 +7,6 @@ namespace TimekeeperClient.Pages
 {
     public partial class Index
     {
-        public const string NormalBackgroundClassName = "background-normal";
-        public const string RedBackgroundClassName = "background-red";
-        public const string RunningBackgroundClassName = "background-running";
-        public const string YellowBackgroundClassName = "background-yellow";
-
         [Parameter]
         public string Session
         {
