@@ -99,7 +99,11 @@ namespace TimekeeperClient.Pages
                 Handler.UpdateUi -= HandlerUpdateUi;
             }
 
-            await Handler.Disconnect();
+            await Task.Run(async () =>
+            {
+                await Handler.Announce(true);
+                await Handler.Disconnect();
+            });
         }
     }
 }

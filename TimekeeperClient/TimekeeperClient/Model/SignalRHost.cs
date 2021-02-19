@@ -170,25 +170,38 @@ namespace TimekeeperClient.Model
                 return;
             }
 
+            _log.LogDebug($"Disconnecting: {messageGuest.Disconnecting}");
+
             var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == messageGuest.GuestId);
 
             if (existingGuest == null)
             {
                 _log.LogTrace("No existing guest found");
 
-                ConnectedGuests.Add(new GuestMessage
+                if (!messageGuest.Disconnecting)
                 {
-                    GuestId = messageGuest.GuestId,
-                    CustomName = messageGuest.CustomName
-                });
+                    ConnectedGuests.Add(new GuestMessage
+                    {
+                        GuestId = messageGuest.GuestId,
+                        CustomName = messageGuest.CustomName
+                    });
 
-                _log.LogTrace("Added");
+                    _log.LogTrace("Added");
+                }
             }
             else
             {
                 _log.LogDebug($"Existing guest found: Old name {existingGuest.DisplayName}");
-                existingGuest.CustomName = messageGuest.CustomName;
-                _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
+
+                if (messageGuest.Disconnecting)
+                {
+                    ConnectedGuests.Remove(existingGuest);
+                }
+                else
+                {
+                    existingGuest.CustomName = messageGuest.CustomName;
+                    _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
+                }
             }
 
             RaiseUpdateEvent();

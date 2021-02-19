@@ -118,9 +118,11 @@ namespace TimekeeperClient.Model
             _log.LogInformation("SignalRGuest.Connect ->");
         }
 
-        public async Task<bool> Announce()
+        public async Task<bool> Announce(bool dispose = false)
         {
             _log.LogInformation("HIGHLIGHT---> Announce");
+
+            GuestInfo.Message.Disconnecting = dispose;
 
             var json = JsonConvert.SerializeObject(GuestInfo.Message);
             _log.LogDebug($"json: {json}");
