@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
-using TimeKeeperApi.Model;
 using TimeKeeperApi.DataModel;
 
 namespace TimeKeeperApi
