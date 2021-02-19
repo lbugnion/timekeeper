@@ -1,20 +1,25 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
 using TimekeeperClient.Model;
 using TimekeeperClient.Model.HelloWorld;
 
-namespace TimekeeperClient.Pages
+namespace TimekeeperClient.Pages.HelloWorld
 {
     public partial class Guest : IDisposable
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
+        }
+
         public Days Today
         {
             get;
             set;
         }
-
 
         [Parameter]
         public string Session

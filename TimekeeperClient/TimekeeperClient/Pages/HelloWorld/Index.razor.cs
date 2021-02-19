@@ -1,13 +1,20 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Reflection;
+using System.Threading.Tasks;
 using TimekeeperClient.Model.HelloWorld;
 
-namespace TimekeeperClient.Pages
+namespace TimekeeperClient.Pages.HelloWorld
 {
     public partial class Index
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
+        }
+
         public Days Today
         {
             get;

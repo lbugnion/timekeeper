@@ -1,22 +1,25 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.JSInterop;
 using System.Linq;
 using System.Threading.Tasks;
-using TimeKeeperApi.DataModel;
 using TimekeeperClient.Model;
 using TimekeeperClient.Model.HelloWorld;
 
-namespace TimekeeperClient.Pages
+namespace TimekeeperClient.Pages.HelloWorld
 {
     public partial class Configure
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
+        }
+
         public Days Today
         {
             get;
             set;
         }
-
 
         public Session CurrentSession
         {

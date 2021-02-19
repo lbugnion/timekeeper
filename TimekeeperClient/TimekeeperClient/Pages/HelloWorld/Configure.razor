@@ -1,12 +1,11 @@
 ﻿@page "/helloworld-backstage/configure"
 @inject ILocalStorageService LocalStorage
 @inject ILogger<Configure> Log
+@inject IJSRuntime JSRuntime;
 
 <header class="@Today.BackgroundClass">
-
     <img src="@Today.ImagePath"
          class="logo-image" />
-
 </header>
 
 <main>

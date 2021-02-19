@@ -4,16 +4,15 @@
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Nav
+@inject IJSRuntime JSRuntime;
 
 <header class="@Today.BackgroundClass">
-
     <img src="@Today.ImagePath"
          class="logo-image" />
-
 </header>
 
 <main>
-    <div class="background" 
+    <div class="background"
          style="background-color: @Handler.BackgroundColor">
         <article>
 
@@ -86,24 +85,24 @@
                         <p>
                             There are @Handler.ConnectedGuests.Count connected guest(s).
                             @*<a href="#"
-                               @onclick="ToggleIsGuestListExpanded"
-                               @onclick:preventDefault>(@GuestListLinkText)</a>*@
+                                @onclick="ToggleIsGuestListExpanded"
+                                @onclick:preventDefault>(@GuestListLinkText)</a>*@
                         </p>
 
                         @*@if (IsGuestListExpanded)
-                        {
-                            <ul>
-                                @if (@AnonymousGuests > 0)
-                                {
-                                    <li>@AnonymousGuests anonymous guest(s)</li>
-                                }
+                            {
+                                <ul>
+                                    @if (@AnonymousGuests > 0)
+                                    {
+                                        <li>@AnonymousGuests anonymous guest(s)</li>
+                                    }
 
-                                @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
-                                {
-                                    <li>@guest.DisplayName</li>
-                                }
-                            </ul>
-                        }*@
+                                    @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
+                                    {
+                                        <li>@guest.DisplayName</li>
+                                    }
+                                </ul>
+                            }*@
                     }
                 </div>
             }

@@ -4,34 +4,33 @@
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime;
 
 <header class="@Today.BackgroundClass">
-
     <img src="@Today.ImagePath"
          class="logo-image" />
-
 </header>
 
 <main>
-    <div class="background" 
+    <div class="background"
          style="background-color: @Handler.BackgroundColor">
         <article>
 
             <h1 class="@Today.ForegroundClass">Welcome Backstage</h1>
 
             @*@if (IsEditingGuestName)
-            {
-                <input class="h1-edit-field" @bind-value="@GuestName" />
-            }
-            else
-            {
-                <h1 class="@Today.ForegroundClass">@GuestName</h1>
-            }
+                {
+                    <input class="h1-edit-field" @bind-value="@GuestName" />
+                }
+                else
+                {
+                    <h1 class="@Today.ForegroundClass">@GuestName</h1>
+                }
 
-            @if (!Handler.IsBusy)
-            {
-                <div class="edit-link"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
-            }*@
+                @if (!Handler.IsBusy)
+                {
+                    <div class="edit-link"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
+                }*@
 
             @if (Program.IsExperimental)
             {

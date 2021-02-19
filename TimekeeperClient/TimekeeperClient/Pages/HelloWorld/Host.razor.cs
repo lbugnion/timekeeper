@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,10 +8,15 @@ using Timekeeper.DataModel;
 using TimekeeperClient.Model;
 using TimekeeperClient.Model.HelloWorld;
 
-namespace TimekeeperClient.Pages
+namespace TimekeeperClient.Pages.HelloWorld
 {
     public partial class Host : IDisposable
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
+        }
+
         public Days Today
         {
             get;
