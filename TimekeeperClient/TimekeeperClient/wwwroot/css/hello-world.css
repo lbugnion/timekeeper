@@ -38,6 +38,26 @@
     color: #1A3B1F;
 }
 
+.footer-day-mon {
+    background-color: #53E1FC;
+}
+
+.footer-day-tue {
+    background-color: #CD91FA;
+}
+
+.footer-day-wed {
+    background-color: #3BE0C9;
+}
+
+.footer-day-thu {
+    background-color: #FAED3B;
+}
+
+.footer-day-fri {
+    background-color: #92EE39;
+}
+
 header {
     height: 80px;
     padding: 10px 20px;

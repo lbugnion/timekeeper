@@ -40,6 +40,12 @@ namespace TimekeeperClient.Pages
             set;
         }
 
+        public string FooterClass
+        {
+            get;
+            set;
+        }
+
         public Days(ILogger log)
         {
             _log = log;
@@ -47,10 +53,14 @@ namespace TimekeeperClient.Pages
             var currentDay = DateTime.Now
                 .ToString("ddd", System.Globalization.CultureInfo.InvariantCulture)
                 .ToLower();
+
+            currentDay = "mon";
+
             ImagePath = $"/images/hello-world/hello-world-logo-{currentDay}.png";
 
             BackgroundClass = $"background-day-{currentDay}";
             ForegroundClass = $"foreground-day-{currentDay}";
+            FooterClass = $"footer-day-{currentDay}";
 
             _log.LogDebug(ImagePath);
         }
