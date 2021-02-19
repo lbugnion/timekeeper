@@ -1,4 +1,4 @@
-﻿namespace TimeKeeper.DataModel
+﻿namespace Timekeeper.DataModel
 {
     public class Constants
     {
