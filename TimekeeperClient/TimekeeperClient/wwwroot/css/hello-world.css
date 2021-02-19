@@ -67,6 +67,10 @@ main {
     padding: 100px 0 1.5em 0; /* Footer height */
 }
 
+.clock-area {
+    margin-top: 40px;
+}
+
 .clock-text {
     font-size: 5em;
 }
