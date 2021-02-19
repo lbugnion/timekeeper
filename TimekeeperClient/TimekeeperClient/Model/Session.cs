@@ -23,6 +23,13 @@ namespace TimekeeperClient.Model
             set;
         }
 
+        [Required]
+        public string UserId
+        {
+            get;
+            set;
+        }
+
         public StartClockMessage ClockMessage
         {
             get;

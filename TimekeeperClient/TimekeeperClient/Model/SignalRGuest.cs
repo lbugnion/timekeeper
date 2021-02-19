@@ -34,20 +34,31 @@ namespace TimekeeperClient.Model
             Guest.SetLocalStorage(localStorage, log);
         }
 
-        public async Task InitializeGuestInfo()
+        public async Task<bool> InitializeGuestInfo()
         {
-            _log.LogInformation("> InitializeGuestInfo");
+            _log.LogInformation("HIGHLIGHT---> InitializeGuestInfo");
 
             GuestInfo = await Guest.GetFromStorage();
 
             if (GuestInfo == null)
             {
-                _log.LogTrace("GuestInfo is null");
-                GuestInfo = new Guest();
+                _log.LogTrace("HIGHLIGHT--GuestInfo is null");
+                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
+                GuestInfo = new Guest(CurrentSession.UserId);
+                await GuestInfo.Save();
+            }
+
+            if (GuestInfo.Message.GuestId != CurrentSession.UserId)
+            {
+                _log.LogTrace($"HIGHLIGHT--Fixing GuestId");
+                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
+                GuestInfo.Message.GuestId = CurrentSession.UserId;
+                await GuestInfo.Save();
             }
 
             _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
+            return true;
         }
 
         private void ReceiveStartClock(string message)
@@ -80,6 +91,7 @@ namespace TimekeeperClient.Model
             IsBusy = true;
 
             var ok = await InitializeSession(_session)
+                && await InitializeGuestInfo()
                 && await CreateConnection();
 
             if (ok)
@@ -94,12 +106,20 @@ namespace TimekeeperClient.Model
                 {
                     IsConnected = true;
                     CurrentMessage = "Ready";
-                    ok = await Announce();
 
-                    if (!ok)
+                    _log.LogTrace($"Name is {GuestInfo.Message.DisplayName}");
+
+                    if (!string.IsNullOrEmpty(GuestInfo.Message.CustomName))
                     {
-                        IsConnected = false;
-                        CurrentMessage = "Error";
+                        _log.LogTrace($"Sending name {GuestInfo.Message.CustomName}");
+
+                        ok = await AnnounceName();
+
+                        if (!ok)
+                        {
+                            IsConnected = false;
+                            CurrentMessage = "Error";
+                        }
                     }
                 }
                 else
@@ -118,11 +138,11 @@ namespace TimekeeperClient.Model
             _log.LogInformation("SignalRGuest.Connect ->");
         }
 
-        public async Task<bool> Announce(bool dispose = false)
+        public async Task<bool> AnnounceName()
         {
-            _log.LogInformation("HIGHLIGHT---> Announce");
-
-            GuestInfo.Message.Disconnecting = dispose;
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
+            _log.LogDebug($"UserId: {CurrentSession.UserId}");
+            _log.LogDebug($"GuestId: {GuestInfo.Message.GuestId}");
 
             var json = JsonConvert.SerializeObject(GuestInfo.Message);
             _log.LogDebug($"json: {json}");
@@ -145,11 +165,11 @@ namespace TimekeeperClient.Model
             if (!response.IsSuccessStatusCode)
             {
                 _log.LogError($"Cannot send message: {response.ReasonPhrase}");
-                _log.LogInformation("HIGHLIGHT--Announce ->");
+                _log.LogInformation($"{nameof(AnnounceName)} ->");
                 return false;
             }
 
-            _log.LogInformation("HIGHLIGHT--Announce ->");
+            _log.LogInformation($"{nameof(AnnounceName)} ->");
             return true;
         }
     }

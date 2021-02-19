@@ -176,6 +176,7 @@ namespace TimekeeperClient.Model
                 {
                     SessionId = string.IsNullOrEmpty(sessionId) ? Guid.NewGuid().ToString() : sessionId,
                     SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    UserId = Guid.NewGuid().ToString(),
 
                     ClockMessage = new StartClockMessage
                     {
@@ -244,7 +245,7 @@ namespace TimekeeperClient.Model
                 _log.LogDebug($"functionKey: {functionKey}");
 
                 _log.LogDebug($"SessionId: {CurrentSession.SessionId}");
-                _log.LogDebug($"UserId: {Program.GroupInfo.UserId}");
+                _log.LogDebug($"UserId: {CurrentSession.UserId}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
@@ -252,7 +253,7 @@ namespace TimekeeperClient.Model
 
                 var registerInfo = new UserInfo
                 {
-                    UserId = Program.GroupInfo.UserId
+                    UserId = CurrentSession.UserId
                 };
 
                 var content = new StringContent(JsonConvert.SerializeObject(registerInfo));
@@ -298,9 +299,9 @@ namespace TimekeeperClient.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add(Constants.UserIdHeaderKey, Program.GroupInfo.UserId);
+                httpRequest.Headers.Add(Constants.UserIdHeaderKey, CurrentSession.UserId);
 
-                _log.LogDebug($"UserId: {Program.GroupInfo.UserId}");
+                _log.LogDebug($"UserId: {CurrentSession.UserId}");
 
                 var response = await _http.SendAsync(httpRequest);
 

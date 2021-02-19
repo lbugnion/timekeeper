@@ -28,19 +28,8 @@ namespace TimekeeperClient
             }
         }
 
-        public static UserInfo GroupInfo
-        {
-            get;
-            set;
-        }
-
         public static async Task Main(string[] args)
         {
-            GroupInfo = new UserInfo
-            {
-                UserId = Guid.NewGuid().ToString()
-            };
-
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 

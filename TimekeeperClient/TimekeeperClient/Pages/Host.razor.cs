@@ -62,7 +62,7 @@ namespace TimekeeperClient.Pages
 
         public async void Dispose()
         {
-            Log.LogTrace("HIGHLIGHT--Dispose");
+            Log.LogTrace("Dispose");
 
             if (Handler != null)
             {
@@ -102,7 +102,7 @@ namespace TimekeeperClient.Pages
             Nav.NavigateTo("/configure");
         }
 
-        public void Reconnect()
+        public void CreateNewSession()
         {
             Nav.NavigateTo("/host", forceLoad: true);
         }

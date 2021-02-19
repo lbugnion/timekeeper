@@ -50,7 +50,7 @@ namespace TimekeeperClient.Pages
                 Handler.GuestInfo.Message.CustomName = GuestName;
                 GuestName = Handler.GuestInfo.Message.DisplayName;
                 await Handler.GuestInfo.Save();
-                await Handler.Announce();
+                await Handler.AnnounceName();
             }
         }
 
@@ -81,7 +81,6 @@ namespace TimekeeperClient.Pages
                 Session);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.InitializeGuestInfo();
             await Handler.Connect();
 
             GuestName = Handler.GuestInfo.Message.DisplayName;
@@ -101,7 +100,6 @@ namespace TimekeeperClient.Pages
 
             await Task.Run(async () =>
             {
-                await Handler.Announce(true);
                 await Handler.Disconnect();
             });
         }

@@ -19,11 +19,11 @@ namespace TimekeeperClient.Model
             internal set;
         }
 
-        public Guest()
+        public Guest(string guestId)
         {
             Message = new GuestMessage
             {
-                GuestId = Guid.NewGuid().ToString()
+                GuestId = guestId
             };
         }
 
@@ -51,13 +51,13 @@ namespace TimekeeperClient.Model
             var json = await _localStorage.GetItemAsStringAsync(
                 GuestStorageKey);
 
-            _log.LogDebug($"HIGHLIGHT--Getting: {json}");
+            _log.LogDebug($"Getting: {json}");
 
             if (!string.IsNullOrEmpty(json))
             {
                 var guest = JsonConvert.DeserializeObject<Guest>(json);
 
-                _log.LogDebug($"HIGHLIGHT--Guest name: {guest.Message.DisplayName}");
+                _log.LogDebug($"Guest name: {guest.Message.DisplayName}");
 
                 return guest;
             }

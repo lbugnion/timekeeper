@@ -89,7 +89,7 @@
                                 <li>@AnonymousGuests anonymous guest(s)</li>
                             }
 
-                            @foreach (var guest in NamedGuests)
+                            @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
                             {
                                 <li>@guest.DisplayName</li>
                             }
@@ -101,11 +101,11 @@
 
         <div class="controls-area">
             <button disabled="@Handler.IsDeleteSessionDisabled"
-                    @onclick="@Handler.Disconnect">
+                    @onclick="@Handler.DeleteSession">
                 Delete the session
             </button>
             <button disabled="@Handler.IsCreateNewSessionDisabled"
-                    @onclick="@Reconnect">
+                    @onclick="@CreateNewSession">
                 Create a new session
             </button>
         </div>

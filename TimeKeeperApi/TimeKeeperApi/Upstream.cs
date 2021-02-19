@@ -16,12 +16,20 @@ namespace TimeKeeperApi
                 hubName: Constants.HubName,
                 "connections",  
                 "disconnected")] 
-            InvocationContext invocationContext, 
+            InvocationContext invocationContext,
+            [SignalR(HubName = Constants.HubName)]
+            IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
             log.LogInformation($"-> {nameof(ReceiveDisconnected)}");
+            log.LogDebug($"UserId: {invocationContext.UserId}");
 
-            log.LogDebug($"connectionId: {invocationContext.ConnectionId}");
+            await queue.AddAsync(
+                new SignalRMessage
+                {
+                    Target = Constants.DisconnectMessage,
+                    Arguments = new[] { invocationContext.UserId }
+                });
 
             return new OkObjectResult("OK");
         }
@@ -33,11 +41,19 @@ namespace TimeKeeperApi
                 "connections",
                 "connected")]
             InvocationContext invocationContext,
+            [SignalR(HubName = Constants.HubName)]
+            IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
             log.LogInformation($"-> {nameof(ReceiveConnected)}");
+            log.LogDebug($"UserId: {invocationContext.UserId}");
 
-            log.LogDebug($"connectionId: {invocationContext.ConnectionId}");
+            await queue.AddAsync(
+                new SignalRMessage
+                {
+                    Target = Constants.ConnectMessage,
+                    Arguments = new[] { invocationContext.UserId }
+                });
 
             return new OkObjectResult("OK");
         }

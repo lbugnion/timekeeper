@@ -98,6 +98,8 @@ namespace TimekeeperClient.Model
             if (ok)
             {
                 _connection.On<string>(Constants.GuestToHostMessageName, ReceiveGuestMessage);
+                _connection.On<string>(Constants.ConnectMessage, ReceiveConnectMessage);
+                _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
 
                 ok = await StartConnection();
 
@@ -148,7 +150,7 @@ namespace TimekeeperClient.Model
 
         public void ReceiveGuestMessage(string json)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRHost.ReceiveGuestMessage");
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
@@ -164,48 +166,94 @@ namespace TimekeeperClient.Model
 
             var success = Guid.TryParse(messageGuest.GuestId, out Guid guestGuid);
 
-            if (!success)
+            if (!success
+                || guestGuid == Guid.Empty)
             {
                 _log.LogWarning($"GuestId is not a GUID");
                 return;
             }
 
-            _log.LogDebug($"Disconnecting: {messageGuest.Disconnecting}");
-
             var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == messageGuest.GuestId);
 
             if (existingGuest == null)
             {
-                _log.LogTrace("No existing guest found");
-
-                if (!messageGuest.Disconnecting)
-                {
-                    ConnectedGuests.Add(new GuestMessage
-                    {
-                        GuestId = messageGuest.GuestId,
-                        CustomName = messageGuest.CustomName
-                    });
-
-                    _log.LogTrace("Added");
-                }
+                _log.LogWarning("No existing guest found");
             }
             else
             {
                 _log.LogDebug($"Existing guest found: Old name {existingGuest.DisplayName}");
-
-                if (messageGuest.Disconnecting)
-                {
-                    ConnectedGuests.Remove(existingGuest);
-                }
-                else
-                {
-                    existingGuest.CustomName = messageGuest.CustomName;
-                    _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
-                }
+                existingGuest.CustomName = messageGuest.CustomName;
+                _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
             }
 
             RaiseUpdateEvent();
-            _log.LogInformation("HIGHLIGHT--SignalRHost.ReceiveGuestMessage ->");
+            _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
+        }
+
+        public void ReceiveDisconnectMessage(string guestId)
+        {
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveDisconnectMessage)}");
+            _log.LogDebug($"{nameof(guestId)} {guestId}");
+            _log.LogDebug($"UserId in CurrentSession: {CurrentSession.UserId}");
+
+            var success = Guid.TryParse(guestId, out Guid guestGuid);
+
+            if (!success
+                || guestGuid == Guid.Empty)
+            {
+                _log.LogWarning($"GuestId is not a GUID");
+                return;
+            }
+
+            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == guestId);
+
+            if (existingGuest == null)
+            {
+                _log.LogWarning("No existing guest found");
+                return;
+            }
+
+            ConnectedGuests.Remove(existingGuest);
+            RaiseUpdateEvent();
+            _log.LogInformation($"SignalRHost.{nameof(ReceiveDisconnectMessage)} ->");
+        }
+
+        public void ReceiveConnectMessage(string guestId)
+        {
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveConnectMessage)}");
+            _log.LogDebug($"{nameof(guestId)} {guestId}");
+            _log.LogDebug($"UserId in CurrentSession: {CurrentSession.UserId}");
+
+            var success = Guid.TryParse(guestId, out Guid guestGuid);
+
+            if (!success
+                || guestGuid == Guid.Empty)
+            {
+                _log.LogWarning($"GuestId is not a GUID");
+                return;
+            }
+
+            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == guestId);
+
+            if (existingGuest != null)
+            {
+                _log.LogWarning("Found existing guest, nothing to do");
+                return;
+            }
+
+            if (guestId == CurrentSession.UserId)
+            {
+                _log.LogWarning($"Self connect received");
+                return;
+            }
+
+            ConnectedGuests.Add(new GuestMessage
+            {
+                GuestId = guestId
+            });
+
+            RaiseUpdateEvent();
+            _log.LogInformation($"SignalRHost.{nameof(ReceiveConnectMessage)} ->");
         }
 
         public async Task SendMessage()

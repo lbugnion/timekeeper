@@ -16,12 +16,6 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public bool Disconnecting
-        {
-            get;
-            set;
-        }
-
         [JsonIgnore]
         public string DisplayName
         {
