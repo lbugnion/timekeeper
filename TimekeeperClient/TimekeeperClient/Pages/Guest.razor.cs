@@ -79,6 +79,8 @@ namespace TimekeeperClient.Pages
         {
             Log.LogInformation("-> OnInitializedAsync");
 
+            Today = new Days(Log);
+
             IsEditingGuestName = false;
             GuestName = "Loading...";
             EditGuestNameLinkText = EditGuestNameText;

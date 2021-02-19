@@ -40,7 +40,7 @@ namespace TimekeeperClient.Pages
         {
             get
             {
-                return $"{Nav.BaseUri}helloworld-backstage/{Handler.CurrentSession.SessionId}";
+                return $"{Nav.BaseUri}helloworld-backstage/guest/{Handler.CurrentSession.SessionId}";
             }
         }
 
