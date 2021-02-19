@@ -1,16 +1,10 @@
-﻿@page "/helloworld-backstage/configure"
+﻿@page "/configure"
 @inject ILocalStorageService LocalStorage
 @inject ILogger<Configure> Log
-@inject IJSRuntime JSRuntime
-
-<header class="@Today.BackgroundClass">
-    <img src="@Today.ImagePath"
-         class="logo-image" />
-</header>
 
 <main>
     <article>
-        <h1 class="@Today.ForegroundClass">Configure</h1>
+        <h1>Configure</h1>
 
         @if (CurrentSession != null)
         {
@@ -50,11 +44,9 @@
 
                     <div class="config-time">
                         <InputNumber class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.PayAttentionSeconds" />
+                                     @bind-Value="@CurrentSession.ClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text"
+                                                                                                                              @bind-Value="@CurrentSession.ClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text"
+                                                                                                                                                                                                                         @bind-Value="@CurrentSession.ClockMessage.PayAttentionSeconds" />
                     </div>
                 </div>
 
@@ -72,11 +64,9 @@
 
                     <div class="config-time">
                         <InputNumber class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneSeconds" />
+                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text"
+                                                                                                                            @bind-Value="@CurrentSession.ClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text"
+                                                                                                                                                                                                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneSeconds" />
                     </div>
                 </div>
 
@@ -94,10 +84,10 @@
         }
         else
         {
-            <blockquote class="warning"><strong>NO SESSION FOUND:</strong> Please go back to <a href="/helloworld-backstage/host">the Host page</a> and make sure a session is active.</blockquote>
+            <blockquote class="warning"><strong>NO SESSION FOUND:</strong> Please go back to <a href="/host">the Host page</a> and make sure a session is active.</blockquote>
         }
     </article>
 </main>
 
-<footer class="@Today.FooterClass">
+<footer>
 </footer>

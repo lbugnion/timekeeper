@@ -15,32 +15,27 @@ footer {
     background-color: cornflowerblue;
 }
 
-.background-red {
-    background-color: #FF6B77;
-}
-
-.background-yellow {
-    background-color: #FFFB91;
-}
-
-.background-running {
-    background-color: #3AFFA9;
-}
-
-.background-normal {
-    background-color: white;
+.background {
+    width: 100%;
+    height: 100%;
 }
 
 .clock-area {
-    margin-top: 30px;
+    margin-top: 40px;
 }
 
 .clock-text {
-    font-size: 3em;
+    font-size: 5em;
 }
 
 .message-text {
-    font-size: 2em;
+    font-size: 3em;
+    line-height: 1em;
+}
+
+.message-area {
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .status-message {
@@ -80,10 +75,6 @@ blockquote.warning {
     padding: 10px;
 }
 
-article p, blockquote {
-    max-width: 500px;
-}
-
 article p, article ul, blockquote {
     max-width: 480px;
 }
@@ -112,6 +103,8 @@ a:hover {
     color: purple;
     text-decoration: underline;
 }
+
+/* Configuration */
 
 .h1-edit-field {
     font-size: 3em;
@@ -176,10 +169,7 @@ li.validation-message {
     margin-bottom: 5px;
 }
 
-.background {
-    width: 100%;
-    height: 100%;
-}
+/* Just for Hello World */
 
 .hello-world-warning {
     background-color: #8120BA;

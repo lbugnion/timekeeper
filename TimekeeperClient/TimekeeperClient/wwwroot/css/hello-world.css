@@ -1,4 +1,19 @@
-﻿.background-day-mon {
+﻿header {
+    height: 80px;
+    padding: 10px 20px;
+}
+
+main {
+    padding: 100px 0 1.5em 0; /* Footer height */
+}
+
+.logo-image {
+    width: 300px;
+}
+
+/* Hello world colors of the day */
+
+.background-day-mon {
     background-color: #233BC2;
 }
 
@@ -56,35 +71,4 @@
 
 .footer-day-fri {
     background-color: #92EE39;
-}
-
-header {
-    height: 80px;
-    padding: 10px 20px;
-}
-
-main {
-    padding: 100px 0 1.5em 0; /* Footer height */
-}
-
-.clock-area {
-    margin-top: 40px;
-}
-
-.clock-text {
-    font-size: 5em;
-}
-
-.message-text {
-    font-size: 3em;
-    line-height: 1em;
-}
-
-.message-area {
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.logo-image {
-    width: 300px;
 }
