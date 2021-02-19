@@ -3,7 +3,7 @@ name: Client deploy to Staging
 on:
   push:
     branches:
-      - Staging
+    - Staging
     paths:
     - 'TimekeeperClient/**'
 

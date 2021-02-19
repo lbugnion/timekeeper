@@ -1,16 +1,20 @@
-name: API deploy to Prod
+name: API deploy to Staging (Test branch)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+    - main
     paths:
     - 'TimeKeeperApi/**'
   pull_request:
-    branches: [ main ]
+    branches:
+    - main
     paths:
     - 'TimeKeeperApi/**'
 
   workflow_dispatch:
+    branches:
+    - main
 
 env:
   AZURE_FUNCTIONAPP_NAME: timekeep

@@ -3,18 +3,18 @@ name: API deploy to Staging (Test branch)
 on:
   push:
     branches:
-      - Test
+    - Test
     paths:
     - 'TimeKeeperApi/**'
   pull_request:
     branches:
-      - Test
+    - Test
     paths:
     - 'TimeKeeperApi/**'
 
   workflow_dispatch:
     branches:
-      - Test
+    - Test
 
 env:
   AZURE_FUNCTIONAPP_NAME: timekeep
