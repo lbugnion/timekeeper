@@ -11,7 +11,6 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "helloworld-backstage/",
       "environmentVariables": {
         "Environment": "Development",
         "ASPNETCORE_ENVIRONMENT": "Development"

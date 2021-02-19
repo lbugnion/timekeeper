@@ -180,3 +180,18 @@ li.validation-message {
     width: 100%;
     height: 100%;
 }
+
+.hello-world-warning {
+    background-color: #8120BA;
+    color: white;
+}
+
+.hello-world-warning a {
+    color: white;
+    text-decoration: underline;
+}
+
+.hello-world-warning a:visited {
+    color: white;
+    text-decoration: underline;
+}
