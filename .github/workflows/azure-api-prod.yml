@@ -1,4 +1,4 @@
-name: API deploy to Staging (Test branch)
+name: API deploy to Prod (main branch)
 
 on:
   push:
