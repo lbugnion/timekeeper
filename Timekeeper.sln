@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.Client", "Client
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.DataModel.Standard", "Timekeeper.DataModel.Standard\Timekeeper.DataModel.Standard.csproj", "{FE0CC07E-F698-4101-A9A4-DCC8E0BEE594}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timekeeper.Api.NonHttp", "Timekeeper.Api.NonHttp\Timekeeper.Api.NonHttp.csproj", "{750E0023-0E70-44E3-ADCC-0DFBC8D4DD13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.Api.Free", "Timekeeper.Api.NonHttp\Timekeeper.Api.Free.csproj", "{750E0023-0E70-44E3-ADCC-0DFBC8D4DD13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
