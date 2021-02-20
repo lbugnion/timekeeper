@@ -33,6 +33,14 @@ main {
     background-color: #1A3B1F;
 }
 
+.background-day-sat {
+    background-color: #1f1f1f;
+}
+
+.background-day-sun {
+    background-color: #1A3B1F;
+}
+
 .foreground-day-mon {
     color: #233BC2;
 }

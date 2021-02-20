@@ -257,3 +257,5 @@ paket-files/
 /02 DotNetStandard/Portable - Start/packages/
 /ChatServer/packages/
 /MsGlossaryApp/MsGlossaryApp/localSettings.json
+/Api.Free/local.settings.json
+/Api/local.settings.json
