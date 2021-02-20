@@ -293,9 +293,13 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(SendMessage)} ->");
         }
 
-        public async Task StartClock()
+        public async Task StartClock(string clockId)
         {
-            if (IsClockRunning)
+            var clock = CurrentSession.ClockMessages
+                .FirstOrDefault(c => c.ClockId == clockId);
+
+            if (clock == null
+                || clock.IsClockRunning)
             {
                 return;
             }
@@ -310,9 +314,9 @@ namespace Timekeeper.Client.Model
 
             try
             {
-                var activeClock = CurrentSession.ClockMessage.GetFresh();
+                clock.Reset();
 
-                var json = JsonConvert.SerializeObject(activeClock);
+                var json = JsonConvert.SerializeObject(clock);
                 var content = new StringContent(json);
 
                 _log.LogDebug($"json: {json}");
@@ -328,7 +332,7 @@ namespace Timekeeper.Client.Model
 
                 if (response.IsSuccessStatusCode)
                 {
-                    RunClock(activeClock);
+                    RunClock(clock);
                 }
                 else
                 {
@@ -341,11 +345,11 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task StopAllClocks()
+        public async Task StopClock(string clockId)
         {
-            _log.LogInformation("-> StopAllClocks");
+            _log.LogInformation("-> StopClock");
 
-            StopClock(null);
+            StopLocalClock(clockId);
 
             // Notify clients
 
@@ -354,8 +358,10 @@ namespace Timekeeper.Client.Model
                 var stopClockUrl = $"{_hostName}/stop";
                 _log.LogDebug($"stopClockUrl: {stopClockUrl}");
 
-                var httpRequest = new HttpRequestMessage(HttpMethod.Get, stopClockUrl);
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, stopClockUrl);
                 httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+
+                var content = new StringContent(clockId);
                 var response = await _http.SendAsync(httpRequest);
 
                 _log.LogDebug($"Response code: {response.StatusCode}");

@@ -12,34 +12,31 @@
 </header>
 
 <main>
-    <div class="background"
-         style="background-color: @Handler.BackgroundColor">
-        <article>
+    <article>
 
-            <h1 class="@Today.ForegroundClass">Welcome Backstage</h1>
+        <h1 class="@Today.ForegroundClass">Welcome Backstage</h1>
 
-            @if (Program.IsExperimental)
-            {
-                <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
-            }
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
 
-            <div class="clock-area">
-                <p><span class="clock-text">@Handler.ClockDisplay</span></p>
-            </div>
+        @*<div class="clock-area">
+            <p><span class="clock-text">@Handler.ClockDisplay</span></p>
+        </div>*@
 
-            <div class="message-area">
-                <p><span class="message-text">@Handler.CurrentMessage</span></p>
-            </div>
+        <div class="message-area">
+            <p><span class="message-text">@Handler.CurrentMessage</span></p>
+        </div>
 
-            <blockquote>
-                Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
-                <br /><br />
-                More information at <a href="https://github.com/lbugnion/timekeeper">Timekeeper on GitHub</a>
-                <br /><br />
-                Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
-            </blockquote>
-        </article>
-    </div>
+        <blockquote>
+            Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
+            <br /><br />
+            More information at <a href="https://github.com/lbugnion/timekeeper">Timekeeper on GitHub</a>
+            <br /><br />
+            Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
+        </blockquote>
+    </article>
 </main>
 
 <footer class="@Today.FooterClass">

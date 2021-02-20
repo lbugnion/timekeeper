@@ -31,7 +31,7 @@ namespace Timekeeper.Client.Model
         {
             var json = JsonConvert.SerializeObject(this);
 
-            _log.LogDebug($"HIGHLIGHT--Saving: {json}");
+            _log.LogDebug($"Saving: {json}");
 
             await _localStorage.SetItemAsync(
                 GuestStorageKey,

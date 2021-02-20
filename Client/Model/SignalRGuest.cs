@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -34,22 +36,22 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> InitializeGuestInfo()
         {
-            _log.LogInformation("HIGHLIGHT---> InitializeGuestInfo");
+            _log.LogInformation("-> InitializeGuestInfo");
 
             GuestInfo = await Guest.GetFromStorage();
 
             if (GuestInfo == null)
             {
-                _log.LogTrace("HIGHLIGHT--GuestInfo is null");
-                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
+                _log.LogTrace("GuestInfo is null");
+                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo = new Guest(CurrentSession.UserId);
                 await GuestInfo.Save();
             }
 
             if (GuestInfo.Message.GuestId != CurrentSession.UserId)
             {
-                _log.LogTrace($"HIGHLIGHT--Fixing GuestId");
-                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
+                _log.LogTrace($"Fixing GuestId");
+                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo.Message.GuestId = CurrentSession.UserId;
                 await GuestInfo.Save();
             }
@@ -61,19 +63,28 @@ namespace Timekeeper.Client.Model
 
         private void ReceiveStartClock(string message)
         {
-            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
             _log.LogDebug($"message: {message}");
 
-            CurrentSession.ClockMessage = JsonConvert.DeserializeObject<StartClockMessage>(message);
+            var clock = JsonConvert.DeserializeObject<StartClockMessage>(message);
+            var existingClock = CurrentSession.ClockMessages
+                .FirstOrDefault(c => c.ClockId == clock.ClockId);
 
-            _log.LogDebug($"CountDown: {CurrentSession.ClockMessage.CountDown}");
-            _log.LogDebug($"Red: {CurrentSession.ClockMessage.AlmostDone}");
-            _log.LogDebug($"ServerTime: {CurrentSession.ClockMessage.ServerTime}");
-            _log.LogDebug($"Yellow: {CurrentSession.ClockMessage.PayAttention}");
+            if (existingClock == null)
+            {
+                _log.LogTrace($"No found clock, adding");
+                CurrentSession.ClockMessages.Add(clock);
+            }
+            else
+            {
+                _log.LogDebug($"Found clock {clock.ClockId}, stopping and updating");
+                StopLocalClock(existingClock.ClockId);
+                existingClock.Update(clock);
+            }
 
-            RunClock(CurrentSession.ClockMessage);
-            Status = "Clock started";
-            _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
+            RunClock(clock);
+            Status = $"Clock {clock.Label} started";
+            _log.LogInformation("HIGHLIGHT--SignalRGuest.ReceiveStartClock ->");
         }
 
         protected override void DisplayMessage(string message)
@@ -96,7 +107,7 @@ namespace Timekeeper.Client.Model
             {
                 _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
                 _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
-                _connection.On<object>(Constants.StopClockMessage, StopClock);
+                _connection.On<string>(Constants.StopClockMessage, StopLocalClock);
 
                 ok = await StartConnection();
 

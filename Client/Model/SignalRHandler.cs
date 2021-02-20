@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -20,9 +22,7 @@ namespace Timekeeper.Client.Model
         public event EventHandler CountdownFinished;
         public event EventHandler UpdateUi;
 
-        private string _clockDisplay;
         private string _errorStatus;
-        private bool _isClockRunning;
         private string _status;
         protected const string FunctionCodeHeaderKey = "x-functions-key";
         protected const string HostNameKey = "HostName";
@@ -54,16 +54,6 @@ namespace Timekeeper.Client.Model
         protected HttpClient _http;
         protected ILogger _log;
 
-        public string ClockDisplay
-        {
-            get => _clockDisplay;
-            protected set
-            {
-                _clockDisplay = value;
-                RaiseUpdateEvent();
-            }
-        }
-
         public string CurrentMessage
         {
             get;
@@ -90,16 +80,6 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
-        public bool IsClockRunning
-        {
-            get => _isClockRunning;
-            protected set
-            {
-                _isClockRunning = value;
-                RaiseUpdateEvent();
-            }
-        }
-
         public bool IsConnected
         {
             get;
@@ -110,12 +90,6 @@ namespace Timekeeper.Client.Model
         {
             get;
             protected set;
-        }
-
-        public string BackgroundColor
-        {
-            get;
-            private set;
         }
 
         public string Status
@@ -140,8 +114,6 @@ namespace Timekeeper.Client.Model
         {
             CurrentMessage = "Welcome!";
             Status = "Please wait...";
-            ClockDisplay = "00:00:00";
-            BackgroundColor = "#FFFFFF";
 
             _config = config;
             _localStorage = localStorage;
@@ -171,7 +143,7 @@ namespace Timekeeper.Client.Model
 
             if (CurrentSession == null)
             {
-                _log.LogTrace("CurrentSession is null");
+                _log.LogTrace("HIGHLIGHT--CurrentSession is null");
 
                 CurrentSession = new Session
                 {
@@ -179,22 +151,25 @@ namespace Timekeeper.Client.Model
                     SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                     UserId = Guid.NewGuid().ToString(),
 
-                    ClockMessage = new StartClockMessage
+                    ClockMessages = new List<StartClockMessage>
                     {
-                        CountDown = TimeSpan.FromMinutes(5),
-                        AlmostDone = TimeSpan.FromSeconds(30),
-                        PayAttention = TimeSpan.FromSeconds(120),
-                        RunningColor = DefaultRunningColor,
-                        PayAttentionColor = DefaultPayAttentionColor,
-                        AlmostDoneColor = DefaultAlmostDoneColor
+                        new StartClockMessage
+                        {
+                            CountDown = TimeSpan.FromMinutes(5),
+                            AlmostDone = TimeSpan.FromSeconds(30),
+                            PayAttention = TimeSpan.FromSeconds(120),
+                            RunningColor = DefaultRunningColor,
+                            PayAttentionColor = DefaultPayAttentionColor,
+                            AlmostDoneColor = DefaultAlmostDoneColor
+                        }
                     }
                 };
 
-                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
+                _log.LogDebug($"HIGHLIGHT--New CurrentSession.SessionId: {CurrentSession.SessionId}");
                 
                 await CurrentSession.Save();
 
-                _log.LogTrace("Session saved to storage");
+                _log.LogTrace("HIGHLIGHT--Session saved to storage");
             }
 
             _log.LogInformation("InitializeSession ->");
@@ -380,7 +355,6 @@ namespace Timekeeper.Client.Model
             IsConnected = false;
             IsInError = true;
 
-
             tcs.SetResult(true);
             return tcs.Task;
         }
@@ -399,49 +373,75 @@ namespace Timekeeper.Client.Model
             UpdateUi?.Invoke(this, EventArgs.Empty);
         }
 
+        private bool _isOneClockRunning;
+
         protected void RunClock(StartClockMessage activeClock)
         {
-            IsClockRunning = true;
-            Status = "Clock is running";
-            BackgroundColor = activeClock.RunningColor;
+            _log.LogInformation($"HIGHLIGHT---> {nameof(RunClock)}");
+
+            activeClock.IsClockRunning = true;
+            activeClock.CurrentBackgroundColor = activeClock.RunningColor;
+            Status = $"Clock {activeClock.Label} is running";
+
+            if (_isOneClockRunning)
+            {
+                _log.LogTrace("HIGHLIGHT--No clocks running");
+                return;
+            }
 
             Task.Run(async () =>
             {
                 do
                 {
-                    if (IsClockRunning)
+                    if (CurrentSession.ClockMessages.Count == 0)
                     {
-                        var elapsed = DateTime.Now - activeClock.ServerTime;
-                        var remains = activeClock.CountDown - elapsed;
-
-                        if (remains.TotalSeconds < 0)
-                        {
-                            IsClockRunning = false;
-                            BackgroundColor = "#FFFFFF";
-                            Status = "Countdown finished";
-                            ClockDisplay = "00:00:00";
-                            CountdownFinished?.Invoke(this, EventArgs.Empty);
-                            return;
-                        }
-
-                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.PayAttention.TotalSeconds)
-                        {
-                            _log.LogDebug($"ATTENTION Set background to {activeClock.PayAttentionColor}");
-                            BackgroundColor = activeClock.PayAttentionColor;
-                        }
-
-                        if (Math.Floor(remains.TotalSeconds) <= CurrentSession.ClockMessage.AlmostDone.TotalSeconds)
-                        {
-                            _log.LogDebug($"ALMOSTDONE Set background to {activeClock.AlmostDoneColor}");
-                            BackgroundColor = activeClock.AlmostDoneColor;
-                        }
-
-                        ClockDisplay = remains.ToString(@"hh\:mm\:ss");
+                        _log.LogTrace("HIGHLIGHT--No clocks found");
+                        _isOneClockRunning = false;
+                        return;
                     }
 
+                    _isOneClockRunning = false;
+
+                    foreach (var clock in CurrentSession.ClockMessages)
+                    {
+                        if (clock.IsClockRunning)
+                        {
+                            _isOneClockRunning = true;
+
+                            var elapsed = DateTime.Now - clock.ServerTime;
+                            var remains = clock.CountDown - elapsed;
+
+                            if (remains.TotalSeconds < 0)
+                            {
+                                clock.IsClockRunning = false;
+                                clock.CurrentBackgroundColor = StartClockMessage.DefaultBackgroundColor;
+                                clock.ClockDisplay = StartClockMessage.DefaultClockDisplay;
+                                Status = $"Countdown finished for {clock.Label}";
+                                CountdownFinished?.Invoke(this, EventArgs.Empty);
+                                return;
+                            }
+
+                            if (Math.Floor(remains.TotalSeconds) <= clock.PayAttention.TotalSeconds)
+                            {
+                                _log.LogDebug($"ATTENTION Set background to {clock.PayAttentionColor} / {clock.Label}");
+                                clock.CurrentBackgroundColor = clock.PayAttentionColor;
+                            }
+
+                            if (Math.Floor(remains.TotalSeconds) <= clock.AlmostDone.TotalSeconds)
+                            {
+                                _log.LogDebug($"ALMOSTDONE Set background to {activeClock.AlmostDoneColor} / {clock.Label}");
+                                clock.CurrentBackgroundColor = clock.AlmostDoneColor;
+                            }
+
+                            clock.ClockDisplay = remains.ToString(@"hh\:mm\:ss");
+                            _log.LogDebug($"{clock.Label}: {clock.ClockDisplay}");
+                        }
+                    }
+
+                    RaiseUpdateEvent();
                     await Task.Delay(1000);
                 }
-                while (IsClockRunning);
+                while (_isOneClockRunning);
             });
         }
 
@@ -466,12 +466,23 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        protected void StopClock(object _)
+        protected virtual void StopLocalClock(string clockId)
         {
             _log.LogInformation("-> StopClock");
-            BackgroundColor = "#FFFFFF";
-            Status = "Clock was stopped";
-            IsClockRunning = false;
+            _log.LogDebug($"clockId: {clockId}");
+
+            if (string.IsNullOrEmpty(clockId))
+            {
+                _log.LogWarning("Empty clockId");
+                return;
+            }
+
+            var existingClock = CurrentSession.ClockMessages
+                .FirstOrDefault(c => c.ClockId == clockId);
+
+            existingClock.CurrentBackgroundColor = "#FFFFFF";
+            existingClock.IsClockRunning = false;
+            Status = $"Clock {existingClock.Label} was stopped";
         }
 
         public abstract Task Connect();

@@ -5,7 +5,7 @@
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Nav
 
-<main style="background-color: @Handler.BackgroundColor">
+<main>
     <article>
 
         @if (IsEditingSessionName)
@@ -27,23 +27,23 @@
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
         }
 
-        <div class="clock-area">
+        @*<div class="clock-area">
             <p><span class="clock-text">@Handler.ClockDisplay</span></p>
-        </div>
+        </div>*@
 
         <div class="message-area">
             <p><span class="message-text">@Handler.CurrentMessage</span></p>
         </div>
 
         <div class="controls-area">
-            <button disabled="@Handler.IsStartDisabled"
+            @*<button disabled="@Handler.IsStartDisabled"
                     @onclick="@Handler.StartClock">
                 Start the clock
             </button>
             <button disabled="@Handler.IsStopDisabled"
                     @onclick="@Handler.StopAllClocks">
                 Stop the clock
-            </button>
+            </button>*@
 
             <div class="send-message-area">
                 <input @bind-value="@Handler.InputMessage"

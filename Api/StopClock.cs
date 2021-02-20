@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
@@ -16,7 +17,7 @@ namespace Timekeeper
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
-                "get",
+                "post",
                 Route = "stop")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
@@ -34,11 +35,28 @@ namespace Timekeeper
                 return new BadRequestObjectResult("Invalid request");
             }
 
+            string clockId = await new StreamReader(req.Body).ReadToEndAsync();
+            log.LogDebug($"clockId: {clockId}");
+
+            if (string.IsNullOrEmpty(clockId))
+            {
+                log.LogError("No clockId found in body");
+                return new BadRequestObjectResult("Invalid request");
+            }
+
+            var success = Guid.TryParse(clockId, out Guid clockGuid);
+
+            if (!success)
+            {
+                log.LogError($"clockId {clockId} is not a GUID");
+                return new UnprocessableEntityObjectResult("Invalid clock ID");
+            }
+
             await queue.AddAsync(
                 new SignalRMessage
                 {
                     Target = Constants.StopClockMessage,
-                    Arguments = new object[] { null },
+                    Arguments = new object[] { clockId },
                     GroupName = groupId.ToString()
                 });
 

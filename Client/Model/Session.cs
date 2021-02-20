@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -30,10 +31,15 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        public StartClockMessage ClockMessage
+        public IList<StartClockMessage> ClockMessages
         {
             get;
             set;
+        }
+
+        public Session()
+        {
+            ClockMessages = new List<StartClockMessage>();
         }
 
         public const string SessionStorageKey = "SessionStorageKey";
