@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Timekeeper.Api.Free": {
+      "commandName": "Project",
+      "commandLineArgs": "start --port 7072"
+    }
+  }
+}

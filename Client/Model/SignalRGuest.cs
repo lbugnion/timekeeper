@@ -150,7 +150,7 @@ namespace Timekeeper.Client.Model
             var functionKey = _config.GetValue<string>(AnnounceGuestKeyKey);
             _log.LogDebug($"functionKey: {functionKey}");
 
-            var announceUrl = $"{_hostName}/announce";
+            var announceUrl = $"{_hostNameFree}/announce";
             _log.LogDebug($"announceUrl: {announceUrl}");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, announceUrl);

@@ -26,6 +26,7 @@ namespace Timekeeper.Client.Model
         private string _status;
         protected const string FunctionCodeHeaderKey = "x-functions-key";
         protected const string HostNameKey = "HostName";
+        protected const string HostNameFreeKey = "HostNameFree";
         protected const string NegotiateKeyKey = "NegotiateKey";
         protected const string SendMessageKeyKey = "SendMessageKey";
         protected const string AnnounceGuestKeyKey = "AnnounceGuestKey";
@@ -49,6 +50,7 @@ namespace Timekeeper.Client.Model
         }
 
         protected string _hostName;
+        protected string _hostNameFree;
         protected HttpClient _http;
         protected ILogger _log;
 
@@ -237,7 +239,7 @@ namespace Timekeeper.Client.Model
         {
             try
             {
-                var registerUrl = $"{_hostName}/register";
+                var registerUrl = $"{_hostNameFree}/register";
                 _log.LogDebug($"registerUrl: {registerUrl}");
 
                 var functionKey = _config.GetValue<string>(RegisterKeyKey);
@@ -284,7 +286,9 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> SignalRHandler.CreateConnection");
 
             _hostName = _config.GetValue<string>(HostNameKey);
-            _log.LogDebug($"hostName: {_hostName}");
+            _hostNameFree = _config.GetValue<string>(HostNameFreeKey);
+            _log.LogDebug($"_hostName: {_hostName}");
+            _log.LogDebug($"_hostNameFree: {_hostNameFree}");
 
             NegotiateInfo negotiateInfo = null;
 
@@ -293,7 +297,7 @@ namespace Timekeeper.Client.Model
                 var functionKey = _config.GetValue<string>(NegotiateKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
 
-                var negotiateUrl = $"{_hostName}/negotiate";
+                var negotiateUrl = $"{_hostNameFree}/negotiate";
                 _log.LogDebug($"negotiateUrl: {negotiateUrl}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);

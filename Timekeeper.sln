@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.Client", "Client
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.DataModel.Standard", "Timekeeper.DataModel.Standard\Timekeeper.DataModel.Standard.csproj", "{FE0CC07E-F698-4101-A9A4-DCC8E0BEE594}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.Api.Free", "Timekeeper.Api.NonHttp\Timekeeper.Api.Free.csproj", "{750E0023-0E70-44E3-ADCC-0DFBC8D4DD13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.Api.Free", "Api.Free\Timekeeper.Api.Free.csproj", "{FD784C44-0DDB-4EE9-893D-B590877FB7EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{FE0CC07E-F698-4101-A9A4-DCC8E0BEE594}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE0CC07E-F698-4101-A9A4-DCC8E0BEE594}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE0CC07E-F698-4101-A9A4-DCC8E0BEE594}.Release|Any CPU.Build.0 = Release|Any CPU
-		{750E0023-0E70-44E3-ADCC-0DFBC8D4DD13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{750E0023-0E70-44E3-ADCC-0DFBC8D4DD13}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{750E0023-0E70-44E3-ADCC-0DFBC8D4DD13}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{750E0023-0E70-44E3-ADCC-0DFBC8D4DD13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD784C44-0DDB-4EE9-893D-B590877FB7EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD784C44-0DDB-4EE9-893D-B590877FB7EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD784C44-0DDB-4EE9-893D-B590877FB7EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD784C44-0DDB-4EE9-893D-B590877FB7EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
