@@ -27,26 +27,33 @@ namespace Timekeeper
         {
             log.LogInformation("-> SendMessage");
 
-            var groupId = req.GetGroupId();
-            log.LogDebug($"groupId: {groupId}");
-
-            if (groupId == Guid.Empty)
+            try
             {
-                log.LogError("No groupId found in headers");
-                return new BadRequestObjectResult("Invalid request");
-            }
+                var groupId = req.GetGroupId();
+                log.LogDebug($"groupId: {groupId}");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
-            log.LogDebug(requestBody);
-
-            await queue.AddAsync(
-                new SignalRMessage
+                if (groupId == Guid.Empty)
                 {
-                    Target = Constants.HostToGuestMessageName,
-                    Arguments = new[] { requestBody },
-                    GroupName = groupId.ToString()
-                });
+                    log.LogError("No groupId found in headers");
+                    return new BadRequestObjectResult("Invalid request");
+                }
+
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+
+                log.LogDebug(requestBody);
+
+                await queue.AddAsync(
+                    new SignalRMessage
+                    {
+                        Target = Constants.HostToGuestMessageName,
+                        Arguments = new[] { requestBody },
+                        GroupName = groupId.ToString()
+                    });
+            }
+            catch (Exception ex)
+            {
+                return new UnprocessableEntityObjectResult($"Issue with the request: {ex.Message}");
+            }
 
             log.LogTrace("Sent");
             return new OkObjectResult("OK");

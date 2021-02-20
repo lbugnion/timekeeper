@@ -257,7 +257,7 @@ namespace Timekeeper.Client.Model
 
         public async Task SendMessage()
         {
-            _log.LogInformation("-> SendMessage");
+            _log.LogInformation($"-> {nameof(SendMessage)}");
 
             if (string.IsNullOrEmpty(InputMessage))
             {
@@ -289,6 +289,8 @@ namespace Timekeeper.Client.Model
                 _log.LogError($"Cannot send message: {ex.Message}");
                 ErrorStatus = "Error sending message";
             }
+
+            _log.LogInformation($"{nameof(SendMessage)} ->");
         }
 
         public async Task StartClock()
