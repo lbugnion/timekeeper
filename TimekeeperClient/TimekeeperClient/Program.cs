@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.2.*")]
+[assembly: AssemblyVersion("0.3.*")]
 
 namespace TimekeeperClient
 {
@@ -28,19 +28,8 @@ namespace TimekeeperClient
             }
         }
 
-        public static UserInfo GroupInfo
-        {
-            get;
-            set;
-        }
-
         public static async Task Main(string[] args)
         {
-            GroupInfo = new UserInfo
-            {
-                UserId = Guid.NewGuid().ToString()
-            };
-
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 

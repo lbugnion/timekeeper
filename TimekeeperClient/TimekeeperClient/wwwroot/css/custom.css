@@ -15,28 +15,27 @@ footer {
     background-color: cornflowerblue;
 }
 
-.background-red {
-    background-color: #FF6B77;
+.background {
+    width: 100%;
+    height: 100%;
 }
 
-.background-yellow {
-    background-color: #FFFB91;
-}
-
-.background-running {
-    background-color: #3AFFA9;
-}
-
-.background-normal {
-    background-color: white;
+.clock-area {
+    margin-top: 40px;
 }
 
 .clock-text {
-    font-size: 3em;
+    font-size: 5em;
 }
 
 .message-text {
-    font-size: 2em;
+    font-size: 3em;
+    line-height: 1em;
+}
+
+.message-area {
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .status-message {
@@ -49,7 +48,8 @@ footer {
 }
 
 .controls-area {
-    margin-top: 20px;
+    margin-top: 10px;
+    margin-left: -5px;
 }
 
 .send-message-area {
@@ -75,19 +75,113 @@ blockquote.warning {
     padding: 10px;
 }
 
-article p, blockquote {
-    max-width: 500px;
-}
-
 article p, article ul, blockquote {
     max-width: 480px;
 }
 
 .session-information-area {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .session-information-area h3 {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     font-weight: bold;
+}
+
+.edit-link {
+    margin-top: -15px;
+    margin-left: 5px;
+    font-size: 1em;
+}
+
+a:link, a:visited {
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: purple;
+    text-decoration: underline;
+}
+
+/* Configuration */
+
+.h1-edit-field {
+    font-size: 3em;
+    font-family: 'Segoe UI Light', Tahoma, Geneva, Verdana, sans-serif;
+    color: darkblue;
+    width: 430px;
+    margin-bottom: 20px;
+}
+
+.config-time {
+    width: 100%;
+    margin-top: 0px;
+}
+
+.medium-input-text, .short-input-text {
+    font-size: 1.5em;
+    margin-top: 5px;
+}
+
+.medium-input-text {
+}
+
+.short-input-text {
+    width: 50px;
+}
+
+.form-label {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.form-explanation, .form-explanation-color {
+    font-size: 0.9em;
+    font-style: italic;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.form-explanation-color {
+    padding: 5px;
+}
+
+.valid {
+}
+
+.invalid {
+    background-color: bisque;
+}
+
+li.validation-message {
+    color: red;
+    font-weight: bold;
+}
+
+.edit-area {
+    margin-bottom: 20px;
+    max-width: 300px;
+}
+
+.edit-area p {
+    margin-top: 4px;
+    margin-bottom: 5px;
+}
+
+/* Just for Hello World */
+
+.hello-world-warning {
+    background-color: #8120BA;
+    color: white;
+}
+
+.hello-world-warning a {
+    color: white;
+    text-decoration: underline;
+}
+
+.hello-world-warning a:visited {
+    color: white;
+    text-decoration: underline;
 }

@@ -1,12 +1,27 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Reflection;
+using System.Threading.Tasks;
+using TimekeeperClient.Model.HelloWorld;
 
-namespace TimekeeperClient.Pages
+namespace TimekeeperClient.Pages.HelloWorld
 {
     public partial class Index
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
+            await JSRuntime.InvokeVoidAsync("setBranding", "css/hello-world.css");
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         [Parameter]
         public string Session
         {
@@ -33,12 +48,14 @@ namespace TimekeeperClient.Pages
 
             if (!string.IsNullOrEmpty(Session))
             {
-                Nav.NavigateTo($"/guest/{Session}");
+                Nav.NavigateTo($"/helloworld-backstage/guest/{Session}");
                 return;
             }
 
             try
             {
+                Today = new Days(Log);
+
                 var version = Assembly
                     .GetExecutingAssembly()
                     .GetName()
@@ -65,7 +82,7 @@ namespace TimekeeperClient.Pages
 
         public void LogInHost()
         {
-            Nav.NavigateTo("/host");
+            Nav.NavigateTo("/helloworld-backstage/host");
         }
     }
 }

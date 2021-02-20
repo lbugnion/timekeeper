@@ -5,9 +5,22 @@
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Nav
 
-<main class="@BackgroundClassName">
+<main style="background-color: @Handler.BackgroundColor">
     <article>
-        <h1>Host</h1>
+
+        @if (IsEditingSessionName)
+        {
+            <input class="h1-edit-field" @bind-value="@SessionName" />
+        }
+        else
+        {
+            <h1>@SessionName</h1>
+        }
+
+        @if (!Handler.IsBusy)
+        {
+            <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
+        }
 
         @if (Program.IsExperimental)
         {
@@ -40,24 +53,72 @@
                     Send Message
                 </button>
             </div>
+        </div>
 
-            <h2>Connection</h2>
+        <h2>Session</h2>
 
+        @if (Handler.CurrentSession != null)
+        {
+            <div class="session-information-area">
+                <h3>Send this link to your guests so they can connect to the session:</h3>
+
+                <p><a href="@GuestUrl">@GuestUrl</a></p>
+            </div>
+
+            <div class="session-information-area">
+                <h3>Connected guests</h3>
+
+                @if (Handler.ConnectedGuests.Count == 0)
+                {
+                    <p>There are no connected guests at the moment.</p>
+                }
+                else
+                {
+                    <p>
+                        There are @Handler.ConnectedGuests.Count connected guest(s).
+                        <a href="#"
+                           @onclick="ToggleIsGuestListExpanded"
+                           @onclick:preventDefault>(@GuestListLinkText)</a>
+                    </p>
+
+                    @if (IsGuestListExpanded)
+                    {
+                        <ul>
+                            @if (@AnonymousGuests > 0)
+                            {
+                                <li>@AnonymousGuests anonymous guest(s)</li>
+                            }
+
+                            @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
+                            {
+                                <li>@guest.DisplayName</li>
+                            }
+                        </ul>
+                    }
+                }
+            </div>
+        }
+
+        <div class="controls-area">
             <button disabled="@Handler.IsDeleteSessionDisabled"
                     @onclick="@Handler.DeleteSession">
-                Delete session
+                Delete the session
             </button>
-
-            @if (Handler.CurrentSession != null)
-            {
-                <div class="session-information-area">
-                    <h3>Send this link to your guests so they can connect to the session:</h3>
-
-                    <p><a href="@GuestUrl">@GuestUrl</a></p>
-                </div>
-            }
-
+            <button disabled="@Handler.IsCreateNewSessionDisabled"
+                    @onclick="@CreateNewSession">
+                Create a new session
+            </button>
         </div>
+
+        <h2>Configure</h2>
+
+        <div class="controls-area">
+            <button disabled="@Handler.IsConfigureSessionDisabled"
+                    @onclick="@ConfigureSession">
+                Configure session
+            </button>
+        </div>
+
     </article>
 </main>
 

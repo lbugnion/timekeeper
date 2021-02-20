@@ -4,11 +4,24 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Timekeeper</title>
+    <title>Timekeeper by Laurent Bugnion</title>
     <base href="/" />
     <link href="css/reset.css" rel="stylesheet" />
     <link href="css/base.css" rel="stylesheet" />
     <link href="css/custom.css" rel="stylesheet" />
+
+    <script>
+        setTitle = (title) => { document.title = title; };
+
+        setBranding = (cssSheet) => {
+            var ss = document.createElement("link");
+            ss.type = "text/css";
+            ss.rel = "stylesheet";
+            ss.href = cssSheet;
+
+            document.head.appendChild(ss);
+        };
+    </script>
 </head>
 
 <body>

@@ -1,27 +1,22 @@
-﻿@page "/guest"
-@page "/guest/{Session}"
+﻿@page "/helloworld-backstage/guest"
+@page "/helloworld-backstage/guest/{Session}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime
 
-<main style="background-color: @Handler.BackgroundColor">
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
+         class="logo-image" />
+</header>
+
+<main>
     <div class="background"
          style="background-color: @Handler.BackgroundColor">
         <article>
-            @if (IsEditingGuestName)
-            {
-                <input class="h1-edit-field" @bind-value="@GuestName" />
-            }
-            else
-            {
-                <h1>@GuestName</h1>
-            }
 
-            @if (!Handler.IsBusy)
-            {
-                <div class="edit-link"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
-            }
+            <h1 class="@Today.ForegroundClass">Welcome Backstage</h1>
 
             @if (Program.IsExperimental)
             {
@@ -47,6 +42,6 @@
     </div>
 </main>
 
-<footer>
+<footer class="@Today.FooterClass">
     <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
 </footer>

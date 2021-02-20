@@ -1,13 +1,27 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
 using TimekeeperClient.Model;
+using TimekeeperClient.Model.HelloWorld;
 
-namespace TimekeeperClient.Pages
+namespace TimekeeperClient.Pages.HelloWorld
 {
     public partial class Guest : IDisposable
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
+            await JSRuntime.InvokeVoidAsync("setBranding", "css/hello-world.css");
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         [Parameter]
         public string Session
         {
@@ -38,6 +52,8 @@ namespace TimekeeperClient.Pages
 
         public async Task EditGuestName()
         {
+            Today = new Days(Log);
+
             IsEditingGuestName = !IsEditingGuestName;
 
             if (IsEditingGuestName)
@@ -68,6 +84,8 @@ namespace TimekeeperClient.Pages
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
+
+            Today = new Days(Log);
 
             IsEditingGuestName = false;
             GuestName = "Loading...";
