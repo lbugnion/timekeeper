@@ -269,14 +269,10 @@ namespace Timekeeper.Client.Model
                 CurrentMessage = InputMessage;
                 var content = new StringContent(InputMessage);
 
-                var functionKey = _config.GetValue<string>(SendMessageKeyKey);
-                _log.LogDebug($"functionKey: {functionKey}");
-
                 var sendMessageUrl = $"{_hostName}/send";
                 _log.LogDebug($"sendMessageUrl: {sendMessageUrl}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, sendMessageUrl);
-                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
                 httpRequest.Content = content;
 
@@ -319,14 +315,10 @@ namespace Timekeeper.Client.Model
 
                 _log.LogDebug($"json: {json}");
 
-                var functionKey = _config.GetValue<string>(StartClockKeyKey);
-                _log.LogDebug($"functionKey: {functionKey}");
-
                 var startClockUrl = $"{_hostName}/start";
                 _log.LogDebug($"startClockUrl: {startClockUrl}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, startClockUrl);
-                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
                 httpRequest.Content = content;
 
@@ -357,14 +349,10 @@ namespace Timekeeper.Client.Model
 
             try
             {
-                var functionKey = _config.GetValue<string>(StopClockKeyKey);
-                _log.LogDebug($"functionKey: {functionKey}");
-
                 var stopClockUrl = $"{_hostName}/stop";
                 _log.LogDebug($"stopClockUrl: {stopClockUrl}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, stopClockUrl);
-                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
                 var response = await _http.SendAsync(httpRequest);
 
