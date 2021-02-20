@@ -1,0 +1,129 @@
+﻿@page "/host"
+@inject HttpClient Http
+@inject ILogger<Host> Log
+@inject IConfiguration Config
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Nav
+
+<main style="background-color: @Handler.BackgroundColor">
+    <article>
+
+        @if (IsEditingSessionName)
+        {
+            <input class="h1-edit-field" @bind-value="@SessionName" />
+        }
+        else
+        {
+            <h1>@SessionName</h1>
+        }
+
+        @if (!Handler.IsBusy)
+        {
+            <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
+        }
+
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
+
+        <div class="clock-area">
+            <p><span class="clock-text">@Handler.ClockDisplay</span></p>
+        </div>
+
+        <div class="message-area">
+            <p><span class="message-text">@Handler.CurrentMessage</span></p>
+        </div>
+
+        <div class="controls-area">
+            <button disabled="@Handler.IsStartDisabled"
+                    @onclick="@Handler.StartClock">
+                Start the clock
+            </button>
+            <button disabled="@Handler.IsStopDisabled"
+                    @onclick="@Handler.StopAllClocks">
+                Stop the clock
+            </button>
+
+            <div class="send-message-area">
+                <input @bind-value="@Handler.InputMessage"
+                       class="input-text" />
+                <button disabled="@Handler.IsSendMessageDisabled"
+                        @onclick="@Handler.SendMessage">
+                    Send Message
+                </button>
+            </div>
+        </div>
+
+        <h2>Session</h2>
+
+        @if (Handler.CurrentSession != null)
+        {
+            <div class="session-information-area">
+                <h3>Send this link to your guests so they can connect to the session:</h3>
+
+                <p><a href="@GuestUrl">@GuestUrl</a></p>
+            </div>
+
+            <div class="session-information-area">
+                <h3>Connected guests</h3>
+
+                @if (Handler.ConnectedGuests.Count == 0)
+                {
+                    <p>There are no connected guests at the moment.</p>
+                }
+                else
+                {
+                    <p>
+                        There are @Handler.ConnectedGuests.Count connected guest(s).
+                        <a href="#"
+                           @onclick="ToggleIsGuestListExpanded"
+                           @onclick:preventDefault>(@GuestListLinkText)</a>
+                    </p>
+
+                    @if (IsGuestListExpanded)
+                    {
+                        <ul>
+                            @if (@AnonymousGuests > 0)
+                            {
+                                <li>@AnonymousGuests anonymous guest(s)</li>
+                            }
+
+                            @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
+                            {
+                                <li>@guest.DisplayName</li>
+                            }
+                        </ul>
+                    }
+                }
+            </div>
+        }
+
+        <div class="controls-area">
+            <button disabled="@Handler.IsDeleteSessionDisabled"
+                    @onclick="@Handler.DeleteSession">
+                Delete the session
+            </button>
+            <button disabled="@Handler.IsCreateNewSessionDisabled"
+                    @onclick="@CreateNewSession">
+                Create a new session
+            </button>
+        </div>
+
+        <h2>Configure</h2>
+
+        <div class="controls-area">
+            <button disabled="@Handler.IsConfigureSessionDisabled"
+                    @onclick="@ConfigureSession">
+                Configure session
+            </button>
+        </div>
+
+    </article>
+</main>
+
+<footer>
+    <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+</footer>
+
+

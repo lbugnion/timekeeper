@@ -1,0 +1,47 @@
+﻿@page "/helloworld-backstage/guest"
+@page "/helloworld-backstage/guest/{Session}"
+@inject HttpClient Http
+@inject ILogger<Guest> Log
+@inject IConfiguration Config
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime
+
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
+         class="logo-image" />
+</header>
+
+<main>
+    <div class="background"
+         style="background-color: @Handler.BackgroundColor">
+        <article>
+
+            <h1 class="@Today.ForegroundClass">Welcome Backstage</h1>
+
+            @if (Program.IsExperimental)
+            {
+                <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+            }
+
+            <div class="clock-area">
+                <p><span class="clock-text">@Handler.ClockDisplay</span></p>
+            </div>
+
+            <div class="message-area">
+                <p><span class="message-text">@Handler.CurrentMessage</span></p>
+            </div>
+
+            <blockquote>
+                Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
+                <br /><br />
+                More information at <a href="https://github.com/lbugnion/timekeeper">Timekeeper on GitHub</a>
+                <br /><br />
+                Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
+            </blockquote>
+        </article>
+    </div>
+</main>
+
+<footer class="@Today.FooterClass">
+    <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+</footer>
