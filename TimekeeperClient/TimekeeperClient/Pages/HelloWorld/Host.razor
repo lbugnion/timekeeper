@@ -85,26 +85,45 @@
                         <p>
                             There are @Handler.ConnectedGuests.Count connected guest(s).
                             @*<a href="#"
-                                @onclick="ToggleIsGuestListExpanded"
-                                @onclick:preventDefault>(@GuestListLinkText)</a>*@
+                        @onclick="ToggleIsGuestListExpanded"
+                        @onclick:preventDefault>(@GuestListLinkText)</a>*@
                         </p>
 
                         @*@if (IsGuestListExpanded)
+                    {
+                        <ul>
+                            @if (@AnonymousGuests > 0)
                             {
-                                <ul>
-                                    @if (@AnonymousGuests > 0)
-                                    {
-                                        <li>@AnonymousGuests anonymous guest(s)</li>
-                                    }
+                                <li>@AnonymousGuests anonymous guest(s)</li>
+                            }
 
-                                    @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
-                                    {
-                                        <li>@guest.DisplayName</li>
-                                    }
-                                </ul>
-                            }*@
+                            @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
+                            {
+                                <li>@guest.DisplayName</li>
+                            }
+                        </ul>
+                    }*@
                     }
                 </div>
+            }
+
+            @if (Handler.IsDeleteSessionWarningVisible)
+            {
+                <blockquote class="warning">
+                    <strong>Deleting the session is irreversible. Are you sure?</strong>
+                    <br /><br />
+                    If you delete the session and create a new one, all your guests will
+                    need to reconnect.
+                    <br /><br />
+                    <button @onclick="@Handler.DoDeleteSession"
+                            class="small-button">
+                        Yes
+                    </button>
+                    <button @onclick="@Handler.CancelDeleteSession"
+                            class="small-button">
+                        No
+                    </button>
+                </blockquote>
             }
 
             <div class="controls-area">

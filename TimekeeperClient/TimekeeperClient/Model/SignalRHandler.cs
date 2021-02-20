@@ -152,7 +152,7 @@ namespace TimekeeperClient.Model
         public Session CurrentSession
         {
             get;
-            private set;
+            protected set;
         }
 
         private readonly ILocalStorageService _localStorage;
@@ -198,29 +198,6 @@ namespace TimekeeperClient.Model
 
             _log.LogInformation("InitializeSession ->");
             return true;
-        }
-
-        public virtual async Task DeleteSession()
-        {
-            _log.LogInformation("-> DeleteSession");
-
-            if (_connection != null)
-            {
-                await _connection.StopAsync();
-                await _connection.DisposeAsync();
-                _connection = null;
-                _log.LogTrace("Connection is stopped and disposed");
-            }
-
-            await CurrentSession.DeleteFromStorage();
-            CurrentSession = null;
-            _log.LogTrace("CurrentSession is deleted");
-
-            IsDeleteSessionDisabled = true;
-            IsCreateNewSessionDisabled = false;
-            Status = "Disconnected";
-
-            _log.LogInformation("DeleteSession ->");
         }
 
         public async Task Disconnect()

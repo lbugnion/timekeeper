@@ -46,6 +46,12 @@ namespace TimekeeperClient.Model
             private set;
         }
 
+        public bool IsDeleteSessionWarningVisible
+        {
+            get;
+            private set;
+        }
+
         public SignalRHost(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -57,10 +63,44 @@ namespace TimekeeperClient.Model
             ConnectedGuests = new List<GuestMessage>();
         }
 
-        public override async Task DeleteSession()
+        public async Task DoDeleteSession()
         {
-            await base.DeleteSession();
+            _log.LogInformation("-> DoDeleteSession");
+
+            IsDeleteSessionWarningVisible = false;
+
+            if (_connection != null)
+            {
+                await _connection.StopAsync();
+                await _connection.DisposeAsync();
+                _connection = null;
+                _log.LogTrace("Connection is stopped and disposed");
+            }
+
+            await CurrentSession.DeleteFromStorage();
+            CurrentSession = null;
+            _log.LogTrace("CurrentSession is deleted");
+
+            IsDeleteSessionDisabled = true;
+            IsCreateNewSessionDisabled = false;
             IsConfigureSessionDisabled = true;
+            Status = "Disconnected";
+
+            _log.LogInformation("DoDeleteSession ->");
+        }
+
+        public void CancelDeleteSession()
+        {
+            _log.LogInformation("-> CancelDeleteSession");
+            IsDeleteSessionDisabled = false;
+            IsDeleteSessionWarningVisible = false;
+        }
+
+        public void DeleteSession()
+        {
+            _log.LogInformation("-> DeleteSession");
+            IsDeleteSessionDisabled = true;
+            IsDeleteSessionWarningVisible = true;
         }
 
         private void SignalRHostCountdownFinished(object sender, EventArgs e)

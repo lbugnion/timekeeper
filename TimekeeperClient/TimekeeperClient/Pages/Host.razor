@@ -99,6 +99,21 @@
             </div>
         }
 
+        @if (Handler.IsDeleteSessionWarningVisible)
+        {
+            <blockquote class="warning">
+                <strong>Deleting the session is irreversible. Are you sure?</strong>
+                <br /><br />
+                If you delete the session and create a new one, all your guests will
+                need to reconnect.
+                <br /><br />
+                <button @onclick="@Handler.DoDeleteSession"
+                        class="small-button">Yes</button>
+                <button @onclick="@Handler.CancelDeleteSession"
+                        class="small-button">No</button>
+            </blockquote>
+        }
+
         <div class="controls-area">
             <button disabled="@Handler.IsDeleteSessionDisabled"
                     @onclick="@Handler.DeleteSession">
