@@ -517,6 +517,7 @@ namespace Timekeeper.Client.Model
                 if (index > -1)
                 {
                     var newClock = new Clock();
+                    newClock.Message.ClockId = Guid.NewGuid().ToString();
                     CurrentSession.Clocks.Insert(index + 1, newClock);
                     await CurrentSession.Save();
                 }
