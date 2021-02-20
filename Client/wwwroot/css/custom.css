@@ -60,6 +60,11 @@ button {
     width: 200px;
 }
 
+button.small-button {
+    margin: 0 10px 0 0;
+    width: 80px;
+}
+
 .input-text {
     margin: 5px;
     width: 192px;

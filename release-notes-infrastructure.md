@@ -2,13 +2,11 @@
 
 ## Known issues (still open)
 
-### Planned for [V0.2](https://github.com/lbugnion/timekeeper/milestone/3) *(open)*
+### Planned for [Later](https://github.com/lbugnion/timekeeper/milestone/2) *(open)*
 
 [enhancement # 30](https://github.com/lbugnion/timekeeper/issues/30) *(open)*: Send notification when new client is deployed to Static Web App
 
 [enhancement # 23](https://github.com/lbugnion/timekeeper/issues/23) *(open)*: Move SignalR connection string to Key Vault
-
-### Planned for [Later](https://github.com/lbugnion/timekeeper/milestone/2) *(open)*
 
 [enhancement # 5](https://github.com/lbugnion/timekeeper/issues/5) *(open)*: Create ARM template for easy deployment of hub and functions
 

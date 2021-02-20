@@ -3,7 +3,7 @@ name: Client deploy to Prod
 on:
   push:
     branches:
-      - main
+    - main
     paths:
     - 'TimekeeperClient/**'
 

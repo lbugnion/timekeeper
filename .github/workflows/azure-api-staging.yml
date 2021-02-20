@@ -2,15 +2,19 @@ name: API deploy to Staging
 
 on:
   push:
-    branches: [ Staging ]
+    branches:
+    - Staging
     paths:
     - 'TimeKeeperApi/**'
   pull_request:
-    branches: [ Staging ]
+    branches:
+    - Staging
     paths:
     - 'TimeKeeperApi/**'
 
   workflow_dispatch:
+    branches:
+    - Staging
 
 env:
   AZURE_FUNCTIONAPP_NAME: timekeep

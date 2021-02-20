@@ -3,7 +3,7 @@ name: Client deploy to Test
 on:
   push:
     branches:
-      - Test
+    - Test
     paths:
     - 'TimekeeperClient/**'
 

@@ -1,24 +1,22 @@
-name: API deploy to Prod (main branch)
+name: API deploy to Staging (Non HTTP)
 
 on:
   push:
     branches:
-    - main
+    - Secure
     paths:
-    - 'TimeKeeperApi/**'
+    - 'Timekeeper.Api.NonHttp/**'
   pull_request:
     branches:
-    - main
+    - Secure
     paths:
-    - 'TimeKeeperApi/**'
+    - 'Timekeeper.Api.NonHttp/**'
 
   workflow_dispatch:
-    branches:
-    - main
 
 env:
   AZURE_FUNCTIONAPP_NAME: timekeep
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'TimeKeeperApi\TimeKeeperApi'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Timekeeper.Api.NonHttp'
   DOTNET_VERSION: '3.1'
 
 jobs:
@@ -45,4 +43,4 @@ jobs:
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_PROD }}
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_STAGING }}
