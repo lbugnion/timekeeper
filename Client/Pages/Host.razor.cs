@@ -138,6 +138,11 @@ namespace Timekeeper.Client.Pages
             GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
         }
 
+        public void ConfigureClock(Clock clock)
+        {
+            ConfigureClock(clock.Message.ClockId);
+        }
+
         public void ConfigureClock(string clockId)
         {
             if (Handler.PrepareClockToConfigure(clockId))

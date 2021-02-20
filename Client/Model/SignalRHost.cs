@@ -358,6 +358,11 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(SendMessage)} ->");
         }
 
+        public async Task StartClock(Clock clock)
+        {
+            await StartClock(clock.Message.ClockId);
+        }
+
         public async Task StartClock(string clockId)
         {
             var clock = CurrentSession.Clocks
@@ -411,6 +416,11 @@ namespace Timekeeper.Client.Model
             {
                 CurrentMessage = "Unable to communicate with clients";
             }
+        }
+
+        public async Task StopClock(Clock clock)
+        {
+            await StopClock(clock.Message.ClockId);
         }
 
         public async Task StopClock(string clockId)
@@ -472,6 +482,11 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        public async Task DeleteClock(Clock clock)
+        {
+            await DeleteClock(clock.Message.ClockId);
+        }
+
         public async Task DeleteClock(string clockId)
         {
             if (clockId == Clock.DefaultClockId)
@@ -495,8 +510,16 @@ namespace Timekeeper.Client.Model
         {
             var previousClock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
 
-            if (previousClock == null)
+            if (previousClock != null)
             {
+                var index = CurrentSession.Clocks.IndexOf(previousClock);
+
+                if (index > -1)
+                {
+                    var newClock = new Clock();
+                    CurrentSession.Clocks.Insert(index + 1, newClock);
+                    await CurrentSession.Save();
+                }
             }
         }
 

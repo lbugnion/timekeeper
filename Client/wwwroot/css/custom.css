@@ -67,7 +67,12 @@ button.small-button {
 
 .input-text {
     margin: 5px;
-    width: 192px;
+    width: 300px;
+    font-size: 1.5em;
+}
+
+#send-message-button {
+    font-size: 1.5em;
 }
 
 blockquote {
@@ -174,8 +179,19 @@ li.validation-message {
     margin-bottom: 5px;
 }
 
-/* Just for Hello World */
+.clock-controls-area {
+    margin-top: 10px;
+}
 
+.clock-controls-area button {
+    width: 80px;
+}
+
+.clock-label {
+    font-size: 2em;
+}
+
+/* Just for Hello World */
 .hello-world-warning {
     background-color: #8120BA;
     color: white;

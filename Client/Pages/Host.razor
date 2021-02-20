@@ -31,32 +31,33 @@
         {
             @foreach (var clock in Handler.CurrentSession.Clocks)
             {
-                var localClock = clock;
-
                 <div class="clock-area" style="background-color: @clock.CurrentBackgroundColor">
                     <div class="clock-label">@clock.Message.Label</div>
                     <div class="clock-text">@clock.ClockDisplay</div>
 
-                    <!--TODO Disable controls-->
-
                     <div class="clock-controls-area">
-                        <button @onclick="(e => Handler.StartClock(localClock.Message.ClockId))"
-                                disabled="@localClock.IsStartDisabled">
+                        <button @onclick="(e => Handler.StartClock(clock))"
+                                disabled="@clock.IsStartDisabled">
                             Start
                         </button>
-                        <button @onclick="(e => Handler.StopClock(localClock.Message.ClockId))"
-                                disabled="@localClock.IsStopDisabled">
+                        <button @onclick="(e => Handler.StopClock(clock))"
+                                disabled="@clock.IsStopDisabled">
                             Stop
                         </button>
-                        <button @onclick="(e => ConfigureClock(localClock.Message.ClockId))"
-                                disabled="@localClock.IsConfigDisabled">
+                        <button @onclick="(e => ConfigureClock(clock))"
+                                disabled="@clock.IsConfigDisabled">
                             Config
                         </button>
-                        <button @onclick="(e => Handler.DeleteClock(localClock.Message.ClockId))"
-                                disabled="@localClock.IsDeleteDisabled">
-                            Delete
-                        </button>
-                        <button @onclick="(e => Handler.AddClockAfter(localClock.Message.ClockId))">
+
+                        @if (clock.Message.ClockId != Model.Clock.DefaultClockId)
+                        {
+                            <button @onclick="(e => Handler.DeleteClock(clock))"
+                                    disabled="@clock.IsDeleteDisabled">
+                                Delete
+                            </button>
+                        }
+
+                        <button @onclick="(e => Handler.AddClockAfter(clock.Message.ClockId))">
                             Add
                         </button>
                     </div>
@@ -73,7 +74,8 @@
                 <input @bind-value="@Handler.InputMessage"
                        class="input-text" />
                 <button disabled="@Handler.IsSendMessageDisabled"
-                        @onclick="@Handler.SendMessage">
+                        @onclick="@Handler.SendMessage"
+                        id="send-message-button">
                     Send Message
                 </button>
             </div>
