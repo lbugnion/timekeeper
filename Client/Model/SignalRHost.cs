@@ -27,18 +27,6 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public bool IsStartDisabled
-        {
-            get;
-            private set;
-        }
-
-        public bool IsStopDisabled
-        {
-            get;
-            private set;
-        }
-
         public bool IsConfigureSessionDisabled
         {
             get;
@@ -57,8 +45,6 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http) : base(config, localStorage, log, http)
         {
-            IsStopDisabled = true;
-            base.CountdownFinished += SignalRHostCountdownFinished;
             ConnectedGuests = new List<GuestMessage>();
         }
 
@@ -74,6 +60,11 @@ namespace Timekeeper.Client.Model
                 await _connection.DisposeAsync();
                 _connection = null;
                 _log.LogTrace("Connection is stopped and disposed");
+            }
+
+            foreach (var clock in CurrentSession.Clocks)
+            {
+                clock.CountdownFinished -= ClockCountdownFinished;
             }
 
             await CurrentSession.DeleteFromStorage();
@@ -102,14 +93,28 @@ namespace Timekeeper.Client.Model
             IsDeleteSessionWarningVisible = true;
         }
 
-        private void SignalRHostCountdownFinished(object sender, EventArgs e)
+        private void ClockCountdownFinished(object sender, EventArgs e)
         {
-            _log.LogInformation("-> SignalRHostCountdownFinished");
-            IsStartDisabled = false;
-            IsStopDisabled = true;
-            IsConfigureSessionDisabled = false;
-            IsDeleteSessionDisabled = false;
-            IsCreateNewSessionDisabled = true;
+            _log.LogInformation("-> ClockCountdownFinished");
+
+            var clock = sender as Clock;
+
+            if (clock == null)
+            {
+                return;
+            }
+
+            clock.IsStartDisabled = false;
+            clock.IsStopDisabled = true;
+            clock.IsConfigDisabled = false;
+            clock.IsDeleteDisabled = false;
+
+            if (!CurrentSession.Clocks.Any(c => c.IsClockRunning))
+            {
+                IsConfigureSessionDisabled = false;
+                IsDeleteSessionDisabled = false;
+            }
+
             RaiseUpdateEvent();
         }
 
@@ -121,11 +126,10 @@ namespace Timekeeper.Client.Model
 
         public override async Task Connect()
         {
-            _log.LogInformation("-> SignalRHost.ConnectToServer");
+            _log.LogInformation("-> SignalRHost.Connect");
 
             IsBusy = true;
-            IsStartDisabled = true;
-            IsStopDisabled = true;
+
             IsSendMessageDisabled = true;
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
@@ -147,8 +151,15 @@ namespace Timekeeper.Client.Model
                     _log.LogTrace("OK");
 
                     IsConnected = true;
-                    IsStartDisabled = false;
-                    IsStopDisabled = true;
+
+                    foreach (var clock in CurrentSession.Clocks)
+                    {
+                        clock.IsStartDisabled = false;
+                        clock.IsStopDisabled = true;
+                        clock.IsConfigDisabled = false;
+                        clock.IsDeleteDisabled = false;
+                    }
+
                     IsSendMessageDisabled = false;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
@@ -160,8 +171,15 @@ namespace Timekeeper.Client.Model
                     _log.LogTrace("NOT OK");
 
                     IsConnected = false;
-                    IsStartDisabled = true;
-                    IsStopDisabled = true;
+
+                    foreach (var clock in CurrentSession.Clocks)
+                    {
+                        clock.IsStartDisabled = true;
+                        clock.IsStopDisabled = false;
+                        clock.IsConfigDisabled = true;
+                        clock.IsDeleteDisabled = true;
+                    }
+
                     IsSendMessageDisabled = true;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
@@ -174,8 +192,15 @@ namespace Timekeeper.Client.Model
                 _log.LogTrace("NOT OK");
 
                 IsConnected = false;
-                IsStartDisabled = true;
-                IsStopDisabled = true;
+
+                foreach (var clock in CurrentSession.Clocks)
+                {
+                    clock.IsStartDisabled = true;
+                    clock.IsStopDisabled = false;
+                    clock.IsConfigDisabled = true;
+                    clock.IsDeleteDisabled = true;
+                }
+
                 IsSendMessageDisabled = true;
                 IsDeleteSessionDisabled = false;
                 IsCreateNewSessionDisabled = true;
@@ -184,7 +209,7 @@ namespace Timekeeper.Client.Model
             }
 
             IsBusy = false;
-            _log.LogInformation("SignalRHost.ConnectToServer ->");
+            _log.LogInformation("SignalRHost.Connect ->");
         }
 
         public void ReceiveGuestMessage(string json)
@@ -335,8 +360,8 @@ namespace Timekeeper.Client.Model
 
         public async Task StartClock(string clockId)
         {
-            var clock = CurrentSession.ClockMessages
-                .FirstOrDefault(c => c.ClockId == clockId);
+            var clock = CurrentSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clockId);
 
             if (clock == null
                 || clock.IsClockRunning)
@@ -346,8 +371,11 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("-> SignalRHost.StartClock");
 
-            IsStartDisabled = true;
-            IsStopDisabled = false;
+            clock.IsStartDisabled = true;
+            clock.IsStopDisabled = false;
+            clock.IsConfigDisabled = true;
+            clock.IsDeleteDisabled = true;
+            clock.CountdownFinished += ClockCountdownFinished;
             IsConfigureSessionDisabled = true;
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
@@ -356,7 +384,7 @@ namespace Timekeeper.Client.Model
             {
                 clock.Reset();
 
-                var json = JsonConvert.SerializeObject(clock);
+                var json = JsonConvert.SerializeObject(clock.Message);
                 var content = new StringContent(json);
 
                 _log.LogDebug($"json: {json}");
@@ -402,6 +430,7 @@ namespace Timekeeper.Client.Model
                 httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
 
                 var content = new StringContent(clockId);
+                httpRequest.Content = content;
                 var response = await _http.SendAsync(httpRequest);
 
                 _log.LogDebug($"Response code: {response.StatusCode}");
@@ -419,18 +448,75 @@ namespace Timekeeper.Client.Model
                 ErrorStatus = "Couldn't reach the guests";
             }
 
-            IsStartDisabled = false;
-            IsStopDisabled = true;
+            var existingClock = CurrentSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clockId);
+
+            if (existingClock != null)
+            {
+                existingClock.IsStartDisabled = false;
+                existingClock.IsStopDisabled = true;
+                existingClock.IsStartDisabled = false;
+                existingClock.IsStartDisabled = false;
+                existingClock.CountdownFinished -= ClockCountdownFinished;
+            }
+
             IsConfigureSessionDisabled = false;
             IsDeleteSessionDisabled = false;
             IsCreateNewSessionDisabled = true;
-            _log.LogInformation("StopAllClocks ->");
+            _log.LogInformation("StopClock ->");
         }
 
         public IList<GuestMessage> ConnectedGuests
         {
             get;
             private set;
+        }
+
+        public async Task DeleteClock(string clockId)
+        {
+            if (clockId == Clock.DefaultClockId)
+            {
+                return;
+            }
+
+            var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
+
+            if (clock == null
+                || clock.IsClockRunning)
+            {
+                return;
+            }
+
+            clock.CountdownFinished -= ClockCountdownFinished;
+            CurrentSession.Clocks.Remove(clock);
+        }
+
+        public async Task AddClockAfter(string clockId)
+        {
+            var previousClock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
+
+            if (previousClock == null)
+            {
+            }
+        }
+
+        public bool PrepareClockToConfigure(string clockId)
+        {
+            var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
+
+            if (clock == null)
+            {
+                return false;
+            }
+
+            var param = new ConfigureClock
+            {
+                CurrentSession = CurrentSession,
+                CurrentClock = clock
+            };
+
+            Program.ClockToConfigure = param;
+            return true;
         }
     }
 }

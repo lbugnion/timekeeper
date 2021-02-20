@@ -6,6 +6,7 @@ using System;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 
 // Set version number for the assembly.
 [assembly: AssemblyVersion("0.4.0.*")]
@@ -25,6 +26,13 @@ namespace Timekeeper.Client
 
                 return version.Build == 8888;
             }
+        }
+
+        // TODO Use dependency injection?
+        public static ConfigureClock ClockToConfigure
+        {
+            get;
+            internal set;
         }
 
         public static async Task Main(string[] args)

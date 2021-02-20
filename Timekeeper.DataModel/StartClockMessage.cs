@@ -7,9 +7,6 @@ namespace Timekeeper.DataModel
     public class StartClockMessage
     {
         private const string ColorErrorMessage = "Please enter a color in the form XXXXXX where X is between 0 and F";
-        public const string DefaultBackgroundColor = "#FFFFFF";
-        public const string DefaultClockDisplay = "00:00:00";
-        public static readonly string DefaultClockId = Guid.Empty.ToString();
 
         private string _almostDoneColor;
         private string _payAttentionColor;
@@ -87,32 +84,6 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public StartClockMessage()
-        {
-            ClockDisplay = DefaultClockDisplay;
-            ClockId = DefaultClockId; // Default ID
-            CurrentBackgroundColor = DefaultBackgroundColor;
-        }
-
-        [JsonIgnore]
-        public string ClockDisplay 
-        { 
-            get; 
-            set; 
-        }
-
-        public void Update(StartClockMessage clock)
-        {
-            CountDown = clock.CountDown;
-            AlmostDone = clock.AlmostDone;
-            AlmostDoneColor = clock.AlmostDoneColor;
-            ServerTime = clock.ServerTime;
-            PayAttention = clock.PayAttention;
-            PayAttentionColor = clock.PayAttentionColor;
-            RunningColor = clock.RunningColor;
-            Label = clock.Label;
-        }
-
         [JsonIgnore]
         [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
 
@@ -131,20 +102,6 @@ namespace Timekeeper.DataModel
                     AlmostDone = new TimeSpan(value, AlmostDone.Minutes, AlmostDone.Seconds);
                 }
             }
-        }
-
-        [JsonIgnore]
-        public string CurrentBackgroundColor 
-        { 
-            get; 
-            set; 
-        }
-
-        [JsonIgnore]
-        public bool IsClockRunning 
-        { 
-            get; 
-            set; 
         }
 
         [JsonIgnore]
@@ -201,6 +158,12 @@ namespace Timekeeper.DataModel
             get => _almostDoneColor;
             set
             {
+                if (value == null)
+                {
+                    _runningColor = value;
+                    return;
+                }
+
                 if (!value.StartsWith("#"))
                 {
                     value = $"#{value}";
@@ -290,6 +253,12 @@ namespace Timekeeper.DataModel
             get => _payAttentionColor;
             set
             {
+                if (value == null)
+                {
+                    _runningColor = value;
+                    return;
+                }
+
                 if (!value.StartsWith("#"))
                 {
                     value = $"#{value}";
@@ -307,6 +276,12 @@ namespace Timekeeper.DataModel
             get => _runningColor;
             set
             {
+                if (value == null)
+                {
+                    _runningColor = value;
+                    return;
+                }
+
                 if (!value.StartsWith("#"))
                 {
                     value = $"#{value}";
@@ -319,13 +294,6 @@ namespace Timekeeper.DataModel
         public override string ToString()
         {
             return ServerTime.ToString();
-        }
-
-        public void Reset()
-        {
-            ClockDisplay = DefaultClockDisplay;
-            CurrentBackgroundColor = DefaultBackgroundColor;
-            ServerTime = DateTime.Now;
         }
 
         public string ClockId

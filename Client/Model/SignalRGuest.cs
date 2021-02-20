@@ -65,12 +65,14 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
 
-            StartClockMessage clock;
+            StartClockMessage clockMessage;
 
             try
             {
-                clock = JsonConvert.DeserializeObject<StartClockMessage>(message);
-                _log.LogDebug($"clockID: {clock.ClockId}");
+                clockMessage = JsonConvert.DeserializeObject<StartClockMessage>(message);
+                _log.LogDebug($"HIGHLIGHT--clockID: {clockMessage.ClockId}");
+                _log.LogDebug($"HIGHLIGHT--AlmostDoneColor: {clockMessage.AlmostDoneColor}");
+                _log.LogDebug($"HIGHLIGHT--PayAttentionColor: {clockMessage.PayAttentionColor}");
             }
             catch
             {
@@ -78,38 +80,32 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            var existingClock = CurrentSession.ClockMessages
-                .FirstOrDefault(c => c.ClockId == clock.ClockId);
+            var existingClock = CurrentSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clockMessage.ClockId);
 
             if (existingClock == null)
             {
                 _log.LogTrace($"No found clock, adding");
-                existingClock = clock;
-                CurrentSession.ClockMessages.Add(existingClock);
+                existingClock = new Clock(clockMessage);
+                CurrentSession.Clocks.Add(existingClock);
             }
             else
             {
-                _log.LogDebug($"Found clock {clock.ClockId}, updating");
-                existingClock.Label = clock.Label;
-                existingClock.CountDown = clock.CountDown;
-                existingClock.AlmostDone = clock.AlmostDone;
-                existingClock.PayAttention = clock.PayAttention;
-                existingClock.RunningColor = clock.RunningColor;
-                existingClock.ServerTime = clock.ServerTime;
-
-                // TODO WHY DOESN'T THIS WORK?
-                //existingClock.Update(clock);
-
-                _log.LogDebug($"existingClock.ClockId: {existingClock.ClockId}");
-                _log.LogDebug($"existingClock.Label: {existingClock.Label}");
-                _log.LogDebug($"existingClock.ServerTime: {existingClock.ServerTime}");
-                _log.LogDebug($"existingClock.IsClockRunning: {existingClock.IsClockRunning}");
+                _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
+                existingClock.Message.Label = clockMessage.Label;
+                existingClock.Message.CountDown = clockMessage.CountDown;
+                existingClock.Message.AlmostDone = clockMessage.AlmostDone;
+                existingClock.Message.PayAttention = clockMessage.PayAttention;
+                existingClock.Message.AlmostDoneColor = clockMessage.AlmostDoneColor;
+                existingClock.Message.PayAttentionColor = clockMessage.PayAttentionColor;
+                existingClock.Message.RunningColor = clockMessage.RunningColor;
+                existingClock.Message.ServerTime = clockMessage.ServerTime;
             }
 
             RunClock(existingClock);
-            Status = $"Clock {clock.Label} started";
+            Status = $"Clock {existingClock.Message.Label} started";
             RaiseUpdateEvent();
-            _log.LogInformation("HIGHLIGHT--SignalRGuest.ReceiveStartClock ->");
+            _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
 
         protected override void DisplayMessage(string message)

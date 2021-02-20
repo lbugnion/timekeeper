@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -31,15 +32,10 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        public IList<StartClockMessage> ClockMessages
+        public IList<Clock> Clocks
         {
             get;
             set;
-        }
-
-        public Session()
-        {
-            ClockMessages = new List<StartClockMessage>();
         }
 
         public const string SessionStorageKey = "SessionStorageKey";
@@ -59,10 +55,12 @@ namespace Timekeeper.Client.Model
             _localStorage = localStorage;
         }
 
-        public static async Task<Session> GetFromStorage()
+        public static async Task<Session> GetFromStorage(ILogger log)
         {
             var json = await _localStorage.GetItemAsStringAsync(
                 SessionStorageKey);
+
+            log.LogDebug($"json: {json}");
 
             if (!string.IsNullOrEmpty(json))
             {

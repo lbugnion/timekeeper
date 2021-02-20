@@ -97,11 +97,6 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public void ConfigureSession()
-        {
-            Nav.NavigateTo("/configure");
-        }
-
         public void CreateNewSession()
         {
             Nav.NavigateTo("/host", forceLoad: true);
@@ -141,6 +136,14 @@ namespace Timekeeper.Client.Pages
         {
             IsGuestListExpanded = !IsGuestListExpanded;
             GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
+        }
+
+        public void ConfigureClock(string clockId)
+        {
+            if (Handler.PrepareClockToConfigure(clockId))
+            {
+                Nav.NavigateTo("/configure");
+            }
         }
     }
 }

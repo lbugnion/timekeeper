@@ -5,15 +5,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
+using Microsoft.AspNetCore.Components;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Configure
     {
+        public StartClockMessage CurrentClockMessage
+        {
+            get;
+            set;
+        }
+
         public Session CurrentSession
         {
             get;
-            private set;
+            set;
         }
 
         public EditContext CurrentEditContext
@@ -22,21 +29,18 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        protected override async Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
-            Log.LogInformation("-> OnInitializedAsync");
+            Log.LogInformation("-> Configure.OnInitialized");
 
-            CurrentSession = await Session.GetFromStorage();
+            CurrentSession = Program.ClockToConfigure.CurrentSession;
+            CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
+            Program.ClockToConfigure = null;
 
-            if (CurrentSession == null)
-            {
-                // TODO Notify the user
-            }
-
-            CurrentEditContext = new EditContext(CurrentSession);
+            CurrentEditContext = new EditContext(CurrentClockMessage);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
-            Log.LogInformation("OnInitializedAsync ->");
+            Log.LogInformation("OnInitialized ->");
         }
 
         private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
@@ -46,7 +50,6 @@ namespace Timekeeper.Client.Pages
             if (CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Log.LogTrace("Saving");
-
                 await CurrentSession.Save();
             }
         }

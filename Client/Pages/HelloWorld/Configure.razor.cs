@@ -40,11 +40,12 @@ namespace Timekeeper.Client.Pages.HelloWorld
 
             Today = new Days(Log);
 
-            CurrentSession = await Session.GetFromStorage();
+            CurrentSession = await Session.GetFromStorage(Log);
 
             if (CurrentSession == null)
             {
                 // TODO Notify the user
+                return;
             }
 
             CurrentEditContext = new EditContext(CurrentSession);
