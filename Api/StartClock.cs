@@ -16,7 +16,7 @@ namespace Timekeeper
         [FunctionName(nameof(StartClock))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function,
+                AuthorizationLevel.Anonymous,
                 "post",
                 Route = "start")]
             HttpRequest req,

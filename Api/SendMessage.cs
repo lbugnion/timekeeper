@@ -17,7 +17,7 @@ namespace Timekeeper
         [FunctionName(nameof(SendMessage))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function,
+                AuthorizationLevel.Anonymous,
                 "post",
                 Route = "send")]
             HttpRequest req,

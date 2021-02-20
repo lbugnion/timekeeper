@@ -15,7 +15,7 @@ namespace Timekeeper
         [FunctionName(nameof(StopClock))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function,
+                AuthorizationLevel.Anonymous,
                 "get",
                 Route = "stop")]
             HttpRequest req,
