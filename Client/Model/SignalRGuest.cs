@@ -61,18 +61,18 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        private void ReceiveStartClock(string message)
+        private async Task ReceiveStartClock(string message)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
             StartClockMessage clockMessage;
 
             try
             {
                 clockMessage = JsonConvert.DeserializeObject<StartClockMessage>(message);
-                _log.LogDebug($"HIGHLIGHT--clockID: {clockMessage.ClockId}");
-                _log.LogDebug($"HIGHLIGHT--AlmostDoneColor: {clockMessage.AlmostDoneColor}");
-                _log.LogDebug($"HIGHLIGHT--PayAttentionColor: {clockMessage.PayAttentionColor}");
+                _log.LogDebug($"clockID: {clockMessage.ClockId}");
+                _log.LogDebug($"AlmostDoneColor: {clockMessage.AlmostDoneColor}");
+                _log.LogDebug($"PayAttentionColor: {clockMessage.PayAttentionColor}");
             }
             catch
             {
@@ -88,6 +88,7 @@ namespace Timekeeper.Client.Model
                 _log.LogTrace($"No found clock, adding");
                 existingClock = new Clock(clockMessage);
                 CurrentSession.Clocks.Add(existingClock);
+                await CurrentSession.Save();
             }
             else
             {

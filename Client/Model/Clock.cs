@@ -74,6 +74,10 @@ namespace Timekeeper.Client.Model
                 Message.RunningColor = message.RunningColor;
                 Message.ServerTime = message.ServerTime;
             }
+            else
+            {
+                Message = message;
+            }
         }
 
         public Clock()

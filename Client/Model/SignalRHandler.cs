@@ -394,13 +394,13 @@ namespace Timekeeper.Client.Model
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
                             {
-                                _log.LogDebug($"HIGHLIGHT--{clock.Message.PayAttentionColor}");
+                                _log.LogDebug($"{clock.Message.PayAttentionColor}");
                                 clock.CurrentBackgroundColor = clock.Message.PayAttentionColor;
                             }
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.AlmostDone.TotalSeconds)
                             {
-                                _log.LogDebug($"HIGHLIGHT--{clock.Message.AlmostDoneColor}");
+                                _log.LogDebug($"{clock.Message.AlmostDoneColor}");
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                             }
 
