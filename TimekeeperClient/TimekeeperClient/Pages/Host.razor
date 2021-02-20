@@ -7,6 +7,9 @@
 
 <main style="background-color: @Handler.BackgroundColor">
     <article>
+        <div class="connected-guests">
+            @Handler.ConnectedGuests.Count guests
+        </div>
 
         @if (IsEditingSessionName)
         {
