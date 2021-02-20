@@ -92,6 +92,8 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
+        private bool _forceStop;
+
         public string Status
         {
             get => _status;
@@ -350,46 +352,53 @@ namespace Timekeeper.Client.Model
             UpdateUi?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool _isOneClockRunning;
-
         protected void RunClock(StartClockMessage activeClock)
         {
             _log.LogInformation($"HIGHLIGHT---> {nameof(RunClock)}");
 
-            activeClock.IsClockRunning = true;
             activeClock.CurrentBackgroundColor = activeClock.RunningColor;
             Status = $"Clock {activeClock.Label} is running";
+            RaiseUpdateEvent();
 
-            if (_isOneClockRunning)
+            _log.LogDebug($"ClockId: {activeClock.ClockId}");
+            _log.LogDebug($"CurrentBackgroundColor: {activeClock.CurrentBackgroundColor}");
+            _log.LogDebug($"Label: {activeClock.Label}");
+
+            if (CurrentSession.ClockMessages.Any(c => c.IsClockRunning))
             {
-                _log.LogTrace("HIGHLIGHT--No clocks running");
+                _log.LogTrace("HIGHLIGHT--Clock task already running");
+                activeClock.IsClockRunning = true;
                 return;
             }
+
+            activeClock.IsClockRunning = true;
 
             Task.Run(async () =>
             {
                 do
                 {
+                    _log.LogTrace("In loop");
+
                     if (CurrentSession.ClockMessages.Count == 0)
                     {
                         _log.LogTrace("HIGHLIGHT--No clocks found");
-                        _isOneClockRunning = false;
                         return;
                     }
 
-                    _isOneClockRunning = false;
-
                     foreach (var clock in CurrentSession.ClockMessages)
                     {
+                        _log.LogDebug($"clock {clock.Label} is Running: {clock.IsClockRunning}");
+
                         if (clock.IsClockRunning)
                         {
-                            _isOneClockRunning = true;
+                            _log.LogDebug($"clock {clock.Label} is running");
 
                             var elapsed = DateTime.Now - clock.ServerTime;
                             var remains = clock.CountDown - elapsed;
 
                             if (remains.TotalSeconds < 0)
                             {
+                                _log.LogTrace("Countdown finished");
                                 clock.IsClockRunning = false;
                                 clock.CurrentBackgroundColor = StartClockMessage.DefaultBackgroundColor;
                                 clock.ClockDisplay = StartClockMessage.DefaultClockDisplay;
@@ -406,7 +415,7 @@ namespace Timekeeper.Client.Model
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.AlmostDone.TotalSeconds)
                             {
-                                _log.LogDebug($"ALMOSTDONE Set background to {activeClock.AlmostDoneColor} / {clock.Label}");
+                                _log.LogDebug($"ALMOSTDONE Set background to {clock.AlmostDoneColor} / {clock.Label}");
                                 clock.CurrentBackgroundColor = clock.AlmostDoneColor;
                             }
 
@@ -418,7 +427,7 @@ namespace Timekeeper.Client.Model
                     RaiseUpdateEvent();
                     await Task.Delay(1000);
                 }
-                while (_isOneClockRunning);
+                while (CurrentSession.ClockMessages.Any(c => c.IsClockRunning));
             });
         }
 
@@ -445,7 +454,7 @@ namespace Timekeeper.Client.Model
 
         protected virtual void StopLocalClock(string clockId)
         {
-            _log.LogInformation("-> StopClock");
+            _log.LogInformation($"-> {nameof(StopLocalClock)}");
             _log.LogDebug($"clockId: {clockId}");
 
             if (string.IsNullOrEmpty(clockId))
@@ -457,9 +466,18 @@ namespace Timekeeper.Client.Model
             var existingClock = CurrentSession.ClockMessages
                 .FirstOrDefault(c => c.ClockId == clockId);
 
+            if (existingClock == null)
+            {
+                _log.LogTrace("No clock found");
+                return;
+            }
+
             existingClock.CurrentBackgroundColor = "#FFFFFF";
             existingClock.IsClockRunning = false;
+
             Status = $"Clock {existingClock.Label} was stopped";
+            RaiseUpdateEvent();
+            _log.LogInformation($"{nameof(StopLocalClock)} ->");
         }
 
         public abstract Task Connect();

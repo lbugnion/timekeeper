@@ -6,21 +6,31 @@ x-timekeeper-userid: 1234
 ### Start clock
 POST {{function-url}}/start
 x-functions-key: {{StartClockKey}}
+x-timekeeper-group-id: 28ca7465-813a-4430-880e-2e626f846090
 
 {
-    "ServerTime":"2021-02-05T21:21:39.324+01:00",
-    "CountDown":"00:01:30",
-    "Yellow":"00:01:00",
-    "Red":"00:00:30",
+    "Label": "Default clock",
+    "ClockId": "00000000-0000-0000-0000-000000000000",
+    "ServerTime": "2021-02-20T20:47:00.324+01:00",
+    "CountDown":"10:10:00",
+    "PayAttention":"00:01:00",
+    "AlmostDone":"00:00:30",
+    "RunningColor": "#00FF00"
 }
 
 ### Stop clock
-GET {{function-url}}/stop
+POST {{function-url}}/stop
 x-functions-key: {{StopClockKey}}
+x-timekeeper-group-id: 28ca7465-813a-4430-880e-2e626f846090
+
+00000000-0000-0000-0000-000000000000
+
+# 5261B632-77EA-4A08-8A14-80F7B4EDAB6B
 
 ### Send message
 POST {{function-url}}/send
 x-functions-key: {{SendMessageKey}}
+x-timekeeper-group-id: 28ca7465-813a-4430-880e-2e626f846090
 
 Hello world again
 

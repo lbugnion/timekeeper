@@ -64,26 +64,51 @@ namespace Timekeeper.Client.Model
         private void ReceiveStartClock(string message)
         {
             _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
-            _log.LogDebug($"message: {message}");
 
-            var clock = JsonConvert.DeserializeObject<StartClockMessage>(message);
+            StartClockMessage clock;
+
+            try
+            {
+                clock = JsonConvert.DeserializeObject<StartClockMessage>(message);
+                _log.LogDebug($"clockID: {clock.ClockId}");
+            }
+            catch
+            {
+                _log.LogWarning("Not a clock");
+                return;
+            }
+
             var existingClock = CurrentSession.ClockMessages
                 .FirstOrDefault(c => c.ClockId == clock.ClockId);
 
             if (existingClock == null)
             {
                 _log.LogTrace($"No found clock, adding");
-                CurrentSession.ClockMessages.Add(clock);
+                existingClock = clock;
+                CurrentSession.ClockMessages.Add(existingClock);
             }
             else
             {
-                _log.LogDebug($"Found clock {clock.ClockId}, stopping and updating");
-                StopLocalClock(existingClock.ClockId);
-                existingClock.Update(clock);
+                _log.LogDebug($"Found clock {clock.ClockId}, updating");
+                existingClock.Label = clock.Label;
+                existingClock.CountDown = clock.CountDown;
+                existingClock.AlmostDone = clock.AlmostDone;
+                existingClock.PayAttention = clock.PayAttention;
+                existingClock.RunningColor = clock.RunningColor;
+                existingClock.ServerTime = clock.ServerTime;
+
+                // TODO WHY DOESN'T THIS WORK?
+                //existingClock.Update(clock);
+
+                _log.LogDebug($"existingClock.ClockId: {existingClock.ClockId}");
+                _log.LogDebug($"existingClock.Label: {existingClock.Label}");
+                _log.LogDebug($"existingClock.ServerTime: {existingClock.ServerTime}");
+                _log.LogDebug($"existingClock.IsClockRunning: {existingClock.IsClockRunning}");
             }
 
-            RunClock(clock);
+            RunClock(existingClock);
             Status = $"Clock {clock.Label} started";
+            RaiseUpdateEvent();
             _log.LogInformation("HIGHLIGHT--SignalRGuest.ReceiveStartClock ->");
         }
 
