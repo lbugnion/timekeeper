@@ -47,6 +47,12 @@ namespace Timekeeper.Client.Pages.HelloWorld
         {
             Log.LogInformation("-> Configure.OnInitialized");
 
+            if (Program.ClockToConfigure == null)
+            {
+                Nav.NavigateTo("/");
+                return;
+            }
+
             Today = new Days(Log);
 
             CurrentSession = Program.ClockToConfigure.CurrentSession;

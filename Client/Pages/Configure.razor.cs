@@ -33,6 +33,12 @@ namespace Timekeeper.Client.Pages
         {
             Log.LogInformation("-> Configure.OnInitialized");
 
+            if (Program.ClockToConfigure == null)
+            {
+                Nav.NavigateTo("/");
+                return;
+            }
+
             CurrentSession = Program.ClockToConfigure.CurrentSession;
             CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
             Program.ClockToConfigure = null;
