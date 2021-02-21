@@ -83,8 +83,6 @@ namespace Timekeeper.Client.Model
         public Clock()
         {
             IsStopDisabled = true;
-
-            ClockDisplay = DefaultClockDisplay;
             CurrentBackgroundColor = DefaultBackgroundColor;
 
             Message = new StartClockMessage
@@ -98,13 +96,20 @@ namespace Timekeeper.Client.Model
                 RunningColor = DefaultRunningColor,
                 Label = "New clock"
             };
+
+            ResetDisplay();
         }
 
         public void Reset()
         {
-            ClockDisplay = DefaultClockDisplay;
+            ResetDisplay();
             CurrentBackgroundColor = DefaultBackgroundColor;
             Message.ServerTime = DateTime.Now;
+        }
+
+        public void ResetDisplay()
+        {
+            ClockDisplay = Message.CountDown.ToString("c");
         }
 
         public void RaiseCountdownFinished()

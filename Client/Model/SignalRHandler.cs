@@ -386,7 +386,6 @@ namespace Timekeeper.Client.Model
                             {
                                 _log.LogTrace("Countdown finished");
                                 clock.IsClockRunning = false;
-                                clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
                                 return;
@@ -458,7 +457,7 @@ namespace Timekeeper.Client.Model
 
             existingClock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
             existingClock.IsClockRunning = false;
-            existingClock.ClockDisplay = Clock.DefaultClockDisplay;
+            existingClock.ResetDisplay();
 
             Status = $"Clock {existingClock.Message.Label} was stopped";
             RaiseUpdateEvent();

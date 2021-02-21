@@ -65,6 +65,21 @@ namespace Timekeeper.Client.Model
             if (!string.IsNullOrEmpty(json))
             {
                 var session = JsonConvert.DeserializeObject<Session>(json);
+
+                // Reset the UI objects
+                // TODO it would be cleaner to NOT save the Clock object
+                // and to recreate them when the session is read from storage
+                foreach (var clock in session.Clocks)
+                {
+                    clock.ResetDisplay();
+                    clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
+                    clock.IsClockRunning = false;
+                    clock.IsConfigDisabled = false;
+                    clock.IsDeleteDisabled = false;
+                    clock.IsStartDisabled = false;
+                    clock.IsStopDisabled = false;
+                }
+
                 return session;
             }
 

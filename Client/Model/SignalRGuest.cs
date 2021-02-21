@@ -88,7 +88,6 @@ namespace Timekeeper.Client.Model
                 _log.LogTrace($"No found clock, adding");
                 existingClock = new Clock(clockMessage);
                 CurrentSession.Clocks.Add(existingClock);
-                await CurrentSession.Save();
             }
             else
             {
@@ -102,6 +101,8 @@ namespace Timekeeper.Client.Model
                 existingClock.Message.RunningColor = clockMessage.RunningColor;
                 existingClock.Message.ServerTime = clockMessage.ServerTime;
             }
+
+            await CurrentSession.Save();
 
             RunClock(existingClock);
             Status = $"Clock {existingClock.Message.Label} started";

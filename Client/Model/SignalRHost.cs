@@ -465,8 +465,8 @@ namespace Timekeeper.Client.Model
             {
                 existingClock.IsStartDisabled = false;
                 existingClock.IsStopDisabled = true;
-                existingClock.IsStartDisabled = false;
-                existingClock.IsStartDisabled = false;
+                existingClock.IsConfigDisabled = false;
+                existingClock.IsDeleteDisabled = false;
                 existingClock.CountdownFinished -= ClockCountdownFinished;
             }
 
