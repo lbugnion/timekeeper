@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
@@ -433,6 +434,25 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("SignalRHandler.StartConnection ->");
             return true;
+        }
+
+        protected virtual void DeleteLocalClock(string clockId)
+        {
+            if (clockId == Clock.DefaultClockId)
+            {
+                return;
+            }
+
+            var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
+
+            if (clock == null
+                || clock.IsClockRunning)
+            {
+                return;
+            }
+
+            StopLocalClock(clockId);
+            CurrentSession.Clocks.Remove(clock);
         }
 
         protected virtual void StopLocalClock(string clockId)

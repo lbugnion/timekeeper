@@ -102,8 +102,6 @@ namespace Timekeeper.Client.Model
                 existingClock.Message.ServerTime = clockMessage.ServerTime;
             }
 
-            await CurrentSession.Save();
-
             RunClock(existingClock);
             Status = $"Clock {existingClock.Message.Label} started";
             RaiseUpdateEvent();
@@ -131,6 +129,7 @@ namespace Timekeeper.Client.Model
                 _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
                 _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
                 _connection.On<string>(Constants.StopClockMessage, StopLocalClock);
+                _connection.On<string>(Constants.DeleteClockMessage, DeleteLocalClock);
 
                 ok = await StartConnection();
 
