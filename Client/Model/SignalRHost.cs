@@ -261,11 +261,12 @@ namespace Timekeeper.Client.Model
 
             RaiseUpdateEvent();
 
-            if (IsAnyClockRunning)
-            {
-                _log.LogTrace("HIGHLIGHT--Sending start clock message without refresh");
-                await StartAllClocks(false);
-            }
+            // This should not be needed since we do that in the Connect event
+            //if (IsAnyClockRunning)
+            //{
+            //    _log.LogTrace("HIGHLIGHT--Sending start clock message without refresh");
+            //    await StartAllClocks(false);
+            //}
 
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
         }
