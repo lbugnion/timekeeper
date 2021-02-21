@@ -173,13 +173,18 @@
                 </div>
             </Authorized>
         </AuthorizeView>
-
-
     </article>
 </main>
 
 <footer>
-    <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+    <AuthorizeView>
+        <Authorized>
+            <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+        </Authorized>
+        <NotAuthorized>
+            <span class="status-message error-message">Please log in</span>
+        </NotAuthorized>
+    </AuthorizeView>
 </footer>
 
 

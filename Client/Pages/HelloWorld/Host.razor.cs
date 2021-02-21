@@ -8,6 +8,7 @@ using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.HelloWorld;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Timekeeper.Client.Pages.HelloWorld
 {
@@ -63,9 +64,24 @@ namespace Timekeeper.Client.Pages.HelloWorld
             StateHasChanged();
         }
 
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask 
+        { 
+            get; 
+            set; 
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Today = new Days(Log);
+
+            var authState = await AuthenticationStateTask;
+
+            if (!authState.User.Identity.IsAuthenticated)
+            {
+                Log.LogWarning("Unauthenticated");
+                return;
+            }
 
             IsEditingSessionName = false;
             SessionName = "Loading...";
@@ -90,9 +106,8 @@ namespace Timekeeper.Client.Pages.HelloWorld
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                await Handler.Disconnect();
             }
-
-            await Handler.Disconnect();
         }
 
         public async Task EditSessionName()

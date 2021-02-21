@@ -11,128 +11,150 @@
     <img src="@Today.ImagePath"
          class="logo-image" />
 
-    <div class="connected-guests">
-        @Handler.ConnectedGuests.Count guest(s)
-    </div>
+    <AuthorizeView>
+        <Authorized>
+            <div class="connected-guests">
+                @Handler.ConnectedGuests.Count guest(s)
+            </div>
+        </Authorized>
+    </AuthorizeView>
 </header>
 
 <main>
     <article>
         <h1 class="@Today.ForegroundClass">Hello World Backstage</h1>
 
-        @if (Program.IsExperimental)
-        {
-            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
-        }
+        <AuthorizeView>
+            <NotAuthorized>
+                <blockquote class="warning">
+                    Please <a href="/helloworld-backstage/login">log in to use this page</a>.
+                </blockquote>
+            </NotAuthorized>
+            <Authorized>
+                @if (Program.IsExperimental)
+                {
+                    <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+                }
 
-        @if (Handler.CurrentSession != null)
-        {
-            @foreach (var clock in Handler.CurrentSession.Clocks)
-            {
-                <div class="clock-area" style="background-color: @clock.CurrentBackgroundColor">
-                    <div class="clock-label">@clock.Message.Label</div>
-                    <div class="clock-text">@clock.ClockDisplay</div>
+                @if (Handler.CurrentSession != null)
+                {
+                    @foreach (var clock in Handler.CurrentSession.Clocks)
+                    {
+                        <div class="clock-area" style="background-color: @clock.CurrentBackgroundColor">
+                            <div class="clock-label">@clock.Message.Label</div>
+                            <div class="clock-text">@clock.ClockDisplay</div>
 
-                    <div class="clock-controls-area">
-                        <button @onclick="(e => Handler.StartClock(clock, true, false))"
-                                disabled="@clock.IsStartDisabled">
-                            Start
-                        </button>
-                        <button @onclick="(e => Handler.StopClock(clock))"
-                                disabled="@clock.IsStopDisabled">
-                            Stop
-                        </button>
-                        <button @onclick="(e => ConfigureClock(clock))"
-                                disabled="@clock.IsConfigDisabled">
-                            Config
+                            <div class="clock-controls-area">
+                                <button @onclick="(e => Handler.StartClock(clock, true, false))"
+                                        disabled="@clock.IsStartDisabled">
+                                    Start
+                                </button>
+                                <button @onclick="(e => Handler.StopClock(clock))"
+                                        disabled="@clock.IsStopDisabled">
+                                    Stop
+                                </button>
+                                <button @onclick="(e => ConfigureClock(clock))"
+                                        disabled="@clock.IsConfigDisabled">
+                                    Config
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <div class="message-area">
+                    <p><span class="message-text">@Handler.CurrentMessage</span></p>
+                </div>
+
+                <div class="controls-area">
+                    <div class="send-message-area">
+                        <input @bind-value="@Handler.InputMessage"
+                               class="input-text" />
+                        <button disabled="@Handler.IsSendMessageDisabled"
+                                @onclick="@Handler.SendMessage"
+                                id="send-message-button">
+                            Send Message
                         </button>
                     </div>
                 </div>
-            }
-        }
 
-        <div class="message-area">
-            <p><span class="message-text">@Handler.CurrentMessage</span></p>
-        </div>
+                <div class="controls-area">
+                    <button @onclick="(e => Handler.StartAllClocks(true))">
+                        Start all clocks
+                    </button>
+                </div>
 
-        <div class="controls-area">
-            <div class="send-message-area">
-                <input @bind-value="@Handler.InputMessage"
-                       class="input-text" />
-                <button disabled="@Handler.IsSendMessageDisabled"
-                        @onclick="@Handler.SendMessage"
-                        id="send-message-button">
-                    Send Message
-                </button>
-            </div>
-        </div>
+                <h2>Session</h2>
 
-        <div class="controls-area">
-            <button @onclick="(e => Handler.StartAllClocks(true))">
-                Start all clocks
-            </button>
-        </div>
-
-        <h2>Session</h2>
-
-        @if (Handler.CurrentSession != null)
-        {
-            <div class="session-information-area">
-                <h3>Send this link to your guests so they can connect to the session:</h3>
-
-                <p><a href="@GuestUrl">@GuestUrl</a></p>
-            </div>
-
-            <div class="session-information-area">
-                <h3>Connected guests</h3>
-
-                @if (Handler.ConnectedGuests.Count == 0)
+                @if (Handler.CurrentSession != null
+                   && !Handler.IsInError)
                 {
-                    <p>There are no connected guests at the moment.</p>
+                    <div class="session-information-area">
+                        <h3>Send this link to your guests so they can connect to the session:</h3>
+
+                        <p><a href="@GuestUrl">@GuestUrl</a></p>
+                    </div>
+
+                    <div class="session-information-area">
+                        <h3>Connected guests</h3>
+
+                        @if (Handler.ConnectedGuests.Count == 0)
+                        {
+                            <p>There are no connected guests at the moment.</p>
+                        }
+                        else
+                        {
+                            <p>
+                                There are @Handler.ConnectedGuests.Count connected guest(s).
+                            </p>
+                        }
+                    </div>
                 }
-                else
+
+                @if (Handler.IsDeleteSessionWarningVisible)
                 {
-                    <p>
-                        There are @Handler.ConnectedGuests.Count connected guest(s).
-                    </p>
+                    <blockquote class="warning">
+                        <strong>Deleting the session is irreversible. Are you sure?</strong>
+                        <br /><br />
+                        If you delete the session and create a new one, all your guests will
+                        need to reconnect.
+                        <br /><br />
+                        <button @onclick="@Handler.DoDeleteSession"
+                                class="small-button">
+                            Yes
+                        </button>
+                        <button @onclick="@Handler.CancelDeleteSession"
+                                class="small-button">
+                            No
+                        </button>
+                    </blockquote>
                 }
-            </div>
-        }
 
-        @if (Handler.IsDeleteSessionWarningVisible)
-        {
-            <blockquote class="warning">
-                <strong>Deleting the session is irreversible. Are you sure?</strong>
-                <br /><br />
-                If you delete the session and create a new one, all your guests will
-                need to reconnect.
-                <br /><br />
-                <button @onclick="@Handler.DoDeleteSession"
-                        class="small-button">
-                    Yes
-                </button>
-                <button @onclick="@Handler.CancelDeleteSession"
-                        class="small-button">
-                    No
-                </button>
-            </blockquote>
-        }
+                <div class="controls-area">
+                    <button disabled="@Handler.IsDeleteSessionDisabled"
+                            @onclick="@Handler.DeleteSession">
+                        Delete the session
+                    </button>
+                    <button disabled="@Handler.IsCreateNewSessionDisabled"
+                            @onclick="@CreateNewSession">
+                        Create a new session
+                    </button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
 
-        <div class="controls-area">
-            <button disabled="@Handler.IsDeleteSessionDisabled"
-                    @onclick="@Handler.DeleteSession">
-                Delete the session
-            </button>
-            <button disabled="@Handler.IsCreateNewSessionDisabled"
-                    @onclick="@CreateNewSession">
-                Create a new session
-            </button>
-        </div>
     </article>
 </main>
 
 <footer class="@Today.FooterClass">
-    <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+    <AuthorizeView>
+        <Authorized>
+            <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+        </Authorized>
+        <NotAuthorized>
+            <span class="status-message error-message">Please log in</span>
+        </NotAuthorized>
+    </AuthorizeView>
 </footer>
 
 

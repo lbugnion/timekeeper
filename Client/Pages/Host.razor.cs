@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Timekeeper.Client.Pages
 {
@@ -42,8 +44,23 @@ namespace Timekeeper.Client.Pages
             StateHasChanged();
         }
 
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask
+        {
+            get;
+            set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
+            var authState = await AuthenticationStateTask;
+
+            if (!authState.User.Identity.IsAuthenticated)
+            {
+                Log.LogWarning("Unauthenticated");
+                return;
+            }
+
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
@@ -67,9 +84,8 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                await Handler.Disconnect();
             }
-
-            await Handler.Disconnect();
         }
 
         public async Task EditSessionName()
