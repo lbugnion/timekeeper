@@ -7,6 +7,7 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper
 {
+    // V0.5.0
     public static class Negotiate
     {
         [FunctionName(nameof(Negotiate))]
