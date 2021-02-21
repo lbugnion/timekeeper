@@ -41,7 +41,7 @@
                     <div class="clock-text">@clock.ClockDisplay</div>
 
                     <div class="clock-controls-area">
-                        <button @onclick="(e => Handler.StartClock(clock))"
+                        <button @onclick="(e => Handler.StartClock(clock, true))"
                                 disabled="@clock.IsStartDisabled">
                             Start
                         </button>
@@ -92,7 +92,7 @@
         }
 
         <div class="controls-area">
-            <button @onclick="@Handler.StartAllClocks">
+            <button @onclick="(e => Handler.StartAllClocks(true))">
                 Start all clocks
             </button>
         </div>

@@ -61,9 +61,9 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        private async Task ReceiveStartClock(string message)
+        private void ReceiveStartClock(string message)
         {
-            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
 
             StartClockMessage clockMessage;
 

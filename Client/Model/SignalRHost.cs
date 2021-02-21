@@ -104,7 +104,7 @@ namespace Timekeeper.Client.Model
 
             var isAnyClockRunning = IsAnyClockRunning;
 
-            _log.LogDebug($"HIGHLIGHT--IsAnyClockRunning {isAnyClockRunning}");
+            _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
 
             clock.IsStartDisabled = false;
             clock.IsStopDisabled = true;
@@ -221,14 +221,14 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
-        public void ReceiveGuestMessage(string json)
+        public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
 
-            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
+            _log.LogDebug($"HIGHLIGHT--GuestId: {messageGuest.GuestId}");
 
             if (messageGuest == null
                 || string.IsNullOrEmpty(messageGuest.GuestId))
@@ -260,6 +260,13 @@ namespace Timekeeper.Client.Model
             }
 
             RaiseUpdateEvent();
+
+            if (IsAnyClockRunning)
+            {
+                _log.LogTrace("HIGHLIGHT--Sending start clock message without refresh");
+                await StartAllClocks(false);
+            }
+
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
         }
 
@@ -291,7 +298,7 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"SignalRHost.{nameof(ReceiveDisconnectMessage)} ->");
         }
 
-        public void ReceiveConnectMessage(string guestId)
+        public async Task ReceiveConnectMessage(string guestId)
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveConnectMessage)}");
             _log.LogDebug($"{nameof(guestId)} {guestId}");
@@ -310,7 +317,13 @@ namespace Timekeeper.Client.Model
 
             if (existingGuest != null)
             {
-                _log.LogWarning("Found existing guest, nothing to do");
+                _log.LogWarning("Found existing guest, refresh clock just to be sure");
+
+                if (IsAnyClockRunning)
+                {
+                    await StartAllClocks(false);
+                }
+
                 return;
             }
 
@@ -326,6 +339,12 @@ namespace Timekeeper.Client.Model
             });
 
             RaiseUpdateEvent();
+
+            if (IsAnyClockRunning)
+            {
+                await StartAllClocks(false);
+            }
+
             _log.LogInformation($"SignalRHost.{nameof(ReceiveConnectMessage)} ->");
         }
 
@@ -367,20 +386,23 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(SendMessage)} ->");
         }
 
-        public async Task StartAllClocks()
+        public async Task StartAllClocks(bool startFresh)
         {
             foreach (var clock in CurrentSession.Clocks)
             {
-                await StartClock(clock);
+                await StartClock(clock, startFresh);
             }
         }
 
-        public async Task StartClock(Clock clock)
+        public async Task StartClock(Clock clock, bool startFresh)
         {
-            if (clock == null
-                || clock.IsClockRunning)
+            if (startFresh)
             {
-                return;
+                if (clock == null
+                    || clock.IsClockRunning)
+                {
+                    return;
+                }
             }
 
             _log.LogInformation("-> SignalRHost.StartClock");
@@ -395,7 +417,10 @@ namespace Timekeeper.Client.Model
 
             try
             {
-                clock.Reset();
+                if (startFresh)
+                {
+                    clock.Reset();
+                }
 
                 var json = JsonConvert.SerializeObject(clock.Message);
                 var content = new StringContent(json);
