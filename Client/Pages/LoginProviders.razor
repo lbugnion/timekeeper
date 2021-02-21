@@ -1,25 +1,26 @@
-﻿@page "/login"
+﻿@page "/helloworld-backstage/login"
 
 @{
     var providers = new Dictionary<string, string>
-    {
+{
         { "github", "GitHub" },
-        { "twitter", "Twitter" },
-        { "facebook", "Facebook" }
+        { "twitter", "Twitter" }
     };
 }
 
-<h1>Login</h1>
+<main>
+    <article>
+        <h1>Login</h1>
 
-<div class="container">
-    @foreach (var provider in providers)
-    {
-        <div class="row">
-            <div class="col-sm-12 col-md-9 col-lg-6">
-                <a class="btn btn-block btn-lg btn-social btn-@provider.Key" href="/.auth/login/@provider.Key">
-                    <span class="fa fa-@provider.Key"></span> Sign in with @provider.Value
-                </a>
-            </div>
+        <div class="container">
+            @foreach (var provider in providers)
+            {
+                <div class="row">
+                    <a class="btn btn-block btn-lg btn-social btn-@provider.Key" href="/.auth/login/@provider.Key">
+                        <span class="fa fa-@provider.Key"></span> Sign in with @provider.Value
+                    </a>
+                </div>
+            }
         </div>
-    }
-</div>
+    </article>
+</main>
