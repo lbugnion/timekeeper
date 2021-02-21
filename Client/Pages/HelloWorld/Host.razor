@@ -11,16 +11,12 @@
          class="logo-image" />
 
     <div class="connected-guests">
-        @Handler.ConnectedGuests.Count guests
+        @Handler.ConnectedGuests.Count guest(s)
     </div>
 </header>
 
 <main>
     <article>
-        <div class="connected-guests">
-            @Handler.ConnectedGuests.Count guests
-        </div>
-
         <h1 class="@Today.ForegroundClass">Hello World Backstage</h1>
 
         @if (!Handler.IsBusy)
@@ -50,12 +46,12 @@
                                 disabled="@clock.IsStopDisabled">
                             Stop
                         </button>
-                        <button @onclick="(e => ConfigureClock(clock))"
+                        <button @onclick="(e => ConfigureClock(clock))
                                 disabled="@clock.IsConfigDisabled">
                             Config
                         </button>
 
-                        @if (clock.Message.ClockId != Model.Clock.DefaultClockId)
+                        @*@if (clock.Message.ClockId != Model.Clock.DefaultClockId)
                         {
                             <button @onclick="(e => Handler.DeleteClock(clock))"
                                     disabled="@clock.IsDeleteDisabled">
@@ -65,7 +61,7 @@
 
                         <button @onclick="(e => Handler.AddClockAfter(clock.Message.ClockId))">
                             Add
-                        </button>
+                        </button>*@
                     </div>
                 </div>
             }

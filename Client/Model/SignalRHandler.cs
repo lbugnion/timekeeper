@@ -531,6 +531,8 @@ namespace Timekeeper.Client.Model
             UpdateUi?.Invoke(this, EventArgs.Empty);
         }
 
+        private Task _clockTask;
+
         protected void RunClock(Clock activeClock)
         {
             _log.LogInformation($"-> {nameof(RunClock)}");
@@ -576,7 +578,7 @@ namespace Timekeeper.Client.Model
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
-                                return;
+                                continue;
                             }
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
