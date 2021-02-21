@@ -52,8 +52,6 @@ namespace Timekeeper.Client.Pages.HelloWorld
 
         public async Task EditGuestName()
         {
-            Today = new Days(Log);
-
             IsEditingGuestName = !IsEditingGuestName;
 
             if (IsEditingGuestName)

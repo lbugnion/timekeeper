@@ -21,9 +21,16 @@
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
         }
 
-        @*<div class="clock-area">
-            <p><span class="clock-text">@Handler.ClockDisplay</span></p>
-        </div>*@
+        @if (Handler.CurrentSession != null)
+        {
+            @foreach (var clock in Handler.CurrentSession.Clocks)
+            {
+                <div class="clock-area" style="background-color: @clock.CurrentBackgroundColor">
+                    <div class="clock-label">@clock.Message.Label</div>
+                    <div class="clock-text">@clock.ClockDisplay</div>
+                </div>
+            }
+        }
 
         <div class="message-area">
             <p><span class="message-text">@Handler.CurrentMessage</span></p>

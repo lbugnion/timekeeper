@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
+using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
+using Microsoft.AspNetCore.Components;
 using Timekeeper.Client.Model.HelloWorld;
 
 namespace Timekeeper.Client.Pages.HelloWorld
@@ -22,10 +25,16 @@ namespace Timekeeper.Client.Pages.HelloWorld
             set;
         }
 
+        public StartClockMessage CurrentClockMessage
+        {
+            get;
+            set;
+        }
+
         public Session CurrentSession
         {
             get;
-            private set;
+            set;
         }
 
         public EditContext CurrentEditContext
@@ -34,24 +43,20 @@ namespace Timekeeper.Client.Pages.HelloWorld
             private set;
         }
 
-        protected override async Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
-            Log.LogInformation("-> OnInitializedAsync");
+            Log.LogInformation("-> Configure.OnInitialized");
 
             Today = new Days(Log);
 
-            CurrentSession = await Session.GetFromStorage(Log);
+            CurrentSession = Program.ClockToConfigure.CurrentSession;
+            CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
+            Program.ClockToConfigure = null;
 
-            if (CurrentSession == null)
-            {
-                // TODO Notify the user
-                return;
-            }
-
-            CurrentEditContext = new EditContext(CurrentSession);
+            CurrentEditContext = new EditContext(CurrentClockMessage);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
-            Log.LogInformation("OnInitializedAsync ->");
+            Log.LogInformation("OnInitialized ->");
         }
 
         private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
@@ -61,7 +66,6 @@ namespace Timekeeper.Client.Pages.HelloWorld
             if (CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Log.LogTrace("Saving");
-
                 await CurrentSession.Save();
             }
         }

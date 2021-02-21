@@ -12,18 +12,16 @@
     <article>
         <h1 class="@Today.ForegroundClass">Configure</h1>
 
-        @if (CurrentSession != null)
+        @if (CurrentClockMessage != null)
         {
-            <blockquote class="warning"><strong>NOTE:</strong> Because of a bug, when you go back sometimes the Host page remains empty. Simply refresh the page is this happens.</blockquote>
-
             <EditForm EditContext="@CurrentEditContext">
                 <DataAnnotationsValidator />
 
                 <div class="edit-area">
-                    <p class="form-label">Session name</p>
-                    <p class="form-explanation">Enter a friendly name to identify this session</p>
+                    <p class="form-label">Label</p>
+                    <p class="form-explanation">Enter a friendly name to identify this clock</p>
                     <InputText class="medium-input-text"
-                               @bind-Value="@CurrentSession.SessionName" />
+                               @bind-Value="@CurrentClockMessage.Label" />
                 </div>
 
                 <div class="edit-area">
@@ -31,17 +29,17 @@
                     <p class="form-explanation">Enter the hours, minutes and seconds that the clock should countdown from</p>
 
                     <div class="config-time">
-                        @*<InputNumber class="short-input-text"
-                        @bind-Value="@CurrentSession.ClockMessage.CountDownHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentSession.ClockMessage.CountDownMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentSession.ClockMessage.CountDownSeconds" />*@
+                        <InputNumber class="short-input-text"
+                                     @bind-Value="@CurrentClockMessage.CountDownHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.CountDownMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.CountDownSeconds" />
                     </div>
                 </div>
 
                 <div class="edit-area">
                     <p class="form-label">'Running' color</p>
-                    @*<p class="form-explanation-color"
-                       style="background-color: @CurrentSession.ClockMessage.RunningColor">The color to which the background will turn when the clock is running. <a href="https://colorpicker.me/">Online colorpicker</a></p>
+                    <p class="form-explanation-color"
+                       style="background-color: @CurrentClockMessage.RunningColor">The color to which the background will turn when the clock is running. <a href="https://colorpicker.me/">Online colorpicker</a></p>
                     <InputText class="medium-input-text"
-                               @bind-Value="@CurrentSession.ClockMessage.RunningColor" />*@
+                               @bind-Value="@CurrentClockMessage.RunningColor" />
                 </div>
 
                 <div class="edit-area">
@@ -49,21 +47,17 @@
                     <p class="form-explanation">Enter the hours, minutes and seconds from which the screen turns to the 'Pay attention' color (see below)</p>
 
                     <div class="config-time">
-                        @*<InputNumber class="short-input-text"
-                        @bind-Value="@CurrentSession.ClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber
-                        class="short-input-text"
-                        @bind-Value="@CurrentSession.ClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber
-                        class="short-input-text"
-                        @bind-Value="@CurrentSession.ClockMessage.PayAttentionSeconds" />*@
+                        <InputNumber class="short-input-text"
+                                     @bind-Value="@CurrentClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.PayAttentionSeconds" />
                     </div>
                 </div>
 
                 <div class="edit-area">
                     <p class="form-label">'Pay attention' color</p>
-                    @*<p class="form-explanation-color"
-                       style="background-color: @CurrentSession.ClockMessage.PayAttentionColor">The color to which the background will turn when the clock reaches the 'Pay attention' time above. <a href="https://colorpicker.me/">Online colorpicker</a>.</p>
+                    <p class="form-explanation-color"
+                       style="background-color: @CurrentClockMessage.PayAttentionColor">The color to which the background will turn when the clock reaches the 'Pay attention' time above. <a href="https://colorpicker.me/">Online colorpicker</a>.</p>
                     <InputText class="medium-input-text"
-                               @bind-Value="@CurrentSession.ClockMessage.PayAttentionColor" />*@
+                               @bind-Value="@CurrentClockMessage.PayAttentionColor" />
                 </div>
 
                 <div class="edit-area">
@@ -71,21 +65,17 @@
                     <p class="form-explanation">Enter the hours, minutes and seconds from which the screen turns to the 'Almost done' color (see below)</p>
 
                     <div class="config-time">
-                        @*<InputNumber class="short-input-text"
-                        @bind-Value="@CurrentSession.ClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber
-                        class="short-input-text"
-                        @bind-Value="@CurrentSession.ClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber
-                        class="short-input-text"
-                        @bind-Value="@CurrentSession.ClockMessage.AlmostDoneSeconds" />*@
+                        <InputNumber class="short-input-text"
+                                     @bind-Value="@CurrentClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.AlmostDoneSeconds" />
                     </div>
                 </div>
 
                 <div class="edit-area">
                     <p class="form-label">'Almost done' color</p>
-                    @*<p class="form-explanation-color"
-                       style="background-color: @CurrentSession.ClockMessage.AlmostDoneColor">The color to which the background will turn when the clock reaches the 'Almost done' time above. <a href="https://colorpicker.me/">Online colorpicker</a></p>
+                    <p class="form-explanation-color"
+                       style="background-color: @CurrentClockMessage.AlmostDoneColor">The color to which the background will turn when the clock reaches the 'Almost done' time above. <a href="https://colorpicker.me/">Online colorpicker</a></p>
                     <InputText class="medium-input-text"
-                               @bind-Value="@CurrentSession.ClockMessage.AlmostDoneColor" />*@
+                               @bind-Value="@CurrentClockMessage.AlmostDoneColor" />
                 </div>
 
                 <ValidationSummary />
@@ -94,7 +84,7 @@
         }
         else
         {
-            <blockquote class="warning"><strong>NO SESSION FOUND:</strong> Please go back to <a href="/helloworld-backstage/host">the Host page</a> and make sure a session is active.</blockquote>
+            <blockquote class="warning"><strong>NO CLOCK FOUND:</strong> Please go back to <a href="/host">the Host page</a> and make sure a session is active.</blockquote>
         }
     </article>
 </main>

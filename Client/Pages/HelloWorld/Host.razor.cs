@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -112,11 +113,6 @@ namespace Timekeeper.Client.Pages.HelloWorld
             private set;
         }
 
-        public void ConfigureSession()
-        {
-            Nav.NavigateTo("/helloworld-backstage/configure");
-        }
-
         public void CreateNewSession()
         {
             Nav.NavigateTo("/helloworld-backstage/host", forceLoad: true);
@@ -156,6 +152,19 @@ namespace Timekeeper.Client.Pages.HelloWorld
         {
             IsGuestListExpanded = !IsGuestListExpanded;
             GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
+        }
+
+        public void ConfigureClock(Clock clock)
+        {
+            ConfigureClock(clock.Message.ClockId);
+        }
+
+        public void ConfigureClock(string clockId)
+        {
+            if (Handler.PrepareClockToConfigure(clockId))
+            {
+                Nav.NavigateTo("/helloworld-backstage/configure");
+            }
         }
     }
 }
