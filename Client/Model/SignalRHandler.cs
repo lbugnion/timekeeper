@@ -538,8 +538,6 @@ namespace Timekeeper.Client.Model
             UpdateUi?.Invoke(this, EventArgs.Empty);
         }
 
-        private Task _clockTask;
-
         protected void RunClock(Clock activeClock)
         {
             _log.LogInformation($"-> {nameof(RunClock)}");

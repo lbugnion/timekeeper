@@ -1,3 +1,4 @@
+using AzureStaticWebApps.Blazor.Authentication;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +44,9 @@ namespace Timekeeper.Client
             builder.Logging.AddConfiguration(
                 builder.Configuration.GetSection("Logging"));
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services
+                .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
+                .AddStaticWebAppsAuthentication();
 
             builder.Services.AddBlazoredLocalStorage();
 
