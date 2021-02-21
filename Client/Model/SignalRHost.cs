@@ -108,10 +108,16 @@ namespace Timekeeper.Client.Model
 
             clock.IsStartDisabled = false;
             clock.IsStopDisabled = true;
-            clock.IsConfigDisabled = !isAnyClockRunning;
             clock.IsDeleteDisabled = false;
 
-            if (!isAnyClockRunning)
+            if (isAnyClockRunning)
+            {
+                foreach (var anyClock in CurrentSession.Clocks)
+                {
+                    anyClock.IsConfigDisabled = true;
+                }
+            }
+            else
             {
                 IsDeleteSessionDisabled = false;
                 IsReloadWarningVisible = false;

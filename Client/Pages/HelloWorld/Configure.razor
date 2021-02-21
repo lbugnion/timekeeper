@@ -14,6 +14,8 @@
 
         @if (CurrentSession != null)
         {
+            <blockquote class="warning"><strong>NOTE:</strong> Because of a bug, when you go back sometimes the Host page remains empty. Simply refresh the page is this happens.</blockquote>
+
             <EditForm EditContext="@CurrentEditContext">
                 <DataAnnotationsValidator />
 
@@ -30,7 +32,7 @@
 
                     <div class="config-time">
                         @*<InputNumber class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.CountDownHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentSession.ClockMessage.CountDownMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentSession.ClockMessage.CountDownSeconds" />*@
+                        @bind-Value="@CurrentSession.ClockMessage.CountDownHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentSession.ClockMessage.CountDownMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentSession.ClockMessage.CountDownSeconds" />*@
                     </div>
                 </div>
 
@@ -48,11 +50,11 @@
 
                     <div class="config-time">
                         @*<InputNumber class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.PayAttentionSeconds" />*@
+                        @bind-Value="@CurrentSession.ClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber
+                        class="short-input-text"
+                        @bind-Value="@CurrentSession.ClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber
+                        class="short-input-text"
+                        @bind-Value="@CurrentSession.ClockMessage.PayAttentionSeconds" />*@
                     </div>
                 </div>
 
@@ -70,11 +72,11 @@
 
                     <div class="config-time">
                         @*<InputNumber class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber 
-                                     class="short-input-text"
-                                     @bind-Value="@CurrentSession.ClockMessage.AlmostDoneSeconds" />*@
+                        @bind-Value="@CurrentSession.ClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber
+                        class="short-input-text"
+                        @bind-Value="@CurrentSession.ClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber
+                        class="short-input-text"
+                        @bind-Value="@CurrentSession.ClockMessage.AlmostDoneSeconds" />*@
                     </div>
                 </div>
 
