@@ -502,7 +502,7 @@ namespace Timekeeper.Client.Model
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
 
             IsDeleteSessionDisabled = isOneClockRunning;
-            IsCreateNewSessionDisabled = isOneClockRunning;
+            IsCreateNewSessionDisabled = !isOneClockRunning;
             _log.LogInformation("StopClock ->");
         }
 

@@ -393,6 +393,7 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogError($"Error registering for group: {response.ReasonPhrase}");
                     ErrorStatus = "Error with the backend, please contact support";
+                    IsInError = true;
                     _log.LogInformation("SignalRHandler.CreateConnection ->");
                     return false;
                 }
@@ -401,6 +402,7 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogError($"Error reaching the function: {ex.Message}");
                 ErrorStatus = "Error with the backend, please contact support";
+                IsInError = true;
                 _log.LogInformation("SignalRHandler.CreateConnection ->");
                 return false;
             }
@@ -444,6 +446,7 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogError($"Error reaching the function: {response.ReasonPhrase}");
                     ErrorStatus = "Error with the backend, please contact support";
+                    IsInError = true;
                     _log.LogInformation("SignalRHandler.CreateConnection ->");
                     return false;
                 }
@@ -452,6 +455,7 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogError($"Error reaching the function: {ex.Message}");
                 ErrorStatus = "Error with the backend, please contact support";
+                IsInError = true;
                 _log.LogInformation("SignalRHandler.CreateConnection ->");
                 return false;
             }
@@ -506,6 +510,8 @@ namespace Timekeeper.Client.Model
             IsBusy = true;
             IsConnected = false;
             IsInError = true;
+
+            // TODO Should also disable the controls for the Host
 
             tcs.SetResult(true);
             return tcs.Task;
