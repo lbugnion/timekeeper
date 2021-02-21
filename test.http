@@ -36,17 +36,5 @@ Hello world again
 
 ### Test hack
 
-POST {{function-url}}/send
-x-functions-key: aJ5POPrR9cenGtiqaiCrPdVM9apG/LlQ6PMpoz6Bc5952wxkX2NmOw==
-x-timekeeper-group-id: 2c9eed82-6b06-4686-92f0-12569c206bbe
-
-###
-
-POST https://white-stone-08f0f8803.azurestaticapps.net/api/send
-
-Hello world again
-x-timekeeper-group-id: 2c9eed82-6b06-4686-92f0-12569c206bbe
-
-###
-
-GET https://white-stone-08f0f8803.azurestaticapps.net/api/test
+POST https://mango-mud-074ee9103.azurestaticapps.net/api/send
+x-timekeeper-group-id: 91f22496-a644-472b-ab73-cd60bbf4be18
