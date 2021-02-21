@@ -38,11 +38,28 @@ namespace Timekeeper.Client.Model
             set;
         }
 
+        public bool CreatedFromTemplate
+        {
+            get;
+            set;
+        }
+
+        public Session()
+        {
+            SessionId = Guid.NewGuid().ToString();
+
+            SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            UserId = Guid.NewGuid().ToString();
+            Clocks = new List<Clock>();
+        }
+
         public const string SessionStorageKey = "SessionStorageKey";
         private static ILocalStorageService _localStorage;
 
-        public async Task Save()
+        public async Task Save(ILogger log)
         {
+            log.LogTrace("CRITICAL--SAVING SESSION");
+
             var json = JsonConvert.SerializeObject(this);
 
             await _localStorage.SetItemAsync(
@@ -57,6 +74,8 @@ namespace Timekeeper.Client.Model
 
         public static async Task<Session> GetFromStorage(ILogger log)
         {
+            log.LogInformation("-> GetFromStorage");
+
             var json = await _localStorage.GetItemAsStringAsync(
                 SessionStorageKey);
 
@@ -66,18 +85,21 @@ namespace Timekeeper.Client.Model
             {
                 var session = JsonConvert.DeserializeObject<Session>(json);
 
-                // Reset the UI objects
-                // TODO it would be cleaner to NOT save the Clock object
-                // and to recreate them when the session is read from storage
-                foreach (var clock in session.Clocks)
+                if (session.Clocks != null)
                 {
-                    clock.ResetDisplay();
-                    clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
-                    clock.IsClockRunning = false;
-                    clock.IsConfigDisabled = false;
-                    clock.IsDeleteDisabled = false;
-                    clock.IsStartDisabled = false;
-                    clock.IsStopDisabled = false;
+                    // Reset the UI objects
+                    // TODO it would be cleaner to NOT save the Clock object
+                    // and to recreate them when the session is read from storage
+                    foreach (var clock in session.Clocks)
+                    {
+                        clock.ResetDisplay();
+                        clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
+                        clock.IsClockRunning = false;
+                        clock.IsConfigDisabled = false;
+                        clock.IsDeleteDisabled = false;
+                        clock.IsStartDisabled = false;
+                        clock.IsStopDisabled = false;
+                    }
                 }
 
                 return session;

@@ -50,7 +50,7 @@ namespace Timekeeper.Client.Pages
             if (CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Log.LogTrace("Saving");
-                await CurrentSession.Save();
+                await CurrentSession.Save(Log);
             }
         }
     }

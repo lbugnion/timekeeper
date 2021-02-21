@@ -12,6 +12,10 @@ namespace Timekeeper.Client.Model
         public const string DefaultPayAttentionColor = "#FFFB91";
         public const string DefaultAlmostDoneColor = "#FF6B77";
 
+        public static readonly TimeSpan DefaultAlmostDone = TimeSpan.FromSeconds(30);
+        public static readonly TimeSpan DefaultPayAttention = TimeSpan.FromMinutes(2);
+        public static readonly TimeSpan DefaultCountDown = TimeSpan.FromMinutes(5);
+
         public event EventHandler CountdownFinished;
 
         public bool IsStartDisabled
@@ -88,9 +92,9 @@ namespace Timekeeper.Client.Model
             Message = new StartClockMessage
             {
                 ClockId = DefaultClockId, // Default ID
-                AlmostDone = TimeSpan.FromSeconds(30),
-                PayAttention = TimeSpan.FromMinutes(2),
-                CountDown = TimeSpan.FromMinutes(5),
+                AlmostDone = DefaultAlmostDone,
+                PayAttention = DefaultPayAttention,
+                CountDown = DefaultCountDown,
                 AlmostDoneColor = DefaultAlmostDoneColor,
                 PayAttentionColor = DefaultPayAttentionColor,
                 RunningColor = DefaultRunningColor,

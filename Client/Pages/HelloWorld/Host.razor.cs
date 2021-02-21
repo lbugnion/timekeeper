@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -72,7 +71,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
                 Http);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
+            await Handler.Connect("HelloWorldClocksTemplate");
             SessionName = Handler.CurrentSession.SessionName;
         }
 
@@ -100,7 +99,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
             {
                 EditSessionNameLinkText = EditSessionNameText;
                 Handler.CurrentSession.SessionName = SessionName;
-                await Handler.CurrentSession.Save();
+                await Handler.CurrentSession.Save(Log);
             }
         }
 

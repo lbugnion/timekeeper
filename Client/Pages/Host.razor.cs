@@ -84,7 +84,7 @@ namespace Timekeeper.Client.Pages
             {
                 EditSessionNameLinkText = EditSessionNameText;
                 Handler.CurrentSession.SessionName = SessionName;
-                await Handler.CurrentSession.Save();
+                await Handler.CurrentSession.Save(Log);
             }
         }
 

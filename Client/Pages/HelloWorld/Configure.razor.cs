@@ -66,7 +66,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
             if (CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Log.LogTrace("Saving");
-                await CurrentSession.Save();
+                await CurrentSession.Save(Log);
             }
         }
     }

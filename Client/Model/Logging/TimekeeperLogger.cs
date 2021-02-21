@@ -6,6 +6,7 @@ public class TimekeeperLogger : ILogger
     private readonly TimekeeperLoggerConfiguration _config;
     private readonly string _name;
     public const string HighlightCode = "HIGHLIGHT--";
+    public const string CriticalCode = "CRITICAL--";
 
     public TimekeeperLogger(string name, TimekeeperLoggerConfiguration config)
     {
@@ -72,6 +73,12 @@ public class TimekeeperLogger : ILogger
         {
             color = ConsoleCodes.BgMagenta;
             message = message.Replace(HighlightCode, string.Empty);
+        }
+
+        if (message.StartsWith(CriticalCode))
+        {
+            color = ConsoleCodes.BgRed;
+            message = message.Replace(CriticalCode, string.Empty);
         }
 
         var timestamp = DateTime.Now.ToString("yyyy:MM:dd HH:mm:ss:fff");

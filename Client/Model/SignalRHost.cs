@@ -136,7 +136,7 @@ namespace Timekeeper.Client.Model
             Status = "Message sent";
         }
 
-        public override async Task Connect()
+        public override async Task Connect(string templateName = null)
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
@@ -146,7 +146,7 @@ namespace Timekeeper.Client.Model
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
 
-            var ok = await InitializeSession()
+            var ok = await InitializeSession(sessionId: null, templateName: templateName)
                 && await CreateConnection();
 
             if (ok)
@@ -159,7 +159,7 @@ namespace Timekeeper.Client.Model
 
                 if (ok)
                 {
-                    _log.LogTrace("OK");
+                    _log.LogTrace("CreateConnection and StartConnection OK");
 
                     IsConnected = true;
 
@@ -178,14 +178,14 @@ namespace Timekeeper.Client.Model
                 }
                 else
                 {
-                    _log.LogTrace("NOT OK");
+                    _log.LogTrace("StartConnection NOT OK");
 
                     IsConnected = false;
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
                         clock.IsStartDisabled = true;
-                        clock.IsStopDisabled = false;
+                        clock.IsStopDisabled = true;
                         clock.IsConfigDisabled = true;
                         clock.IsDeleteDisabled = true;
                     }
@@ -198,14 +198,14 @@ namespace Timekeeper.Client.Model
             }
             else
             {
-                _log.LogTrace("NOT OK");
+                _log.LogTrace("CreateConnection NOT OK");
 
                 IsConnected = false;
 
                 foreach (var clock in CurrentSession.Clocks)
                 {
                     clock.IsStartDisabled = true;
-                    clock.IsStopDisabled = false;
+                    clock.IsStopDisabled = true;
                     clock.IsConfigDisabled = true;
                     clock.IsDeleteDisabled = true;
                 }
@@ -572,12 +572,10 @@ namespace Timekeeper.Client.Model
                     var newClock = new Clock();
                     newClock.Message.ClockId = Guid.NewGuid().ToString();
                     CurrentSession.Clocks.Insert(index + 1, newClock);
-                    await CurrentSession.Save();
+                    await CurrentSession.Save(_log);
                 }
             }
         }
-
-
 
         public bool PrepareClockToConfigure(string clockId)
         {
