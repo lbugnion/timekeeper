@@ -345,6 +345,14 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(SendMessage)} ->");
         }
 
+        public async Task StartAllClocks()
+        {
+            foreach (var clock in CurrentSession.Clocks)
+            {
+                await StartClock(clock);
+            }
+        }
+
         public async Task StartClock(Clock clock)
         {
             if (clock == null

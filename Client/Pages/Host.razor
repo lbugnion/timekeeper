@@ -81,6 +81,13 @@
             </div>
         </div>
 
+        <div class="controls-area">
+            <button disabled="@Handler.IsDeleteSessionDisabled"
+                    @onclick="@Handler.StartAllClocks">
+                Start all clocks
+            </button>
+        </div>
+
         <h2>Session</h2>
 
         @if (Handler.CurrentSession != null)
