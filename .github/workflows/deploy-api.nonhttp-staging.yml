@@ -4,11 +4,13 @@ on:
   push:
     branches:
     - Staging
+    - Test
     paths:
     - 'Api.Free/**'
   pull_request:
     branches:
     - Staging
+    - Test
     paths:
     - 'Api.Free/**'
 
