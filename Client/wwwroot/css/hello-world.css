@@ -11,6 +11,14 @@ main {
     width: 300px;
 }
 
+.connected-guests {
+    float: right;
+    margin-right: 40px;
+    top: 0px;
+    font-size: 2em;
+    color: white;
+}
+
 /* Hello world colors of the day */
 
 .background-day-mon {

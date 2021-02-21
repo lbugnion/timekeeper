@@ -7,6 +7,9 @@
 
 <main>
     <article>
+        <div class="connected-guests">
+            @Handler.ConnectedGuests.Count guests
+        </div>
 
         @if (IsEditingSessionName)
         {
@@ -20,11 +23,6 @@
         @if (!Handler.IsBusy)
         {
             <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
-        }
-
-        @if (Handler.IsReloadWarningVisible)
-        {
-            <blockquote class="warning"><strong>WARNING:</strong> Do not refresh this page when a clock is running.</blockquote>
         }
 
         @if (Program.IsExperimental)
@@ -85,11 +83,6 @@
                 </button>
             </div>
         </div>
-
-        @if (Handler.IsReloadWarningVisible)
-        {
-            <blockquote class="warning"><strong>WARNING:</strong> Clicking this button will restart ALL the clocks.</blockquote>
-        }
 
         <div class="controls-area">
             <button @onclick="(e => Handler.StartAllClocks(true))">

@@ -179,6 +179,13 @@ li.validation-message {
     margin-bottom: 5px;
 }
 
+.connected-guests {
+    float: right;
+    top: 20px;
+    font-size: 2em;
+    color: cornflowerblue;
+}
+
 .clock-controls-area {
     margin-top: 10px;
     margin-bottom: 20px;

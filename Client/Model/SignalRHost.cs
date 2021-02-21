@@ -120,7 +120,6 @@ namespace Timekeeper.Client.Model
             else
             {
                 IsDeleteSessionDisabled = false;
-                IsReloadWarningVisible = false;
 
                 foreach (var anyClock in CurrentSession.Clocks)
                 {
@@ -440,7 +439,6 @@ namespace Timekeeper.Client.Model
                 if (response.IsSuccessStatusCode)
                 {
                     RunClock(clock);
-                    IsReloadWarningVisible = IsAnyClockRunning;
 
                     foreach (var anyClock in CurrentSession.Clocks)
                     {
