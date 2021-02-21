@@ -1,4 +1,5 @@
 ﻿@page "/helloworld-backstage/login"
+@inject ILogger<LoginProviders> Log
 
 @{
     var providers = new Dictionary<string, string>
@@ -6,19 +7,32 @@
         { "github", "GitHub" },
         { "twitter", "Twitter" }
     };
+
+    var today = new Timekeeper.Client.Model.HelloWorld.Days(Log);
 }
 
-<h1>Login</h1>
+<header class="@today.BackgroundClass">
+    <img src="@today.ImagePath"
+         class="logo-image" />
+</header>
 
-<div class="container">
-    @foreach (var provider in providers)
-    {
-        <div class="row">
-            <div class="col-sm-12 col-md-9 col-lg-6">
-                <a class="btn btn-block btn-lg btn-social btn-@provider.Key" href="/.auth/login/@provider.Key">
-                    <span class="fa fa-@provider.Key"></span> Sign in with @provider.Value
-                </a>
-            </div>
-        </div>
-    }
-</div>
+<main>
+    <article>
+        <h1>Login</h1>
+
+        <ul>
+            @foreach (var provider in providers)
+            {
+                <li>
+                    <a href="/.auth/login/@provider.Key">
+                        Sign in with @provider.Value
+                    </a>
+                </li>
+            }
+        </ul>
+    </article>
+</main>
+
+<footer class="@today.FooterClass">
+    Please log in
+</footer>
