@@ -2,5 +2,5 @@
   "identityProvider": "github",
   "userId": "d75b260a64504067bfc5b2905e3b8182",
   "userDetails": "lbugnion@outlook.com",
-  "userRoles": [ "anonymous", "authenticated" ]
+  "userRoles": [ "authenticated" ]
 }
