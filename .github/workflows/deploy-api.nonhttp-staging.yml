@@ -1,14 +1,14 @@
-name: Non secured API deploy to Staging (Staging branch)
+name: STAGING HW Non secured API deploy to Staging
 
 on:
   push:
     branches:
-    - Staging
+    - Staging-Hello-World
     paths:
     - 'Api.Free/**'
   pull_request:
     branches:
-    - Staging
+    - Staging-Hello-World
     paths:
     - 'Api.Free/**'
 
