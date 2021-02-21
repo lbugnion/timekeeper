@@ -1,22 +1,22 @@
-name: API deploy to Staging (Non HTTP)
+name: Non secured API deploy to Staging (Staging branch)
 
 on:
   push:
     branches:
-    - Secure
+    - Staging
     paths:
-    - 'Timekeeper.Api.NonHttp/**'
+    - 'Api.Free/**'
   pull_request:
     branches:
-    - Secure
+    - Staging
     paths:
-    - 'Timekeeper.Api.NonHttp/**'
+    - 'Api.Free/**'
 
   workflow_dispatch:
 
 env:
   AZURE_FUNCTIONAPP_NAME: timekeep
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Timekeeper.Api.NonHttp'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Api.Free'
   DOTNET_VERSION: '3.1'
 
 jobs:

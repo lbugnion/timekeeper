@@ -1,24 +1,22 @@
-name: API deploy to Prod (main branch)
+name: Non secured API deploy to Staging (main branch)
 
 on:
   push:
     branches:
     - main
     paths:
-    - 'TimeKeeperApi/**'
+    - 'Api.Free/**'
   pull_request:
     branches:
     - main
     paths:
-    - 'TimeKeeperApi/**'
+    - 'Api.Free/**'
 
   workflow_dispatch:
-    branches:
-    - main
 
 env:
   AZURE_FUNCTIONAPP_NAME: timekeep
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'TimeKeeperApi\TimeKeeperApi'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Api.Free'
   DOTNET_VERSION: '3.1'
 
 jobs:
