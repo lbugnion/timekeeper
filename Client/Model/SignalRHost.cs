@@ -32,12 +32,6 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public bool IsReloadWarningVisible
-        {
-            get;
-            private set;
-        }
-
         public SignalRHost(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -138,7 +132,7 @@ namespace Timekeeper.Client.Model
 
         public override async Task Connect(string templateName = null)
         {
-            _log.LogInformation("-> SignalRHost.Connect");
+            _log.LogInformation("HIGHLIGHT---> SignalRHost.Connect");
 
             IsBusy = true;
 
@@ -159,16 +153,24 @@ namespace Timekeeper.Client.Model
 
                 if (ok)
                 {
-                    _log.LogTrace("CreateConnection and StartConnection OK");
+                    _log.LogTrace("HIGHLIGHT--CreateConnection and StartConnection OK");
 
                     IsConnected = true;
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
+
+
                         clock.IsStartDisabled = false;
                         clock.IsStopDisabled = true;
                         clock.IsConfigDisabled = false;
                         clock.IsDeleteDisabled = false;
+
+                        if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
+                        {
+                            _log.LogDebug($"HIGHLIGHT--Clock {clock.Message.Label} is still active");
+                            await StartClock(clock, false, true);
+                        }
                     }
 
                     IsSendMessageDisabled = false;
@@ -390,11 +392,14 @@ namespace Timekeeper.Client.Model
         {
             foreach (var clock in CurrentSession.Clocks)
             {
-                await StartClock(clock, startFresh);
+                await StartClock(clock, startFresh, false);
             }
         }
 
-        public async Task StartClock(Clock clock, bool startFresh)
+        public async Task StartClock(
+            Clock clock, 
+            bool startFresh,
+            bool localOnly)
         {
             if (startFresh)
             {
@@ -420,6 +425,9 @@ namespace Timekeeper.Client.Model
                 if (startFresh)
                 {
                     clock.Reset();
+
+                    // Save so that we can restart the clock if the page is reloaded
+                    await CurrentSession.Save(_log);
                 }
 
                 var json = JsonConvert.SerializeObject(clock.Message);
