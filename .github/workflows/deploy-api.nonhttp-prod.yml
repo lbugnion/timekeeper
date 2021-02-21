@@ -1,4 +1,4 @@
-name: Non secured API deploy to Staging (main branch)
+name: Non secured API deploy to Prod (main branch)
 
 on:
   push:
