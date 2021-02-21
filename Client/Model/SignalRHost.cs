@@ -32,6 +32,12 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        public bool IsReloadWarningVisible
+        {
+            get;
+            private set;
+        }
+
         public SignalRHost(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -96,14 +102,24 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
+            var isAnyClockRunning = IsAnyClockRunning;
+
+            _log.LogDebug($"HIGHLIGHT--IsAnyClockRunning {isAnyClockRunning}");
+
             clock.IsStartDisabled = false;
             clock.IsStopDisabled = true;
-            clock.IsConfigDisabled = false;
+            clock.IsConfigDisabled = !isAnyClockRunning;
             clock.IsDeleteDisabled = false;
 
-            if (!CurrentSession.Clocks.Any(c => c.IsClockRunning))
+            if (!isAnyClockRunning)
             {
                 IsDeleteSessionDisabled = false;
+                IsReloadWarningVisible = false;
+
+                foreach (var anyClock in CurrentSession.Clocks)
+                {
+                    anyClock.IsConfigDisabled = false;
+                }
             }
 
             RaiseUpdateEvent();
@@ -392,15 +408,23 @@ namespace Timekeeper.Client.Model
                 if (response.IsSuccessStatusCode)
                 {
                     RunClock(clock);
+                    IsReloadWarningVisible = IsAnyClockRunning;
+
+                    foreach (var anyClock in CurrentSession.Clocks)
+                    {
+                        anyClock.IsConfigDisabled = true;
+                    }
                 }
                 else
                 {
                     ErrorStatus = "Unable to communicate with clients";
+                    IsDeleteSessionDisabled = false;
                 }
             }
             catch
             {
                 CurrentMessage = "Unable to communicate with clients";
+                IsDeleteSessionDisabled = false;
             }
         }
 

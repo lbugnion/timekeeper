@@ -22,6 +22,11 @@
             <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
         }
 
+        @if (Handler.IsReloadWarningVisible)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> Do not refresh this page when a clock is running.</blockquote>
+        }
+
         @if (Program.IsExperimental)
         {
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
@@ -81,9 +86,13 @@
             </div>
         </div>
 
+        @if (Handler.IsReloadWarningVisible)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> Clicking this button will restart ALL the clocks.</blockquote>
+        }
+
         <div class="controls-area">
-            <button disabled="@Handler.IsDeleteSessionDisabled"
-                    @onclick="@Handler.StartAllClocks">
+            <button @onclick="@Handler.StartAllClocks">
                 Start all clocks
             </button>
         </div>

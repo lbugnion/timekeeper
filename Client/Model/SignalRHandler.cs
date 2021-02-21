@@ -45,6 +45,14 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
+        public bool IsAnyClockRunning
+        {
+            get
+            {
+                return CurrentSession.Clocks.Any(c => c.IsClockRunning);
+            }
+        }
+
         protected string _hostName;
         protected string _hostNameFree;
         protected HttpClient _http;
@@ -357,7 +365,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"CurrentBackgroundColor: {activeClock.CurrentBackgroundColor}");
             _log.LogDebug($"Label: {activeClock.Message.Label}");
 
-            if (CurrentSession.Clocks.Any(c => c.IsClockRunning))
+            if (IsAnyClockRunning)
             {
                 _log.LogTrace("Clock task already running");
                 activeClock.IsClockRunning = true;
@@ -387,6 +395,7 @@ namespace Timekeeper.Client.Model
                             {
                                 _log.LogTrace("Countdown finished");
                                 clock.IsClockRunning = false;
+                                clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
                                 return;
@@ -394,13 +403,11 @@ namespace Timekeeper.Client.Model
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
                             {
-                                _log.LogDebug($"{clock.Message.PayAttentionColor}");
                                 clock.CurrentBackgroundColor = clock.Message.PayAttentionColor;
                             }
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.AlmostDone.TotalSeconds)
                             {
-                                _log.LogDebug($"{clock.Message.AlmostDoneColor}");
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                             }
 
@@ -411,7 +418,7 @@ namespace Timekeeper.Client.Model
                     RaiseUpdateEvent();
                     await Task.Delay(1000);
                 }
-                while (CurrentSession.Clocks.Any(c => c.IsClockRunning));
+                while (IsAnyClockRunning);
             });
         }
 
