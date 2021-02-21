@@ -7,11 +7,19 @@ using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.HelloWorld;
+using Microsoft.AspNetCore.Components;
 
 namespace Timekeeper.Client.Pages.HelloWorld
 {
     public partial class Host : IDisposable
     {
+        [Parameter]
+        public string ResetSession
+        {
+            get;
+            set;
+        }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
@@ -71,7 +79,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
                 Http);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect("HelloWorldClocksTemplate");
+            await Handler.Connect("HelloWorldClocksTemplate", ResetSession == "reset");
             SessionName = Handler.CurrentSession.SessionName;
         }
 

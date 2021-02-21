@@ -114,7 +114,9 @@ namespace Timekeeper.Client.Model
             Status = "Received host message";
         }
 
-        public override async Task Connect(string templateName = null)
+        public override async Task Connect(
+            string templateName = null,
+            bool forceDeleteSession = false)
         {
             _log.LogInformation("-> SignalRGuest.Connect");
 

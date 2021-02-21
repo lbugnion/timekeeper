@@ -136,14 +136,17 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> InitializeSession(
             string sessionId = null,
-            string templateName = null)
+            string templateName = null,
+            bool forceDeleteSession = false)
         {
             _log.LogInformation("-> InitializeSession");
             _log.LogDebug($"sessionId: {sessionId}");
+            _log.LogDebug($"HIGHLIGHT--forceDeleteSession: {forceDeleteSession}");
 
-            if (!string.IsNullOrEmpty(templateName))
+            if (!forceDeleteSession 
+                && !string.IsNullOrEmpty(templateName))
             {
-                _log.LogTrace("HIGHLIGHT--Checking template");
+                _log.LogTrace("Checking template");
 
                 var section = _config.GetSection(templateName);
                 var config = section.Get<ClockTemplate>();
@@ -311,6 +314,10 @@ namespace Timekeeper.Client.Model
                 }
             }
 
+            if (forceDeleteSession)
+            {
+                CurrentSession = null;
+            }
 
             if (CurrentSession == null)
             {
@@ -671,6 +678,8 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(StopLocalClock)} ->");
         }
 
-        public abstract Task Connect(string templateName = null);
+        public abstract Task Connect(
+            string templateName = null, 
+            bool forceDeleteSession = false);
     }
 }

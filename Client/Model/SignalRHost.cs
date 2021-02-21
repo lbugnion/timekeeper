@@ -130,7 +130,7 @@ namespace Timekeeper.Client.Model
             Status = "Message sent";
         }
 
-        public override async Task Connect(string templateName = null)
+        public override async Task Connect(string templateName = null, bool forceDeleteSession = false)
         {
             _log.LogInformation("HIGHLIGHT---> SignalRHost.Connect");
 
@@ -140,7 +140,7 @@ namespace Timekeeper.Client.Model
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
 
-            var ok = await InitializeSession(sessionId: null, templateName: templateName)
+            var ok = await InitializeSession(sessionId: null, templateName: templateName, forceDeleteSession)
                 && await CreateConnection();
 
             if (ok)
