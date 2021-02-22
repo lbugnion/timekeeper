@@ -1,4 +1,5 @@
 ﻿@page "/host"
+@page "/host/reset/{ResetSession}"
 @inject HttpClient Http
 @inject ILogger<Host> Log
 @inject IConfiguration Config
@@ -7,13 +8,13 @@
 
 <main>
     <article>
-        @*<AuthorizeView>
+        <AuthorizeView>
             <NotAuthorized>
                 <blockquote class="warning">
                     Please <a href="/login">log in to use this page</a>.
                 </blockquote>
             </NotAuthorized>
-            <Authorized>*@
+            <Authorized>
                 <div class="connected-guests">
                     @Handler.ConnectedGuests.Count guest(s)
                 </div>
@@ -182,8 +183,8 @@
                     }
                 }
 
-            @*</Authorized>
-        </AuthorizeView>*@
+            </Authorized>
+        </AuthorizeView>
     </article>
 </main>
 

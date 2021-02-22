@@ -13,6 +13,13 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
+        [Parameter]
+        public string ResetSession
+        {
+            get;
+            set;
+        }
+
         public bool IsEditingSessionName
         {
             get;
@@ -53,13 +60,13 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            //var authState = await AuthenticationStateTask;
+            var authState = await AuthenticationStateTask;
 
-            //if (!authState.User.Identity.IsAuthenticated)
-            //{
-            //    Log.LogWarning("Unauthenticated");
-            //    return;
-            //}
+            if (!authState.User.Identity.IsAuthenticated)
+            {
+                Log.LogWarning("Unauthenticated");
+                return;
+            }
 
             IsEditingSessionName = false;
             SessionName = "Loading...";
@@ -73,7 +80,7 @@ namespace Timekeeper.Client.Pages
                 Http);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
+            await Handler.Connect(forceDeleteSession: ResetSession == "reset");
             SessionName = Handler.CurrentSession.SessionName;
         }
 

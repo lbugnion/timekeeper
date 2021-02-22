@@ -136,7 +136,9 @@ namespace Timekeeper.Client.Model
             Status = "Message sent";
         }
 
-        public override async Task Connect(string templateName = null, bool forceDeleteSession = false)
+        public override async Task Connect(
+            string templateName = null, 
+            bool forceDeleteSession = false)
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
