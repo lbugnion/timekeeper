@@ -64,8 +64,13 @@ namespace Timekeeper
 
             var identity = Parse(req);
 
-            log.LogDebug($"NameIdentifier {identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value}");
-            log.LogDebug($"Name {identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value}");
+            var nameIdentifier = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            var nameIdentifierValue = nameIdentifier == null ? "none" : nameIdentifier.Value;
+            var name = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+            var nameValue = name == null ? "none" : name.Value;
+
+            log.LogDebug($"NameIdentifier {nameIdentifierValue}");
+            log.LogDebug($"Name {nameValue}");
 
             foreach (var role in identity.Claims.Where(c => c.Type == ClaimTypes.Role))
             {
