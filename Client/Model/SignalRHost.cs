@@ -151,9 +151,11 @@ namespace Timekeeper.Client.Model
             var ok = await InitializeSession(sessionId: null, templateName: templateName, forceDeleteSession)
                 && await CreateConnection();
 
-#if DEBUG
-            TestInstance = new Tests(_hostName, _http, CurrentSession, _log);
-#endif
+            if (Program.IsExperimental)
+            {
+                // TEST ONLY
+                TestInstance = new Tests(_hostName, _http, CurrentSession, _log);
+            }
 
             if (ok)
             {
