@@ -56,13 +56,21 @@ namespace Timekeeper
             [HttpTrigger(
                 AuthorizationLevel.Anonymous, 
                 "get", 
-                Route = "test")] 
+                Route = "test-claim")] 
             HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             var identity = Parse(req);
+
+            log.LogDebug($"NameIdentifier {identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value}");
+            log.LogDebug($"Name {identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value}");
+
+            foreach (var role in identity.Claims.Where(c => c.Type == ClaimTypes.Role))
+            {
+                log.LogDebug($"Role {role.Value}");
+            }
 
             return new OkObjectResult(identity);
         }

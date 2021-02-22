@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {

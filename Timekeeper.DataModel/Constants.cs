@@ -12,5 +12,7 @@
         public const string DeleteClockMessage = "delete-clock";
         public const string GroupIdHeaderKey = "x-timekeeper-group-id";
         public const string UserIdHeaderKey = "x-timekeeper-userid";
+        public const string ClaimsUserIdHeaderKey = "x-timekeeper-claims-userid";
+        public const string TokenHeaderKey = "x-timekeeper-token";
     }
 }

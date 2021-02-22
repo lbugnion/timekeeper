@@ -7,13 +7,13 @@
 
 <main>
     <article>
-        <AuthorizeView>
+        @*<AuthorizeView>
             <NotAuthorized>
                 <blockquote class="warning">
                     Please <a href="/login">log in to use this page</a>.
                 </blockquote>
             </NotAuthorized>
-            <Authorized>
+            <Authorized>*@
                 <div class="connected-guests">
                     @Handler.ConnectedGuests.Count guest(s)
                 </div>
@@ -100,7 +100,7 @@
                 <h2>Session</h2>
 
                 @if (Handler.CurrentSession != null
-                   && !Handler.IsInError)
+                 && !Handler.IsInError)
                 {
                     <div class="session-information-area">
                         <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -171,8 +171,19 @@
                         Create a new session
                     </button>
                 </div>
-            </Authorized>
-        </AuthorizeView>
+
+                @if (Program.IsExperimental)
+                {
+                    if (Handler.TestInstance != null)
+                    {
+                        <button @onclick="@Handler.TestInstance.TestClaims">
+                            Test claims
+                        </button>
+                    }
+                }
+
+            @*</Authorized>
+        </AuthorizeView>*@
     </article>
 </main>
 

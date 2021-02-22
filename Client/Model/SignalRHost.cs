@@ -14,6 +14,12 @@ namespace Timekeeper.Client.Model
 {
     public class SignalRHost : SignalRHandler
     {
+        internal Tests TestInstance
+        {
+            get;
+            private set;
+        }
+
         public string InputMessage
         {
             get;
@@ -132,7 +138,7 @@ namespace Timekeeper.Client.Model
 
         public override async Task Connect(string templateName = null, bool forceDeleteSession = false)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRHost.Connect");
+            _log.LogInformation("-> SignalRHost.Connect");
 
             IsBusy = true;
 
@@ -142,6 +148,10 @@ namespace Timekeeper.Client.Model
 
             var ok = await InitializeSession(sessionId: null, templateName: templateName, forceDeleteSession)
                 && await CreateConnection();
+
+#if DEBUG
+            TestInstance = new Tests(_hostName, _http, CurrentSession, _log);
+#endif
 
             if (ok)
             {
@@ -153,7 +163,7 @@ namespace Timekeeper.Client.Model
 
                 if (ok)
                 {
-                    _log.LogTrace("HIGHLIGHT--CreateConnection and StartConnection OK");
+                    _log.LogTrace("CreateConnection and StartConnection OK");
 
                     IsConnected = true;
 
@@ -168,7 +178,7 @@ namespace Timekeeper.Client.Model
 
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
-                            _log.LogDebug($"HIGHLIGHT--Clock {clock.Message.Label} is still active");
+                            _log.LogDebug($"Clock {clock.Message.Label} is still active");
                             await StartClock(clock, false, true);
                         }
                     }
@@ -224,12 +234,12 @@ namespace Timekeeper.Client.Model
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
 
-            _log.LogDebug($"HIGHLIGHT--GuestId: {messageGuest.GuestId}");
+            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
 
             if (messageGuest == null
                 || string.IsNullOrEmpty(messageGuest.GuestId))
@@ -261,14 +271,6 @@ namespace Timekeeper.Client.Model
             }
 
             RaiseUpdateEvent();
-
-            // This should not be needed since we do that in the Connect event
-            //if (IsAnyClockRunning)
-            //{
-            //    _log.LogTrace("HIGHLIGHT--Sending start clock message without refresh");
-            //    await StartAllClocks(false);
-            //}
-
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
         }
 
@@ -602,6 +604,40 @@ namespace Timekeeper.Client.Model
 
             Program.ClockToConfigure = param;
             return true;
+        }
+
+        internal class Tests
+        {
+            private string _hostName;
+            private readonly HttpClient _http;
+            private readonly Session _currentSession;
+            private readonly ILogger _log;
+
+            public Tests(string hostName, HttpClient http, Session currentSession, ILogger log)
+            {
+                _hostName = hostName;
+                _http = http;
+                _currentSession = currentSession;
+                _log = log;
+            }
+
+            // Test and experiments ========================================================
+
+            public async Task TestClaims()
+            {
+#if DEBUG
+                var url = _hostName + "/test-claim";
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                httpRequest.Headers.Add(
+                    Constants.GroupIdHeaderKey, 
+                    _currentSession.SessionId);
+
+                _log.LogTrace("Send test claims");
+
+                var response = await _http.SendAsync(httpRequest);
+#endif
+            }
+
         }
     }
 }
