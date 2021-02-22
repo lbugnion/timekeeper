@@ -60,7 +60,7 @@ namespace Timekeeper.Client.Model
                 clock.CountdownFinished -= ClockCountdownFinished;
             }
 
-            await CurrentSession.DeleteFromStorage();
+            await Session.DeleteFromStorage(_log);
             CurrentSession = null;
             _log.LogTrace("CurrentSession is deleted");
 
@@ -130,9 +130,13 @@ namespace Timekeeper.Client.Model
             Status = "Message sent";
         }
 
-        public override async Task Connect(string templateName = null, bool forceDeleteSession = false)
+        public override async Task Connect(
+            string templateName = null, 
+            bool forceDeleteSession = false)
         {
             _log.LogInformation("HIGHLIGHT---> SignalRHost.Connect");
+
+            forceDeleteSession = true;
 
             IsBusy = true;
 
