@@ -629,19 +629,23 @@ namespace Timekeeper.Client.Model
 
             public async Task TestClaims()
             {
-#if DEBUG
-                var url = _hostName + "/test-claim";
-                var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                httpRequest.Headers.Add(
-                    Constants.GroupIdHeaderKey, 
-                    _currentSession.SessionId);
+                if (Program.IsExperimental)
+                {
+                    var url = _hostName + "/test-claim";
+                    var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+                    httpRequest.Headers.Add(
+                        Constants.GroupIdHeaderKey,
+                        _currentSession.SessionId);
 
-                _log.LogTrace("Send test claims");
+                    _log.LogTrace("Sending test claims");
 
-                var response = await _http.SendAsync(httpRequest);
-#endif
+                    var response = await _http.SendAsync(httpRequest);
+
+                    var text =  await response.Content.ReadAsStringAsync();
+
+                    _log.LogDebug($"Received {text}");
+                }
             }
-
         }
     }
 }
