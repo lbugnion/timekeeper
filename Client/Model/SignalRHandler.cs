@@ -171,6 +171,7 @@ namespace Timekeeper.Client.Model
                     if (config != null)
                     {
                         _log.LogDebug($"Found {config.SN}");
+                        _log.LogDebug($"Found {config.SessionId}");
 
                         CurrentSession = new Session
                         {
@@ -180,6 +181,11 @@ namespace Timekeeper.Client.Model
                         if (!string.IsNullOrEmpty(config.SN))
                         {
                             CurrentSession.SessionName = config.SN;
+                        }
+
+                        if (!string.IsNullOrEmpty(config.SessionId))
+                        {
+                            CurrentSession.SessionId = config.SessionId;
                         }
 
                         foreach (var clockInTemplate in config.CK)

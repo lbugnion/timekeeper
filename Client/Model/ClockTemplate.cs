@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Timekeeper.Client.Model
 {
@@ -11,6 +9,15 @@ namespace Timekeeper.Client.Model
         /// Session name
         /// </summary>
         public string SN
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Session ID
+        /// </summary>
+        public string SessionId
         {
             get;
             set;
