@@ -1,4 +1,4 @@
-name: STAGING HW Deploy client and API to static web
+name: STAGING HW Client and secured API deploy to Staging
 
 on:
   push:

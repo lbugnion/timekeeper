@@ -1,4 +1,4 @@
-name: PROD HW Deploy client and API to static web
+name: MAIN Client and secured API deploy to prod
 
 on:
   push:
