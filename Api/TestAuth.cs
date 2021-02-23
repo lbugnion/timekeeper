@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Security.Claims;
 using System.Collections.Generic;
+using DocsVideos.Model.Extensions;
 
 namespace Timekeeper.Api.Free
 {
@@ -34,16 +35,27 @@ namespace Timekeeper.Api.Free
         HttpRequest req,
         ILogger log)
         {
+            log.LogEntry();
+
             var principal = new ClientPrincipal();
+
+            log.LogTrace("principal created");
 
             if (req.Headers.TryGetValue("x-ms-client-principal", out var header))
             {
+                log.LogTrace("header obtained");
+
                 var data = header[0];
                 var decoded = Convert.FromBase64String(data);
                 var json = Encoding.ASCII.GetString(decoded);
+
+                log.LogDebug("JSON", json);
+
                 principal = JsonSerializer.Deserialize<ClientPrincipal>(
                     json, 
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                log.LogTrace("Principal created");
             }
 
             principal.UserRoles = principal.UserRoles?.Except(new string[] { "anonymous" }, StringComparer.CurrentCultureIgnoreCase);
