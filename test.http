@@ -38,3 +38,7 @@ Hello world again
 
 POST https://mango-mud-074ee9103.azurestaticapps.net/api/send
 x-timekeeper-group-id: 91f22496-a644-472b-ab73-cd60bbf4be18
+
+### Check auth
+
+GET http://localhost:7072/api/test
