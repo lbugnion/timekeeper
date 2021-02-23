@@ -1,6 +1,7 @@
 ﻿@page "/test"
-@inject ILogger<TestPage> Log 
-@inject HttpClient Http  
+@inject ILogger<TestPage> Log
+@inject HttpClient Http
+@inject NavigationManager Nav
 
 @code {
 }
@@ -42,6 +43,16 @@ else
 
 <button @onclick="@CallFunction">Call test function</button>
 
+<br />
+<br />
+
+<button @onclick="@LogIn">Log in</button>
+
+<br />
+<br />
+
+<button @onclick="@LogOut">Log out</button>
+
 @code {
 
     [CascadingParameter]
@@ -64,6 +75,16 @@ else
 
         Log.LogDebug(result);
         Log.LogTrace("HIGHLIGHT--Done calling function");
+    }
+
+    public void LogIn()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+    public void LogOut()
+    {
+        Nav.NavigateTo("/.auth/logout");
     }
 
 }
