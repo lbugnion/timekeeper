@@ -593,7 +593,6 @@ namespace Timekeeper.Client.Model
                                 clock.IsClockRunning = false;
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
-                                CurrentMessage = $"{clock.Message.Label} is over!!!";
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
                                 continue;
