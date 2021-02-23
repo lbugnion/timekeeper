@@ -1,4 +1,6 @@
 ﻿@page "/test"
+@inject ILogger<TestPage> Log 
+@inject HttpClient Http  
 
 @code {
 }
@@ -28,8 +30,6 @@ else
                 @foreach (var claim in _authState.User.Claims)
                 {
                     <p>Claim found: @claim.Type / @claim.Issuer / @claim.Value / @claim.Subject</p>
-                    <br />
-                    <br />
                 }
             }
             else
@@ -39,6 +39,8 @@ else
         }
     }
 }
+
+<button @onclick="@CallFunction">Call test function</button>
 
 @code {
 
@@ -50,6 +52,18 @@ else
     protected override async Task OnInitializedAsync()
     {
         _authState = await AuthenticationStateTask;
+    }
+
+    public async Task CallFunction()
+    {
+        Log.LogTrace("HIGHLIGHT--Calling function");
+
+        var response = await Http.GetAsync("/api/test");
+
+        var result = await response.Content.ReadAsStringAsync();
+
+        Log.LogDebug(result);
+        Log.LogTrace("HIGHLIGHT--Done calling function");
     }
 
 }
