@@ -1,46 +1,55 @@
 ﻿@page "/test"
 
-<button @onclick="LogUsername">Log username</button>
-
-<p>@_authName</p>
-
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+}
 
-    private string _authName;
-
-    private async Task LogUsername()
+@if (_authState == null)
+{
+    <p>No auth state found</p>
+}
+else
+{
+    @if (_authState.User == null)
     {
-        var authState = await authenticationStateTask;
-
-        if (authState == null)
+        <p>No User found</p>
+    }
+    else
+    {
+        @if (_authState.User.Identity == null)
         {
-            _authName = "No auth state found";
-            return;
-        }
-
-        var user = authState.User;
-
-        if (user == null)
-        {
-            _authName = "No user found";
-            return;
-        }
-
-        if (user.Identity == null)
-        {
-            _authName = "No Identity found";
-            return;
-        }
-
-        if (user.Identity.IsAuthenticated)
-        {
-            _authName = $"{user.Identity.Name} is authenticated.";
+            <p>No Identity found</p>
         }
         else
         {
-            _authName = "The user is NOT authenticated.";
+            @if (_authState.User.Identity.IsAuthenticated)
+            {
+                <p>@_authState.User.Identity.Name is authenticated</p>
+
+                @foreach (var claim in _authState.User.Claims)
+                {
+                    <p>Claim found: @claim.Type / @claim.Issuer / @claim.Value / @claim.Subject</p>
+                    <br />
+                    <br />
+                }
+            }
+            else
+            {
+                <p>User is not authenticated</p>
+            }
         }
     }
+}
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    private AuthenticationState _authState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _authState = await AuthenticationStateTask;
+    }
+
 }
