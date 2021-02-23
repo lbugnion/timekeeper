@@ -8,183 +8,164 @@
 
 <main>
     <article>
-        <AuthorizeView>
-            <NotAuthorized>
-                <blockquote class="warning">
-                    Please <a href="/login">log in to use this page</a>.
-                </blockquote>
-            </NotAuthorized>
-            <Authorized>
-                <div class="connected-guests">
-                    @Handler.ConnectedGuests.Count guest(s)
-                </div>
+        <div class="connected-guests">
+            @Handler.ConnectedGuests.Count guest(s)
+        </div>
 
-                @if (IsEditingSessionName)
+        @if (IsEditingSessionName)
+        {
+            <input class="h1-edit-field" @bind-value="@SessionName" />
+        }
+        else
+        {
+            <h1>@SessionName</h1>
+        }
+
+        @if (!Handler.IsBusy)
+        {
+            <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
+        }
+
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
+
+        @if (Handler.CurrentSession != null)
+        {
+            @foreach (var clock in Handler.CurrentSession.Clocks)
+            {
+                <div class="clock-area" style="background-color: @clock.CurrentBackgroundColor">
+                    <div class="clock-label">@clock.Message.Label</div>
+                    <div class="clock-text">@clock.ClockDisplay</div>
+
+                    <div class="clock-controls-area">
+                        <button @onclick="(e => Handler.StartClock(clock, true, false))"
+                                disabled="@clock.IsStartDisabled">
+                            Start
+                        </button>
+                        <button @onclick="(e => Handler.StopClock(clock))"
+                                disabled="@clock.IsStopDisabled">
+                            Stop
+                        </button>
+                        <button @onclick="(e => ConfigureClock(clock))"
+                                disabled="@clock.IsConfigDisabled">
+                            Config
+                        </button>
+
+                        @if (clock.Message.ClockId != Model.Clock.DefaultClockId)
+                        {
+                            <button @onclick="(e => Handler.DeleteClock(clock))"
+                                    disabled="@clock.IsDeleteDisabled">
+                                Delete
+                            </button>
+                        }
+
+                        <button @onclick="(e => Handler.AddClockAfter(clock.Message.ClockId))">
+                            Add
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+
+        <div class="message-area">
+            <p><span class="message-text">@Handler.CurrentMessage</span></p>
+        </div>
+
+        <div class="controls-area">
+            <div class="send-message-area">
+                <input @bind-value="@Handler.InputMessage"
+                        class="input-text" />
+                <button disabled="@Handler.IsSendMessageDisabled"
+                        @onclick="@Handler.SendMessage"
+                        id="send-message-button">
+                    Send Message
+                </button>
+            </div>
+        </div>
+
+        <div class="controls-area">
+            <button @onclick="(e => Handler.StartAllClocks(true))">
+                Start all clocks
+            </button>
+        </div>
+
+        <h2>Session</h2>
+
+        @if (Handler.CurrentSession != null
+            && !Handler.IsInError)
+        {
+            <div class="session-information-area">
+                <h3>Send this link to your guests so they can connect to the session:</h3>
+
+                <p><a href="@GuestUrl">@GuestUrl</a></p>
+            </div>
+
+            <div class="session-information-area">
+                <h3>Connected guests</h3>
+
+                @if (Handler.ConnectedGuests.Count == 0)
                 {
-                    <input class="h1-edit-field" @bind-value="@SessionName" />
+                    <p>There are no connected guests at the moment.</p>
                 }
                 else
                 {
-                    <h1>@SessionName</h1>
-                }
+                    <p>
+                        There are @Handler.ConnectedGuests.Count connected guest(s).
+                        <a href="#"
+                            @onclick="ToggleIsGuestListExpanded"
+                            @onclick:preventDefault>(@GuestListLinkText)</a>
+                    </p>
 
-                @if (!Handler.IsBusy)
-                {
-                    <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
-                }
-
-                @if (Program.IsExperimental)
-                {
-                    <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
-                }
-
-                @if (Handler.CurrentSession != null)
-                {
-                    @foreach (var clock in Handler.CurrentSession.Clocks)
+                    @if (IsGuestListExpanded)
                     {
-                        <div class="clock-area" style="background-color: @clock.CurrentBackgroundColor">
-                            <div class="clock-label">@clock.Message.Label</div>
-                            <div class="clock-text">@clock.ClockDisplay</div>
-
-                            <div class="clock-controls-area">
-                                <button @onclick="(e => Handler.StartClock(clock, true, false))"
-                                        disabled="@clock.IsStartDisabled">
-                                    Start
-                                </button>
-                                <button @onclick="(e => Handler.StopClock(clock))"
-                                        disabled="@clock.IsStopDisabled">
-                                    Stop
-                                </button>
-                                <button @onclick="(e => ConfigureClock(clock))"
-                                        disabled="@clock.IsConfigDisabled">
-                                    Config
-                                </button>
-
-                                @if (clock.Message.ClockId != Model.Clock.DefaultClockId)
-                                {
-                                    <button @onclick="(e => Handler.DeleteClock(clock))"
-                                            disabled="@clock.IsDeleteDisabled">
-                                        Delete
-                                    </button>
-                                }
-
-                                <button @onclick="(e => Handler.AddClockAfter(clock.Message.ClockId))">
-                                    Add
-                                </button>
-                            </div>
-                        </div>
-                    }
-                }
-
-                <div class="message-area">
-                    <p><span class="message-text">@Handler.CurrentMessage</span></p>
-                </div>
-
-                <div class="controls-area">
-                    <div class="send-message-area">
-                        <input @bind-value="@Handler.InputMessage"
-                               class="input-text" />
-                        <button disabled="@Handler.IsSendMessageDisabled"
-                                @onclick="@Handler.SendMessage"
-                                id="send-message-button">
-                            Send Message
-                        </button>
-                    </div>
-                </div>
-
-                <div class="controls-area">
-                    <button @onclick="(e => Handler.StartAllClocks(true))">
-                        Start all clocks
-                    </button>
-                </div>
-
-                <h2>Session</h2>
-
-                @if (Handler.CurrentSession != null
-                 && !Handler.IsInError)
-                {
-                    <div class="session-information-area">
-                        <h3>Send this link to your guests so they can connect to the session:</h3>
-
-                        <p><a href="@GuestUrl">@GuestUrl</a></p>
-                    </div>
-
-                    <div class="session-information-area">
-                        <h3>Connected guests</h3>
-
-                        @if (Handler.ConnectedGuests.Count == 0)
-                        {
-                            <p>There are no connected guests at the moment.</p>
-                        }
-                        else
-                        {
-                            <p>
-                                There are @Handler.ConnectedGuests.Count connected guest(s).
-                                <a href="#"
-                                   @onclick="ToggleIsGuestListExpanded"
-                                   @onclick:preventDefault>(@GuestListLinkText)</a>
-                            </p>
-
-                            @if (IsGuestListExpanded)
+                        <ul>
+                            @if (@AnonymousGuests > 0)
                             {
-                                <ul>
-                                    @if (@AnonymousGuests > 0)
-                                    {
-                                        <li>@AnonymousGuests anonymous guest(s)</li>
-                                    }
-
-                                    @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
-                                    {
-                                        <li>@guest.DisplayName</li>
-                                    }
-                                </ul>
+                                <li>@AnonymousGuests anonymous guest(s)</li>
                             }
-                        }
-                    </div>
-                }
 
-                @if (Handler.IsDeleteSessionWarningVisible)
-                {
-                    <blockquote class="warning">
-                        <strong>Deleting the session is irreversible. Are you sure?</strong>
-                        <br /><br />
-                        If you delete the session and create a new one, all your guests will
-                        need to reconnect.
-                        <br /><br />
-                        <button @onclick="@Handler.DoDeleteSession"
-                                class="small-button">
-                            Yes
-                        </button>
-                        <button @onclick="@Handler.CancelDeleteSession"
-                                class="small-button">
-                            No
-                        </button>
-                    </blockquote>
-                }
-
-                <div class="controls-area">
-                    <button disabled="@Handler.IsDeleteSessionDisabled"
-                            @onclick="@Handler.DeleteSession">
-                        Delete the session
-                    </button>
-                    <button disabled="@Handler.IsCreateNewSessionDisabled"
-                            @onclick="@CreateNewSession">
-                        Create a new session
-                    </button>
-                </div>
-
-                @if (Program.IsExperimental)
-                {
-                    if (Handler.TestInstance != null)
-                    {
-                        <button @onclick="@Handler.TestInstance.TestClaims">
-                            Test claims
-                        </button>
+                            @foreach (var guest in NamedGuests.OrderBy(g => g.DisplayName))
+                            {
+                                <li>@guest.DisplayName</li>
+                            }
+                        </ul>
                     }
                 }
+            </div>
+        }
 
-            </Authorized>
-        </AuthorizeView>
+        @if (Handler.IsDeleteSessionWarningVisible)
+        {
+            <blockquote class="warning">
+                <strong>Deleting the session is irreversible. Are you sure?</strong>
+                <br /><br />
+                If you delete the session and create a new one, all your guests will
+                need to reconnect.
+                <br /><br />
+                <button @onclick="@Handler.DoDeleteSession"
+                        class="small-button">
+                    Yes
+                </button>
+                <button @onclick="@Handler.CancelDeleteSession"
+                        class="small-button">
+                    No
+                </button>
+            </blockquote>
+        }
+
+        <div class="controls-area">
+            <button disabled="@Handler.IsDeleteSessionDisabled"
+                    @onclick="@Handler.DeleteSession">
+                Delete the session
+            </button>
+            <button disabled="@Handler.IsCreateNewSessionDisabled"
+                    @onclick="@CreateNewSession">
+                Create a new session
+            </button>
+        </div>
+
     </article>
 </main>
 

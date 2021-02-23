@@ -60,14 +60,6 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            var authState = await AuthenticationStateTask;
-
-            if (!authState.User.Identity.IsAuthenticated)
-            {
-                Log.LogWarning("Unauthenticated");
-                return;
-            }
-
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
