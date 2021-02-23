@@ -14,12 +14,6 @@ namespace Timekeeper.Client.Model
 {
     public class SignalRHost : SignalRHandler
     {
-        internal Tests TestInstance
-        {
-            get;
-            private set;
-        }
-
         public string InputMessage
         {
             get;
@@ -610,44 +604,6 @@ namespace Timekeeper.Client.Model
 
             Program.ClockToConfigure = param;
             return true;
-        }
-
-        internal class Tests
-        {
-            private string _hostName;
-            private readonly HttpClient _http;
-            private readonly Session _currentSession;
-            private readonly ILogger _log;
-
-            public Tests(string hostName, HttpClient http, Session currentSession, ILogger log)
-            {
-                _hostName = hostName;
-                _http = http;
-                _currentSession = currentSession;
-                _log = log;
-            }
-
-            // Test and experiments ========================================================
-
-            public async Task TestClaims()
-            {
-                if (Program.IsExperimental)
-                {
-                    var url = _hostName + "/test-claim";
-                    var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
-                    httpRequest.Headers.Add(
-                        Constants.GroupIdHeaderKey,
-                        _currentSession.SessionId);
-
-                    _log.LogTrace("Sending test claims");
-
-                    var response = await _http.SendAsync(httpRequest);
-
-                    var text =  await response.Content.ReadAsStringAsync();
-
-                    _log.LogDebug($"Received {text}");
-                }
-            }
         }
     }
 }
