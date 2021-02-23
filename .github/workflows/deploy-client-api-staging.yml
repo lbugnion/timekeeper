@@ -1,4 +1,4 @@
-name: STAGING HW Deploy client and secured API to static web Staging
+name: STAGING HW Deploy client and API to static web
 
 on:
   push:
@@ -14,6 +14,8 @@ on:
     paths:
     - 'Api/**'
     - 'Client/**'
+
+  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:

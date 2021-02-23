@@ -107,8 +107,9 @@ namespace Timekeeper.Client.Model
             return null;
         }
 
-        public async Task DeleteFromStorage()
+        public static async Task DeleteFromStorage(ILogger log = null)
         {
+            log?.LogTrace("HIGHLIGHT--Deleting session from storage");
             await _localStorage.RemoveItemAsync(SessionStorageKey);
         }
     }

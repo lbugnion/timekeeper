@@ -143,8 +143,12 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"sessionId: {sessionId}");
             _log.LogDebug($"forceDeleteSession: {forceDeleteSession}");
 
-            if (!forceDeleteSession 
-                && !string.IsNullOrEmpty(templateName))
+            if (forceDeleteSession)
+            {
+                await Session.DeleteFromStorage(_log);
+            }
+
+            if (!string.IsNullOrEmpty(templateName))
             {
                 _log.LogTrace("Checking template");
 
@@ -171,6 +175,7 @@ namespace Timekeeper.Client.Model
                     if (config != null)
                     {
                         _log.LogDebug($"Found {config.SN}");
+                        _log.LogDebug($"Found {config.SessionId}");
 
                         CurrentSession = new Session
                         {
@@ -180,6 +185,12 @@ namespace Timekeeper.Client.Model
                         if (!string.IsNullOrEmpty(config.SN))
                         {
                             CurrentSession.SessionName = config.SN;
+                        }
+
+                        if (!string.IsNullOrEmpty(config.SessionId))
+                        {
+                            CurrentSession.SessionId = config.SessionId;
+                            _log.LogDebug($"SessionId {CurrentSession.SessionId}");
                         }
 
                         foreach (var clockInTemplate in config.CK)
@@ -314,10 +325,10 @@ namespace Timekeeper.Client.Model
                 }
             }
 
-            if (forceDeleteSession)
-            {
-                CurrentSession = null;
-            }
+            //if (forceDeleteSession)
+            //{
+            //    CurrentSession = null;
+            //}
 
             if (CurrentSession == null)
             {
@@ -583,6 +594,7 @@ namespace Timekeeper.Client.Model
                                 _log.LogTrace("Countdown finished");
                                 clock.IsClockRunning = false;
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
+                                clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
                                 continue;
