@@ -24,7 +24,7 @@
             @foreach (var provider in providers)
             {
                 <li>
-                    <a href="/.auth/login/@provider.Key">
+                    <a href="/.auth/login/@provider.Key?post_login_redirect_uri=/helloworld-backstage/host">
                         Sign in with @provider.Value
                     </a>
                 </li>
