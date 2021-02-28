@@ -200,5 +200,10 @@ namespace Timekeeper.Client.Pages.HelloWorld
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
         }
+
+        public async void HandleFocus()
+        {
+            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+        }
     }
 }

@@ -5,6 +5,7 @@
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
 
 <main>
     <article>
@@ -73,16 +74,21 @@
             <p><span class="message-text">@Handler.CurrentMessage</span></p>
         </div>
 
-        <div class="controls-area">
-            <div class="send-message-area">
-                <input @bind-value="@Handler.InputMessage"
-                        class="input-text" />
-                <button disabled="@Handler.IsSendMessageDisabled"
-                        @onclick="@Handler.SendMessage"
-                        id="send-message-button">
-                    Send Message
-                </button>
-            </div>
+        <div class="send-message-area">
+            <div class="form-label">Message to Guests, Click Enter to send</div>
+
+            <input @bind-value="@Handler.InputMessage"
+                   class="input-text"
+                   id="@SendMessageInputId"
+                   @bind-value:event="oninput"
+                   @onkeypress="@HandleKeyPress"
+                   @onfocus="@HandleFocus"/>
+
+            <button disabled="@Handler.IsSendMessageDisabled"
+                    @onclick="@Handler.SendMessage"
+                    id="send-message-button">
+                Send Message
+            </button>
         </div>
 
         <div class="controls-area">
@@ -94,7 +100,7 @@
         <h2>Session</h2>
 
         @if (Handler.CurrentSession != null
-            && !Handler.IsInError)
+          && !Handler.IsInError)
         {
             <div class="session-information-area">
                 <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -114,8 +120,8 @@
                     <p>
                         There are @Handler.ConnectedGuests.Count connected guest(s).
                         <a href="#"
-                            @onclick="ToggleIsGuestListExpanded"
-                            @onclick:preventDefault>(@GuestListLinkText)</a>
+                           @onclick="ToggleIsGuestListExpanded"
+                           @onclick:preventDefault>(@GuestListLinkText)</a>
                     </p>
 
                     @if (IsGuestListExpanded)

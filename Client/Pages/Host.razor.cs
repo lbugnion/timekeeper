@@ -8,11 +8,15 @@ using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
+        public const string SendMessageInputId = "send-message-input";
+
         [Parameter]
         public string ResetSession
         {
@@ -164,6 +168,20 @@ namespace Timekeeper.Client.Pages
             {
                 Nav.NavigateTo("/configure");
             }
+        }
+
+        public async void HandleKeyPress(KeyboardEventArgs args)
+        {
+            if (args.Key == "Enter")
+            {
+                await Handler.SendMessage();
+                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+            }
+        }
+
+        public async void HandleFocus()
+        {
+            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
         }
     }
 }

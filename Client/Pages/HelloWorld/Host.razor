@@ -75,7 +75,8 @@
                                class="input-text"
                                id="@SendMessageInputId"
                                @bind-value:event="oninput"
-                               @onkeypress="@HandleKeyPress" />
+                               @onkeypress="@HandleKeyPress"
+                               @onfocus="@HandleFocus"/>
 
                         <button disabled="@Handler.IsSendMessageDisabled"
                                 @onclick="@Handler.SendMessage"
