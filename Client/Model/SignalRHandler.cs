@@ -139,7 +139,7 @@ namespace Timekeeper.Client.Model
             string templateName = null,
             bool forceDeleteSession = false)
         {
-            _log.LogInformation("-> InitializeSession");
+            _log.LogInformation("HIGHLIGHT---> InitializeSession");
             _log.LogDebug($"sessionId: {sessionId}");
             _log.LogDebug($"forceDeleteSession: {forceDeleteSession}");
 
@@ -316,42 +316,44 @@ namespace Timekeeper.Client.Model
             if (string.IsNullOrEmpty(sessionId)
                 && CurrentSession == null)
             {
+                // This can happen if the Guest was reloaded while a session is active
+
+                _log.LogTrace("HIGHLIGHT--sessionId is set and CurrentSession is null");
+
                 CurrentSession = await Session.GetFromStorage(_log);
 
-                if (CurrentSession != null
-                    && CurrentSession.Clocks.Count == 0)
-                {
-                    CurrentSession.Clocks.Add(new Clock());
-                }
+                //if (CurrentSession != null
+                //    && CurrentSession.Clocks.Count == 0)
+                //{
+                //    CurrentSession.Clocks.Add(new Clock());
+                //}
             }
-
-            //if (forceDeleteSession)
-            //{
-            //    CurrentSession = null;
-            //}
 
             if (CurrentSession == null)
             {
-                _log.LogTrace("CurrentSession is null");
+                _log.LogTrace("HIGHLIGHT--CurrentSession is null");
 
                 CurrentSession = new Session();
-                CurrentSession.Clocks.Add(new Clock());
 
                 if (!string.IsNullOrEmpty(sessionId))
                 {
+                    // This is a Guest
                     CurrentSession.SessionId = sessionId;
                 }
+                else
+                {
+                    // This is a host
+                    CurrentSession.Clocks.Add(new Clock());
+                }
 
-                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
-
+                _log.LogDebug($"HIGHLIGHT--New CurrentSession.SessionId: {CurrentSession.SessionId}");
+                _log.LogDebug($"HIGHLIGHT--Clock count: {CurrentSession.Clocks.Count}");
                 _log.LogTrace("Ready to save");
                 await CurrentSession.Save(_log);
                 _log.LogTrace("Saved");
 
                 _log.LogTrace("Session saved to storage");
             }
-
-            _log.LogTrace("003");
 
             foreach (var clock in CurrentSession.Clocks)
             {
@@ -365,8 +367,7 @@ namespace Timekeeper.Client.Model
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
             }
 
-            _log.LogDebug($"HIGHLIGHT--UserID {CurrentSession.UserId}");
-
+            _log.LogDebug($"UserID {CurrentSession.UserId}");
             _log.LogInformation("InitializeSession ->");
             return true;
         }
@@ -644,6 +645,8 @@ namespace Timekeeper.Client.Model
 
         protected virtual void DeleteLocalClock(string clockId)
         {
+            _log.LogInformation("-> DeleteLocalClock");
+
             if (clockId == Clock.DefaultClockId)
             {
                 return;

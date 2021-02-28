@@ -63,7 +63,7 @@ namespace Timekeeper.Client.Model
 
         private void ReceiveStartClock(string message)
         {
-            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
 
             StartClockMessage clockMessage;
 
@@ -85,9 +85,13 @@ namespace Timekeeper.Client.Model
 
             if (existingClock == null)
             {
-                _log.LogTrace($"No found clock, adding");
+                _log.LogTrace($"HIGHLIGHT--No found clock, adding");
                 existingClock = new Clock(clockMessage);
+                existingClock.CountdownFinished += ClockCountdownFinished;
+
+                _log.LogDebug($"CurrentSession.Clocks == null: {CurrentSession.Clocks == null}");
                 CurrentSession.Clocks.Add(existingClock);
+                _log.LogTrace("Added");
             }
             else
             {
@@ -105,7 +109,22 @@ namespace Timekeeper.Client.Model
             RunClock(existingClock);
             Status = $"Clock {existingClock.Message.Label} started";
             RaiseUpdateEvent();
-            _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
+            _log.LogInformation("HIGHLIGHT--SignalRGuest.ReceiveStartClock ->");
+        }
+
+        private void ClockCountdownFinished(object sender, EventArgs e)
+        {
+            _log.LogInformation("-> ClockCountdownFinished");
+
+            var clock = sender as Clock;
+
+            if (clock == null)
+            {
+                return;
+            }
+
+            clock.CountdownFinished -= ClockCountdownFinished;
+            DeleteLocalClock(clock.Message.ClockId);
         }
 
         protected override void DisplayMessage(string message)

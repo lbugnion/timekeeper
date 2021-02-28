@@ -518,6 +518,7 @@ namespace Timekeeper.Client.Model
 
         public async Task DeleteClock(Clock clock)
         {
+            clock.CountdownFinished -= ClockCountdownFinished;
             DeleteLocalClock(clock.Message.ClockId);
 
             // Notify clients
