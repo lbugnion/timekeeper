@@ -141,7 +141,7 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> InitializeSession");
             _log.LogDebug($"sessionId: {sessionId}");
-            _log.LogDebug($"HIGHLIGHT--forceDeleteSession: {forceDeleteSession}");
+            _log.LogDebug($"forceDeleteSession: {forceDeleteSession}");
 
             if (forceDeleteSession)
             {
@@ -196,7 +196,7 @@ namespace Timekeeper.Client.Model
                         foreach (var clockInTemplate in config.CK)
                         {
                             var newClock = new Clock();
-                            _log.LogDebug($"HIGHLIGHT--newClock.ClockId before: {newClock.Message.ClockId}");
+                            _log.LogDebug($"newClock.ClockId before: {newClock.Message.ClockId}");
 
                             if (clockInTemplate.D)
                             {
@@ -216,7 +216,7 @@ namespace Timekeeper.Client.Model
                                 newClock.Message.ClockId = Guid.NewGuid().ToString();
                             }
 
-                            _log.LogDebug($"HIGHLIGHT--newClock.ClockId after: {newClock.Message.ClockId}");
+                            _log.LogDebug($"newClock.ClockId after: {newClock.Message.ClockId}");
 
                             if (!string.IsNullOrEmpty(clockInTemplate.L))
                             {
@@ -364,6 +364,8 @@ namespace Timekeeper.Client.Model
                 clock.IsClockRunning = false;
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
             }
+
+            _log.LogDebug($"HIGHLIGHT--UserID {CurrentSession.UserId}");
 
             _log.LogInformation("InitializeSession ->");
             return true;

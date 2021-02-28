@@ -63,7 +63,7 @@ namespace Timekeeper.Client.Model
 
         private void ReceiveStartClock(string message)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
             StartClockMessage clockMessage;
 

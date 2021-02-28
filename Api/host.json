@@ -5,6 +5,10 @@
       "samplingExcludedTypes": "Request",
       "samplingSettings": {
         "isEnabled": true
+      },
+      "LogLevel": {
+        "Default": "Trace",
+        "Function": "Trace"
       }
     },
     "logLevel": {

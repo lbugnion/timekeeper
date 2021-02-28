@@ -134,7 +134,7 @@ namespace Timekeeper.Client.Model
             string templateName = null, 
             bool forceDeleteSession = false)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRHost.Connect");
+            _log.LogInformation("-> SignalRHost.Connect");
 
             forceDeleteSession = true;
 
@@ -157,7 +157,7 @@ namespace Timekeeper.Client.Model
 
                 if (ok)
                 {
-                    _log.LogTrace("HIGHLIGHT--CreateConnection and StartConnection OK");
+                    _log.LogTrace("CreateConnection and StartConnection OK");
 
                     IsConnected = true;
 
@@ -172,7 +172,7 @@ namespace Timekeeper.Client.Model
 
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
-                            _log.LogDebug($"HIGHLIGHT--Clock {clock.Message.Label} is still active");
+                            _log.LogDebug($"Clock {clock.Message.Label} is still active");
                             await StartClock(clock, false, true);
                         }
                     }
@@ -228,12 +228,12 @@ namespace Timekeeper.Client.Model
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
 
-            _log.LogDebug($"HIGHLIGHT--GuestId: {messageGuest.GuestId}");
+            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
 
             if (messageGuest == null
                 || string.IsNullOrEmpty(messageGuest.GuestId))
@@ -265,14 +265,6 @@ namespace Timekeeper.Client.Model
             }
 
             RaiseUpdateEvent();
-
-            // This should not be needed since we do that in the Connect event
-            //if (IsAnyClockRunning)
-            //{
-            //    _log.LogTrace("HIGHLIGHT--Sending start clock message without refresh");
-            //    await StartAllClocks(false);
-            //}
-
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
         }
 

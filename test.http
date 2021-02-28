@@ -3,38 +3,13 @@ GET {{function-url}}/negotiate
 x-functions-key: {{NegotiateKey}}
 x-timekeeper-userid: 1234
 
-### Start clock
-POST {{function-url}}/start
-x-functions-key: {{StartClockKey}}
-x-timekeeper-group-id: 28ca7465-813a-4430-880e-2e626f846090
-
-{
-    "Label": "Default clock",
-    "ClockId": "00000000-0000-0000-0000-000000000000",
-    "ServerTime": "2021-02-20T20:47:00.324+01:00",
-    "CountDown":"10:10:00",
-    "PayAttention":"00:01:00",
-    "AlmostDone":"00:00:30",
-    "RunningColor": "#00FF00"
-}
-
-### Stop clock
-POST {{function-url}}/stop
-x-functions-key: {{StopClockKey}}
-x-timekeeper-group-id: 28ca7465-813a-4430-880e-2e626f846090
-
-00000000-0000-0000-0000-000000000000
-
-# 5261B632-77EA-4A08-8A14-80F7B4EDAB6B
-
-### Send message
-POST {{function-url}}/send
-x-functions-key: {{SendMessageKey}}
-x-timekeeper-group-id: 28ca7465-813a-4430-880e-2e626f846090
-
-Hello world again
-
 ### Test hack
 
 POST https://mango-mud-074ee9103.azurestaticapps.net/api/send
 x-timekeeper-group-id: 91f22496-a644-472b-ab73-cd60bbf4be18
+
+### Check auth
+
+GET {{function-url}}/test
+
+GET https://ashy-beach-08118a103.azurestaticapps.net/api/test
