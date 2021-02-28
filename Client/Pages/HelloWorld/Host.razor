@@ -67,9 +67,16 @@
                 </div>
 
                 <div class="controls-area">
+
                     <div class="send-message-area">
+                        <div class="form-label">Message to Guests, Click Enter to send</div>
+
                         <input @bind-value="@Handler.InputMessage"
-                               class="input-text" />
+                               class="input-text"
+                               id="@SendMessageInputId"
+                               @bind-value:event="oninput"
+                               @onkeypress="@HandleKeyPress" />
+
                         <button disabled="@Handler.IsSendMessageDisabled"
                                 @onclick="@Handler.SendMessage"
                                 id="send-message-button">

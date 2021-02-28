@@ -13,16 +13,32 @@
     <link rel="icon" href="/images/hello-world/favicon.ico" type="image/icon type">
 
     <script>
-        setTitle = (title) => { document.title = title; };
 
-        setBranding = (cssSheet) => {
-            var ss = document.createElement("link");
-            ss.type = "text/css";
-            ss.rel = "stylesheet";
-            ss.href = cssSheet;
+        window.branding = {
+            setTitle : (title) => { document.title = title; },
 
-            document.head.appendChild(ss);
-        };
+            setBranding : (cssSheet) => {
+                var ss = document.createElement("link");
+                ss.type = "text/css";
+                ss.rel = "stylesheet";
+                ss.href = cssSheet;
+
+                document.head.appendChild(ss);
+            }
+        }
+
+        window.host = {
+            focusAndSelect: (elementId) => {
+
+                const element = document.getElementById(elementId);
+                element.focus();
+
+                if (element.type == "text") {
+                    element.select();
+                }
+            }
+        }
+
     </script>
 </head>
 
