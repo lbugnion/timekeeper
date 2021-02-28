@@ -12,8 +12,8 @@ namespace Timekeeper.Client.Pages.HelloWorld
     {
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
-            await JSRuntime.InvokeVoidAsync("setBranding", "css/hello-world.css");
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", "Hello World Backstage Channel");
+            await JSRuntime.InvokeVoidAsync("branding.setBranding", "css/hello-world.css");
         }
 
         public Days Today

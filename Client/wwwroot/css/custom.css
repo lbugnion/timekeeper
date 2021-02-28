@@ -49,14 +49,13 @@ footer {
 
 .controls-area {
     margin-top: 10px;
-    margin-left: -5px;
 }
 
 .send-message-area {
 }
 
 button {
-    margin: 5px;
+    margin-right: 10px;
     width: 200px;
 }
 
@@ -66,9 +65,10 @@ button.small-button {
 }
 
 .input-text {
-    margin: 5px;
     width: 300px;
     font-size: 1.5em;
+    margin-bottom: 15px;
+    margin-right: 10px;
 }
 
 #send-message-button {

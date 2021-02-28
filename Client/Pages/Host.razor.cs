@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,11 +8,21 @@ using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
+        public const string SendMessageInputId = "send-message-input";
+
+        [Parameter]
+        public string ResetSession
+        {
+            get;
+            set;
+        }
+
         public bool IsEditingSessionName
         {
             get;
@@ -45,22 +55,14 @@ namespace Timekeeper.Client.Pages
         }
 
         [CascadingParameter]
-        private Task<AuthenticationState> AuthenticationStateTask
-        {
-            get;
-            set;
+        private Task<AuthenticationState> AuthenticationStateTask 
+        { 
+            get; 
+            set; 
         }
 
         protected override async Task OnInitializedAsync()
         {
-            var authState = await AuthenticationStateTask;
-
-            if (!authState.User.Identity.IsAuthenticated)
-            {
-                Log.LogWarning("Unauthenticated");
-                return;
-            }
-
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
@@ -73,7 +75,7 @@ namespace Timekeeper.Client.Pages
                 Http);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
+            await Handler.Connect(forceDeleteSession: ResetSession == "reset");
             SessionName = Handler.CurrentSession.SessionName;
         }
 
@@ -164,6 +166,15 @@ namespace Timekeeper.Client.Pages
             if (Handler.PrepareClockToConfigure(clockId))
             {
                 Nav.NavigateTo("/configure");
+            }
+        }
+
+        public async void HandleKeyPress(KeyboardEventArgs args)
+        {
+            if (args.Key == "Enter")
+            {
+                await Handler.SendMessage();
+                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
         }
     }

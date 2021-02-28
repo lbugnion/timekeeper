@@ -9,11 +9,14 @@ using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.HelloWorld;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Timekeeper.Client.Pages.HelloWorld
 {
     public partial class Host : IDisposable
     {
+        public const string SendMessageInputId = "send-message-input";
+
         [Parameter]
         public string ResetSession
         {
@@ -23,8 +26,8 @@ namespace Timekeeper.Client.Pages.HelloWorld
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("setTitle", "Hello World Backstage Channel");
-            await JSRuntime.InvokeVoidAsync("setBranding", "css/hello-world.css");
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", "Hello World Backstage Channel");
+            await JSRuntime.InvokeVoidAsync("branding.setBranding", "css/hello-world.css");
         }
 
         public Days Today
@@ -186,6 +189,15 @@ namespace Timekeeper.Client.Pages.HelloWorld
             if (Handler.PrepareClockToConfigure(clockId))
             {
                 Nav.NavigateTo("/helloworld-backstage/configure");
+            }
+        }
+
+        public async void HandleKeyPress(KeyboardEventArgs args)
+        {
+            if (args.Key == "Enter")
+            {
+                await Handler.SendMessage();
+                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
         }
     }
