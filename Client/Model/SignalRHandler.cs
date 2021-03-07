@@ -139,7 +139,7 @@ namespace Timekeeper.Client.Model
             string templateName = null,
             bool forceDeleteSession = false)
         {
-            _log.LogInformation("HIGHLIGHT---> InitializeSession");
+            _log.LogInformation("-> InitializeSession");
             _log.LogDebug($"sessionId: {sessionId}");
             _log.LogDebug($"forceDeleteSession: {forceDeleteSession}");
 
@@ -147,6 +147,10 @@ namespace Timekeeper.Client.Model
             {
                 await Session.DeleteFromStorage(_log);
             }
+
+            CurrentSession = await Session.GetFromStorage(_log);
+
+            // TODO Clean this up, this code is only for the Host
 
             if (!string.IsNullOrEmpty(templateName))
             {
@@ -158,94 +162,50 @@ namespace Timekeeper.Client.Model
                 _log.LogDebug($"section found: {section != null}");
                 _log.LogDebug($"config found: {config != null}");
 
-                CurrentSession = await Session.GetFromStorage(_log);
-
-                if (CurrentSession != null
-                    && CurrentSession.Clocks != null
-                    && CurrentSession.Clocks.Count != config.CK.Count)
+                if (config != null)
                 {
-                    _log.LogTrace("CRITICAL--Invalid clock count");
-                    // Might be a bug
-                    CurrentSession = null;
-                }
+                    _log.LogDebug($"Found {config.SessionName}");
+                    _log.LogDebug($"Found {config.SessionId}");
 
-                if (CurrentSession == null
-                    || !CurrentSession.CreatedFromTemplate)
-                {
-                    if (config != null)
+                    if (!string.IsNullOrEmpty(config.SessionId))
                     {
-                        _log.LogDebug($"Found {config.SN}");
-                        _log.LogDebug($"Found {config.SessionId}");
-
                         CurrentSession = new Session
                         {
-                            CreatedFromTemplate = true
+                            CreatedFromTemplate = true,
+                            SessionId = config.SessionId
                         };
 
-                        if (!string.IsNullOrEmpty(config.SN))
+                        if (!string.IsNullOrEmpty(config.SessionName))
                         {
-                            CurrentSession.SessionName = config.SN;
+                            CurrentSession.SessionName = config.SessionName;
                         }
 
-                        if (!string.IsNullOrEmpty(config.SessionId))
-                        {
-                            CurrentSession.SessionId = config.SessionId;
-                            _log.LogDebug($"SessionId {CurrentSession.SessionId}");
-                        }
-
-                        foreach (var clockInTemplate in config.CK)
+                       foreach (var clockInTemplate in config.Clocks)
                         {
                             var newClock = new Clock();
-                            _log.LogDebug($"newClock.ClockId before: {newClock.Message.ClockId}");
+                            _log.LogDebug($"newClock.ClockId: {newClock.Message.ClockId}");
 
-                            if (clockInTemplate.D)
+                            if (!string.IsNullOrEmpty(clockInTemplate.Label))
                             {
-                                _log.LogDebug($"Found default clock in template: {clockInTemplate.L}");
-
-                                var defaultClock = CurrentSession.Clocks
-                                    .FirstOrDefault(c => c.Message.ClockId == Clock.DefaultClockId);
-
-                                if (defaultClock != null)
-                                {
-                                    _log.LogTrace("Found default clock in Session");
-                                    newClock = defaultClock;
-                                }
-                            }
-                            else
-                            {
-                                newClock.Message.ClockId = Guid.NewGuid().ToString();
-                            }
-
-                            _log.LogDebug($"newClock.ClockId after: {newClock.Message.ClockId}");
-
-                            if (!string.IsNullOrEmpty(clockInTemplate.L))
-                            {
-                                newClock.Message.Label = clockInTemplate.L;
+                                newClock.Message.Label = clockInTemplate.Label;
                                 _log.LogDebug($"Clock label {newClock.Message.Label}");
                             }
 
-                            if (!clockInTemplate.D)
+                            if (clockInTemplate.AlmostDone != null)
                             {
-                                // Not default clock
-                                newClock.Message.ClockId = Guid.NewGuid().ToString();
-                                _log.LogDebug($"Clock ID changed to {newClock.Message.ClockId}");
-                            }
-
-                            if (clockInTemplate.A != null)
-                            {
-                                if (clockInTemplate.A.T.TotalSeconds > 0)
+                                if (clockInTemplate.AlmostDone.Time.TotalSeconds > 0)
                                 {
                                     // Almost done
-                                    newClock.Message.AlmostDone = clockInTemplate.A.T;
+                                    newClock.Message.AlmostDone = clockInTemplate.AlmostDone.Time;
                                     _log.LogDebug($"Clock AlmostDone {newClock.Message.AlmostDone}");
                                 }
 
-                                if (!string.IsNullOrEmpty(clockInTemplate.A.C))
+                                if (!string.IsNullOrEmpty(clockInTemplate.AlmostDone.Color))
                                 {
                                     // Almost done color
-                                    newClock.Message.AlmostDoneColor = clockInTemplate.A.C;
+                                    newClock.Message.AlmostDoneColor = clockInTemplate.AlmostDone.Color;
 
-                                    if (!clockInTemplate.A.C.StartsWith("#"))
+                                    if (!clockInTemplate.AlmostDone.Color.StartsWith("#"))
                                     {
                                         newClock.Message.AlmostDoneColor = "#" + newClock.Message.AlmostDoneColor;
                                     }
@@ -254,21 +214,21 @@ namespace Timekeeper.Client.Model
                                 }
                             }
 
-                            if (clockInTemplate.P != null)
+                            if (clockInTemplate.PayAttention != null)
                             {
-                                if (clockInTemplate.P.T.TotalSeconds > 0)
+                                if (clockInTemplate.PayAttention.Time.TotalSeconds > 0)
                                 {
                                     // Pay attention
-                                    newClock.Message.PayAttention = clockInTemplate.P.T;
+                                    newClock.Message.PayAttention = clockInTemplate.PayAttention.Time;
                                     _log.LogDebug($"Clock PayAttention {newClock.Message.PayAttention}");
                                 }
 
-                                if (!string.IsNullOrEmpty(clockInTemplate.P.C))
+                                if (!string.IsNullOrEmpty(clockInTemplate.PayAttention.Color))
                                 {
                                     // Pay attention color
-                                    newClock.Message.PayAttentionColor = clockInTemplate.P.C;
+                                    newClock.Message.PayAttentionColor = clockInTemplate.PayAttention.Color;
 
-                                    if (!clockInTemplate.P.C.StartsWith("#"))
+                                    if (!clockInTemplate.PayAttention.Color.StartsWith("#"))
                                     {
                                         newClock.Message.PayAttentionColor = "#" + newClock.Message.PayAttentionColor;
                                     }
@@ -277,26 +237,26 @@ namespace Timekeeper.Client.Model
                                 }
                             }
 
-                            if (clockInTemplate.C != null)
+                            if (clockInTemplate.Countdown != null)
                             {
-                                if (clockInTemplate.C.T.TotalSeconds > 0)
+                                if (clockInTemplate.Countdown.Time.TotalSeconds > 0)
                                 {
                                     // Countdown
-                                    newClock.Message.CountDown = clockInTemplate.C.T;
+                                    newClock.Message.CountDown = clockInTemplate.Countdown.Time;
 
                                     _log.LogDebug($"Clock CountDown {newClock.Message.CountDown}");
                                 }
 
-                                if (!string.IsNullOrEmpty(clockInTemplate.C.C))
+                                if (!string.IsNullOrEmpty(clockInTemplate.Countdown.Color))
                                 {
                                     _log.LogTrace("Checking countdown color");
 
                                     // Countdown color
-                                    newClock.Message.RunningColor = clockInTemplate.C.C;
+                                    newClock.Message.RunningColor = clockInTemplate.Countdown.Color;
 
                                     _log.LogTrace("Checking countdown color");
 
-                                    if (!clockInTemplate.C.C.StartsWith("#"))
+                                    if (!clockInTemplate.Countdown.Color.StartsWith("#"))
                                     {
                                         newClock.Message.RunningColor = "#" + newClock.Message.RunningColor;
                                     }
@@ -310,6 +270,10 @@ namespace Timekeeper.Client.Model
 
                         await CurrentSession.Save(_log);
                     }
+                    else
+                    {
+                        _log.LogError($"No session ID in template, ignoring");
+                    }
                 }
             }
 
@@ -317,42 +281,36 @@ namespace Timekeeper.Client.Model
                 && CurrentSession == null)
             {
                 // This can happen if the Guest was reloaded while a session is active
-
-                _log.LogTrace("HIGHLIGHT--sessionId is set and CurrentSession is null");
-
+                _log.LogTrace("sessionId is set and CurrentSession is null");
                 CurrentSession = await Session.GetFromStorage(_log);
-
-                //if (CurrentSession != null
-                //    && CurrentSession.Clocks.Count == 0)
-                //{
-                //    CurrentSession.Clocks.Add(new Clock());
-                //}
             }
 
             if (CurrentSession == null)
             {
-                _log.LogTrace("HIGHLIGHT--CurrentSession is null");
+                _log.LogTrace("CurrentSession is null");
 
                 CurrentSession = new Session();
 
-                if (!string.IsNullOrEmpty(sessionId))
-                {
-                    // This is a Guest
-                    CurrentSession.SessionId = sessionId;
-                }
-                else
+                if (string.IsNullOrEmpty(sessionId))
                 {
                     // This is a host
                     CurrentSession.Clocks.Add(new Clock());
                 }
 
-                _log.LogDebug($"HIGHLIGHT--New CurrentSession.SessionId: {CurrentSession.SessionId}");
-                _log.LogDebug($"HIGHLIGHT--Clock count: {CurrentSession.Clocks.Count}");
-                _log.LogTrace("Ready to save");
-                await CurrentSession.Save(_log);
-                _log.LogTrace("Saved");
+                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
+                _log.LogDebug($"Clock count: {CurrentSession.Clocks.Count}");
 
+                await CurrentSession.Save(_log);
                 _log.LogTrace("Session saved to storage");
+            }
+
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                _log.LogTrace("Setting guest session ID");
+
+                // This is a Guest
+                CurrentSession.SessionId = sessionId;
+                CurrentSession.Clocks = new List<Clock>();
             }
 
             foreach (var clock in CurrentSession.Clocks)
@@ -637,8 +595,6 @@ namespace Timekeeper.Client.Model
                 return false;
             }
 
-            Status = "Connected!";
-
             _log.LogInformation("SignalRHandler.StartConnection ->");
             return true;
         }
@@ -647,21 +603,25 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> DeleteLocalClock");
 
-            if (clockId == Clock.DefaultClockId)
-            {
-                return;
-            }
-
             var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
 
             if (clock == null
                 || clock.IsClockRunning)
             {
+                _log.LogTrace($"HIGHLIGHT--No clock found with id {clockId}");
                 return;
             }
 
             StopLocalClock(clockId);
+
+            _log.LogDebug("HIGHLIGHT--Clock stopped, removing");
+
             CurrentSession.Clocks.Remove(clock);
+            RaiseUpdateEvent();
+
+            _log.LogDebug("HIGHLIGHT--Removed");
+
+            _log.LogDebug($"HIGHLIGHT--Remaining clocks: {CurrentSession.Clocks.Count}");
         }
 
         protected virtual void StopLocalClock(string clockId)
@@ -684,7 +644,6 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            existingClock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
             existingClock.IsClockRunning = false;
             existingClock.ResetDisplay();
 

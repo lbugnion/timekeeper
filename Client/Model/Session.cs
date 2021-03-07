@@ -46,7 +46,6 @@ namespace Timekeeper.Client.Model
         public Session()
         {
             SessionId = Guid.NewGuid().ToString();
-
             SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             UserId = Guid.NewGuid().ToString();
             Clocks = new List<Clock>();

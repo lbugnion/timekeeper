@@ -5,28 +5,19 @@ namespace Timekeeper.Client.Model
 {
     public class ClockTemplate
     {
-        /// <summary>
-        /// Session name
-        /// </summary>
-        public string SN
+        public string SessionName
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Session ID
-        /// </summary>
         public string SessionId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Clocks
-        /// </summary>
-        public IList<ClockForTemplate> CK
+        public IList<ClockForTemplate> Clocks
         {
             get;
             set;
@@ -35,46 +26,25 @@ namespace Timekeeper.Client.Model
 
     public class ClockForTemplate
     {
-        /// <summary>
-        /// Label
-        /// </summary>
-        public string L
+        public string Label
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// CountDown
-        /// </summary>
-        public ClockDefinition C
+        public ClockDefinition Countdown
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Pay attention
-        /// </summary>
-        public ClockDefinition P
+        public ClockDefinition PayAttention
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Almost done
-        /// </summary>
-        public ClockDefinition A
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Default clock
-        /// </summary>
-        public bool D
+        public ClockDefinition AlmostDone
         {
             get;
             set;
@@ -83,19 +53,13 @@ namespace Timekeeper.Client.Model
 
     public class ClockDefinition
     {
-        /// <summary>
-        /// Time
-        /// </summary>
-        public TimeSpan T
+        public TimeSpan Time
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Color
-        /// </summary>
-        public string C
+        public string Color
         {
             get;
             set;

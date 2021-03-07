@@ -54,14 +54,6 @@
                             Config
                         </button>
 
-                        @if (clock.Message.ClockId != Model.Clock.DefaultClockId)
-                        {
-                            <button @onclick="(e => Handler.DeleteClock(clock))"
-                                    disabled="@clock.IsDeleteDisabled">
-                                Delete
-                            </button>
-                        }
-
                         <button @onclick="(e => Handler.AddClockAfter(clock.Message.ClockId))">
                             Add
                         </button>

@@ -7,7 +7,6 @@ namespace Timekeeper.Client.Model
     {
         public const string DefaultBackgroundColor = "#FFFFFF";
         public const string DefaultClockDisplay = "00:00:00";
-        public static readonly string DefaultClockId = Guid.Empty.ToString();
         public const string DefaultRunningColor = "#3AFFA9";
         public const string DefaultPayAttentionColor = "#FFFB91";
         public const string DefaultAlmostDoneColor = "#FF6B77";
@@ -69,19 +68,7 @@ namespace Timekeeper.Client.Model
         public Clock(StartClockMessage message)
             : base()
         {
-            if (message.ClockId == DefaultClockId)
-            {
-                Message.AlmostDone = message.AlmostDone;
-                Message.CountDown = message.CountDown;
-                Message.Label = message.Label;
-                Message.PayAttention = message.PayAttention;
-                Message.RunningColor = message.RunningColor;
-                Message.ServerTime = message.ServerTime;
-            }
-            else
-            {
-                Message = message;
-            }
+            Message = message;
         }
 
         public Clock()
@@ -91,7 +78,7 @@ namespace Timekeeper.Client.Model
 
             Message = new StartClockMessage
             {
-                ClockId = DefaultClockId, // Default ID
+                ClockId = Guid.NewGuid().ToString(),
                 AlmostDone = DefaultAlmostDone,
                 PayAttention = DefaultPayAttention,
                 CountDown = DefaultCountDown,

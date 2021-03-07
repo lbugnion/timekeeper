@@ -58,12 +58,13 @@ namespace Timekeeper.Client.Model
 
             _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
+
             return true;
         }
 
         private void ReceiveStartClock(string message)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
             StartClockMessage clockMessage;
 
@@ -85,7 +86,7 @@ namespace Timekeeper.Client.Model
 
             if (existingClock == null)
             {
-                _log.LogTrace($"HIGHLIGHT--No found clock, adding");
+                _log.LogTrace($"No found clock, adding");
                 existingClock = new Clock(clockMessage);
                 existingClock.CountdownFinished += ClockCountdownFinished;
 
@@ -109,7 +110,7 @@ namespace Timekeeper.Client.Model
             RunClock(existingClock);
             Status = $"Clock {existingClock.Message.Label} started";
             RaiseUpdateEvent();
-            _log.LogInformation("HIGHLIGHT--SignalRGuest.ReceiveStartClock ->");
+            _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
 
         private void ClockCountdownFinished(object sender, EventArgs e)
@@ -187,6 +188,7 @@ namespace Timekeeper.Client.Model
             }
 
             IsBusy = false;
+            Status = "Connected, clocks will appear when the Host starts them!";
             _log.LogInformation("SignalRGuest.Connect ->");
         }
 

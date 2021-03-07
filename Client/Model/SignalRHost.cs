@@ -136,8 +136,6 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
-            forceDeleteSession = true;
-
             IsBusy = true;
 
             IsSendMessageDisabled = true;
@@ -223,6 +221,7 @@ namespace Timekeeper.Client.Model
             }
 
             IsBusy = false;
+            Status = "Connected, your guests will only see clocks when you start them!";
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
