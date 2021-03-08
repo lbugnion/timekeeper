@@ -2,7 +2,7 @@
 {
     public class ConfigureClock
     {
-        public Session CurrentSession
+        public HostSession CurrentSession
         {
             get;
             set;

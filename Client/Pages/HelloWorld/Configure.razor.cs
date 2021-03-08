@@ -31,7 +31,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
             set;
         }
 
-        public Session CurrentSession
+        public HostSession CurrentSession
         {
             get;
             set;

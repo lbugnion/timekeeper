@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -91,7 +92,16 @@ namespace Timekeeper.Client.Model
                 existingClock.CountdownFinished += ClockCountdownFinished;
 
                 _log.LogDebug($"CurrentSession.Clocks == null: {CurrentSession.Clocks == null}");
-                CurrentSession.Clocks.Add(existingClock);
+                
+                if (clockMessage.Position >= CurrentSession.Clocks.Count)
+                {
+                    CurrentSession.Clocks.Add(existingClock);
+                }
+                else
+                {
+                    CurrentSession.Clocks.Insert(clockMessage.Position, existingClock);
+                }
+
                 _log.LogTrace("Added");
             }
             else
@@ -224,6 +234,32 @@ namespace Timekeeper.Client.Model
             }
 
             _log.LogInformation($"{nameof(AnnounceName)} ->");
+            return true;
+        }
+
+        public async Task<bool> InitializeSession(string sessionId)
+        {
+            _log.LogInformation("-> InitializeSession");
+            _log.LogDebug($"sessionId: {sessionId}");
+
+            var guestSession = await GuestSession.GetFromStorage(_log);
+
+            if (guestSession == null)
+            {
+                guestSession = new GuestSession();
+            }
+
+            guestSession.SessionId = sessionId;
+            guestSession.Clocks = new List<Clock>(); // Always reset the clocks
+
+            _log.LogDebug($"UserID {guestSession.UserId}");
+            _log.LogDebug($"UserName {guestSession.UserName}");
+
+            CurrentSession = guestSession;
+            await CurrentSession.Save(_log);
+            _log.LogTrace("Session saved to storage");
+
+            _log.LogInformation("InitializeSession ->");
             return true;
         }
     }
