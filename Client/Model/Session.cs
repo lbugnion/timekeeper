@@ -110,7 +110,7 @@ namespace Timekeeper.Client.Model
 
         public static async Task DeleteFromStorage(ILogger log = null)
         {
-            log?.LogTrace("HIGHLIGHT--Deleting session from storage");
+            log?.LogTrace("Deleting session from storage");
             await _localStorage.RemoveItemAsync(SessionStorageKey);
         }
     }

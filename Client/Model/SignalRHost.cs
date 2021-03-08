@@ -407,6 +407,13 @@ namespace Timekeeper.Client.Model
                     return;
                 }
             }
+            else
+            {
+                if (!clock.IsClockRunning)
+                {
+                    return;
+                }
+            }
 
             _log.LogInformation("-> SignalRHost.StartClock");
 

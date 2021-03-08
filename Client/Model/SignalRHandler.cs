@@ -362,11 +362,10 @@ namespace Timekeeper.Client.Model
                 clock.IsClockRunning = false;
                 clock.IsNudgeDisabled = true;
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
-
-                _log.LogDebug($"clock.IsNudgeDisabled: {clock.IsNudgeDisabled}");
             }
 
             _log.LogDebug($"HIGHLIGHT--UserID {CurrentSession.UserId}");
+
             _log.LogInformation("InitializeSession ->");
             return true;
         }
