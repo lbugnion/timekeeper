@@ -35,17 +35,11 @@
         <div class="message-area">
             <p><span class="message-text">@Handler.CurrentMessage</span></p>
         </div>
-
-        <blockquote>
-            Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
-            <br /><br />
-            More information at <a href="https://github.com/lbugnion/timekeeper">Timekeeper on GitHub</a>
-            <br /><br />
-            Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
-        </blockquote>
     </article>
 </main>
 
 <footer class="@Today.FooterClass">
-    <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+    <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+
+    <div class="status-message about-link">| <a href="/helloworld-backstage/about">About Timekeeper</a></div>
 </footer>

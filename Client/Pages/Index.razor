@@ -8,24 +8,18 @@
     <article>
         <h1>Timekeeper</h1>
 
-        <blockquote>
-            Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
-            <br /><br />
-            More information at <a href="https://github.com/lbugnion/timekeeper">Timekeeper on GitHub</a>
-            <br /><br />
-            Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
-        </blockquote>
-
         <blockquote class="hello-world-warning">
             <a href="/helloworld-backstage"
-               target="_blank"><img src="/images/hello-world/hello-world-logo-tue.png"
-                 class="logo-image"
-                 style="width: 200px;" /></a>
+               target="_blank">
+                <img src="/images/hello-world/hello-world-logo-tue.png"
+                     class="logo-image"
+                     style="width: 200px;" />
+            </a>
             <br /><br />
             Are you looking for the <a href="/helloworld-backstage"
-            target="_blank">Hello World Backstage Channel?</a>
+                                       target="_blank">Hello World Backstage Channel?</a>
         </blockquote>
-        
+
         @if (Program.IsExperimental)
         {
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
@@ -63,5 +57,7 @@
 </main>
 
 <footer>
-    Version: @ClientVersion @Environment
+    <div class="status-message">Version: @ClientVersion @Environment</div>
+
+    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>

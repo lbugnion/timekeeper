@@ -82,7 +82,7 @@
                    id="@SendMessageInputId"
                    @bind-value:event="oninput"
                    @onkeypress="@HandleKeyPress"
-                   @onfocus="@HandleFocus"/>
+                   @onfocus="@HandleFocus" />
 
             <button disabled="@Handler.IsSendMessageDisabled"
                     @onclick="@Handler.SendMessage"
@@ -100,7 +100,7 @@
         <h2>Session</h2>
 
         @if (Handler.CurrentSession != null
-          && !Handler.IsInError)
+         && !Handler.IsInError)
         {
             <div class="session-information-area">
                 <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -178,12 +178,12 @@
 <footer>
     <AuthorizeView>
         <Authorized>
-            <span class="status-message error-message">@Handler.ErrorStatus</span><span class="status-message">@Handler.Status</span>
+            <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
         </Authorized>
         <NotAuthorized>
-            <span class="status-message error-message">Please log in</span>
+            <div class="status-message error-message">Please log in</div>
         </NotAuthorized>
     </AuthorizeView>
+
+    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>
-
-
