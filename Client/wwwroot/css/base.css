@@ -23,7 +23,8 @@ main {
 
 article {
     height: 100%;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -o-box-sizing: border-box;

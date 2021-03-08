@@ -5,7 +5,7 @@ namespace Timekeeper.Client.Model
 {
     public class Clock
     {
-        public const string DefaultBackgroundColor = "#FFFFFF";
+        public const string DefaultBackgroundColor = "#EEEEEE";
         public const string DefaultClockDisplay = "00:00:00";
         public static readonly string DefaultClockId = Guid.Empty.ToString();
         public const string DefaultRunningColor = "#3AFFA9";

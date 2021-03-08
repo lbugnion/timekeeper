@@ -58,6 +58,10 @@ footer {
     margin-top: 10px;
 }
 
+.last-controls-area{
+    margin-bottom: 10px;
+}
+
 .send-message-area {
 }
 
@@ -209,6 +213,7 @@ li.validation-message {
 
 .nudge-buttons-area {
     width: 50px;
+    margin-top: 3px;
 }
 
 .nudge-button {
@@ -225,7 +230,7 @@ li.validation-message {
 
 .clock-area .clock-controls-area {
     position: relative;
-    top: -130px;
+    top: -135px;
     left: 60px;
 }
 
