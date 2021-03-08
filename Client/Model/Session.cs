@@ -98,6 +98,7 @@ namespace Timekeeper.Client.Model
                         clock.IsDeleteDisabled = false;
                         clock.IsStartDisabled = false;
                         clock.IsStopDisabled = false;
+                        clock.IsNudgeDisabled = false;
                     }
                 }
 

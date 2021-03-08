@@ -103,6 +103,7 @@ namespace Timekeeper.Client.Model
             clock.IsStartDisabled = false;
             clock.IsStopDisabled = true;
             clock.IsDeleteDisabled = false;
+            clock.IsNudgeDisabled = true;
 
             if (isAnyClockRunning)
             {
@@ -163,12 +164,11 @@ namespace Timekeeper.Client.Model
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
-
-
                         clock.IsStartDisabled = false;
                         clock.IsStopDisabled = true;
                         clock.IsConfigDisabled = false;
                         clock.IsDeleteDisabled = false;
+                        clock.IsNudgeDisabled = true;
 
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
@@ -194,6 +194,7 @@ namespace Timekeeper.Client.Model
                         clock.IsStopDisabled = true;
                         clock.IsConfigDisabled = true;
                         clock.IsDeleteDisabled = true;
+                        clock.IsNudgeDisabled = true;
                     }
 
                     IsSendMessageDisabled = true;
@@ -214,6 +215,7 @@ namespace Timekeeper.Client.Model
                     clock.IsStopDisabled = true;
                     clock.IsConfigDisabled = true;
                     clock.IsDeleteDisabled = true;
+                    clock.IsNudgeDisabled = true;
                 }
 
                 IsSendMessageDisabled = true;
@@ -412,6 +414,8 @@ namespace Timekeeper.Client.Model
             clock.IsStopDisabled = false;
             clock.IsConfigDisabled = true;
             clock.IsDeleteDisabled = true;
+            clock.IsNudgeDisabled = false;
+            clock.CountdownFinished -= ClockCountdownFinished;
             clock.CountdownFinished += ClockCountdownFinished;
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
@@ -462,11 +466,48 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        public async Task Nudge(Clock clock, int seconds)
+        {
+            _log.LogInformation("-> Nudge");
+
+            var timespan = TimeSpan.FromSeconds(Math.Abs(seconds));
+
+            var clockInSession = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
+
+            if (clockInSession == null)
+            {
+                _log.LogWarning($"Clock not found: {clock.Message.ClockId}");
+                return;
+            }
+
+            if (seconds > 0)
+            {
+                _log.LogDebug($"Adding {seconds} seconds");
+                clockInSession.Message.CountDown += timespan;
+            }
+            else
+            {
+                _log.LogDebug($"Substracting {seconds} seconds");
+
+                if (clockInSession.Message.CountDown.TotalSeconds <= timespan.TotalSeconds)
+                {
+                    clockInSession.Message.CountDown = TimeSpan.FromSeconds(1);
+                }
+                else
+                {
+                    clockInSession.Message.CountDown -= timespan;
+                }
+            }
+
+            await StartClock(clock, false, false); ;
+        }
+
         public async Task StopClock(Clock clock)
         {
             _log.LogInformation("-> StopClock");
 
             StopLocalClock(clock.Message.ClockId);
+            await RestoreClock(clock);
 
             // Notify clients
 
@@ -501,6 +542,8 @@ namespace Timekeeper.Client.Model
             clock.IsStopDisabled = true;
             clock.IsConfigDisabled = false;
             clock.IsDeleteDisabled = false;
+            clock.IsNudgeDisabled = true;
+            clock.Reset();
             clock.CountdownFinished -= ClockCountdownFinished;
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);

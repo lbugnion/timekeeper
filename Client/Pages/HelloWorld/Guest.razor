@@ -25,7 +25,7 @@
         {
             @foreach (var clock in Handler.CurrentSession.Clocks)
             {
-                <div class="clock-area" style="background-color: @clock.CurrentBackgroundColor">
+                <div class="clock-area clock-area-guest" style="background-color: @clock.CurrentBackgroundColor">
                     <div class="clock-label">@clock.Message.Label</div>
                     <div class="clock-text">@clock.ClockDisplay</div>
                 </div>

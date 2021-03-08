@@ -351,8 +351,6 @@ namespace Timekeeper.Client.Model
                 _log.LogTrace("Session saved to storage");
             }
 
-            _log.LogTrace("003");
-
             foreach (var clock in CurrentSession.Clocks)
             {
                 _log.LogDebug($"Setting clock {clock.Message.Label}");
@@ -362,11 +360,13 @@ namespace Timekeeper.Client.Model
                 clock.IsConfigDisabled = true;
                 clock.IsDeleteDisabled = true;
                 clock.IsClockRunning = false;
+                clock.IsNudgeDisabled = true;
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
+
+                _log.LogDebug($"clock.IsNudgeDisabled: {clock.IsNudgeDisabled}");
             }
 
             _log.LogDebug($"HIGHLIGHT--UserID {CurrentSession.UserId}");
-
             _log.LogInformation("InitializeSession ->");
             return true;
         }
@@ -554,11 +554,6 @@ namespace Timekeeper.Client.Model
         protected void RunClock(Clock activeClock)
         {
             _log.LogInformation($"-> {nameof(RunClock)}");
-
-            activeClock.CurrentBackgroundColor = activeClock.Message.RunningColor;
-            Status = $"Clock {activeClock.Message.Label} is running";
-            RaiseUpdateEvent();
-
             _log.LogDebug($"ClockId: {activeClock.Message.ClockId}");
             _log.LogDebug($"CurrentBackgroundColor: {activeClock.CurrentBackgroundColor}");
             _log.LogDebug($"Label: {activeClock.Message.Label}");
@@ -571,7 +566,6 @@ namespace Timekeeper.Client.Model
             }
 
             activeClock.IsClockRunning = true;
-
             Task.Run(async () =>
             {
                 do
@@ -593,12 +587,17 @@ namespace Timekeeper.Client.Model
                             {
                                 _log.LogTrace("Countdown finished");
                                 clock.IsClockRunning = false;
+                                clock.IsNudgeDisabled = true;
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
+                                RaiseUpdateEvent();
+                                await RestoreClock(clock);
                                 continue;
                             }
+
+                            clock.CurrentBackgroundColor = clock.Message.RunningColor;
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
                             {
@@ -659,6 +658,19 @@ namespace Timekeeper.Client.Model
 
             StopLocalClock(clockId);
             CurrentSession.Clocks.Remove(clock);
+        }
+
+        protected async Task RestoreClock(Clock clock)
+        {
+            // Get saved clock and restore
+            var savedSession = await Session.GetFromStorage(_log);
+            var clockInSavedSession = savedSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
+
+            if (clockInSavedSession != null)
+            {
+                clock.Restore(clockInSavedSession);
+            }
         }
 
         protected virtual void StopLocalClock(string clockId)

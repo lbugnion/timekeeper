@@ -18,6 +18,12 @@ namespace Timekeeper.Client.Model
 
         public event EventHandler CountdownFinished;
 
+        public bool IsNudgeDisabled
+        {
+            get;
+            internal set;
+        }
+
         public bool IsStartDisabled
         {
             get;
@@ -119,6 +125,11 @@ namespace Timekeeper.Client.Model
         public void RaiseCountdownFinished()
         {
             CountdownFinished?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Restore(Clock clockInSavedSession)
+        {
+            Message = clockInSavedSession.Message;
         }
     }
 }
