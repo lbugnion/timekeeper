@@ -67,14 +67,14 @@ else
 
     public async Task CallFunction()
     {
-        Log.LogTrace("HIGHLIGHT--Calling function");
+        Log.LogTrace("Calling function");
 
         var response = await Http.GetAsync("/api/test");
 
         var result = await response.Content.ReadAsStringAsync();
 
         Log.LogDebug(result);
-        Log.LogTrace("HIGHLIGHT--Done calling function");
+        Log.LogTrace("Done calling function");
     }
 
     public void LogIn()

@@ -365,7 +365,7 @@ namespace Timekeeper.Client.Model
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
             }
 
-            _log.LogDebug($"HIGHLIGHT--UserID {CurrentSession.UserId}");
+            _log.LogDebug($"UserID {CurrentSession.UserId}");
 
             _log.LogInformation("InitializeSession ->");
             return true;
