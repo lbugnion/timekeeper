@@ -78,6 +78,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
         {
             Today = new Days(Log);
 
+#if !DEBUG
             var authState = await AuthenticationStateTask;
 
             if (!authState.User.Identity.IsAuthenticated)
@@ -85,6 +86,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
                 Log.LogWarning("Unauthenticated");
                 return;
             }
+#endif
 
             IsEditingSessionName = false;
             SessionName = "Loading...";
