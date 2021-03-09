@@ -81,7 +81,10 @@ namespace Timekeeper.Client.Pages.HelloWorld
 #if !DEBUG
             var authState = await AuthenticationStateTask;
 
-            if (!authState.User.Identity.IsAuthenticated)
+            if (authState == null
+                || authState.User == null
+                || authState.User.Identity == null
+                || !authState.User.Identity.IsAuthenticated)
             {
                 Log.LogWarning("Unauthenticated");
                 return;
