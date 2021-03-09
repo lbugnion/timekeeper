@@ -1,4 +1,4 @@
-name: TEST Deploy client and secured API to static web Test
+name: TEST Deploy client and secured API to static web
 
 on:
   push:
