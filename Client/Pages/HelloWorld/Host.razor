@@ -21,6 +21,12 @@
 </header>
 
 <main>
+    <div class="start-all-clocks-area">
+        <button @onclick="(e => Handler.StartAllClocks(true))">
+            Start all clocks
+        </button>
+    </div>
+
     <article>
         <h1 class="@Today.ForegroundClass">Hello World Backstage</h1>
 
@@ -31,46 +37,47 @@
                 </blockquote>
             </NotAuthorized>
             <Authorized>*@
-                @if (Program.IsExperimental)
+        @if (Program.IsExperimental)
+        {
+            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+        }
+
+        @if (Handler.CurrentSession != null)
+        {
+            <ul id="listofclocks">
+
+                @foreach (var clock in Handler.CurrentSession.Clocks)
                 {
-                    <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
-                }
+                    <li style="background-color: @clock.CurrentBackgroundColor">
+                        <div class="clock-area">
+                            <div class="nudge-buttons-area">
+                                <button class="nudge-button"
+                                        title="Nudge up 30 seconds"
+                                        disabled="@clock.IsNudgeDisabled"
+                                        @onclick="(e => Handler.Nudge(clock, 30))">
+                                    +30
+                                </button>
+                                <button class="nudge-button"
+                                        title="Nudge up 10 seconds"
+                                        disabled="@clock.IsNudgeDisabled"
+                                        @onclick="(e => Handler.Nudge(clock, 10))">
+                                    +10
+                                </button>
+                                <button class="nudge-button"
+                                        title="Nudge down 10 seconds"
+                                        disabled="@clock.IsNudgeDisabled"
+                                        @onclick="(e => Handler.Nudge(clock, -10))">
+                                    -10
+                                </button>
+                                <button class="nudge-button"
+                                        title="Nudge down 30 seconds"
+                                        disabled="@clock.IsNudgeDisabled"
+                                        @onclick="(e => Handler.Nudge(clock, -30))">
+                                    -30
+                                </button>
+                            </div>
 
-                @if (Handler.CurrentSession != null)
-                {
-                    <ul id="listofclocks">
-
-                    @foreach (var clock in Handler.CurrentSession.Clocks)
-                    {
-                        <li style="background-color: @clock.CurrentBackgroundColor">
-                            <div class="clock-area">
-                                <div class="nudge-buttons-area">
-                                    <button class="nudge-button"
-                                            title="Nudge up 30 seconds"
-                                            disabled="@clock.IsNudgeDisabled"
-                                            @onclick="(e => Handler.Nudge(clock, 30))">
-                                        +30
-                                    </button>
-                                    <button class="nudge-button"
-                                            title="Nudge up 10 seconds"
-                                            disabled="@clock.IsNudgeDisabled"
-                                            @onclick="(e => Handler.Nudge(clock, 10))">
-                                        +10
-                                    </button>
-                                    <button class="nudge-button"
-                                            title="Nudge down 10 seconds"
-                                            disabled="@clock.IsNudgeDisabled"
-                                            @onclick="(e => Handler.Nudge(clock, -10))">
-                                        -10
-                                    </button>
-                                    <button class="nudge-button"
-                                            title="Nudge down 30 seconds"
-                                            disabled="@clock.IsNudgeDisabled"
-                                            @onclick="(e => Handler.Nudge(clock, -30))">
-                                        -30
-                                    </button>
-                                </div>
-
+                            <div class="clock-display-controls-area">
                                 <div class="clock-display-area">
                                     <div class="clock-label">@clock.Message.Label</div>
                                     <div class="clock-text">@clock.ClockDisplay</div>
@@ -95,103 +102,98 @@
                                     }
                                 </div>
                             </div>
-                        </li>
-                    }
-
-                    </ul>
+                        </div>
+                    </li>
                 }
 
-                <div class="message-area">
-                    <p><span class="message-text">@Handler.CurrentMessage</span></p>
-                </div>
+            </ul>
+        }
 
-                <div class="controls-area">
+        <div class="message-area">
+            <p><span class="message-text">@Handler.CurrentMessage</span></p>
+        </div>
 
-                    <div class="send-message-area">
-                        <div class="form-label">Message to Guests, Click Ctrl-Enter to send</div>
-                        <div class="form-label">Use *<span style='color:red'>stars</span>* for red</div>
+        <div class="controls-area">
 
-                        <textarea @bind="@Handler.InputMessage"
-                                  id="@SendMessageInputId"
-                                  @bind:event="oninput"
-                                  @onkeypress="@HandleKeyPress"
-                                  @onfocus="@HandleFocus"
-                                  class="input-text" />
+            <div class="send-message-area">
+                <div class="form-label">Message to Guests, Click Ctrl-Enter to send</div>
+                <div class="form-label">Use *<span style='color:red'>stars</span>* for red</div>
 
-                        <br />
+                <textarea @bind="@Handler.InputMessage"
+                          id="@SendMessageInputId"
+                          @bind:event="oninput"
+                          @onkeypress="@HandleKeyPress"
+                          @onfocus="@HandleFocus"
+                          class="input-text" />
 
-                        <button disabled="@Handler.IsSendMessageDisabled"
-                                @onclick="@Handler.SendMessage"
-                                id="send-message-button">
-                            Send Message
-                        </button>
-                    </div>
-                </div>
+                <br />
 
-                <div class="controls-area">
-                    <button @onclick="(e => Handler.StartAllClocks(true))">
-                        Start all clocks
-                    </button>
-                </div>
+                <button disabled="@Handler.IsSendMessageDisabled"
+                        @onclick="@Handler.SendMessage"
+                        id="send-message-button">
+                    Send Message
+                </button>
+            </div>
+        </div>
 
-                <h2>Session</h2>
+        <h2 class="@Today.ForegroundClass">Session</h2>
 
-                @if (Handler.CurrentSession != null
-                   && !Handler.IsInError)
+        @if (Handler.CurrentSession != null
+          && !Handler.IsInError)
+        {
+            <div class="session-information-area">
+                <h3>Send this link to your guests so they can connect to the session:</h3>
+
+                <p><a href="@GuestUrl">@GuestUrl</a></p>
+            </div>
+
+            <div class="session-information-area">
+                <h3>Connected guests</h3>
+
+                @if (Handler.ConnectedGuests.Count == 0)
                 {
-                    <div class="session-information-area">
-                        <h3>Send this link to your guests so they can connect to the session:</h3>
-
-                        <p><a href="@GuestUrl">@GuestUrl</a></p>
-                    </div>
-
-                    <div class="session-information-area">
-                        <h3>Connected guests</h3>
-
-                        @if (Handler.ConnectedGuests.Count == 0)
-                        {
-                            <p>There are no connected guests at the moment.</p>
-                        }
-                        else
-                        {
-                            <p>
-                                There are @Handler.ConnectedGuests.Count connected guest(s).
-                            </p>
-                        }
-                    </div>
+                    <p>There are no connected guests at the moment.</p>
                 }
-
-                @if (Handler.IsDeleteSessionWarningVisible)
+                else
                 {
-                    <blockquote class="warning">
-                        <strong>Deleting the session is irreversible. Are you sure?</strong>
-                        <br /><br />
-                        If you delete the session and create a new one, all your guests will
-                        need to reconnect.
-                        <br /><br />
-                        <button @onclick="@Handler.DoDeleteSession"
-                                class="small-button">
-                            Yes
-                        </button>
-                        <button @onclick="@Handler.CancelDeleteSession"
-                                class="small-button">
-                            No
-                        </button>
-                    </blockquote>
+                    <p>
+                        There are @Handler.ConnectedGuests.Count connected guest(s).
+                    </p>
                 }
+            </div>
+        }
 
-                <div class="controls-area last-controls-area">
-                    <button disabled="@Handler.IsDeleteSessionDisabled"
-                            @onclick="@Handler.DeleteSession">
-                        Delete the session
-                    </button>
-                    <button disabled="@Handler.IsCreateNewSessionDisabled"
-                            @onclick="@CreateNewSession">
-                        Create a new session
-                    </button>
-                </div>
-            @*</Authorized>
-        </AuthorizeView>*@
+        @if (Handler.IsDeleteSessionWarningVisible)
+        {
+            <blockquote class="warning">
+                <strong>Deleting the session is irreversible. Are you sure?</strong>
+                <br /><br />
+                If you delete the session and create a new one, all your guests will
+                need to reconnect.
+                <br /><br />
+                <button @onclick="@Handler.DoDeleteSession"
+                        class="small-button">
+                    Yes
+                </button>
+                <button @onclick="@Handler.CancelDeleteSession"
+                        class="small-button">
+                    No
+                </button>
+            </blockquote>
+        }
+
+        <div class="controls-area last-controls-area">
+            <button disabled="@Handler.IsDeleteSessionDisabled"
+                    @onclick="@Handler.DeleteSession">
+                Delete the session
+            </button>
+            <button disabled="@Handler.IsCreateNewSessionDisabled"
+                    @onclick="@CreateNewSession">
+                Create a new session
+            </button>
+        </div>
+        @*</Authorized>
+            </AuthorizeView>*@
     </article>
 </main>
 
