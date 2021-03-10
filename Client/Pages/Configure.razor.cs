@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
 using Microsoft.AspNetCore.Components;
-using Timekeeper.Client.Model.HelloWorld;
 
 namespace Timekeeper.Client.Pages
 {

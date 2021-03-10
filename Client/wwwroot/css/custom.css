@@ -242,20 +242,3 @@ li.validation-message {
     margin-right: 20px;
     margin-top: -1.1em
 }
-
-/* Just for Hello World */
-
-.hello-world-warning {
-    background-color: #8120BA;
-    color: white;
-}
-
-.hello-world-warning a {
-    color: white;
-    text-decoration: underline;
-}
-
-.hello-world-warning a:visited {
-    color: white;
-    text-decoration: underline;
-}

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
-using Timekeeper.Client.Model.HelloWorld;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;

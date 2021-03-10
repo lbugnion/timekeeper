@@ -3,7 +3,7 @@
 
 @{
     var providers = new Dictionary<string, string>
-    {
+{
         { "github", "GitHub" },
         { "twitter", "Twitter" }
     };
@@ -12,7 +12,7 @@
 }
 
 <header>
-    <img src="@today.ImagePath"
+    <img src="images/ABitofAI-logo.png"
          class="logo-image" />
 </header>
 
@@ -24,7 +24,7 @@
             @foreach (var provider in providers)
             {
                 <li>
-                    <a href="/.auth/login/@provider.Key?post_login_redirect_uri=/helloworld-backstage/host">
+                    <a href="/.auth/login/@provider.Key?post_login_redirect_uri=/host/host">
                         Sign in with @provider.Value
                     </a>
                 </li>

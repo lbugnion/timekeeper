@@ -4,7 +4,6 @@ using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
-using Timekeeper.Client.Model.HelloWorld;
 
 namespace Timekeeper.Client.Pages
 {
