@@ -20,19 +20,85 @@ footer {
     height: 100%;
 }
 
-.clock-area {
-    margin-top: 10px;
-    height: 135px;
-    padding: 10px;
+/* Clocks */
+
+#listofclocks {
+    list-style-type: none;
+    margin: 0px;
 }
 
-.clock-area-guest {
-    height: 110px;
-    padding: 5px;
+    #listofclocks li {
+        display: inline-block;
+        /*background-color: #EEEEEE;*/
+        margin: 0px;
+        margin-bottom: -500px;
+    }
+
+.clock-area {
+    width: 400px;
+    height: 135px;
+}
+
+.clock-controls-area {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+    .clock-controls-area button {
+        width: 80px;
+    }
+
+.nudge-buttons-area {
+    margin-top: 5px;
+    margin-left: 5px;
+    width: 50px;
+}
+
+.nudge-button {
+    width: 50px;
+    height: 30px;
+    margin-bottom: 3px;
+}
+
+.clock-display-area {
+    position: relative;
+    left: 60px;
+    top: -135px;
+}
+
+.clock-label {
+    font-size: 1.5em;
+    line-height: 1em;
+    height: 1.18em;
+    overflow: hidden;
+    width: 320px;
+    margin-left: 5px;
 }
 
 .clock-text {
     font-size: 5em;
+    margin-top: 20px;
+    margin-left: 8px;
+}
+
+.clock-area .clock-controls-area {
+    position: relative;
+    top: -102px;
+    left: 70px;
+}
+
+.clock-area-guest {
+    /*    height: 110px;
+    padding: 5px;
+*/
+}
+
+.controls-area {
+    margin-top: 10px;
+}
+
+.last-controls-area {
+    margin-bottom: 10px;
 }
 
 .message-text {
@@ -57,14 +123,6 @@ footer {
     font-weight: bold;
 }
 
-.controls-area {
-    margin-top: 10px;
-}
-
-.last-controls-area{
-    margin-bottom: 10px;
-}
-
 .send-message-area {
 }
 
@@ -73,10 +131,10 @@ button {
     width: 200px;
 }
 
-button.small-button {
-    margin: 0 10px 0 0;
-    width: 80px;
-}
+    button.small-button {
+        margin: 0 10px 0 0;
+        width: 80px;
+    }
 
 .input-text {
     width: 300px;
@@ -93,10 +151,10 @@ blockquote {
     padding: 10px;
 }
 
-blockquote.warning {
-    background-color: bisque;
-    padding: 10px;
-}
+    blockquote.warning {
+        background-color: bisque;
+        padding: 10px;
+    }
 
 article ul, blockquote {
     max-width: 480px;
@@ -106,10 +164,10 @@ article ul, blockquote {
     margin-top: 10px;
 }
 
-.session-information-area h3 {
-    margin-bottom: 5px;
-    font-weight: bold;
-}
+    .session-information-area h3 {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
 
 .edit-link {
     margin-top: -15px;
@@ -188,52 +246,16 @@ li.validation-message {
     max-width: 300px;
 }
 
-.edit-area p {
-    margin-top: 4px;
-    margin-bottom: 5px;
-}
+    .edit-area p {
+        margin-top: 4px;
+        margin-bottom: 5px;
+    }
 
 .connected-guests {
     float: right;
     top: 20px;
     font-size: 2em;
     color: cornflowerblue;
-}
-
-.clock-controls-area {
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.clock-controls-area button {
-    width: 80px;
-}
-
-.clock-label {
-    font-size: 1.5em;
-}
-
-.nudge-buttons-area {
-    width: 50px;
-    margin-top: 3px;
-}
-
-.nudge-button {
-    width: 50px;
-    height: 30px;
-    margin-bottom: 3px;
-}
-
-.clock-display-area {
-    position: relative;
-    left: 60px;
-    top: -130px;
-}
-
-.clock-area .clock-controls-area {
-    position: relative;
-    top: -135px;
-    left: 60px;
 }
 
 .about-link {
@@ -249,12 +271,15 @@ li.validation-message {
     color: white;
 }
 
-.hello-world-warning a {
-    color: white;
-    text-decoration: underline;
-}
+    .hello-world-warning a {
+        color: white;
+        text-decoration: underline;
+    }
 
-.hello-world-warning a:visited {
-    color: white;
-    text-decoration: underline;
-}
+        .hello-world-warning a:visited {
+            color: white;
+            text-decoration: underline;
+        }
+
+
+
