@@ -199,7 +199,7 @@ namespace Timekeeper.Client.Pages.HelloWorld
 
         public async void HandleKeyPress(KeyboardEventArgs args)
         {
-            if (args.Key == "Enter")
+            if (args.CtrlKey)
             {
                 await Handler.SendMessage();
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);

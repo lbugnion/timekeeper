@@ -95,14 +95,17 @@
                 <div class="controls-area">
 
                     <div class="send-message-area">
-                        <div class="form-label">Message to Guests, Click Enter to send</div>
+                        <div class="form-label">Message to Guests, Click Ctrl-Enter to send</div>
+                        <div class="form-label">Use *<span style='color:red'>stars</span>* for red</div>
 
-                        <input @bind-value="@Handler.InputMessage"
-                               class="input-text"
-                               id="@SendMessageInputId"
-                               @bind-value:event="oninput"
-                               @onkeypress="@HandleKeyPress"
-                               @onfocus="@HandleFocus"/>
+                        <textarea @bind="@Handler.InputMessage"
+                                  id="@SendMessageInputId"
+                                  @bind:event="oninput"
+                                  @onkeypress="@HandleKeyPress"
+                                  @onfocus="@HandleFocus"
+                                  class="input-text" />
+
+                        <br />
 
                         <button disabled="@Handler.IsSendMessageDisabled"
                                 @onclick="@Handler.SendMessage"

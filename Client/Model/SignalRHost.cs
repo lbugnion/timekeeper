@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -180,7 +181,7 @@ namespace Timekeeper.Client.Model
                     IsSendMessageDisabled = false;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
-                    CurrentMessage = "Ready";
+                    CurrentMessage = new MarkupString("Ready");
                 }
                 else
                 {
@@ -200,7 +201,7 @@ namespace Timekeeper.Client.Model
                     IsSendMessageDisabled = true;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
-                    CurrentMessage = "Error";
+                    CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
                 }
             }
             else
@@ -221,14 +222,14 @@ namespace Timekeeper.Client.Model
                 IsSendMessageDisabled = true;
                 IsDeleteSessionDisabled = false;
                 IsCreateNewSessionDisabled = true;
-                CurrentMessage = "Error";
+                CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
             }
 
             IsBusy = false;
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
-        public async Task ReceiveGuestMessage(string json)
+        public void ReceiveGuestMessage(string json)
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
@@ -359,8 +360,35 @@ namespace Timekeeper.Client.Model
 
             try
             {
-                CurrentMessage = InputMessage;
-                var content = new StringContent(InputMessage);
+                var htmlMessage = InputMessage
+                    .Replace("\n", "<br />");
+
+                var opening = true;
+                int index = -1;
+
+                do
+                {
+                    index = htmlMessage.IndexOf("*");
+
+                    if (index > -1)
+                    {
+                        htmlMessage = htmlMessage.Substring(0, index)
+                            + (opening ? "<span style='color: red'>" : "</span>")
+                            + htmlMessage.Substring(index + 1);
+
+                        opening = !opening;
+                    }
+                } while (index >= 0);
+
+                if (index > 0
+                    && !opening)
+                {
+                    htmlMessage += "</span>";
+                }
+
+                CurrentMessage = new MarkupString(htmlMessage);
+
+                var content = new StringContent(htmlMessage);
 
                 var sendMessageUrl = $"{_hostName}/send";
                 _log.LogDebug($"sendMessageUrl: {sendMessageUrl}");
@@ -468,7 +496,7 @@ namespace Timekeeper.Client.Model
             }
             catch
             {
-                CurrentMessage = "Unable to communicate with clients";
+                CurrentMessage = new MarkupString("<span style='color: red'>Unable to communicate with clients</span>");
                 IsDeleteSessionDisabled = false;
             }
         }

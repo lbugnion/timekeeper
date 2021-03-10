@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -138,7 +139,7 @@ namespace Timekeeper.Client.Model
                 if (ok)
                 {
                     IsConnected = true;
-                    CurrentMessage = "Ready";
+                    CurrentMessage = new MarkupString("Ready");
 
                     _log.LogTrace($"Name is {GuestInfo.Message.DisplayName}");
 
@@ -151,20 +152,20 @@ namespace Timekeeper.Client.Model
                         if (!ok)
                         {
                             IsConnected = false;
-                            CurrentMessage = "Error";
+                            CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
                         }
                     }
                 }
                 else
                 {
                     IsConnected = false;
-                    CurrentMessage = "Error";
+                    CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
                 }
             }
             else
             {
                 IsConnected = false;
-                CurrentMessage = "Error";
+                CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
             }
 
             IsBusy = false;

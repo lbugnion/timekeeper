@@ -80,9 +80,8 @@ button.small-button {
 
 .input-text {
     width: 300px;
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    margin-right: 10px;
+    height: 200px;
+    font-size: 1.2em;
 }
 
 #send-message-button {
@@ -99,7 +98,7 @@ blockquote.warning {
     padding: 10px;
 }
 
-article p, article ul, blockquote {
+article ul, blockquote {
     max-width: 480px;
 }
 
