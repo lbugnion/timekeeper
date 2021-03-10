@@ -1,10 +1,16 @@
 ﻿@page "/about"
 @inject ILogger<Index> Log
 @inject IConfiguration Config
+@inject IJSRuntime JSRuntime
+
+<header>
+    <img src="images/ABitofAI-logo.png"
+         class="logo-image" />
+</header>
 
 <main>
     <article>
-        <h1>Timekeeper: About</h1>
+        <h1>Hello World Backstage Channel: About</h1>
 
         <blockquote>
             Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
@@ -17,5 +23,5 @@
 </main>
 
 <footer>
-    <div class="status-message">Version: @ClientVersion @Environment</div>
+    Version: @ClientVersion @Environment
 </footer>

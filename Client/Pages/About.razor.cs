@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Reflection;
+using System.Threading.Tasks;
+using Timekeeper.Client.Model.HelloWorld;
 
 namespace Timekeeper.Client.Pages
 {
