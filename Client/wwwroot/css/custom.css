@@ -86,9 +86,14 @@ footer {
 }
 
 .clock-area-guest {
-    height: 110px;
+    height: 90px;
+    width: 320px;
     padding: 5px;
+    margin-bottom: 20px;
+}
 
+.clock-area-guest .clock-text {
+    margin-top: 25px;
 }
 
 .start-all-clocks-area {
