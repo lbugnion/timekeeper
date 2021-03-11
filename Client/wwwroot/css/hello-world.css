@@ -9,6 +9,7 @@ main {
 
 .logo-image {
     width: 300px;
+    max-width: 50%;
 }
 
 .connected-guests {
