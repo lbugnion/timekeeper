@@ -20,6 +20,32 @@ footer {
     height: 100%;
 }
 
+button {
+    margin-right: 10px;
+    width: 200px;
+}
+
+    button.small-button {
+        margin: 0 10px 0 0;
+        width: 80px;
+    }
+
+.input-text {
+    width: 300px;
+    height: 200px;
+    font-size: 1.2em;
+}
+
+a:link, a:visited {
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: purple;
+    text-decoration: underline;
+}
+
 /* Clocks */
 
 #listofclocks {
@@ -97,14 +123,24 @@ footer {
 
 .start-all-clocks-area {
     float: right;
-    margin-top: -90px;
+    margin-top: -70px;
 }
 
     .start-all-clocks-area button {
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 60px;
         font-size: 1.3em;
     }
+
+/* Messages and controls */
+
+.send-message-area {
+}
+
+
+#send-message-button {
+    font-size: 1.5em;
+}
 
 .message-area {
     margin-top: 100px;
@@ -136,31 +172,6 @@ footer {
     font-weight: bold;
 }
 
-/* Configuration */
-
-.send-message-area {
-}
-
-button {
-    margin-right: 10px;
-    width: 200px;
-}
-
-    button.small-button {
-        margin: 0 10px 0 0;
-        width: 80px;
-    }
-
-.input-text {
-    width: 300px;
-    height: 200px;
-    font-size: 1.2em;
-}
-
-#send-message-button {
-    font-size: 1.5em;
-}
-
 blockquote {
     background-color: aliceblue;
     padding: 10px;
@@ -181,20 +192,17 @@ blockquote {
         font-weight: bold;
     }
 
-.edit-link {
-    margin-top: -15px;
-    margin-left: 5px;
-    font-size: 1em;
+.connected-guests {
+    float: right;
+    top: 20px;
+    font-size: 2em;
+    color: cornflowerblue;
 }
 
-a:link, a:visited {
-    color: blue;
-    text-decoration: none;
-}
-
-a:hover {
-    color: purple;
-    text-decoration: underline;
+.about-link {
+    float: right;
+    margin-right: 20px;
+    margin-top: -1.1em
 }
 
 /* Configuration */
@@ -205,6 +213,12 @@ a:hover {
     color: darkblue;
     width: 430px;
     margin-bottom: 20px;
+}
+
+.edit-link {
+    margin-top: -15px;
+    margin-left: 5px;
+    font-size: 1em;
 }
 
 .config-time {
@@ -263,19 +277,6 @@ li.validation-message {
         margin-bottom: 5px;
     }
 
-.connected-guests {
-    float: right;
-    top: 20px;
-    font-size: 2em;
-    color: cornflowerblue;
-}
-
-.about-link {
-    float: right;
-    margin-right: 20px;
-    margin-top: -1.1em
-}
-
 /* Just for Hello World */
 
 .hello-world-warning {
@@ -292,6 +293,3 @@ li.validation-message {
             color: white;
             text-decoration: underline;
         }
-
-
-
