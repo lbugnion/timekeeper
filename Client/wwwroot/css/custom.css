@@ -1,4 +1,7 @@
-﻿html, body {
+﻿/* DO NOT MODIFY THIS FILE */
+/* To customize branding in a branch, use the branch.css file */
+
+html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -11,8 +14,21 @@ article {
     padding: 10px 15px 10px 15px;
 }
 
+header {
+    height: 80px;
+    padding: 10px 20px;
+}
+
+.logo-image {
+    max-width: 50%;
+}
+
 footer {
     background-color: cornflowerblue;
+}
+
+main {
+    padding: 100px 0 1.5em 0; /* Header + padding / Footer height */
 }
 
 .background {
@@ -198,6 +214,15 @@ blockquote {
 
 .connected-guests {
     float: right;
+    margin-right: 40px;
+    top: 0px;
+    font-size: 2em;
+    color: white;
+}
+
+
+.connected-guests {
+    float: right;
     top: 20px;
     font-size: 2em;
     color: cornflowerblue;
@@ -280,20 +305,3 @@ li.validation-message {
         margin-top: 4px;
         margin-bottom: 5px;
     }
-
-/* Just for Hello World */
-
-.hello-world-warning {
-    background-color: #8120BA;
-    color: white;
-}
-
-    .hello-world-warning a {
-        color: white;
-        text-decoration: underline;
-    }
-
-        .hello-world-warning a:visited {
-            color: white;
-            text-decoration: underline;
-        }

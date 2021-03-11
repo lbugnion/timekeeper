@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 
-namespace Timekeeper.Client.Model.HelloWorld
+namespace Timekeeper.Client.Model
 {
     public class Days
     {
@@ -40,7 +40,7 @@ namespace Timekeeper.Client.Model.HelloWorld
                 .ToString("ddd", System.Globalization.CultureInfo.InvariantCulture)
                 .ToLower();
 
-            ImagePath = $"/images/hello-world/hello-world-logo-{currentDay}.png";
+            ImagePath = $"/images/hello-world-logo-{currentDay}.png";
 
             BackgroundClass = $"background-day-{currentDay}";
             ForegroundClass = $"foreground-day-{currentDay}";
@@ -58,7 +58,7 @@ namespace Timekeeper.Client.Model.HelloWorld
             set
             {
                 _weekDay = value;
-                ImagePath = $"~/images/hello-world/hello-world-logo-{_weekDay}.png";
+                ImagePath = $"~/images/hello-world-logo-{_weekDay}.png";
             }
         }
     }

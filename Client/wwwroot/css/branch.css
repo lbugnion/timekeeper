@@ -1,22 +1,8 @@
-﻿header {
-    height: 80px;
-    padding: 10px 20px;
-}
-
-main {
-    padding: 100px 0 1.5em 0; /* Header and Footer height */
-}
-
-.logo-image {
+﻿.logo-image {
     width: 300px;
-    max-width: 50%;
 }
 
 .connected-guests {
-    float: right;
-    margin-right: 40px;
-    top: 0px;
-    font-size: 2em;
     color: white;
 }
 

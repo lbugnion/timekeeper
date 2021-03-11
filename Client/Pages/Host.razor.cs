@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +9,6 @@ using Timekeeper.Client.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 
 namespace Timekeeper.Client.Pages
 {
@@ -19,6 +18,17 @@ namespace Timekeeper.Client.Pages
 
         [Parameter]
         public string ResetSession
+        {
+            get;
+            set;
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+        }
+
+        public Days Today
         {
             get;
             set;
@@ -46,7 +56,7 @@ namespace Timekeeper.Client.Pages
         {
             get
             {
-                return $"{Nav.BaseUri}{Handler.CurrentSession.SessionId}";
+                return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
             }
         }
 
@@ -56,14 +66,29 @@ namespace Timekeeper.Client.Pages
         }
 
         [CascadingParameter]
-        private Task<AuthenticationState> AuthenticationStateTask
-        {
-            get;
-            set;
+        private Task<AuthenticationState> AuthenticationStateTask 
+        { 
+            get; 
+            set; 
         }
 
         protected override async Task OnInitializedAsync()
         {
+            Today = new Days(Log);
+
+#if !DEBUG
+            var authState = await AuthenticationStateTask;
+
+            if (authState == null
+                || authState.User == null
+                || authState.User.Identity == null
+                || !authState.User.Identity.IsAuthenticated)
+            {
+                Log.LogWarning("Unauthenticated");
+                return;
+            }
+#endif
+
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
@@ -76,7 +101,7 @@ namespace Timekeeper.Client.Pages
                 Http);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect(forceDeleteSession: ResetSession == "reset");
+            await Handler.Connect("HelloWorldClocksTemplate", ResetSession == "reset");
             SessionName = Handler.CurrentSession.SessionName;
         }
 
@@ -172,7 +197,7 @@ namespace Timekeeper.Client.Pages
 
         public async void HandleKeyPress(KeyboardEventArgs args)
         {
-            if (args.Key == "Enter")
+            if (args.CtrlKey)
             {
                 await Handler.SendMessage();
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);

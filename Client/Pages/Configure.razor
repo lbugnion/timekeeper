@@ -1,16 +1,24 @@
 ﻿@page "/configure"
 @inject ILocalStorageService LocalStorage
 @inject ILogger<Configure> Log
+@inject IJSRuntime JSRuntime
 @inject NavigationManager Nav
+
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
+         class="logo-image" />
+</header>
 
 <main>
     <article>
-        <h1>Configure</h1>
+        <h1 class="@Today.ForegroundClass">@Branding.ConfigurePageTitle</h1>
 
         @if (CurrentClockMessage != null)
         {
             <EditForm EditContext="@CurrentEditContext">
                 <DataAnnotationsValidator />
+
+                <blockquote class="warning"><strong>NOTE:</strong> Make sure to click outside of the text field after you edit it. There is a bug which might result in the Host page being blank when you go back. <strong>If this happens, simply refresh the Host page.</strong></blockquote>
 
                 <div class="edit-area">
                     <p class="form-label">Label</p>
@@ -84,6 +92,5 @@
     </article>
 </main>
 
-<footer>
-    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
+<footer class="@Today.FooterClass">
 </footer>

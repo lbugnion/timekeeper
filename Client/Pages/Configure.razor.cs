@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,17 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Configure
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", Branding.WindowTitle);
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         public StartClockMessage CurrentClockMessage
         {
             get;
@@ -38,6 +50,8 @@ namespace Timekeeper.Client.Pages
                 Nav.NavigateTo("/");
                 return;
             }
+
+            Today = new Days(Log);
 
             CurrentSession = Program.ClockToConfigure.CurrentSession;
             CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;

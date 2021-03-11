@@ -1,11 +1,25 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Reflection;
+using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class About
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         public string ClientVersion
         {
             get;
@@ -24,6 +38,8 @@ namespace Timekeeper.Client.Pages
 
             try
             {
+                Today = new Days(Log);
+
                 var version = Assembly
                     .GetExecutingAssembly()
                     .GetName()

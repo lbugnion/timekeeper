@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
@@ -8,6 +9,17 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Guest : IDisposable
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         [Parameter]
         public string Session
         {
@@ -68,6 +80,8 @@ namespace Timekeeper.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
+
+            Today = new Days(Log);
 
             IsEditingGuestName = false;
             GuestName = "Loading...";
