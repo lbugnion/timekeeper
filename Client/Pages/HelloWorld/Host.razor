@@ -30,13 +30,13 @@
     <article>
         <h1 class="@Today.ForegroundClass">Hello World Backstage</h1>
 
-        @*<AuthorizeView>
+        <AuthorizeView>
             <NotAuthorized>
                 <blockquote class="warning">
                     Please <a href="/helloworld-backstage/login">log in to use this page</a>.
                 </blockquote>
             </NotAuthorized>
-            <Authorized>*@
+            <Authorized>
         @if (Program.IsExperimental)
         {
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
@@ -192,8 +192,8 @@
                 Create a new session
             </button>
         </div>
-        @*</Authorized>
-            </AuthorizeView>*@
+        </Authorized>
+    </AuthorizeView>
     </article>
 </main>
 
