@@ -21,14 +21,18 @@
 </header>
 
 <main>
+    <AuthorizeView>
+        <Authorized>
+            <div class="start-all-clocks-area">
+                <button @onclick="(e => Handler.StartAllClocks(true))">
+                    Start all clocks
+                </button>
+            </div>
+        </Authorized>
+    </AuthorizeView>
+
     <article>
         <h1 class="@Today.ForegroundClass">Hello World Backstage</h1>
-
-        <div class="start-all-clocks-area">
-            <button @onclick="(e => Handler.StartAllClocks(true))">
-                Start all clocks
-            </button>
-        </div>
 
         <AuthorizeView>
             <NotAuthorized>
@@ -139,7 +143,7 @@
                 <h2 class="@Today.ForegroundClass">Session</h2>
 
                 @if (Handler.CurrentSession != null
-                 && !Handler.IsInError)
+                && !Handler.IsInError)
                 {
                     <div class="session-information-area">
                         <h3>Send this link to your guests so they can connect to the session:</h3>

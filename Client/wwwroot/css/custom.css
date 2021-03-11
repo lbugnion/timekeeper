@@ -123,13 +123,17 @@ a:hover {
 
 .start-all-clocks-area {
     float: right;
-    margin-top: -70px;
+    margin-top: -45px;
+    margin-right: -5px;
 }
 
     .start-all-clocks-area button {
-        width: 100px;
-        height: 60px;
-        font-size: 1.3em;
+        width: 130px;
+        height: 40px;
+        font-size: 1em;
+        font-weight: bold;
+        background-color: red;
+        color: white;
     }
 
 /* Messages and controls */
