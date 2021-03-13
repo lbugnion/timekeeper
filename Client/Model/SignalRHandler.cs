@@ -614,7 +614,9 @@ namespace Timekeeper.Client.Model
                     }
 
                     RaiseUpdateEvent();
-                    await Task.Delay(1000);
+
+                    var delay = 1000 - DateTime.Now.Millisecond;
+                    await Task.Delay(delay);
                 }
                 while (IsAnyClockRunning);
             });
