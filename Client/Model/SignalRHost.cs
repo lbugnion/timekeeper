@@ -414,30 +414,54 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(SendMessage)} ->");
         }
 
-        public async Task StartAllClocks(bool startFresh)
+        public async Task StartClock(Clock clock, bool startFresh, bool localOnly)
         {
-            foreach (var clock in CurrentSession.Clocks)
-            {
-                await StartClock(clock, startFresh, false);
-            }
+            await StartClocks(new List<Clock>
+                {
+                    clock
+                },
+                startFresh,
+                localOnly);
         }
 
-        public async Task StartClock(
-            Clock clock, 
+        public async Task StartAllClocks(bool startFresh)
+        {
+            await StartClocks(CurrentSession.Clocks, startFresh, false);
+        }
+
+        public async Task StartClocks(
+            IList<Clock> clocks, 
             bool startFresh,
             bool localOnly)
         {
             if (startFresh)
             {
-                if (clock == null
-                    || clock.IsClockRunning)
+                var activeClocks = clocks
+                    .Where(c => c.IsClockRunning)
+                    .ToList();
+
+                foreach (var activeClock in activeClocks)
+                {
+                    clocks.Remove(activeClock);
+                }
+
+                if (clocks.Count == 0)
                 {
                     return;
                 }
             }
             else
             {
-                if (!clock.IsClockRunning)
+                var inactiveClocks = clocks
+                    .Where(c => !c.IsClockRunning)
+                    .ToList();
+
+                foreach (var inactiveClock in inactiveClocks)
+                {
+                    clocks.Remove(inactiveClock);
+                }
+
+                if (clocks.Count == 0)
                 {
                     return;
                 }
@@ -445,13 +469,17 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("-> SignalRHost.StartClock");
 
-            clock.IsStartDisabled = true;
-            clock.IsStopDisabled = false;
-            clock.IsConfigDisabled = true;
-            clock.IsDeleteDisabled = true;
-            clock.IsNudgeDisabled = false;
-            clock.CountdownFinished -= ClockCountdownFinished;
-            clock.CountdownFinished += ClockCountdownFinished;
+            foreach (var clock in clocks)
+            {
+                clock.IsStartDisabled = true;
+                clock.IsStopDisabled = false;
+                clock.IsConfigDisabled = true;
+                clock.IsDeleteDisabled = true;
+                clock.IsNudgeDisabled = false;
+                clock.CountdownFinished -= ClockCountdownFinished;
+                clock.CountdownFinished += ClockCountdownFinished;
+            }
+
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
 
@@ -459,13 +487,19 @@ namespace Timekeeper.Client.Model
             {
                 if (startFresh)
                 {
-                    clock.Reset();
+                    foreach (var clock in clocks)
+                    {
+                        clock.Reset();
+                    }
 
                     // Save so that we can restart the clock if the page is reloaded
                     await CurrentSession.Save(_log);
                 }
 
-                var json = JsonConvert.SerializeObject(clock.Message);
+                var json = JsonConvert.SerializeObject(clocks
+                    .Select(c => c.Message)
+                    .ToList());
+
                 var content = new StringContent(json);
 
                 _log.LogDebug($"json: {json}");
@@ -481,7 +515,10 @@ namespace Timekeeper.Client.Model
 
                 if (response.IsSuccessStatusCode)
                 {
-                    RunClock(clock);
+                    foreach (var clock in clocks)
+                    {
+                        RunClock(clock);
+                    }
 
                     foreach (var anyClock in CurrentSession.Clocks)
                     {
