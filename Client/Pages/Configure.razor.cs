@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
-using Microsoft.AspNetCore.Components;
 
 namespace Timekeeper.Client.Pages
 {

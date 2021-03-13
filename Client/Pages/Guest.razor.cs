@@ -77,29 +77,52 @@ namespace Timekeeper.Client.Pages
             StateHasChanged();
         }
 
+        public bool ShowNoSessionMessage
+        {
+            get;
+            private set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
 
             Today = new Days(Log);
 
-            IsEditingGuestName = false;
-            GuestName = "Loading...";
-            EditGuestNameLinkText = EditGuestNameText;
+            if (string.IsNullOrEmpty(Session))
+            {
+                ShowNoSessionMessage = true;
+            }
+            else
+            {
+                var success = Guid.TryParse(Session, out Guid guid);
 
-            Handler = new SignalRGuest(
-                Config,
-                LocalStorage,
-                Log,
-                Http,
-                Session);
+                if (!success
+                    || guid == Guid.Empty)
+                {
+                    ShowNoSessionMessage = true;
+                }
+                else
+                {
+                    IsEditingGuestName = false;
+                    GuestName = "Loading...";
+                    EditGuestNameLinkText = EditGuestNameText;
 
-            Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
+                    Handler = new SignalRGuest(
+                        Config,
+                        LocalStorage,
+                        Log,
+                        Http,
+                        Session);
 
-            GuestName = Handler.GuestInfo.Message.DisplayName;
+                    Handler.UpdateUi += HandlerUpdateUi;
+                    await Handler.Connect();
 
-            Log.LogDebug($"GuestName: {GuestName}");
+                    GuestName = Handler.GuestInfo.Message.DisplayName;
+                    Log.LogDebug($"GuestName: {GuestName}");
+                }
+            }
+
             Log.LogInformation("OnInitializedAsync ->");
         }
 

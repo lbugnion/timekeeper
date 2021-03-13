@@ -21,10 +21,8 @@ header {
 
 .logo-image {
     max-width: 50%;
-}
-
-footer {
-    background-color: cornflowerblue;
+    margin-top: -10px;
+    margin-left: -20px;
 }
 
 main {
@@ -139,8 +137,8 @@ a:hover {
 
 .start-all-clocks-area {
     float: right;
-    margin-top: -45px;
-    margin-right: -5px;
+    margin-top: -50px;
+    margin-right: -2px;
 }
 
     .start-all-clocks-area button {
@@ -148,8 +146,6 @@ a:hover {
         height: 40px;
         font-size: 1em;
         font-weight: bold;
-        background-color: red;
-        color: white;
     }
 
 /* Messages and controls */
@@ -214,18 +210,10 @@ blockquote {
 
 .connected-guests {
     float: right;
-    margin-right: 40px;
-    top: 0px;
+    margin-right: 30px;
+    margin-top: -5px;
     font-size: 2em;
     color: white;
-}
-
-
-.connected-guests {
-    float: right;
-    top: 20px;
-    font-size: 2em;
-    color: cornflowerblue;
 }
 
 .about-link {
@@ -247,6 +235,7 @@ blockquote {
 .edit-link {
     margin-top: -15px;
     margin-left: 5px;
+    margin-bottom: 15px;
     font-size: 1em;
 }
 

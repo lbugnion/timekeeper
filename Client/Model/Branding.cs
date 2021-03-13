@@ -20,5 +20,13 @@
         public const string AboutPageTitle = "Hello World Backstage: About";
         public const string MainPageTitle = "Hello World Backstage";
         public const string LoginPageTitle = "Hello World Backstage: Login";
+        public const bool CanEditSessionAndGuestName = false;
+        public const string TemplateName = "HelloWorldClocksTemplate";
+
+#if DEBUG
+        public const bool MustAuthorize = false;
+#else
+        public const bool MustAuthorize = true;
+#endif
     }
 }

@@ -1,9 +1,15 @@
 ﻿.logo-image {
     width: 300px;
+    margin: 0 0 0 -5px;
 }
 
 .connected-guests {
     color: white;
+}
+
+.start-all-clocks-area button {
+    color: white;
+    background-color: red;
 }
 
 /* Hello world colors of the day */
@@ -56,6 +62,14 @@
     color: #1A3B1F;
 }
 
+.foreground-day-sat {
+    color: #333333;
+}
+
+.foreground-day-sun {
+    color: #333333;
+}
+
 .footer-day-mon {
     background-color: #53E1FC;
 }
@@ -74,4 +88,16 @@
 
 .footer-day-fri {
     background-color: #92EE39;
+}
+
+.footer-day-fri {
+    background-color: #92EE39;
+}
+
+.footer-day-sat {
+    background-color: #CCCCCC;
+}
+
+.footer-day-sun {
+    background-color: #CCCCCC;
 }
