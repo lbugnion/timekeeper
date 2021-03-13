@@ -3,12 +3,18 @@
 @inject ILogger<Index> Log
 @inject IConfiguration Config
 @inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+
+<header>
+    <img src="images/logo.png"
+         class="logo-image" />
+</header>
 
 <main>
     <article>
-        <h1>Timekeeper</h1>
+        <h1>@Branding.MainPageTitle</h1>
 
-        <blockquote class="hello-world-warning">
+        @*<blockquote class="hello-world-warning">
             <a href="/helloworld-backstage"
                target="_blank">
                 <img src="/images/hello-world/hello-world-logo-tue.png"
@@ -18,7 +24,7 @@
             <br /><br />
             Are you looking for the <a href="/helloworld-backstage"
                                        target="_blank">Hello World Backstage Channel?</a>
-        </blockquote>
+        </blockquote>*@
 
         @if (Program.IsExperimental)
         {

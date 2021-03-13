@@ -1,16 +1,22 @@
 ﻿@page "/login"
+@inject ILogger<LoginProviders> Log
 
 @{
     var providers = new Dictionary<string, string>
-{
+    {
         { "github", "GitHub" },
         { "twitter", "Twitter" }
     };
 }
 
+<header>
+    <img src="images/logo.png"
+         class="logo-image" />
+</header>
+
 <main>
     <article>
-        <h1>Login</h1>
+        <h1>@Branding.LoginPageTitle</h1>
 
         <ul>
             @foreach (var provider in providers)

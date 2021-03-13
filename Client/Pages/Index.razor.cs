@@ -1,12 +1,20 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Reflection;
+using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Index
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+        }
+
         [Parameter]
         public string Session
         {

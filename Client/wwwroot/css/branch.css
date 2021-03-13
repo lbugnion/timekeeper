@@ -1,0 +1,23 @@
+﻿.logo-image {
+    width: 270px;
+}
+
+header {
+    background-color: #003084;
+}
+
+h1 {
+    color: #003084;
+}
+
+h2 {
+    color: #003084;
+}
+
+.connected-guests {
+    color: white;
+}
+
+.start-all-clocks-area button {
+    background-color: black;
+}

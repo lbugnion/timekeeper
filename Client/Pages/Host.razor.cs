@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,20 +8,21 @@ using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
-        public const string SendMessageInputId = "send-message-input";
-
         [Parameter]
         public string ResetSession
         {
             get;
             set;
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
         public bool IsEditingSessionName
@@ -42,28 +43,36 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public string GuestUrl
-        {
-            get
-            {
-                return $"{Nav.BaseUri}{Handler.CurrentSession.SessionId}";
-            }
-        }
-
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             StateHasChanged();
         }
 
         [CascadingParameter]
-        private Task<AuthenticationState> AuthenticationStateTask
-        {
-            get;
-            set;
+        private Task<AuthenticationState> AuthenticationStateTask 
+        { 
+            get; 
+            set; 
         }
 
         protected override async Task OnInitializedAsync()
         {
+#if !DEBUG
+            if (Branding.MustAuthorize)
+            {
+                var authState = await AuthenticationStateTask;
+
+                if (authState == null
+                    || authState.User == null
+                    || authState.User.Identity == null
+                    || !authState.User.Identity.IsAuthenticated)
+                {
+                    Log.LogWarning("Unauthenticated");
+                    return;
+                }
+            }
+#endif
+
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
@@ -76,7 +85,7 @@ namespace Timekeeper.Client.Pages
                 Http);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect(forceDeleteSession: ResetSession == "reset");
+            await Handler.Connect(Branding.TemplateName, ResetSession == "reset");
             SessionName = Handler.CurrentSession.SessionName;
         }
 
@@ -116,11 +125,6 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public void CreateNewSession()
-        {
-            Nav.NavigateTo("/host", forceLoad: true);
-        }
-
         public int AnonymousGuests
         {
             get
@@ -155,33 +159,6 @@ namespace Timekeeper.Client.Pages
         {
             IsGuestListExpanded = !IsGuestListExpanded;
             GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
-        }
-
-        public void ConfigureClock(Clock clock)
-        {
-            ConfigureClock(clock.Message.ClockId);
-        }
-
-        public void ConfigureClock(string clockId)
-        {
-            if (Handler.PrepareClockToConfigure(clockId))
-            {
-                Nav.NavigateTo("/configure");
-            }
-        }
-
-        public async void HandleKeyPress(KeyboardEventArgs args)
-        {
-            if (args.Key == "Enter")
-            {
-                await Handler.SendMessage();
-                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
-            }
-        }
-
-        public async void HandleFocus()
-        {
-            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
         }
     }
 }
