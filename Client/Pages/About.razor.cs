@@ -3,11 +3,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Reflection;
 using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class About
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
+        }
+
         public string ClientVersion
         {
             get;

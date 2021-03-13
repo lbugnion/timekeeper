@@ -1,4 +1,4 @@
-﻿@page "/guest"
+﻿@page "/guest" 
 @page "/guest/{Session}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
@@ -7,39 +7,80 @@
 @inject IJSRuntime JSRuntime
 
 <header>
-    <img src="images/ABitofAI-logo.png"
+    <img src="images/header-logo.png"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-
-        <h1>Welcome Backstage</h1>
-
-        @if (Program.IsExperimental)
+        @if (ShowNoSessionMessage)
         {
-            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+            <h1>@Branding.GuestPageTitle</h1>
+
+            <blockquote class="warning">
+                Please ask the Host to give you a link with a session ID.
+            </blockquote>
         }
-
-        @if (Handler.CurrentSession != null)
+        else
         {
-            @foreach (var clock in Handler.CurrentSession.Clocks)
+            @if (Branding.CanEditSessionAndGuestName)
             {
-                <div class="clock-area clock-area-guest" style="background-color: @clock.CurrentBackgroundColor">
-                    <div class="clock-label">@clock.Message.Label</div>
-                    <div class="clock-text">@clock.ClockDisplay</div>
-                </div>
+                @if (IsEditingGuestName)
+                {
+                    <input class="h1-edit-field" @bind-value="@GuestName" />
+                }
+                else
+                {
+                    <h1>@GuestName</h1>
+                }
+
+                @if (!Handler.IsBusy)
+                {
+                    <div class="edit-link"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
+                }
             }
+            else
+            {
+                <h1>@Branding.GuestPageTitle</h1>
+            }
+
+            @if (Program.IsExperimental)
+            {
+                <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+            }
+
+            @if (Handler.CurrentSession != null)
+            {
+                <ul id="listofclocks">
+                    @foreach (var clock in Handler.CurrentSession.Clocks)
+                    {
+                        <li style="background-color: @clock.CurrentBackgroundColor">
+                            <div class="clock-area clock-area-guest">
+                                <div class="clock-label">@clock.Message.Label</div>
+                                <div class="clock-text">@clock.ClockDisplay</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <div class="message-area">
+                <p><span class="message-text">@Handler.CurrentMessage</span></p>
+            </div>
         }
 
-        <div class="message-area">
-            <p><span class="message-text">@Handler.CurrentMessage</span></p>
-        </div>
     </article>
 </main>
 
 <footer>
-    <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+    @if (!ShowNoSessionMessage)
+    {
+        <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+    }
+    else
+    {
+        <div class="status-message"><span class="error-message">No session ID found</span></div>
+    }
 
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>

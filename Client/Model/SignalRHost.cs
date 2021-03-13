@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -180,7 +181,7 @@ namespace Timekeeper.Client.Model
                     IsSendMessageDisabled = false;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
-                    CurrentMessage = "Ready";
+                    CurrentMessage = new MarkupString("Ready");
                 }
                 else
                 {
@@ -200,7 +201,7 @@ namespace Timekeeper.Client.Model
                     IsSendMessageDisabled = true;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
-                    CurrentMessage = "Error";
+                    CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
                 }
             }
             else
@@ -221,14 +222,14 @@ namespace Timekeeper.Client.Model
                 IsSendMessageDisabled = true;
                 IsDeleteSessionDisabled = false;
                 IsCreateNewSessionDisabled = true;
-                CurrentMessage = "Error";
+                CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
             }
 
             IsBusy = false;
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
-        public async Task ReceiveGuestMessage(string json)
+        public void ReceiveGuestMessage(string json)
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
@@ -359,8 +360,35 @@ namespace Timekeeper.Client.Model
 
             try
             {
-                CurrentMessage = InputMessage;
-                var content = new StringContent(InputMessage);
+                var htmlMessage = InputMessage
+                    .Replace("\n", "<br />");
+
+                var opening = true;
+                int index = -1;
+
+                do
+                {
+                    index = htmlMessage.IndexOf("*");
+
+                    if (index > -1)
+                    {
+                        htmlMessage = htmlMessage.Substring(0, index)
+                            + (opening ? "<span style='color: red'>" : "</span>")
+                            + htmlMessage.Substring(index + 1);
+
+                        opening = !opening;
+                    }
+                } while (index >= 0);
+
+                if (index > 0
+                    && !opening)
+                {
+                    htmlMessage += "</span>";
+                }
+
+                CurrentMessage = new MarkupString(htmlMessage);
+
+                var content = new StringContent(htmlMessage);
 
                 var sendMessageUrl = $"{_hostName}/send";
                 _log.LogDebug($"sendMessageUrl: {sendMessageUrl}");
@@ -386,30 +414,54 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(SendMessage)} ->");
         }
 
-        public async Task StartAllClocks(bool startFresh)
+        public async Task StartClock(Clock clock, bool startFresh, bool localOnly)
         {
-            foreach (var clock in CurrentSession.Clocks)
-            {
-                await StartClock(clock, startFresh, false);
-            }
+            await StartClocks(new List<Clock>
+                {
+                    clock
+                },
+                startFresh,
+                localOnly);
         }
 
-        public async Task StartClock(
-            Clock clock, 
+        public async Task StartAllClocks(bool startFresh)
+        {
+            await StartClocks(CurrentSession.Clocks, startFresh, false);
+        }
+
+        public async Task StartClocks(
+            IList<Clock> clocks, 
             bool startFresh,
             bool localOnly)
         {
             if (startFresh)
             {
-                if (clock == null
-                    || clock.IsClockRunning)
+                var activeClocks = clocks
+                    .Where(c => c.IsClockRunning)
+                    .ToList();
+
+                foreach (var activeClock in activeClocks)
+                {
+                    clocks.Remove(activeClock);
+                }
+
+                if (clocks.Count == 0)
                 {
                     return;
                 }
             }
             else
             {
-                if (!clock.IsClockRunning)
+                var inactiveClocks = clocks
+                    .Where(c => !c.IsClockRunning)
+                    .ToList();
+
+                foreach (var inactiveClock in inactiveClocks)
+                {
+                    clocks.Remove(inactiveClock);
+                }
+
+                if (clocks.Count == 0)
                 {
                     return;
                 }
@@ -417,13 +469,17 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("-> SignalRHost.StartClock");
 
-            clock.IsStartDisabled = true;
-            clock.IsStopDisabled = false;
-            clock.IsConfigDisabled = true;
-            clock.IsDeleteDisabled = true;
-            clock.IsNudgeDisabled = false;
-            clock.CountdownFinished -= ClockCountdownFinished;
-            clock.CountdownFinished += ClockCountdownFinished;
+            foreach (var clock in clocks)
+            {
+                clock.IsStartDisabled = true;
+                clock.IsStopDisabled = false;
+                clock.IsConfigDisabled = true;
+                clock.IsDeleteDisabled = true;
+                clock.IsNudgeDisabled = false;
+                clock.CountdownFinished -= ClockCountdownFinished;
+                clock.CountdownFinished += ClockCountdownFinished;
+            }
+
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
 
@@ -431,13 +487,19 @@ namespace Timekeeper.Client.Model
             {
                 if (startFresh)
                 {
-                    clock.Reset();
+                    foreach (var clock in clocks)
+                    {
+                        clock.Reset();
+                    }
 
                     // Save so that we can restart the clock if the page is reloaded
                     await CurrentSession.Save(_log);
                 }
 
-                var json = JsonConvert.SerializeObject(clock.Message);
+                var json = JsonConvert.SerializeObject(clocks
+                    .Select(c => c.Message)
+                    .ToList());
+
                 var content = new StringContent(json);
 
                 _log.LogDebug($"json: {json}");
@@ -453,7 +515,10 @@ namespace Timekeeper.Client.Model
 
                 if (response.IsSuccessStatusCode)
                 {
-                    RunClock(clock);
+                    foreach (var clock in clocks)
+                    {
+                        RunClock(clock);
+                    }
 
                     foreach (var anyClock in CurrentSession.Clocks)
                     {
@@ -468,7 +533,7 @@ namespace Timekeeper.Client.Model
             }
             catch
             {
-                CurrentMessage = "Unable to communicate with clients";
+                CurrentMessage = new MarkupString("<span style='color: red'>Unable to communicate with clients</span>");
                 IsDeleteSessionDisabled = false;
             }
         }

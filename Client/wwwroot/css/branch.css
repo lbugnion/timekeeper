@@ -1,0 +1,29 @@
+﻿.logo-image {
+    width: 150px;
+    margin: 0;
+}
+
+header {
+    background-color: #68CBDA;
+}
+
+footer {
+    background-color: #68CBDA;
+}
+
+h1 {
+    color: #68CBDA;
+}
+
+h2 {
+    color: #68CBDA;
+}
+
+.connected-guests {
+    color: white;
+}
+
+.start-all-clocks-area button {
+    color: white;
+    background-color: dodgerblue;
+}

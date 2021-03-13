@@ -1,4 +1,7 @@
-﻿html, body {
+﻿/* DO NOT MODIFY THIS FILE */
+/* To customize branding in a branch, use the branch.css file */
+
+html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -11,8 +14,19 @@ article {
     padding: 10px 15px 10px 15px;
 }
 
-footer {
-    background-color: cornflowerblue;
+header {
+    height: 80px;
+    padding: 10px 20px;
+}
+
+.logo-image {
+    max-width: 50%;
+    margin-top: -10px;
+    margin-left: -20px;
+}
+
+main {
+    padding: 100px 0 1.5em 0; /* Header + padding / Footer height */
 }
 
 .background {
@@ -20,19 +34,133 @@ footer {
     height: 100%;
 }
 
-.clock-area {
-    margin-top: 10px;
-    height: 135px;
-    padding: 10px;
+button {
+    margin-right: 10px;
+    width: 200px;
 }
 
-.clock-area-guest {
-    height: 110px;
-    padding: 5px;
+    button.small-button {
+        margin: 0 10px 0 0;
+        width: 80px;
+    }
+
+.input-text {
+    width: 300px;
+    height: 200px;
+    font-size: 1.2em;
+}
+
+a:link, a:visited {
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: purple;
+    text-decoration: underline;
+}
+
+/* Clocks */
+
+#listofclocks {
+    list-style-type: none;
+    margin: 0px;
+    margin-bottom: -100px;
+}
+
+    #listofclocks li {
+        display: inline-block;
+        margin: 0 10px 10px 0;
+    }
+
+.clock-area {
+    width: 400px;
+    height: 135px;
+    position: relative;
+}
+
+.clock-display-controls-area {
+    position: absolute;
+    left: 60px;
+    top: 0px;
+}
+
+.clock-display-area {
+}
+
+.clock-controls-area {
+    margin-top: 38px;
+    margin-left: 10px;
+}
+
+    .clock-controls-area button {
+        width: 80px;
+    }
+
+.nudge-buttons-area {
+    margin-top: 5px;
+    margin-left: 5px;
+    width: 50px;
+}
+
+.nudge-button {
+    width: 50px;
+    height: 30px;
+    margin-bottom: 3px;
+}
+
+.clock-label {
+    font-size: 1.5em;
+    line-height: 1em;
+    height: 1.18em;
+    overflow: hidden;
+    width: 320px;
+    margin-left: 5px;
 }
 
 .clock-text {
     font-size: 5em;
+    margin-top: 20px;
+    margin-left: 8px;
+}
+
+.clock-area-guest {
+    height: 90px;
+    width: 320px;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+
+.clock-area-guest .clock-text {
+    margin-top: 25px;
+}
+
+.start-all-clocks-area {
+    float: right;
+    margin-top: -50px;
+    margin-right: -2px;
+}
+
+    .start-all-clocks-area button {
+        width: 130px;
+        height: 40px;
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+/* Messages and controls */
+
+.send-message-area {
+}
+
+
+#send-message-button {
+    font-size: 1.5em;
+}
+
+.message-area {
+    margin-top: 100px;
+    margin-bottom: 20px;
 }
 
 .message-text {
@@ -40,9 +168,12 @@ footer {
     line-height: 1em;
 }
 
-.message-area {
+.controls-area {
     margin-top: 10px;
-    margin-bottom: 20px;
+}
+
+.last-controls-area {
+    margin-bottom: 10px;
 }
 
 .status-message {
@@ -57,75 +188,38 @@ footer {
     font-weight: bold;
 }
 
-.controls-area {
-    margin-top: 10px;
-}
-
-.last-controls-area{
-    margin-bottom: 10px;
-}
-
-.send-message-area {
-}
-
-button {
-    margin-right: 10px;
-    width: 200px;
-}
-
-button.small-button {
-    margin: 0 10px 0 0;
-    width: 80px;
-}
-
-.input-text {
-    width: 300px;
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    margin-right: 10px;
-}
-
-#send-message-button {
-    font-size: 1.5em;
-}
-
 blockquote {
     background-color: aliceblue;
     padding: 10px;
-}
-
-blockquote.warning {
-    background-color: bisque;
-    padding: 10px;
-}
-
-article p, article ul, blockquote {
     max-width: 480px;
 }
+
+    blockquote.warning {
+        background-color: bisque;
+        padding: 10px;
+    }
 
 .session-information-area {
     margin-top: 10px;
 }
 
-.session-information-area h3 {
-    margin-bottom: 5px;
-    font-weight: bold;
+    .session-information-area h3 {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+.connected-guests {
+    float: right;
+    margin-right: 30px;
+    margin-top: -5px;
+    font-size: 2em;
+    color: white;
 }
 
-.edit-link {
-    margin-top: -15px;
-    margin-left: 5px;
-    font-size: 1em;
-}
-
-a:link, a:visited {
-    color: blue;
-    text-decoration: none;
-}
-
-a:hover {
-    color: purple;
-    text-decoration: underline;
+.about-link {
+    float: right;
+    margin-right: 20px;
+    margin-top: -1.1em
 }
 
 /* Configuration */
@@ -136,6 +230,13 @@ a:hover {
     color: darkblue;
     width: 430px;
     margin-bottom: 20px;
+}
+
+.edit-link {
+    margin-top: -15px;
+    margin-left: 5px;
+    margin-bottom: 15px;
+    font-size: 1em;
 }
 
 .config-time {
@@ -189,56 +290,7 @@ li.validation-message {
     max-width: 300px;
 }
 
-.edit-area p {
-    margin-top: 4px;
-    margin-bottom: 5px;
-}
-
-.connected-guests {
-    float: right;
-    top: 20px;
-    font-size: 2em;
-    color: cornflowerblue;
-}
-
-.clock-controls-area {
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-.clock-controls-area button {
-    width: 80px;
-}
-
-.clock-label {
-    font-size: 1.5em;
-}
-
-.nudge-buttons-area {
-    width: 50px;
-    margin-top: 3px;
-}
-
-.nudge-button {
-    width: 50px;
-    height: 30px;
-    margin-bottom: 3px;
-}
-
-.clock-display-area {
-    position: relative;
-    left: 60px;
-    top: -130px;
-}
-
-.clock-area .clock-controls-area {
-    position: relative;
-    top: -135px;
-    left: 60px;
-}
-
-.about-link {
-    float: right;
-    margin-right: 20px;
-    margin-top: -1.1em
-}
+    .edit-area p {
+        margin-top: 4px;
+        margin-bottom: 5px;
+    }

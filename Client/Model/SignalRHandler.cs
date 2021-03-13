@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,7 @@ namespace Timekeeper.Client.Model
         protected HttpClient _http;
         protected ILogger _log;
 
-        public string CurrentMessage
+        public MarkupString CurrentMessage
         {
             get;
             protected set;
@@ -116,7 +117,7 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http)
         {
-            CurrentMessage = "Welcome!";
+            CurrentMessage = new MarkupString("Welcome!");
             Status = "Please wait...";
 
             _config = config;
@@ -364,7 +365,7 @@ namespace Timekeeper.Client.Model
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
             }
 
-            _log.LogDebug($"HIGHLIGHT--UserID {CurrentSession.UserId}");
+            _log.LogDebug($"UserID {CurrentSession.UserId}");
 
             _log.LogInformation("InitializeSession ->");
             return true;
@@ -541,7 +542,7 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> DisplayMessage");
             _log.LogDebug(message);
 
-            CurrentMessage = message;
+            CurrentMessage = new MarkupString(message);
             RaiseUpdateEvent();
         }
 
@@ -613,7 +614,9 @@ namespace Timekeeper.Client.Model
                     }
 
                     RaiseUpdateEvent();
-                    await Task.Delay(1000);
+
+                    var delay = 1000 - DateTime.Now.Millisecond;
+                    await Task.Delay(delay);
                 }
                 while (IsAnyClockRunning);
             });

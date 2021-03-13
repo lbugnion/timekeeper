@@ -1,17 +1,20 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
-using Microsoft.AspNetCore.Components;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Configure
     {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", Branding.WindowTitle);
+        }
+
         public StartClockMessage CurrentClockMessage
         {
             get;

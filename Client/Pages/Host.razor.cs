@@ -8,14 +8,11 @@ using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
-        public const string SendMessageInputId = "send-message-input";
-
         [Parameter]
         public string ResetSession
         {
@@ -23,30 +20,15 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public bool IsEditingSessionName
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            get;
-            private set;
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
         public SignalRHost Handler
         {
             get;
             private set;
-        }
-
-        public string SessionName
-        {
-            get;
-            private set;
-        }
-
-        public string GuestUrl
-        {
-            get
-            {
-                return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
-            }
         }
 
         private void HandlerUpdateUi(object sender, EventArgs e)
@@ -64,22 +46,20 @@ namespace Timekeeper.Client.Pages
         protected override async Task OnInitializedAsync()
         {
 #if !DEBUG
-            var authState = await AuthenticationStateTask;
-
-            if (authState == null
-                || authState.User == null
-                || authState.User.Identity == null
-                || !authState.User.Identity.IsAuthenticated)
+            if (Branding.MustAuthorize)
             {
-                Log.LogWarning("Unauthenticated");
-                return;
+                var authState = await AuthenticationStateTask;
+
+                if (authState == null
+                    || authState.User == null
+                    || authState.User.Identity == null
+                    || !authState.User.Identity.IsAuthenticated)
+                {
+                    Log.LogWarning("Unauthenticated");
+                    return;
+                }
             }
 #endif
-
-            IsEditingSessionName = false;
-            SessionName = "Loading...";
-            EditSessionNameLinkText = EditSessionNameText;
-            GuestListLinkText = "show";
 
             Handler = new SignalRHost(
                 Config,
@@ -88,8 +68,14 @@ namespace Timekeeper.Client.Pages
                 Http);
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect("ClocksTemplate", ResetSession == "reset");
+            await Handler.Connect(Branding.TemplateName, ResetSession == "reset");
             SessionName = Handler.CurrentSession.SessionName;
+        }
+
+        public string SessionName
+        {
+            get;
+            private set;
         }
 
         public async void Dispose()
@@ -101,99 +87,6 @@ namespace Timekeeper.Client.Pages
                 Handler.UpdateUi -= HandlerUpdateUi;
                 await Handler.Disconnect();
             }
-        }
-
-        public async Task EditSessionName()
-        {
-            IsEditingSessionName = !IsEditingSessionName;
-
-            if (IsEditingSessionName)
-            {
-                EditSessionNameLinkText = SaveSessionNameText;
-            }
-            else
-            {
-                EditSessionNameLinkText = EditSessionNameText;
-                Handler.CurrentSession.SessionName = SessionName;
-                await Handler.CurrentSession.Save(Log);
-            }
-        }
-
-        private const string EditSessionNameText = "edit session name";
-        private const string SaveSessionNameText = "save session name";
-
-        public string EditSessionNameLinkText
-        {
-            get;
-            private set;
-        }
-
-        public void CreateNewSession()
-        {
-            Nav.NavigateTo("/host", forceLoad: true);
-        }
-
-        public int AnonymousGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests.Count(g => string.IsNullOrEmpty(g.CustomName));
-            }
-        }
-
-        public IList<GuestMessage> NamedGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests
-                    .Where(g => !string.IsNullOrEmpty(g.CustomName))
-                    .ToList();
-            }
-        }
-
-        public bool IsGuestListExpanded
-        {
-            get;
-            private set;
-        }
-
-        public string GuestListLinkText
-        {
-            get;
-            private set;
-        }
-
-        public void ToggleIsGuestListExpanded()
-        {
-            IsGuestListExpanded = !IsGuestListExpanded;
-            GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
-        }
-
-        public void ConfigureClock(Clock clock)
-        {
-            ConfigureClock(clock.Message.ClockId);
-        }
-
-        public void ConfigureClock(string clockId)
-        {
-            if (Handler.PrepareClockToConfigure(clockId))
-            {
-                Nav.NavigateTo("/configure");
-            }
-        }
-
-        public async void HandleKeyPress(KeyboardEventArgs args)
-        {
-            if (args.Key == "Enter")
-            {
-                await Handler.SendMessage();
-                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
-            }
-        }
-
-        public async void HandleFocus()
-        {
-            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
         }
     }
 }

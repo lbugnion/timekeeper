@@ -5,13 +5,13 @@
 @inject NavigationManager Nav
 
 <header>
-    <img src="images/ABitofAI-logo.png"
+    <img src="images/header-logo.png"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>Configure</h1>
+        <h1>@Branding.ConfigurePageTitle</h1>
 
         @if (CurrentClockMessage != null)
         {
@@ -93,4 +93,5 @@
 </main>
 
 <footer>
+    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>
