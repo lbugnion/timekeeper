@@ -9,34 +9,11 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Guest : IDisposable
     {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
-        }
-
-        public Days Today
-        {
-            get;
-            set;
-        }
-
-        [Parameter]
-        public string Session
-        {
-            get;
-            set;
-        }
-
         private const string EditGuestNameText = "edit your name";
+
         private const string SaveGuestNameText = "save your name";
 
         public string EditGuestNameLinkText
-        {
-            get;
-            private set;
-        }
-
-        public bool IsEditingGuestName
         {
             get;
             private set;
@@ -48,28 +25,35 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public async Task EditGuestName()
-        {
-            IsEditingGuestName = !IsEditingGuestName;
-
-            if (IsEditingGuestName)
-            {
-                EditGuestNameLinkText = SaveGuestNameText;
-            }
-            else
-            {
-                EditGuestNameLinkText = EditGuestNameText;
-                Handler.GuestInfo.Message.CustomName = GuestName;
-                GuestName = Handler.GuestInfo.Message.DisplayName;
-                await Handler.GuestInfo.Save();
-                await Handler.AnnounceName();
-            }
-        }
-
         public SignalRGuest Handler
         {
             get;
             private set;
+        }
+
+        public bool IsEditingGuestName
+        {
+            get;
+            private set;
+        }
+
+        [Parameter]
+        public string Session
+        {
+            get;
+            set;
+        }
+
+        public bool ShowNoSessionMessage
+        {
+            get;
+            private set;
+        }
+
+        public Days Today
+        {
+            get;
+            set;
         }
 
         private void HandlerUpdateUi(object sender, EventArgs e)
@@ -77,10 +61,9 @@ namespace Timekeeper.Client.Pages
             StateHasChanged();
         }
 
-        public bool ShowNoSessionMessage
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            get;
-            private set;
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
         protected override async Task OnInitializedAsync()
@@ -139,6 +122,24 @@ namespace Timekeeper.Client.Pages
             {
                 await Handler.Disconnect();
             });
+        }
+
+        public async Task EditGuestName()
+        {
+            IsEditingGuestName = !IsEditingGuestName;
+
+            if (IsEditingGuestName)
+            {
+                EditGuestNameLinkText = SaveGuestNameText;
+            }
+            else
+            {
+                EditGuestNameLinkText = EditGuestNameText;
+                Handler.GuestInfo.Message.CustomName = GuestName;
+                GuestName = Handler.GuestInfo.Message.DisplayName;
+                await Handler.GuestInfo.Save();
+                await Handler.AnnounceName();
+            }
         }
     }
 }

@@ -10,8 +10,17 @@ namespace Timekeeper.Client.Model
 {
     public class Session
     {
-        [Required]
-        public string SessionName
+        private static ILocalStorageService _localStorage;
+
+        public const string SessionStorageKey = "SessionStorageKey";
+
+        public IList<Clock> Clocks
+        {
+            get;
+            set;
+        }
+
+        public bool CreatedFromTemplate
         {
             get;
             set;
@@ -25,19 +34,14 @@ namespace Timekeeper.Client.Model
         }
 
         [Required]
+        public string SessionName
+        {
+            get;
+            set;
+        }
+
+        [Required]
         public string UserId
-        {
-            get;
-            set;
-        }
-
-        public IList<Clock> Clocks
-        {
-            get;
-            set;
-        }
-
-        public bool CreatedFromTemplate
         {
             get;
             set;
@@ -52,23 +56,10 @@ namespace Timekeeper.Client.Model
             Clocks = new List<Clock>();
         }
 
-        public const string SessionStorageKey = "SessionStorageKey";
-        private static ILocalStorageService _localStorage;
-
-        public async Task Save(ILogger log)
+        public static async Task DeleteFromStorage(ILogger log = null)
         {
-            log.LogTrace("CRITICAL--SAVING SESSION");
-
-            var json = JsonConvert.SerializeObject(this);
-
-            await _localStorage.SetItemAsync(
-                SessionStorageKey,
-                json);
-        }
-
-        public static void SetLocalStorage(ILocalStorageService localStorage)
-        {
-            _localStorage = localStorage;
+            log?.LogTrace("Deleting session from storage");
+            await _localStorage.RemoveItemAsync(SessionStorageKey);
         }
 
         public static async Task<Session> GetFromStorage(ILogger log)
@@ -108,10 +99,20 @@ namespace Timekeeper.Client.Model
             return null;
         }
 
-        public static async Task DeleteFromStorage(ILogger log = null)
+        public static void SetLocalStorage(ILocalStorageService localStorage)
         {
-            log?.LogTrace("Deleting session from storage");
-            await _localStorage.RemoveItemAsync(SessionStorageKey);
+            _localStorage = localStorage;
+        }
+
+        public async Task Save(ILogger log)
+        {
+            log.LogTrace("CRITICAL--SAVING SESSION");
+
+            var json = JsonConvert.SerializeObject(this);
+
+            await _localStorage.SetItemAsync(
+                SessionStorageKey,
+                json);
         }
     }
 }

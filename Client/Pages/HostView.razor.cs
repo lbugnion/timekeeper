@@ -11,15 +11,25 @@ namespace Timekeeper.Client.Pages
 {
     public partial class HostView
     {
+        private const string EditSessionNameText = "edit session name";
+        private const string SaveSessionNameText = "save session name";
         public const string SendMessageInputId = "send-message-input";
 
-        public Days Today
+        public int AnonymousGuests
         {
-            get;
-            set;
+            get
+            {
+                return Handler.ConnectedGuests.Count(g => string.IsNullOrEmpty(g.CustomName));
+            }
         }
 
-        public bool IsEditingSessionName
+        public string EditSessionNameLinkText
+        {
+            get;
+            private set;
+        }
+
+        public string GuestListLinkText
         {
             get;
             private set;
@@ -40,18 +50,48 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public async void HandleKeyPress(KeyboardEventArgs args)
+        public bool IsEditingSessionName
         {
-            if (args.CtrlKey)
+            get;
+            private set;
+        }
+
+        public bool IsGuestListExpanded
+        {
+            get;
+            private set;
+        }
+
+        public IList<GuestMessage> NamedGuests
+        {
+            get
             {
-                await Handler.SendMessage();
-                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+                return Handler.ConnectedGuests
+                    .Where(g => !string.IsNullOrEmpty(g.CustomName))
+                    .ToList();
             }
         }
 
-        public async void HandleFocus()
+        [Parameter]
+        public string SessionName
         {
-            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+            get;
+            set;
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
+        protected override void OnInitialized()
+        {
+            Today = new Days(Log);
+            IsEditingSessionName = false;
+            SessionName = "Loading...";
+            EditSessionNameLinkText = EditSessionNameText;
+            GuestListLinkText = "show";
         }
 
         public void ConfigureClock(Clock clock)
@@ -72,51 +112,6 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
-        protected override void OnInitialized()
-        {
-            Today = new Days(Log);
-            IsEditingSessionName = false;
-            SessionName = "Loading...";
-            EditSessionNameLinkText = EditSessionNameText;
-            GuestListLinkText = "show";
-        }
-
-        public int AnonymousGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests.Count(g => string.IsNullOrEmpty(g.CustomName));
-            }
-        }
-
-        public IList<GuestMessage> NamedGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests
-                    .Where(g => !string.IsNullOrEmpty(g.CustomName))
-                    .ToList();
-            }
-        }
-
-        public bool IsGuestListExpanded
-        {
-            get;
-            private set;
-        }
-
-        public string GuestListLinkText
-        {
-            get;
-            private set;
-        }
-
-        public void ToggleIsGuestListExpanded()
-        {
-            IsGuestListExpanded = !IsGuestListExpanded;
-            GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
-        }
-
         public async Task EditSessionName()
         {
             IsEditingSessionName = !IsEditingSessionName;
@@ -133,20 +128,24 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        private const string EditSessionNameText = "edit session name";
-        private const string SaveSessionNameText = "save session name";
-
-        public string EditSessionNameLinkText
+        public async void HandleFocus()
         {
-            get;
-            private set;
+            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
         }
 
-        [Parameter]
-        public string SessionName
+        public async void HandleKeyPress(KeyboardEventArgs args)
         {
-            get;
-            set;
+            if (args.CtrlKey)
+            {
+                await Handler.SendMessage();
+                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+            }
+        }
+
+        public void ToggleIsGuestListExpanded()
+        {
+            IsGuestListExpanded = !IsGuestListExpanded;
+            GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
         }
     }
 }

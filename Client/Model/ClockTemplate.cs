@@ -3,30 +3,21 @@ using System.Collections.Generic;
 
 namespace Timekeeper.Client.Model
 {
-    public class ClockTemplate
+    public class ClockDefinition
     {
         /// <summary>
-        /// Session name
+        /// Color
         /// </summary>
-        public string SN
+        public string C
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Session ID
+        /// Time
         /// </summary>
-        public string SessionId
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Clocks
-        /// </summary>
-        public IList<ClockForTemplate> CK
+        public TimeSpan T
         {
             get;
             set;
@@ -36,9 +27,9 @@ namespace Timekeeper.Client.Model
     public class ClockForTemplate
     {
         /// <summary>
-        /// Label
+        /// Almost done
         /// </summary>
-        public string L
+        public ClockDefinition A
         {
             get;
             set;
@@ -54,24 +45,6 @@ namespace Timekeeper.Client.Model
         }
 
         /// <summary>
-        /// Pay attention
-        /// </summary>
-        public ClockDefinition P
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Almost done
-        /// </summary>
-        public ClockDefinition A
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Default clock
         /// </summary>
         public bool D
@@ -79,23 +52,50 @@ namespace Timekeeper.Client.Model
             get;
             set;
         }
-    }
 
-    public class ClockDefinition
-    {
         /// <summary>
-        /// Time
+        /// Label
         /// </summary>
-        public TimeSpan T
+        public string L
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Color
+        /// Pay attention
         /// </summary>
-        public string C
+        public ClockDefinition P
+        {
+            get;
+            set;
+        }
+    }
+
+    public class ClockTemplate
+    {
+        /// <summary>
+        /// Clocks
+        /// </summary>
+        public IList<ClockForTemplate> CK
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Session ID
+        /// </summary>
+        public string SessionId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Session name
+        /// </summary>
+        public string SN
         {
             get;
             set;

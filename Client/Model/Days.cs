@@ -5,16 +5,16 @@ namespace Timekeeper.Client.Model
 {
     public class Days
     {
-        private string _weekDay;
         private ILogger _log;
+        private string _weekDay;
 
-        public string ImagePath
+        public string BackgroundClass
         {
             get;
             set;
         }
 
-        public string BackgroundClass
+        public string FooterClass
         {
             get;
             set;
@@ -26,10 +26,23 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        public string FooterClass
+        public string ImagePath
         {
             get;
             set;
+        }
+
+        public string WeekDay
+        {
+            get
+            {
+                return _weekDay;
+            }
+            set
+            {
+                _weekDay = value;
+                ImagePath = $"~/images/hello-world-logo-{_weekDay}.png";
+            }
         }
 
         public Days(ILogger log)
@@ -47,19 +60,6 @@ namespace Timekeeper.Client.Model
             FooterClass = $"footer-day-{currentDay}";
 
             _log.LogDebug(ImagePath);
-        }
-
-        public string WeekDay
-        {
-            get
-            {
-                return _weekDay;
-            }
-            set
-            {
-                _weekDay = value;
-                ImagePath = $"~/images/hello-world-logo-{_weekDay}.png";
-            }
         }
     }
 }

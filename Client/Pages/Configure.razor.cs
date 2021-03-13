@@ -3,31 +3,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Linq;
 using System.Threading.Tasks;
-using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
+using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class Configure
     {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("setTitle", Branding.WindowTitle);
-        }
-
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         public StartClockMessage CurrentClockMessage
-        {
-            get;
-            set;
-        }
-
-        public Session CurrentSession
         {
             get;
             set;
@@ -37,6 +20,34 @@ namespace Timekeeper.Client.Pages
         {
             get;
             private set;
+        }
+
+        public Session CurrentSession
+        {
+            get;
+            set;
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
+        private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
+        {
+            Log.LogInformation("-> CurrentEditContextOnValidationStateChanged");
+
+            if (CurrentEditContext.GetValidationMessages().Count() == 0)
+            {
+                Log.LogTrace("Saving");
+                await CurrentSession.Save(Log);
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", Branding.WindowTitle);
         }
 
         protected override void OnInitialized()
@@ -59,17 +70,6 @@ namespace Timekeeper.Client.Pages
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
             Log.LogInformation("OnInitialized ->");
-        }
-
-        private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
-        {
-            Log.LogInformation("-> CurrentEditContextOnValidationStateChanged");
-
-            if (CurrentEditContext.GetValidationMessages().Count() == 0)
-            {
-                Log.LogTrace("Saving");
-                await CurrentSession.Save(Log);
-            }
         }
     }
 }

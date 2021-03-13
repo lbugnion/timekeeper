@@ -9,17 +9,6 @@ namespace Timekeeper.Client.Pages
 {
     public partial class About
     {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
-        }
-
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         public string ClientVersion
         {
             get;
@@ -30,6 +19,17 @@ namespace Timekeeper.Client.Pages
         {
             get;
             private set;
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
         }
 
         protected override void OnInitialized()
