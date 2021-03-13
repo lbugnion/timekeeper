@@ -4,12 +4,6 @@ namespace Timekeeper.DataModel
 {
     public class GuestMessage
     {
-        public string GuestId
-        {
-            get;
-            set;
-        }
-
         public string CustomName
         {
             get;
@@ -28,6 +22,12 @@ namespace Timekeeper.DataModel
 
                 return CustomName;
             }
+        }
+
+        public string GuestId
+        {
+            get;
+            set;
         }
     }
 }

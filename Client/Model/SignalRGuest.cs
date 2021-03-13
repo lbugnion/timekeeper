@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -34,33 +33,6 @@ namespace Timekeeper.Client.Model
 
             _session = session;
             Guest.SetLocalStorage(localStorage, log);
-        }
-
-        public async Task<bool> InitializeGuestInfo()
-        {
-            _log.LogInformation("-> InitializeGuestInfo");
-
-            GuestInfo = await Guest.GetFromStorage();
-
-            if (GuestInfo == null)
-            {
-                _log.LogTrace("GuestInfo is null");
-                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
-                GuestInfo = new Guest(CurrentSession.UserId);
-                await GuestInfo.Save();
-            }
-
-            if (GuestInfo.Message.GuestId != CurrentSession.UserId)
-            {
-                _log.LogTrace($"Fixing GuestId");
-                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
-                GuestInfo.Message.GuestId = CurrentSession.UserId;
-                await GuestInfo.Save();
-            }
-
-            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
-            _log.LogInformation("InitializeGuestInfo ->");
-            return true;
         }
 
         private void ReceiveStartClock(string message)
@@ -130,6 +102,41 @@ namespace Timekeeper.Client.Model
             Status = "Received host message";
         }
 
+        public async Task<bool> AnnounceName()
+        {
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
+            _log.LogDebug($"UserId: {CurrentSession.UserId}");
+            _log.LogDebug($"GuestId: {GuestInfo.Message.GuestId}");
+
+            var json = JsonConvert.SerializeObject(GuestInfo.Message);
+            _log.LogDebug($"json: {json}");
+
+            var content = new StringContent(json);
+
+            var functionKey = _config.GetValue<string>(AnnounceGuestKeyKey);
+            _log.LogDebug($"functionKey: {functionKey}");
+
+            var announceUrl = $"{_hostNameFree}/announce";
+            _log.LogDebug($"announceUrl: {announceUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, announceUrl);
+            httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+            httpRequest.Content = content;
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _log.LogError($"Cannot send message: {response.ReasonPhrase}");
+                _log.LogInformation($"{nameof(AnnounceName)} ->");
+                return false;
+            }
+
+            _log.LogInformation($"{nameof(AnnounceName)} ->");
+            return true;
+        }
+
         public override async Task Connect(
             string templateName = null,
             bool forceDeleteSession = false)
@@ -187,38 +194,30 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRGuest.Connect ->");
         }
 
-        public async Task<bool> AnnounceName()
+        public async Task<bool> InitializeGuestInfo()
         {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"UserId: {CurrentSession.UserId}");
-            _log.LogDebug($"GuestId: {GuestInfo.Message.GuestId}");
+            _log.LogInformation("-> InitializeGuestInfo");
 
-            var json = JsonConvert.SerializeObject(GuestInfo.Message);
-            _log.LogDebug($"json: {json}");
+            GuestInfo = await Guest.GetFromStorage();
 
-            var content = new StringContent(json);
-
-            var functionKey = _config.GetValue<string>(AnnounceGuestKeyKey);
-            _log.LogDebug($"functionKey: {functionKey}");
-
-            var announceUrl = $"{_hostNameFree}/announce";
-            _log.LogDebug($"announceUrl: {announceUrl}");
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, announceUrl);
-            httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-            httpRequest.Content = content;
-
-            var response = await _http.SendAsync(httpRequest);
-
-            if (!response.IsSuccessStatusCode)
+            if (GuestInfo == null)
             {
-                _log.LogError($"Cannot send message: {response.ReasonPhrase}");
-                _log.LogInformation($"{nameof(AnnounceName)} ->");
-                return false;
+                _log.LogTrace("GuestInfo is null");
+                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
+                GuestInfo = new Guest(CurrentSession.UserId);
+                await GuestInfo.Save();
             }
 
-            _log.LogInformation($"{nameof(AnnounceName)} ->");
+            if (GuestInfo.Message.GuestId != CurrentSession.UserId)
+            {
+                _log.LogTrace($"Fixing GuestId");
+                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
+                GuestInfo.Message.GuestId = CurrentSession.UserId;
+                await GuestInfo.Save();
+            }
+
+            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
+            _log.LogInformation("InitializeGuestInfo ->");
             return true;
         }
     }

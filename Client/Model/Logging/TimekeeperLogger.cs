@@ -5,8 +5,8 @@ public class TimekeeperLogger : ILogger
 {
     private readonly TimekeeperLoggerConfiguration _config;
     private readonly string _name;
-    public const string HighlightCode = "HIGHLIGHT--";
     public const string CriticalCode = "CRITICAL--";
+    public const string HighlightCode = "HIGHLIGHT--";
 
     public TimekeeperLogger(string name, TimekeeperLoggerConfiguration config)
     {
