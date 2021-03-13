@@ -126,7 +126,7 @@
 <h2>Session</h2>
 
 @if (Handler.CurrentSession != null
-&& !Handler.IsInError)
+    && !Handler.IsInError)
 {
     <div class="session-information-area">
         <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -143,9 +143,7 @@
         }
         else
         {
-            <p>
-                There are @Handler.ConnectedGuests.Count connected guest(s).
-            </p>
+            <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
         }
     </div>
 }
