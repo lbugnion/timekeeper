@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -66,45 +67,59 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
-            StartClockMessage clockMessage;
+            IList<StartClockMessage> clockMessages;
 
             try
             {
-                clockMessage = JsonConvert.DeserializeObject<StartClockMessage>(message);
-                _log.LogDebug($"clockID: {clockMessage.ClockId}");
-                _log.LogDebug($"AlmostDoneColor: {clockMessage.AlmostDoneColor}");
-                _log.LogDebug($"PayAttentionColor: {clockMessage.PayAttentionColor}");
+                clockMessages = JsonConvert.DeserializeObject<IList<StartClockMessage>>(message);
             }
             catch
             {
-                _log.LogWarning("Not a clock");
+                _log.LogWarning("Not a list of clocks");
                 return;
             }
 
-            var existingClock = CurrentSession.Clocks
-                .FirstOrDefault(c => c.Message.ClockId == clockMessage.ClockId);
-
-            if (existingClock == null)
+            foreach (var clockMessage in clockMessages)
             {
-                _log.LogTrace($"No found clock, adding");
-                existingClock = new Clock(clockMessage);
-                CurrentSession.Clocks.Add(existingClock);
-            }
-            else
-            {
-                _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
-                existingClock.Message.Label = clockMessage.Label;
-                existingClock.Message.CountDown = clockMessage.CountDown;
-                existingClock.Message.AlmostDone = clockMessage.AlmostDone;
-                existingClock.Message.PayAttention = clockMessage.PayAttention;
-                existingClock.Message.AlmostDoneColor = clockMessage.AlmostDoneColor;
-                existingClock.Message.PayAttentionColor = clockMessage.PayAttentionColor;
-                existingClock.Message.RunningColor = clockMessage.RunningColor;
-                existingClock.Message.ServerTime = clockMessage.ServerTime;
+                _log.LogDebug($"clockID: {clockMessage.ClockId}");
+                _log.LogDebug($"AlmostDoneColor: {clockMessage.AlmostDoneColor}");
+                _log.LogDebug($"PayAttentionColor: {clockMessage.PayAttentionColor}");
+
+                var existingClock = CurrentSession.Clocks
+                    .FirstOrDefault(c => c.Message.ClockId == clockMessage.ClockId);
+
+                if (existingClock == null)
+                {
+                    _log.LogTrace($"No found clock, adding");
+                    existingClock = new Clock(clockMessage);
+                    CurrentSession.Clocks.Add(existingClock);
+                }
+                else
+                {
+                    _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
+                    existingClock.Message.Label = clockMessage.Label;
+                    existingClock.Message.CountDown = clockMessage.CountDown;
+                    existingClock.Message.AlmostDone = clockMessage.AlmostDone;
+                    existingClock.Message.PayAttention = clockMessage.PayAttention;
+                    existingClock.Message.AlmostDoneColor = clockMessage.AlmostDoneColor;
+                    existingClock.Message.PayAttentionColor = clockMessage.PayAttentionColor;
+                    existingClock.Message.RunningColor = clockMessage.RunningColor;
+                    existingClock.Message.ServerTime = clockMessage.ServerTime;
+                }
+
+                RunClock(existingClock);
+
+                if (clockMessages.Count == 1)
+                {
+                    Status = $"Clock {existingClock.Message.Label} started";
+                }
             }
 
-            RunClock(existingClock);
-            Status = $"Clock {existingClock.Message.Label} started";
+            if (clockMessages.Count != 1)
+            {
+                Status = $"{clockMessages.Count} clocks started";
+            }
+
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
