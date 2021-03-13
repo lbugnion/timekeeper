@@ -25,19 +25,7 @@ namespace Timekeeper.Client.Pages
             await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
-        public bool IsEditingSessionName
-        {
-            get;
-            private set;
-        }
-
         public SignalRHost Handler
-        {
-            get;
-            private set;
-        }
-
-        public string SessionName
         {
             get;
             private set;
@@ -73,11 +61,6 @@ namespace Timekeeper.Client.Pages
             }
 #endif
 
-            IsEditingSessionName = false;
-            SessionName = "Loading...";
-            EditSessionNameLinkText = EditSessionNameText;
-            GuestListLinkText = "show";
-
             Handler = new SignalRHost(
                 Config,
                 LocalStorage,
@@ -89,6 +72,12 @@ namespace Timekeeper.Client.Pages
             SessionName = Handler.CurrentSession.SessionName;
         }
 
+        public string SessionName
+        {
+            get;
+            private set;
+        }
+
         public async void Dispose()
         {
             Log.LogTrace("Dispose");
@@ -98,67 +87,6 @@ namespace Timekeeper.Client.Pages
                 Handler.UpdateUi -= HandlerUpdateUi;
                 await Handler.Disconnect();
             }
-        }
-
-        public async Task EditSessionName()
-        {
-            IsEditingSessionName = !IsEditingSessionName;
-
-            if (IsEditingSessionName)
-            {
-                EditSessionNameLinkText = SaveSessionNameText;
-            }
-            else
-            {
-                EditSessionNameLinkText = EditSessionNameText;
-                Handler.CurrentSession.SessionName = SessionName;
-                await Handler.CurrentSession.Save(Log);
-            }
-        }
-
-        private const string EditSessionNameText = "edit session name";
-        private const string SaveSessionNameText = "save session name";
-
-        public string EditSessionNameLinkText
-        {
-            get;
-            private set;
-        }
-
-        public int AnonymousGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests.Count(g => string.IsNullOrEmpty(g.CustomName));
-            }
-        }
-
-        public IList<GuestMessage> NamedGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests
-                    .Where(g => !string.IsNullOrEmpty(g.CustomName))
-                    .ToList();
-            }
-        }
-
-        public bool IsGuestListExpanded
-        {
-            get;
-            private set;
-        }
-
-        public string GuestListLinkText
-        {
-            get;
-            private set;
-        }
-
-        public void ToggleIsGuestListExpanded()
-        {
-            IsGuestListExpanded = !IsGuestListExpanded;
-            GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
         }
     }
 }

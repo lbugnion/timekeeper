@@ -71,27 +71,40 @@ namespace Timekeeper.Client.Pages
             StateHasChanged();
         }
 
+        public bool ShowNoSessionMessage
+        {
+            get;
+            private set;
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
 
-            IsEditingGuestName = false;
-            GuestName = "Loading...";
-            EditGuestNameLinkText = EditGuestNameText;
+            if (string.IsNullOrEmpty(Session))
+            {
+                ShowNoSessionMessage = true;
+            }
+            else
+            {
+                IsEditingGuestName = false;
+                GuestName = "Loading...";
+                EditGuestNameLinkText = EditGuestNameText;
 
-            Handler = new SignalRGuest(
-                Config,
-                LocalStorage,
-                Log,
-                Http,
-                Session);
+                Handler = new SignalRGuest(
+                    Config,
+                    LocalStorage,
+                    Log,
+                    Http,
+                    Session);
 
-            Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect();
+                Handler.UpdateUi += HandlerUpdateUi;
+                await Handler.Connect();
 
-            GuestName = Handler.GuestInfo.Message.DisplayName;
+                GuestName = Handler.GuestInfo.Message.DisplayName;
+                Log.LogDebug($"GuestName: {GuestName}");
+            }
 
-            Log.LogDebug($"GuestName: {GuestName}");
             Log.LogInformation("OnInitializedAsync ->");
         }
 

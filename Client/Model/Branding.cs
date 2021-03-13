@@ -14,13 +14,13 @@
     public class Branding
     {
         public const string WindowTitle = "Timekeeper";
-        public const string HostPageTitle = "Timekeeper";
-        public const string GuestPageTitle = "Welcome Backstage!";
-        public const string ConfigurePageTitle = "Hello World Backstage: Configure";
-        public const string AboutPageTitle = "Hello World Backstage: About";
-        public const string MainPageTitle = "Hello World Backstage";
-        public const string LoginPageTitle = "Hello World Backstage: Login";
-        public const bool MustAuthorize = false;
+        public const string HostPageTitle = "Timekeeper Host Page";
+        public const string GuestPageTitle = "Timekeeper Guest Page";
+        public const string ConfigurePageTitle = "Timekeeper: Configure";
+        public const string AboutPageTitle = "Timekeeper: About";
+        public const string MainPageTitle = "Timekeeper";
+        public const string LoginPageTitle = "Timekeeper: Login";
+        public const bool MustAuthorize = true;
         public const bool CanEditSessionAndGuestName = true;
         public const string TemplateName = null;
     }

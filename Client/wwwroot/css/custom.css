@@ -25,10 +25,6 @@ header {
     margin-left: -20px;
 }
 
-footer {
-    background-color: cornflowerblue;
-}
-
 main {
     padding: 100px 0 1.5em 0; /* Header + padding / Footer height */
 }
@@ -150,8 +146,6 @@ a:hover {
         height: 40px;
         font-size: 1em;
         font-weight: bold;
-        background-color: red;
-        color: white;
     }
 
 /* Messages and controls */
@@ -241,6 +235,7 @@ blockquote {
 .edit-link {
     margin-top: -15px;
     margin-left: 5px;
+    margin-bottom: 10px;
     font-size: 1em;
 }
 

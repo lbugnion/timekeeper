@@ -52,33 +52,6 @@
     }
 
     <article>
-        @if (Branding.CanEditSessionAndGuestName)
-        {
-            @if (IsEditingSessionName)
-            {
-                <input class="h1-edit-field" @bind-value="@SessionName" />
-            }
-            else
-            {
-                <h1>@SessionName</h1>
-            }
-
-            @if (!Handler.IsBusy)
-            {
-                <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
-            }
-        }
-        else
-        {
-            <h1>@Branding.HostPageTitle</h1>
-        }
-
-
-        @if (Program.IsExperimental)
-        {
-            <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
-        }
-
         @if (Branding.MustAuthorize)
         {
             <AuthorizeView>
@@ -88,13 +61,15 @@
                     </blockquote>
                 </NotAuthorized>
                 <Authorized>
-                    <HostView Handler="@Handler" />
+                    <HostView Handler="@Handler"
+                              SessionName="@SessionName" />
                 </Authorized>
             </AuthorizeView>
         }
         else
         {
-            <HostView Handler="@Handler" />
+            <HostView Handler="@Handler"
+                      SessionName="@SessionName" />
         }
 
     </article>

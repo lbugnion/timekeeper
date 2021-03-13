@@ -6,6 +6,10 @@ header {
     background-color: #003084;
 }
 
+footer {
+    background-color: #7FC9FF;
+}
+
 h1 {
     color: #003084;
 }
@@ -19,5 +23,6 @@ h2 {
 }
 
 .start-all-clocks-area button {
+    color: white;
     background-color: black;
 }
