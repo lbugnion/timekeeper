@@ -20,7 +20,7 @@
         public const string AboutPageTitle = "Timekeeper: About";
         public const string MainPageTitle = "Timekeeper";
         public const string LoginPageTitle = "Timekeeper: Login";
-        public const bool MustAuthorize = true;
+        public const bool MustAuthorize = false;
         public const bool CanEditSessionAndGuestName = true;
         public const string TemplateName = null;
     }

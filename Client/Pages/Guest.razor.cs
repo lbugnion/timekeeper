@@ -87,22 +87,32 @@ namespace Timekeeper.Client.Pages
             }
             else
             {
-                IsEditingGuestName = false;
-                GuestName = "Loading...";
-                EditGuestNameLinkText = EditGuestNameText;
+                var success = Guid.TryParse(Session, out Guid guid);
 
-                Handler = new SignalRGuest(
-                    Config,
-                    LocalStorage,
-                    Log,
-                    Http,
-                    Session);
+                if (!success
+                    || guid == Guid.Empty)
+                {
+                    ShowNoSessionMessage = true;
+                }
+                else
+                {
+                    IsEditingGuestName = false;
+                    GuestName = "Loading...";
+                    EditGuestNameLinkText = EditGuestNameText;
 
-                Handler.UpdateUi += HandlerUpdateUi;
-                await Handler.Connect();
+                    Handler = new SignalRGuest(
+                        Config,
+                        LocalStorage,
+                        Log,
+                        Http,
+                        Session);
 
-                GuestName = Handler.GuestInfo.Message.DisplayName;
-                Log.LogDebug($"GuestName: {GuestName}");
+                    Handler.UpdateUi += HandlerUpdateUi;
+                    await Handler.Connect();
+
+                    GuestName = Handler.GuestInfo.Message.DisplayName;
+                    Log.LogDebug($"GuestName: {GuestName}");
+                }
             }
 
             Log.LogInformation("OnInitializedAsync ->");
