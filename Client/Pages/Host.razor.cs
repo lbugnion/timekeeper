@@ -1,13 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Timekeeper.Client.Pages
 {
@@ -37,10 +34,10 @@ namespace Timekeeper.Client.Pages
         }
 
         [CascadingParameter]
-        private Task<AuthenticationState> AuthenticationStateTask 
-        { 
-            get; 
-            set; 
+        private Task<AuthenticationState> AuthenticationStateTask
+        {
+            get;
+            set;
         }
 
         protected override async Task OnInitializedAsync()

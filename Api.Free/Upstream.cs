@@ -1,33 +1,16 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using Timekeeper.DataModel;
-using Microsoft.AspNetCore.Components;
 
 namespace Timekeeper
 {
     public static class Upstream
     {
-        [FunctionName(nameof(ReceiveDisconnected))]
-        public static async Task<IActionResult> ReceiveDisconnected(
-            [SignalRTrigger(
-                hubName: Constants.HubName,
-                "connections",  
-                "disconnected")] 
-            InvocationContext invocationContext,
-            [SignalR(HubName = Constants.HubName)]
-            IAsyncCollector<SignalRMessage> queue,
-            ILogger log)
-        {
-            log.LogInformation($"-> {nameof(ReceiveDisconnected)}");
-            log.LogDebug($"UserId: {invocationContext.UserId}");
-            return await HandleEvent(invocationContext.Event, invocationContext.UserId, queue);
-        }
-
         private static async Task<IActionResult> HandleEvent(
-            string @event, 
+            string @event,
             string userId,
             IAsyncCollector<SignalRMessage> queue)
         {
@@ -63,6 +46,22 @@ namespace Timekeeper
                 hubName: Constants.HubName,
                 "connections",
                 "connected")]
+            InvocationContext invocationContext,
+            [SignalR(HubName = Constants.HubName)]
+            IAsyncCollector<SignalRMessage> queue,
+            ILogger log)
+        {
+            log.LogInformation($"-> {nameof(ReceiveDisconnected)}");
+            log.LogDebug($"UserId: {invocationContext.UserId}");
+            return await HandleEvent(invocationContext.Event, invocationContext.UserId, queue);
+        }
+
+        [FunctionName(nameof(ReceiveDisconnected))]
+        public static async Task<IActionResult> ReceiveDisconnected(
+            [SignalRTrigger(
+                hubName: Constants.HubName,
+                "connections",
+                "disconnected")]
             InvocationContext invocationContext,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,

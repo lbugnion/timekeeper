@@ -10,12 +10,19 @@ using System.Threading.Tasks;
 using Timekeeper.Client.Model;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.5.4.0")]
+[assembly: AssemblyVersion("0.5.4.1")]
 
 namespace Timekeeper.Client
 {
     public class Program
     {
+        // TODO Use dependency injection?
+        public static ConfigureClock ClockToConfigure
+        {
+            get;
+            internal set;
+        }
+
         public static bool IsExperimental
         {
             get
@@ -27,13 +34,6 @@ namespace Timekeeper.Client
 
                 return version.Build == 8888;
             }
-        }
-
-        // TODO Use dependency injection?
-        public static ConfigureClock ClockToConfigure
-        {
-            get;
-            internal set;
         }
 
         public static async Task Main(string[] args)

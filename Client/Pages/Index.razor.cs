@@ -10,18 +10,6 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Index
     {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
-        }
-
-        [Parameter]
-        public string Session
-        {
-            get;
-            set;
-        }
-
         public string ClientVersion
         {
             get;
@@ -32,6 +20,18 @@ namespace Timekeeper.Client.Pages
         {
             get;
             private set;
+        }
+
+        [Parameter]
+        public string Session
+        {
+            get;
+            set;
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
         protected override void OnInitialized()
