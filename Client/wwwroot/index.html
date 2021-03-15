@@ -17,6 +17,13 @@
 
     <script>
 
+        window.onunload = () => {
+
+            if (noSleep) {
+                noSleep.disable();
+            }
+        }
+
         window.branding = {
             setTitle: (title) => { document.title = title; },
         }
@@ -54,12 +61,10 @@
                 if (enable) {
                     noSleep = new NoSleep();
                     noSleep.enable();
-                    alert("NoSleep enabled");
                 }
                 else {
                     noSleep.disable();
                     noSleep = null;
-                    alert("NoSleep disabled");
                 }
             }
         }

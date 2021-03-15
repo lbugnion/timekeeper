@@ -122,12 +122,12 @@
             Send Message
         </button>
 
-        @if (IsMobile)
+        @if (Mobile.IsMobile)
         {
             <div class="no-sleep-area">
-                <button @onclick="@ToggleNoSleep"
+                <button @onclick="@Mobile.ToggleNoSleep"
                         id="send-message-button">
-                    @NoSleepButtonText
+                    @Mobile.NoSleepButtonText
                 </button>
             </div>
         }

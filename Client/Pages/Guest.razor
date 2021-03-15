@@ -68,10 +68,15 @@
                 <p><span class="message-text">@Handler.CurrentMessage</span></p>
             </div>
 
-            <div class="last-controls-area">
-                <button id="no-sleep-button"
-                        onclick="nosleep.toggleNoSleep" />
-            </div>
+            @if (Mobile.IsMobile)
+            {
+                <div class="no-sleep-area">
+                    <button @onclick="@Mobile.ToggleNoSleep"
+                            id="send-message-button">
+                        @Mobile.NoSleepButtonText
+                    </button>
+                </div>
+            }
         }
 
     </article>
