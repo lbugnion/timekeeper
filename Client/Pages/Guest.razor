@@ -68,7 +68,8 @@
                 <p><span class="message-text">@Handler.CurrentMessage</span></p>
             </div>
 
-            @if (Mobile.IsMobile)
+            @if (Mobile != null
+               && Mobile.IsMobile)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.ToggleNoSleep"
