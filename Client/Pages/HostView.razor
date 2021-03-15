@@ -1,6 +1,7 @@
 ﻿@inject IJSRuntime JSRuntime
 @inject NavigationManager Nav
 @inject ILogger<HostView> Log
+@inject IJSRuntime JSRuntime
 
 @if (Handler.CurrentSession != null)
 {
@@ -120,13 +121,24 @@
                 id="send-message-button">
             Send Message
         </button>
+
+        @if (IsMobile)
+        {
+            <div class="no-sleep-area">
+                <button @onclick="@ToggleNoSleep"
+                        id="send-message-button">
+                    @NoSleepButtonText
+                </button>
+            </div>
+        }
+
     </div>
 </div>
 
 <h2>Session</h2>
 
 @if (Handler.CurrentSession != null
-    && !Handler.IsInError)
+   && !Handler.IsInError)
 {
     <div class="session-information-area">
         <h3>Send this link to your guests so they can connect to the session:</h3>

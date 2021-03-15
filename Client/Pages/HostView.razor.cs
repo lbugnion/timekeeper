@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace Timekeeper.Client.Pages
         private const string EditSessionNameText = "edit session name";
         private const string SaveSessionNameText = "save session name";
         public const string SendMessageInputId = "send-message-input";
+        private const string KeepDeviceAwakeText = "Keep device awake";
+        private const string AllowDeviceToSleepText = "Allow device to sleep";
 
         public int AnonymousGuests
         {
@@ -79,12 +82,22 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        protected override void OnInitialized()
+        public bool IsMobile
+        {
+            get;
+            private set;
+        }
+
+        protected override async Task OnInitializedAsync()
         {
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
             GuestListLinkText = "show";
+
+            IsMobile = await JSRuntime.InvokeAsync<bool>("nosleep.isMobile");
+
+            NoSleepButtonText = KeepDeviceAwakeText;
         }
 
         public void ConfigureClock(Clock clock)
@@ -139,6 +152,30 @@ namespace Timekeeper.Client.Pages
         {
             IsGuestListExpanded = !IsGuestListExpanded;
             GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
+        }
+
+        private bool _isNoSleepActive;
+
+        public string NoSleepButtonText
+        {
+            get;
+            private set;
+        }
+
+        public void ToggleNoSleep(object sender)
+        {
+            if (_isNoSleepActive)
+            {
+                JSRuntime.InvokeVoidAsync("nosleep.enableDisableNoSleep", false);
+                _isNoSleepActive = false;
+                NoSleepButtonText = KeepDeviceAwakeText;
+            }
+            else
+            {
+                JSRuntime.InvokeVoidAsync("nosleep.enableDisableNoSleep", true);
+                _isNoSleepActive = true;
+                NoSleepButtonText = AllowDeviceToSleepText;
+            }
         }
     }
 }
