@@ -5,12 +5,9 @@ namespace Timekeeper.Client.Model
 {
     public class MobileHandler
     {
-        private const string KeepDeviceAwakeText = "Keep device awake";
-        private const string AllowDeviceToSleepText = "Allow device to sleep";
-
         private IJSRuntime _js;
 
-        public bool IsMobile
+        public bool IsNoSleepVisible
         {
             get;
             private set;
@@ -19,33 +16,14 @@ namespace Timekeeper.Client.Model
         public async Task<MobileHandler> Initialize(IJSRuntime js)
         {
             _js = js;
-            IsMobile = await _js.InvokeAsync<bool>("nosleep.isMobile");
-            NoSleepButtonText = KeepDeviceAwakeText;
+            IsNoSleepVisible = await _js.InvokeAsync<bool>("nosleep.isMobile");
             return this;
         }
 
-        private bool _isNoSleepActive;
-
-        public string NoSleepButtonText
+        public void EnableNoSleep()
         {
-            get;
-            private set;
-        }
-
-        public void ToggleNoSleep()
-        {
-            if (_isNoSleepActive)
-            {
-                _js.InvokeVoidAsync("nosleep.enableDisableNoSleep", false);
-                _isNoSleepActive = false;
-                NoSleepButtonText = KeepDeviceAwakeText;
-            }
-            else
-            {
-                _js.InvokeVoidAsync("nosleep.enableDisableNoSleep", true);
-                _isNoSleepActive = true;
-                NoSleepButtonText = AllowDeviceToSleepText;
-            }
+            _js.InvokeVoidAsync("nosleep.enableDisableNoSleep", true);
+            IsNoSleepVisible = false;
         }
     }
 }

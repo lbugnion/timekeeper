@@ -69,12 +69,12 @@
             </div>
 
             @if (Mobile != null
-               && Mobile.IsMobile)
+               && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
-                    <button @onclick="@Mobile.ToggleNoSleep"
+                    <button @onclick="@Mobile.EnableNoSleep"
                             id="send-message-button">
-                        @Mobile.NoSleepButtonText
+                        Keep device awake
                     </button>
                 </div>
             }
