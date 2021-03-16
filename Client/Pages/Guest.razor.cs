@@ -102,11 +102,20 @@ namespace Timekeeper.Client.Pages
                     await Handler.Connect();
 
                     GuestName = Handler.GuestInfo.Message.DisplayName;
+                    Mobile = await new MobileHandler().Initialize(JSRuntime);
+
                     Log.LogDebug($"GuestName: {GuestName}");
                 }
+
             }
 
             Log.LogInformation("OnInitializedAsync ->");
+        }
+
+        public MobileHandler Mobile
+        {
+            get;
+            private set;
         }
 
         public async void Dispose()
