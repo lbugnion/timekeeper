@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,13 +86,21 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        protected override void OnInitialized()
+        public MobileHandler Mobile
+        {
+            get;
+            private set;
+        }
+
+        protected override async Task OnInitializedAsync()
         {
             Today = new Days(Log);
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
             GuestListLinkText = "show";
+
+            Mobile = await new MobileHandler().Initialize(JSRuntime);
         }
 
         public void ConfigureClock(Clock clock)
