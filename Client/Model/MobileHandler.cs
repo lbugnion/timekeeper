@@ -20,6 +20,7 @@ namespace Timekeeper.Client.Model
         {
             _js = js;
             IsMobile = await _js.InvokeAsync<bool>("nosleep.isMobile");
+            NoSleepButtonText = KeepDeviceAwakeText;
             return this;
         }
 
