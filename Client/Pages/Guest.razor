@@ -67,6 +67,17 @@
             <div class="message-area">
                 <p><span class="message-text">@Handler.CurrentMessage</span></p>
             </div>
+
+            @if (Mobile != null
+               && Mobile.IsNoSleepVisible)
+            {
+                <div class="no-sleep-area">
+                    <button @onclick="@Mobile.EnableNoSleep"
+                            id="send-message-button">
+                        Keep device awake
+                    </button>
+                </div>
+            }
         }
 
     </article>
