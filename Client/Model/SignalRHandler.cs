@@ -472,8 +472,7 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task<bool> InitializeSession(
-                                                                                                                    string sessionId = null,
+        public async Task<bool> InitializeSession(                                                                                                                    string sessionId = null,
             string templateName = null,
             bool forceDeleteSession = false)
         {
