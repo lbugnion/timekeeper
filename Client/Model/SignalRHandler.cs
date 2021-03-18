@@ -1,15 +1,14 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Model;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
@@ -18,47 +17,37 @@ namespace Timekeeper.Client.Model
     {
         public event EventHandler UpdateUi;
 
+        private readonly ILocalStorageService _localStorage;
         private string _errorStatus;
         private string _status;
-        protected const string FunctionCodeHeaderKey = "x-functions-key";
-        protected const string HostNameKey = "HostName";
-        protected const string HostNameFreeKey = "HostNameFree";
-        protected const string NegotiateKeyKey = "NegotiateKey";
-        protected const string SendMessageKeyKey = "SendMessageKey";
         protected const string AnnounceGuestKeyKey = "AnnounceGuestKey";
+        protected const string FunctionCodeHeaderKey = "x-functions-key";
+        protected const string HostNameFreeKey = "HostNameFree";
+        protected const string HostNameKey = "HostName";
+        protected const string NegotiateKeyKey = "NegotiateKey";
+        protected const string RegisterKeyKey = "RegisterKey";
+        protected const string SendMessageKeyKey = "SendMessageKey";
         protected const string StartClockKeyKey = "StartClockKey";
         protected const string StopClockKeyKey = "StopClockKey";
-        protected const string RegisterKeyKey = "RegisterKey";
         protected const string UnregisterKeyKey = "UnregisterKey";
         protected IConfiguration _config;
         protected HubConnection _connection;
 
-        public bool IsDeleteSessionDisabled 
-        { 
-            get; 
-            protected set; 
-        }
+        protected string _hostName;
 
-        public bool IsCreateNewSessionDisabled
+        protected string _hostNameFree;
+
+        protected HttpClient _http;
+
+        protected ILogger _log;
+
+        public MarkupString CurrentMessage
         {
             get;
             protected set;
         }
 
-        public bool IsAnyClockRunning
-        {
-            get
-            {
-                return CurrentSession.Clocks.Any(c => c.IsClockRunning);
-            }
-        }
-
-        protected string _hostName;
-        protected string _hostNameFree;
-        protected HttpClient _http;
-        protected ILogger _log;
-
-        public string CurrentMessage
+        public Session CurrentSession
         {
             get;
             protected set;
@@ -78,6 +67,14 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        public bool IsAnyClockRunning
+        {
+            get
+            {
+                return CurrentSession.Clocks.Any(c => c.IsClockRunning);
+            }
+        }
+
         public bool IsBusy
         {
             get;
@@ -85,6 +82,18 @@ namespace Timekeeper.Client.Model
         }
 
         public bool IsConnected
+        {
+            get;
+            protected set;
+        }
+
+        public bool IsCreateNewSessionDisabled
+        {
+            get;
+            protected set;
+        }
+
+        public bool IsDeleteSessionDisabled
         {
             get;
             protected set;
@@ -116,33 +125,37 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http)
         {
-            CurrentMessage = "Welcome!";
+            CurrentMessage = new MarkupString("Welcome!");
             Status = "Please wait...";
 
             _config = config;
             _localStorage = localStorage;
-            HostSession.SetLocalStorage(_localStorage);
+            Session.SetLocalStorage(_localStorage);
             _log = log;
             _http = http;
         }
 
-        public SessionBase CurrentSession
+        private Task ConnectionReconnected(string arg)
         {
-            get;
-            protected set;
+            var tcs = new TaskCompletionSource<bool>();
+            Status = "Reconnected!";
+            tcs.SetResult(true);
+            return tcs.Task;
         }
 
-        private readonly ILocalStorageService _localStorage;
-
-        public async Task Disconnect()
+        private Task ConnectionReconnecting(Exception arg)
         {
-            if (_connection != null)
-            {
-                await _connection.StopAsync();
-                await _connection.DisposeAsync();
-                _connection = null;
-                _log.LogTrace("Connection is stopped and disposed");
-            }
+            var tcs = new TaskCompletionSource<bool>();
+
+            ErrorStatus = "Lost connection, trying to reconnect...";
+            IsBusy = true;
+            IsConnected = false;
+            IsInError = true;
+
+            // TODO Should also disable the controls for the Host
+
+            tcs.SetResult(true);
+            return tcs.Task;
         }
 
         private async Task<bool> RegisterToGroup()
@@ -277,27 +290,23 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        private Task ConnectionReconnected(string arg)
+        protected virtual void DeleteLocalClock(string clockId)
         {
-            var tcs = new TaskCompletionSource<bool>();
-            Status = "Reconnected!";
-            tcs.SetResult(true);
-            return tcs.Task;
-        }
+            if (clockId == Clock.DefaultClockId)
+            {
+                return;
+            }
 
-        private Task ConnectionReconnecting(Exception arg)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-            
-            ErrorStatus = "Lost connection, trying to reconnect...";
-            IsBusy = true;
-            IsConnected = false;
-            IsInError = true;
+            var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
 
-            // TODO Should also disable the controls for the Host
+            if (clock == null
+                || clock.IsClockRunning)
+            {
+                return;
+            }
 
-            tcs.SetResult(true);
-            return tcs.Task;
+            StopLocalClock(clockId);
+            CurrentSession.Clocks.Remove(clock);
         }
 
         protected virtual void DisplayMessage(string message)
@@ -305,7 +314,7 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> DisplayMessage");
             _log.LogDebug(message);
 
-            CurrentMessage = message;
+            CurrentMessage = new MarkupString(message);
             RaiseUpdateEvent();
         }
 
@@ -314,14 +323,22 @@ namespace Timekeeper.Client.Model
             UpdateUi?.Invoke(this, EventArgs.Empty);
         }
 
+        protected async Task RestoreClock(Clock clock)
+        {
+            // Get saved clock and restore
+            var savedSession = await Session.GetFromStorage(_log);
+            var clockInSavedSession = savedSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
+
+            if (clockInSavedSession != null)
+            {
+                clock.Restore(clockInSavedSession);
+            }
+        }
+
         protected void RunClock(Clock activeClock)
         {
             _log.LogInformation($"-> {nameof(RunClock)}");
-
-            activeClock.CurrentBackgroundColor = activeClock.Message.RunningColor;
-            Status = $"Clock {activeClock.Message.Label} is running";
-            RaiseUpdateEvent();
-
             _log.LogDebug($"ClockId: {activeClock.Message.ClockId}");
             _log.LogDebug($"CurrentBackgroundColor: {activeClock.CurrentBackgroundColor}");
             _log.LogDebug($"Label: {activeClock.Message.Label}");
@@ -334,7 +351,6 @@ namespace Timekeeper.Client.Model
             }
 
             activeClock.IsClockRunning = true;
-
             Task.Run(async () =>
             {
                 do
@@ -356,12 +372,17 @@ namespace Timekeeper.Client.Model
                             {
                                 _log.LogTrace("Countdown finished");
                                 clock.IsClockRunning = false;
+                                clock.IsNudgeDisabled = true;
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
+                                RaiseUpdateEvent();
+                                await RestoreClock(clock);
                                 continue;
                             }
+
+                            clock.CurrentBackgroundColor = clock.Message.RunningColor;
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
                             {
@@ -378,7 +399,9 @@ namespace Timekeeper.Client.Model
                     }
 
                     RaiseUpdateEvent();
-                    await Task.Delay(1000);
+
+                    var delay = 1000 - DateTime.Now.Millisecond;
+                    await Task.Delay(delay);
                 }
                 while (IsAnyClockRunning);
             });
@@ -399,36 +422,13 @@ namespace Timekeeper.Client.Model
                 return false;
             }
 
+            Status = "Connected!";
+
             _log.LogInformation("SignalRHandler.StartConnection ->");
             return true;
         }
 
-        protected virtual async Task DeleteLocalClock(string clockId)
-        {
-            _log.LogInformation("-> DeleteLocalClock");
-
-            var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
-
-            if (clock == null
-                || clock.IsClockRunning)
-            {
-                _log.LogTrace($"No clock found with id {clockId}");
-                return;
-            }
-
-            await StopLocalClock(clockId);
-
-            _log.LogDebug("Clock stopped, removing");
-
-            CurrentSession.Clocks.Remove(clock);
-            RaiseUpdateEvent();
-
-            _log.LogDebug("Removed");
-
-            _log.LogDebug($"Remaining clocks: {CurrentSession.Clocks.Count}");
-        }
-
-        protected virtual async Task StopLocalClock(string clockId)
+        protected virtual void StopLocalClock(string clockId)
         {
             _log.LogInformation($"-> {nameof(StopLocalClock)}");
             _log.LogDebug($"clockId: {clockId}");
@@ -448,9 +448,9 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
+            existingClock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
             existingClock.IsClockRunning = false;
             existingClock.ResetDisplay();
-            await CurrentSession.Save(_log);
 
             Status = $"Clock {existingClock.Message.Label} was stopped";
             RaiseUpdateEvent();
@@ -458,7 +458,253 @@ namespace Timekeeper.Client.Model
         }
 
         public abstract Task Connect(
-            string templateName = null, 
+            string templateName = null,
             bool forceDeleteSession = false);
+
+        public async Task Disconnect()
+        {
+            if (_connection != null)
+            {
+                await _connection.StopAsync();
+                await _connection.DisposeAsync();
+                _connection = null;
+                _log.LogTrace("Connection is stopped and disposed");
+            }
+        }
+
+        public async Task<bool> InitializeSession(                                                                                                                    string sessionId = null,
+            string templateName = null,
+            bool forceDeleteSession = false)
+        {
+            _log.LogInformation("-> InitializeSession");
+            _log.LogDebug($"sessionId: {sessionId}");
+            _log.LogDebug($"forceDeleteSession: {forceDeleteSession}");
+
+            if (forceDeleteSession)
+            {
+                await Session.DeleteFromStorage(_log);
+            }
+
+            if (!string.IsNullOrEmpty(templateName))
+            {
+                _log.LogTrace("Checking template");
+
+                var section = _config.GetSection(templateName);
+                var config = section.Get<ClockTemplate>();
+
+                _log.LogDebug($"section found: {section != null}");
+                _log.LogDebug($"config found: {config != null}");
+
+                CurrentSession = await Session.GetFromStorage(_log);
+
+                if (CurrentSession != null
+                    && CurrentSession.Clocks != null
+                    && CurrentSession.Clocks.Count != config.CK.Count)
+                {
+                    _log.LogTrace("CRITICAL--Invalid clock count");
+                    // Might be a bug
+                    CurrentSession = null;
+                }
+
+                if (CurrentSession == null
+                    || !CurrentSession.CreatedFromTemplate)
+                {
+                    if (config != null)
+                    {
+                        _log.LogDebug($"Found {config.SN}");
+                        _log.LogDebug($"Found {config.SessionId}");
+
+                        CurrentSession = new Session
+                        {
+                            CreatedFromTemplate = true
+                        };
+
+                        if (!string.IsNullOrEmpty(config.SN))
+                        {
+                            CurrentSession.SessionName = config.SN;
+                        }
+
+                        if (!string.IsNullOrEmpty(config.SessionId))
+                        {
+                            CurrentSession.SessionId = config.SessionId;
+                            _log.LogDebug($"SessionId {CurrentSession.SessionId}");
+                        }
+
+                        foreach (var clockInTemplate in config.CK)
+                        {
+                            var newClock = new Clock();
+                            _log.LogDebug($"newClock.ClockId before: {newClock.Message.ClockId}");
+
+                            if (clockInTemplate.D)
+                            {
+                                _log.LogDebug($"Found default clock in template: {clockInTemplate.L}");
+
+                                var defaultClock = CurrentSession.Clocks
+                                    .FirstOrDefault(c => c.Message.ClockId == Clock.DefaultClockId);
+
+                                if (defaultClock != null)
+                                {
+                                    _log.LogTrace("Found default clock in Session");
+                                    newClock = defaultClock;
+                                }
+                            }
+                            else
+                            {
+                                newClock.Message.ClockId = Guid.NewGuid().ToString();
+                            }
+
+                            _log.LogDebug($"newClock.ClockId after: {newClock.Message.ClockId}");
+
+                            if (!string.IsNullOrEmpty(clockInTemplate.L))
+                            {
+                                newClock.Message.Label = clockInTemplate.L;
+                                _log.LogDebug($"Clock label {newClock.Message.Label}");
+                            }
+
+                            if (!clockInTemplate.D)
+                            {
+                                // Not default clock
+                                newClock.Message.ClockId = Guid.NewGuid().ToString();
+                                _log.LogDebug($"Clock ID changed to {newClock.Message.ClockId}");
+                            }
+
+                            if (clockInTemplate.A != null)
+                            {
+                                if (clockInTemplate.A.T.TotalSeconds > 0)
+                                {
+                                    // Almost done
+                                    newClock.Message.AlmostDone = clockInTemplate.A.T;
+                                    _log.LogDebug($"Clock AlmostDone {newClock.Message.AlmostDone}");
+                                }
+
+                                if (!string.IsNullOrEmpty(clockInTemplate.A.C))
+                                {
+                                    // Almost done color
+                                    newClock.Message.AlmostDoneColor = clockInTemplate.A.C;
+
+                                    if (!clockInTemplate.A.C.StartsWith("#"))
+                                    {
+                                        newClock.Message.AlmostDoneColor = "#" + newClock.Message.AlmostDoneColor;
+                                    }
+
+                                    _log.LogDebug($"Clock AlmostDoneColor {newClock.Message.AlmostDoneColor}");
+                                }
+                            }
+
+                            if (clockInTemplate.P != null)
+                            {
+                                if (clockInTemplate.P.T.TotalSeconds > 0)
+                                {
+                                    // Pay attention
+                                    newClock.Message.PayAttention = clockInTemplate.P.T;
+                                    _log.LogDebug($"Clock PayAttention {newClock.Message.PayAttention}");
+                                }
+
+                                if (!string.IsNullOrEmpty(clockInTemplate.P.C))
+                                {
+                                    // Pay attention color
+                                    newClock.Message.PayAttentionColor = clockInTemplate.P.C;
+
+                                    if (!clockInTemplate.P.C.StartsWith("#"))
+                                    {
+                                        newClock.Message.PayAttentionColor = "#" + newClock.Message.PayAttentionColor;
+                                    }
+
+                                    _log.LogDebug($"Clock PayAttentionColor {newClock.Message.PayAttentionColor}");
+                                }
+                            }
+
+                            if (clockInTemplate.C != null)
+                            {
+                                if (clockInTemplate.C.T.TotalSeconds > 0)
+                                {
+                                    // Countdown
+                                    newClock.Message.CountDown = clockInTemplate.C.T;
+
+                                    _log.LogDebug($"Clock CountDown {newClock.Message.CountDown}");
+                                }
+
+                                if (!string.IsNullOrEmpty(clockInTemplate.C.C))
+                                {
+                                    _log.LogTrace("Checking countdown color");
+
+                                    // Countdown color
+                                    newClock.Message.RunningColor = clockInTemplate.C.C;
+
+                                    _log.LogTrace("Checking countdown color");
+
+                                    if (!clockInTemplate.C.C.StartsWith("#"))
+                                    {
+                                        newClock.Message.RunningColor = "#" + newClock.Message.RunningColor;
+                                    }
+
+                                    _log.LogDebug($"Clock RunningColor {newClock.Message.RunningColor}");
+                                }
+                            }
+
+                            CurrentSession.Clocks.Add(newClock);
+                        }
+
+                        await CurrentSession.Save(_log);
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(sessionId)
+                && CurrentSession == null)
+            {
+                CurrentSession = await Session.GetFromStorage(_log);
+
+                if (CurrentSession != null
+                    && CurrentSession.Clocks.Count == 0)
+                {
+                    CurrentSession.Clocks.Add(new Clock());
+                }
+            }
+
+            //if (forceDeleteSession)
+            //{
+            //    CurrentSession = null;
+            //}
+
+            if (CurrentSession == null)
+            {
+                _log.LogTrace("CurrentSession is null");
+
+                CurrentSession = new Session();
+                CurrentSession.Clocks.Add(new Clock());
+
+                if (!string.IsNullOrEmpty(sessionId))
+                {
+                    CurrentSession.SessionId = sessionId;
+                }
+
+                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
+
+                _log.LogTrace("Ready to save");
+                await CurrentSession.Save(_log);
+                _log.LogTrace("Saved");
+
+                _log.LogTrace("Session saved to storage");
+            }
+
+            foreach (var clock in CurrentSession.Clocks)
+            {
+                _log.LogDebug($"Setting clock {clock.Message.Label}");
+
+                clock.IsStartDisabled = true;
+                clock.IsStopDisabled = true;
+                clock.IsConfigDisabled = true;
+                clock.IsDeleteDisabled = true;
+                clock.IsClockRunning = false;
+                clock.IsNudgeDisabled = true;
+                clock.ClockDisplay = clock.Message.CountDown.ToString("c");
+            }
+
+            _log.LogDebug($"UserID {CurrentSession.UserId}");
+
+            _log.LogInformation("InitializeSession ->");
+            return true;
+        }
     }
 }

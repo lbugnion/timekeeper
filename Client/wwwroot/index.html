@@ -9,32 +9,63 @@
     <link href="css/reset.css" rel="stylesheet" />
     <link href="css/base.css" rel="stylesheet" />
     <link href="css/custom.css" rel="stylesheet" />
+    <link href="css/branch.css" rel="stylesheet" />
 
-    <link rel="icon" href="/images/hello-world/favicon.ico" type="image/icon type">
+    <link rel="icon" href="/favicon.ico" type="image/icon type">
+
+    <script src="script/nosleep.min.js"></script>
 
     <script>
 
-        window.branding = {
-            setTitle : (title) => { document.title = title; },
+        window.onunload = () => {
 
-            setBranding : (cssSheet) => {
-                var ss = document.createElement("link");
-                ss.type = "text/css";
-                ss.rel = "stylesheet";
-                ss.href = cssSheet;
-
-                document.head.appendChild(ss);
+            if (noSleep) {
+                noSleep.disable();
             }
         }
 
-        window.host = {
-            focusAndSelect: (elementId) => {
+        window.branding = {
 
+            setTitle: (title) => { document.title = title; },
+        }
+
+        window.host = {
+
+            focusAndSelect: (elementId) => {
                 const element = document.getElementById(elementId);
                 element.focus();
 
                 if (element.type == "text") {
                     element.select();
+                }
+            }
+        }
+
+        var noSleep;
+
+        window.nosleep = {
+
+            isMobile: () => {
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    // true for mobile device
+                    noSleep = new NoSleep();
+                    return true;
+                } else {
+                    // false for not mobile device
+                    noSleep = null;
+                    return false;
+                }
+            },
+
+            enableDisableNoSleep: (enable) => {
+
+                if (enable) {
+                    noSleep = new NoSleep();
+                    noSleep.enable();
+                }
+                else {
+                    noSleep.disable();
+                    noSleep = null;
                 }
             }
         }

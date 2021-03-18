@@ -8,9 +8,23 @@ using System.Threading.Tasks;
 
 namespace Timekeeper.Client.Model
 {
-    public abstract class SessionBase
+    public class Session
     {
-        protected static ILocalStorageService _localStorage;
+        private static ILocalStorageService _localStorage;
+
+        public const string SessionStorageKey = "SessionStorageKey";
+
+        public IList<Clock> Clocks
+        {
+            get;
+            set;
+        }
+
+        public bool CreatedFromTemplate
+        {
+            get;
+            set;
+        }
 
         [Required]
         public string SessionId
@@ -33,35 +47,52 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        protected abstract string GetSessionKey();
-
-        public SessionBase()
+        public Session()
         {
             SessionId = Guid.NewGuid().ToString();
+
             SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             UserId = Guid.NewGuid().ToString();
+            Clocks = new List<Clock>();
         }
 
-        protected static async Task DeleteFromStorage(string storageKey, ILogger log = null)
+        public static async Task DeleteFromStorage(ILogger log = null)
         {
-            log?.LogDebug($"Deleting session {storageKey} from storage");
-            await _localStorage.RemoveItemAsync(storageKey);
+            log?.LogTrace("Deleting session from storage");
+            await _localStorage.RemoveItemAsync(SessionStorageKey);
         }
 
-        public static async Task<T> GetFromStorage<T>(string storageKey, ILogger log)
-            where T : SessionBase
+        public static async Task<Session> GetFromStorage(ILogger log)
         {
             log.LogInformation("-> GetFromStorage");
-            log.LogDebug($"storageKey: {storageKey}");
 
             var json = await _localStorage.GetItemAsStringAsync(
-                storageKey);
+                SessionStorageKey);
 
             log.LogDebug($"json: {json}");
 
             if (!string.IsNullOrEmpty(json))
             {
-                var session = JsonConvert.DeserializeObject<T>(json);
+                var session = JsonConvert.DeserializeObject<Session>(json);
+
+                if (session.Clocks != null)
+                {
+                    // Reset the UI objects
+                    // TODO it would be cleaner to NOT save the Clock object
+                    // and to recreate them when the session is read from storage
+                    foreach (var clock in session.Clocks)
+                    {
+                        clock.ResetDisplay();
+                        clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
+                        clock.IsClockRunning = false;
+                        clock.IsConfigDisabled = false;
+                        clock.IsDeleteDisabled = false;
+                        clock.IsStartDisabled = false;
+                        clock.IsStopDisabled = false;
+                        clock.IsNudgeDisabled = false;
+                    }
+                }
+
                 return session;
             }
 
@@ -80,14 +111,8 @@ namespace Timekeeper.Client.Model
             var json = JsonConvert.SerializeObject(this);
 
             await _localStorage.SetItemAsync(
-                GetSessionKey(),
+                SessionStorageKey,
                 json);
-        }
-
-        public IList<Clock> Clocks
-        {
-            get;
-            set;
         }
     }
 }

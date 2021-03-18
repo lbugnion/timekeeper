@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace Timekeeper.Client.Model
 {
-    public class ClockTemplate
+    public class ClockDefinition
     {
-        public string SessionName
+        /// <summary>
+        /// Color
+        /// </summary>
+        public string C
         {
             get;
             set;
         }
 
-        public string SessionId
-        {
-            get;
-            set;
-        }
-
-        public IList<ClockForTemplate> Clocks
+        /// <summary>
+        /// Time
+        /// </summary>
+        public TimeSpan T
         {
             get;
             set;
@@ -26,40 +26,76 @@ namespace Timekeeper.Client.Model
 
     public class ClockForTemplate
     {
-        public string Label
+        /// <summary>
+        /// Almost done
+        /// </summary>
+        public ClockDefinition A
         {
             get;
             set;
         }
 
-        public ClockDefinition Countdown
+        /// <summary>
+        /// CountDown
+        /// </summary>
+        public ClockDefinition C
         {
             get;
             set;
         }
 
-        public ClockDefinition PayAttention
+        /// <summary>
+        /// Default clock
+        /// </summary>
+        public bool D
         {
             get;
             set;
         }
 
-        public ClockDefinition AlmostDone
+        /// <summary>
+        /// Label
+        /// </summary>
+        public string L
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Pay attention
+        /// </summary>
+        public ClockDefinition P
         {
             get;
             set;
         }
     }
 
-    public class ClockDefinition
+    public class ClockTemplate
     {
-        public TimeSpan Time
+        /// <summary>
+        /// Clocks
+        /// </summary>
+        public IList<ClockForTemplate> CK
         {
             get;
             set;
         }
 
-        public string Color
+        /// <summary>
+        /// Session ID
+        /// </summary>
+        public string SessionId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Session name
+        /// </summary>
+        public string SN
         {
             get;
             set;

@@ -1,9 +1,9 @@
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Timekeeper
 {
@@ -12,12 +12,12 @@ namespace Timekeeper
         [FunctionName("GetVersion")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous, 
+                AuthorizationLevel.Anonymous,
                 "get",
                 Route = "version")] HttpRequest req,
             ILogger log)
         {
-            return new OkObjectResult("0.5.8888.0302");
+            return new OkObjectResult("0.5.4.2");
         }
     }
 }

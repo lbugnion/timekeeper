@@ -1,18 +1,16 @@
-﻿@page "/helloworld-backstage/"
-@page "/helloworld-backstage/{Session}"
+﻿@page "/about"
 @inject ILogger<Index> Log
 @inject IConfiguration Config
-@inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
-<header class="@Today.BackgroundClass">
-    <img src="@Today.ImagePath"
+<header>
+    <img src="images/header-logo.png"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1 class="@Today.ForegroundClass">Hello World Backstage Channel</h1>
+        <h1>@Branding.AboutPageTitle</h1>
 
         <blockquote>
             Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
@@ -21,13 +19,9 @@
             <br /><br />
             Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
         </blockquote>
-
-        <div class="controls-area">
-            <button @onclick="LogInHost">Log in as the host</button>
-        </div>
     </article>
 </main>
 
-<footer class="@Today.FooterClass">
-    Version: @ClientVersion @Environment
+<footer>
+    <div class="status-message">Version: @ClientVersion @Environment</div>
 </footer>

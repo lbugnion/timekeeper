@@ -5,41 +5,17 @@ namespace Timekeeper.Client.Model
 {
     public class Clock
     {
-        public const string DefaultBackgroundColor = "#FFFFFF";
-        public const string DefaultClockDisplay = "00:00:00";
-        public const string DefaultRunningColor = "#3AFFA9";
-        public const string DefaultPayAttentionColor = "#FFFB91";
-        public const string DefaultAlmostDoneColor = "#FF6B77";
-
-        public static readonly TimeSpan DefaultAlmostDone = TimeSpan.FromSeconds(30);
-        public static readonly TimeSpan DefaultPayAttention = TimeSpan.FromMinutes(2);
-        public static readonly TimeSpan DefaultCountDown = TimeSpan.FromMinutes(5);
-
         public event EventHandler CountdownFinished;
 
-        public bool IsStartDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsStopDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsConfigDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsDeleteDisabled
-        {
-            get;
-            internal set;
-        }
+        public const string DefaultAlmostDoneColor = "#FF6B77";
+        public const string DefaultBackgroundColor = "#EEEEEE";
+        public const string DefaultClockDisplay = "00:00:00";
+        public const string DefaultPayAttentionColor = "#FFFB91";
+        public const string DefaultRunningColor = "#3AFFA9";
+        public static readonly TimeSpan DefaultAlmostDone = TimeSpan.FromSeconds(30);
+        public static readonly string DefaultClockId = Guid.Empty.ToString();
+        public static readonly TimeSpan DefaultCountDown = TimeSpan.FromMinutes(5);
+        public static readonly TimeSpan DefaultPayAttention = TimeSpan.FromMinutes(2);
 
         public string ClockDisplay
         {
@@ -59,6 +35,36 @@ namespace Timekeeper.Client.Model
             set;
         }
 
+        public bool IsConfigDisabled
+        {
+            get;
+            internal set;
+        }
+
+        public bool IsDeleteDisabled
+        {
+            get;
+            internal set;
+        }
+
+        public bool IsNudgeDisabled
+        {
+            get;
+            internal set;
+        }
+
+        public bool IsStartDisabled
+        {
+            get;
+            internal set;
+        }
+
+        public bool IsStopDisabled
+        {
+            get;
+            internal set;
+        }
+
         public StartClockMessage Message
         {
             get;
@@ -68,7 +74,19 @@ namespace Timekeeper.Client.Model
         public Clock(StartClockMessage message)
             : base()
         {
-            Message = message;
+            if (message.ClockId == DefaultClockId)
+            {
+                Message.AlmostDone = message.AlmostDone;
+                Message.CountDown = message.CountDown;
+                Message.Label = message.Label;
+                Message.PayAttention = message.PayAttention;
+                Message.RunningColor = message.RunningColor;
+                Message.ServerTime = message.ServerTime;
+            }
+            else
+            {
+                Message = message;
+            }
         }
 
         public Clock()
@@ -78,7 +96,7 @@ namespace Timekeeper.Client.Model
 
             Message = new StartClockMessage
             {
-                ClockId = Guid.NewGuid().ToString(),
+                ClockId = DefaultClockId, // Default ID
                 AlmostDone = DefaultAlmostDone,
                 PayAttention = DefaultPayAttention,
                 CountDown = DefaultCountDown,
@@ -89,6 +107,11 @@ namespace Timekeeper.Client.Model
             };
 
             ResetDisplay();
+        }
+
+        public void RaiseCountdownFinished()
+        {
+            CountdownFinished?.Invoke(this, EventArgs.Empty);
         }
 
         public void Reset()
@@ -103,9 +126,9 @@ namespace Timekeeper.Client.Model
             ClockDisplay = Message.CountDown.ToString("c");
         }
 
-        public void RaiseCountdownFinished()
+        public void Restore(Clock clockInSavedSession)
         {
-            CountdownFinished?.Invoke(this, EventArgs.Empty);
+            Message = clockInSavedSession.Message;
         }
     }
 }

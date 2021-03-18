@@ -1,7 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
@@ -9,9 +8,9 @@ namespace Timekeeper.Client.Model
 {
     public class Guest
     {
-        public const string GuestStorageKey = "GuestStorageKey";
         private static ILocalStorageService _localStorage;
         private static ILogger _log;
+        public const string GuestStorageKey = "GuestStorageKey";
 
         public GuestMessage Message
         {
@@ -25,25 +24,6 @@ namespace Timekeeper.Client.Model
             {
                 GuestId = guestId
             };
-        }
-
-        public async Task Save()
-        {
-            var json = JsonConvert.SerializeObject(this);
-
-            _log.LogDebug($"Saving: {json}");
-
-            await _localStorage.SetItemAsync(
-                GuestStorageKey,
-                json);
-        }
-
-        public static void SetLocalStorage(
-            ILocalStorageService localStorage, 
-            ILogger log)
-        {
-            _localStorage = localStorage;
-            _log = log;
         }
 
         public static async Task<Guest> GetFromStorage()
@@ -65,9 +45,28 @@ namespace Timekeeper.Client.Model
             return null;
         }
 
+        public static void SetLocalStorage(
+            ILocalStorageService localStorage,
+            ILogger log)
+        {
+            _localStorage = localStorage;
+            _log = log;
+        }
+
         public async Task DeleteFromStorage()
         {
             await _localStorage.RemoveItemAsync(GuestStorageKey);
+        }
+
+        public async Task Save()
+        {
+            var json = JsonConvert.SerializeObject(this);
+
+            _log.LogDebug($"Saving: {json}");
+
+            await _localStorage.SetItemAsync(
+                GuestStorageKey,
+                json);
         }
     }
 }

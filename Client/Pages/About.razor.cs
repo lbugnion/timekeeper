@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System.Reflection;
@@ -8,7 +7,7 @@ using Timekeeper.Client.Model;
 
 namespace Timekeeper.Client.Pages
 {
-    public partial class Index
+    public partial class About
     {
         public string ClientVersion
         {
@@ -22,28 +21,14 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        [Parameter]
-        public string Session
-        {
-            get;
-            set;
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
         }
 
         protected override void OnInitialized()
         {
-            Log.LogInformation("-> Index.OnInitialized");
-            Log.LogDebug($"Session: {Session}");
-
-            if (!string.IsNullOrEmpty(Session))
-            {
-                Nav.NavigateTo($"/guest/{Session}");
-                return;
-            }
+            Log.LogInformation("-> About.OnInitialized");
 
             try
             {
@@ -69,11 +54,6 @@ namespace Timekeeper.Client.Pages
                 Log.LogWarning($"Assembly not found");
                 ClientVersion = "N/A";
             }
-        }
-
-        public void LogInHost()
-        {
-            Nav.NavigateTo("/host");
         }
     }
 }

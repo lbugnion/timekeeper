@@ -1,4 +1,4 @@
-name: STAGING HW Non secured API deploy to Staging
+name: STAGING Non secured API deploy
 
 on:
   push:

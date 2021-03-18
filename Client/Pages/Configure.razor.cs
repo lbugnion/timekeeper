@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.JSInterop;
 using System.Linq;
 using System.Threading.Tasks;
-using Timekeeper.DataModel;
 using Timekeeper.Client.Model;
-using Microsoft.AspNetCore.Components;
+using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Pages
 {
@@ -17,16 +16,32 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public HostSession CurrentSession
+        public EditContext CurrentEditContext
+        {
+            get;
+            private set;
+        }
+
+        public Session CurrentSession
         {
             get;
             set;
         }
 
-        public EditContext CurrentEditContext
+        private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
         {
-            get;
-            private set;
+            Log.LogInformation("-> CurrentEditContextOnValidationStateChanged");
+
+            if (CurrentEditContext.GetValidationMessages().Count() == 0)
+            {
+                Log.LogTrace("Saving");
+                await CurrentSession.Save(Log);
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("setTitle", Branding.WindowTitle);
         }
 
         protected override void OnInitialized()
@@ -47,17 +62,6 @@ namespace Timekeeper.Client.Pages
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
             Log.LogInformation("OnInitialized ->");
-        }
-
-        private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
-        {
-            Log.LogInformation("-> CurrentEditContextOnValidationStateChanged");
-
-            if (CurrentEditContext.GetValidationMessages().Count() == 0)
-            {
-                Log.LogTrace("Saving");
-                await CurrentSession.Save(Log);
-            }
         }
     }
 }

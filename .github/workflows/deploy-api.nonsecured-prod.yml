@@ -1,4 +1,4 @@
-name: MAIN Non secured API deploy to Prod
+name: MAIN Non secured API deploy
 
 on:
   push:

@@ -12,13 +12,102 @@ namespace Timekeeper.DataModel
         private string _payAttentionColor;
         private string _runningColor;
 
-        public string Label
+        public TimeSpan AlmostDone
         {
             get;
             set;
         }
 
-        public int Position
+        [Required]
+        [MinLength(4, ErrorMessage = ColorErrorMessage)]
+        [MaxLength(7, ErrorMessage = ColorErrorMessage)]
+        public string AlmostDoneColor
+        {
+            get => _almostDoneColor;
+            set
+            {
+                if (value == null)
+                {
+                    _runningColor = value;
+                    return;
+                }
+
+                if (!value.StartsWith("#"))
+                {
+                    value = $"#{value}";
+                }
+
+                _almostDoneColor = value;
+            }
+        }
+
+        [JsonIgnore]
+        [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
+
+        public int AlmostDoneHours
+        {
+            get
+            {
+                return AlmostDone.Hours;
+            }
+            set
+            {
+                if (value != AlmostDone.Hours
+                    && value >= 0
+                    && value < 24)
+                {
+                    AlmostDone = new TimeSpan(value, AlmostDone.Minutes, AlmostDone.Seconds);
+                }
+            }
+        }
+
+        [JsonIgnore]
+        [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 minutes")]
+
+        public int AlmostDoneMinutes
+        {
+            get
+            {
+                return AlmostDone.Minutes;
+            }
+            set
+            {
+                if (value != AlmostDone.Minutes
+                    && value >= 0
+                    && value < 60)
+                {
+                    AlmostDone = new TimeSpan(AlmostDone.Hours, value, AlmostDone.Seconds);
+                }
+            }
+        }
+
+        [JsonIgnore]
+        [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 seconds")]
+
+        public int AlmostDoneSeconds
+        {
+            get
+            {
+                return AlmostDone.Seconds;
+            }
+            set
+            {
+                if (value != AlmostDone.Seconds
+                    && value >= 0
+                    && value < 60)
+                {
+                    AlmostDone = new TimeSpan(AlmostDone.Hours, AlmostDone.Minutes, value);
+                }
+            }
+        }
+
+        public string ClockId
+        {
+            get;
+            set;
+        }
+
+        public TimeSpan CountDown
         {
             get;
             set;
@@ -84,73 +173,13 @@ namespace Timekeeper.DataModel
             }
         }
 
-        public TimeSpan CountDown
+        public string Label
         {
             get;
             set;
         }
 
-        [JsonIgnore]
-        [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
-
-        public int AlmostDoneHours
-        {
-            get
-            {
-                return AlmostDone.Hours;
-            }
-            set
-            {
-                if (value != AlmostDone.Hours
-                    && value >= 0
-                    && value < 24)
-                {
-                    AlmostDone = new TimeSpan(value, AlmostDone.Minutes, AlmostDone.Seconds);
-                }
-            }
-        }
-
-        [JsonIgnore]
-        [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 minutes")]
-
-        public int AlmostDoneMinutes
-        {
-            get
-            {
-                return AlmostDone.Minutes;
-            }
-            set
-            {
-                if (value != AlmostDone.Minutes
-                    && value >= 0
-                    && value < 60)
-                {
-                    AlmostDone = new TimeSpan(AlmostDone.Hours, value, AlmostDone.Seconds);
-                }
-            }
-        }
-
-        [JsonIgnore]
-        [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 seconds")]
-
-        public int AlmostDoneSeconds
-        {
-            get
-            {
-                return AlmostDone.Seconds;
-            }
-            set
-            {
-                if (value != AlmostDone.Seconds
-                    && value >= 0
-                    && value < 60)
-                {
-                    AlmostDone = new TimeSpan(AlmostDone.Hours, AlmostDone.Minutes, value);
-                }
-            }
-        }
-
-        public TimeSpan AlmostDone
+        public TimeSpan PayAttention
         {
             get;
             set;
@@ -159,9 +188,9 @@ namespace Timekeeper.DataModel
         [Required]
         [MinLength(4, ErrorMessage = ColorErrorMessage)]
         [MaxLength(7, ErrorMessage = ColorErrorMessage)]
-        public string AlmostDoneColor
+        public string PayAttentionColor
         {
-            get => _almostDoneColor;
+            get => _payAttentionColor;
             set
             {
                 if (value == null)
@@ -175,14 +204,8 @@ namespace Timekeeper.DataModel
                     value = $"#{value}";
                 }
 
-                _almostDoneColor = value;
+                _payAttentionColor = value;
             }
-        }
-
-        public DateTime ServerTime
-        {
-            get;
-            set;
         }
 
         [JsonIgnore]
@@ -245,35 +268,6 @@ namespace Timekeeper.DataModel
             }
         }
 
-        public TimeSpan PayAttention
-        {
-            get;
-            set;
-        }
-
-        [Required]
-        [MinLength(4, ErrorMessage = ColorErrorMessage)]
-        [MaxLength(7, ErrorMessage = ColorErrorMessage)]
-        public string PayAttentionColor
-        {
-            get => _payAttentionColor;
-            set
-            {
-                if (value == null)
-                {
-                    _runningColor = value;
-                    return;
-                }
-
-                if (!value.StartsWith("#"))
-                {
-                    value = $"#{value}";
-                }
-
-                _payAttentionColor = value;
-            }
-        }
-
         [Required]
         [MinLength(4, ErrorMessage = ColorErrorMessage)]
         [MaxLength(7, ErrorMessage = ColorErrorMessage)]
@@ -297,15 +291,15 @@ namespace Timekeeper.DataModel
             }
         }
 
-        public override string ToString()
-        {
-            return ServerTime.ToString();
-        }
-
-        public string ClockId
+        public DateTime ServerTime
         {
             get;
             set;
+        }
+
+        public override string ToString()
+        {
+            return ServerTime.ToString();
         }
     }
 }

@@ -1,4 +1,4 @@
-name: MAIN Deploy client and API to static web Prod
+name: MAIN Deploy client and API to static web
 
 on:
   push:
