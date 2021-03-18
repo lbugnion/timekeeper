@@ -8,23 +8,9 @@ using System.Threading.Tasks;
 
 namespace Timekeeper.Client.Model
 {
-    public class Session
+    public class SessionBase
     {
-        private static ILocalStorageService _localStorage;
-
-        public const string SessionStorageKey = "SessionStorageKey";
-
-        public IList<Clock> Clocks
-        {
-            get;
-            set;
-        }
-
-        public bool CreatedFromTemplate
-        {
-            get;
-            set;
-        }
+        protected static ILocalStorageService _localStorage;
 
         [Required]
         public string SessionId
@@ -47,52 +33,35 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        public Session()
+        public SessionBase()
         {
             SessionId = Guid.NewGuid().ToString();
-
             SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             UserId = Guid.NewGuid().ToString();
+            UserName = "Anonymous";
             Clocks = new List<Clock>();
         }
 
-        public static async Task DeleteFromStorage(ILogger log = null)
+        public static async Task DeleteFromStorage(string storageKey, ILogger log = null)
         {
-            log?.LogTrace("Deleting session from storage");
-            await _localStorage.RemoveItemAsync(SessionStorageKey);
+            log?.LogDebug($"Deleting session {storageKey} from storage");
+            await _localStorage.RemoveItemAsync(storageKey);
         }
 
-        public static async Task<Session> GetFromStorage(ILogger log)
+        public static async Task<T> GetFromStorage<T>(string storageKey, ILogger log)
+            where T : SessionBase
         {
             log.LogInformation("-> GetFromStorage");
+            log.LogDebug($"storageKey: {storageKey}");
 
             var json = await _localStorage.GetItemAsStringAsync(
-                SessionStorageKey);
+                storageKey);
 
             log.LogDebug($"json: {json}");
 
             if (!string.IsNullOrEmpty(json))
             {
-                var session = JsonConvert.DeserializeObject<Session>(json);
-
-                if (session.Clocks != null)
-                {
-                    // Reset the UI objects
-                    // TODO it would be cleaner to NOT save the Clock object
-                    // and to recreate them when the session is read from storage
-                    foreach (var clock in session.Clocks)
-                    {
-                        clock.ResetDisplay();
-                        clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
-                        clock.IsClockRunning = false;
-                        clock.IsConfigDisabled = false;
-                        clock.IsDeleteDisabled = false;
-                        clock.IsStartDisabled = false;
-                        clock.IsStopDisabled = false;
-                        clock.IsNudgeDisabled = false;
-                    }
-                }
-
+                var session = JsonConvert.DeserializeObject<T>(json);
                 return session;
             }
 
@@ -104,15 +73,56 @@ namespace Timekeeper.Client.Model
             _localStorage = localStorage;
         }
 
-        public async Task Save(ILogger log)
+        public async Task Save(string sessionStorageKey, ILogger log)
         {
             log.LogTrace("CRITICAL--SAVING SESSION");
 
             var json = JsonConvert.SerializeObject(this);
 
             await _localStorage.SetItemAsync(
-                SessionStorageKey,
+                sessionStorageKey,
                 json);
+        }
+
+        public IList<Clock> Clocks
+        {
+            get;
+            set;
+        }
+
+        public static async Task<SessionBase> GetFromStorage(string sessionStorageKey, ILogger log)
+        {
+            var session = await GetFromStorage<SessionBase>(sessionStorageKey, log);
+
+            if (session != null
+                && session.Clocks != null)
+            {
+                // Reset the UI objects
+                foreach (var clock in session.Clocks)
+                {
+                    clock.ResetDisplay();
+                    clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
+                    clock.IsClockRunning = false;
+                    clock.IsConfigDisabled = false;
+                    clock.IsDeleteDisabled = false;
+                    clock.IsStartDisabled = false;
+                    clock.IsStopDisabled = false;
+                }
+            }
+
+            return session;
+        }
+
+        public bool CreatedFromTemplate
+        {
+            get;
+            set;
+        }
+
+        public string UserName
+        {
+            get;
+            set;
         }
     }
 }

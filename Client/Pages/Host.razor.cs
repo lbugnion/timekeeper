@@ -42,6 +42,8 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogInformation("HIGHLIGHT---> Host.OnInitializedAsync");
+
 #if !DEBUG
             if (Branding.MustAuthorize)
             {

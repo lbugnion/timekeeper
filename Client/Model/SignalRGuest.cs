@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -22,6 +23,8 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        protected override string SessionKey => throw new NotImplementedException();
+
         public SignalRGuest(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -33,6 +36,21 @@ namespace Timekeeper.Client.Model
 
             _session = session;
             Guest.SetLocalStorage(localStorage, log);
+        }
+
+        private async void ClockCountdownFinished(object sender, EventArgs e)
+        {
+            _log.LogInformation("-> ClockCountdownFinished");
+
+            var clock = sender as Clock;
+
+            if (clock == null)
+            {
+                return;
+            }
+
+            clock.CountdownFinished -= ClockCountdownFinished;
+            await DeleteLocalClock(clock.Message.ClockId);
         }
 
         private void ReceiveStartClock(string message)
@@ -218,6 +236,33 @@ namespace Timekeeper.Client.Model
 
             _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
+
+            return true;
+        }
+
+        public async Task<bool> InitializeSession(string sessionId)
+        {
+            _log.LogInformation("-> InitializeSession");
+            _log.LogDebug($"sessionId: {sessionId}");
+
+            var guestSession = await SessionBase.GetFromStorage(SessionKey, _log);
+
+            if (guestSession == null)
+            {
+                guestSession = new SessionBase();
+            }
+
+            guestSession.SessionId = sessionId;
+            guestSession.Clocks = new List<Clock>(); // Always reset the clocks
+
+            _log.LogDebug($"UserID {guestSession.UserId}");
+            _log.LogDebug($"UserName {guestSession.UserName}");
+
+            CurrentSession = guestSession;
+            await CurrentSession.Save(SessionKey, _log);
+            _log.LogTrace("Session saved to storage");
+
+            _log.LogInformation("InitializeSession ->");
             return true;
         }
     }
