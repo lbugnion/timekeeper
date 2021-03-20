@@ -23,7 +23,7 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        protected override string SessionKey => throw new NotImplementedException();
+        protected override string SessionKey => "GuestSession";
 
         public SignalRGuest(
             IConfiguration config,

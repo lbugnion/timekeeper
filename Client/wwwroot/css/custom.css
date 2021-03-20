@@ -70,6 +70,7 @@ a:hover {
 }
 
 /* Clocks */
+
 #listofclocks {
     list-style-type: none;
     margin: 0px;
@@ -97,16 +98,18 @@ a:hover {
 }
 
 .clock-controls-area {
-    margin-top: 38px;
+    margin-top: 34px;
     margin-left: 10px;
 }
 
     .clock-controls-area button {
-        width: 80px;
+        width: 50px;
+        height: 30px;
+        font-size: 22px;
     }
 
 .nudge-buttons-area {
-    margin-top: 5px;
+    margin-top: 3px;
     margin-left: 5px;
     width: 50px;
 }
@@ -114,7 +117,7 @@ a:hover {
 .nudge-button {
     width: 50px;
     height: 30px;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 .clock-label {

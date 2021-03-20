@@ -65,8 +65,6 @@ namespace Timekeeper.Client.Model
 
             _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
 
-            clock.IsStartDisabled = false;
-            clock.IsStopDisabled = true;
             clock.IsDeleteDisabled = false;
             clock.IsNudgeDisabled = true;
 
@@ -96,9 +94,9 @@ namespace Timekeeper.Client.Model
             Status = "Message sent";
         }
 
-        public async Task AddClockAfter(string clockId)
+        public async Task AddClockAfter(Clock clock)
         {
-            var previousClock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
+            var previousClock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
 
             if (previousClock != null)
             {
@@ -152,8 +150,6 @@ namespace Timekeeper.Client.Model
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
-                        clock.IsStartDisabled = false;
-                        clock.IsStopDisabled = true;
                         clock.IsConfigDisabled = false;
                         clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
@@ -178,8 +174,6 @@ namespace Timekeeper.Client.Model
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
-                        clock.IsStartDisabled = true;
-                        clock.IsStopDisabled = true;
                         clock.IsConfigDisabled = true;
                         clock.IsDeleteDisabled = true;
                         clock.IsNudgeDisabled = true;
@@ -199,8 +193,6 @@ namespace Timekeeper.Client.Model
 
                 foreach (var clock in CurrentSession.Clocks)
                 {
-                    clock.IsStartDisabled = true;
-                    clock.IsStopDisabled = true;
                     clock.IsConfigDisabled = true;
                     clock.IsDeleteDisabled = true;
                     clock.IsNudgeDisabled = true;
@@ -251,8 +243,6 @@ namespace Timekeeper.Client.Model
                 ErrorStatus = "Couldn't reach the guests";
             }
 
-            clock.IsStartDisabled = false;
-            clock.IsStopDisabled = true;
             clock.IsConfigDisabled = false;
             clock.IsDeleteDisabled = false;
             clock.CountdownFinished -= ClockCountdownFinished;
@@ -503,8 +493,6 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogDebug($"Setting clock {clock.Message.Label}");
 
-                clock.IsStartDisabled = true;
-                clock.IsStopDisabled = true;
                 clock.IsConfigDisabled = true;
                 clock.IsDeleteDisabled = true;
                 clock.IsClockRunning = false;
@@ -779,8 +767,6 @@ namespace Timekeeper.Client.Model
 
             foreach (var clock in clocks)
             {
-                clock.IsStartDisabled = true;
-                clock.IsStopDisabled = false;
                 clock.IsConfigDisabled = true;
                 clock.IsDeleteDisabled = true;
                 clock.IsNudgeDisabled = false;
@@ -882,8 +868,6 @@ namespace Timekeeper.Client.Model
                 ErrorStatus = "Couldn't reach the guests";
             }
 
-            clock.IsStartDisabled = false;
-            clock.IsStopDisabled = true;
             clock.IsConfigDisabled = false;
             clock.IsDeleteDisabled = false;
             clock.IsNudgeDisabled = true;

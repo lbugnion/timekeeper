@@ -52,18 +52,6 @@ namespace Timekeeper.Client.Model
             internal set;
         }
 
-        public bool IsStartDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsStopDisabled
-        {
-            get;
-            internal set;
-        }
-
         public StartClockMessage Message
         {
             get;
@@ -78,7 +66,6 @@ namespace Timekeeper.Client.Model
 
         public Clock()
         {
-            IsStopDisabled = true;
             CurrentBackgroundColor = DefaultBackgroundColor;
 
             Message = new StartClockMessage

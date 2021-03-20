@@ -80,20 +80,28 @@
                             </div>
 
                             <div class="clock-controls-area">
-                                <button @onclick="(e => Handler.StartClock(clock, true))"
-                                        disabled="@clock.IsStartDisabled">
-                                    Start
-                                </button>
-                                <button @onclick="(e => Handler.StopClock(clock))"
-                                        disabled="@clock.IsStopDisabled">
-                                    Stop
-                                </button>
+                                @if (clock.IsClockRunning)
+                                {
+                                    <button @onclick="(e => Handler.StopClock(clock))">
+                                        <i class="fa fa-stop"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button @onclick="(e => Handler.StartClock(clock, true))">
+                                        <i class="fa fa-play"></i>
+                                    </button>
+                                }
 
                                 @if (!Handler.CurrentSession.CreatedFromTemplate)
                                 {
                                     <button @onclick="(e => ConfigureClock(clock))"
                                             disabled="@clock.IsConfigDisabled">
-                                        Config
+                                        <i class="fa fa-cog"></i>
+                                    </button>
+                                    <button @onclick="(e => Handler.AddClockAfter(clock))"
+                                            disabled="@clock.IsConfigDisabled">
+                                        <i class="fa fa-plus-square"></i>
                                     </button>
                                 }
                             </div>

@@ -105,8 +105,6 @@ namespace Timekeeper.Client.Model
                     clock.IsClockRunning = false;
                     clock.IsConfigDisabled = false;
                     clock.IsDeleteDisabled = false;
-                    clock.IsStartDisabled = false;
-                    clock.IsStopDisabled = false;
                 }
             }
 
