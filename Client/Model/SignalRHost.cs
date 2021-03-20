@@ -243,8 +243,6 @@ namespace Timekeeper.Client.Model
                 ErrorStatus = "Couldn't reach the guests";
             }
 
-            clock.IsConfigDisabled = false;
-            clock.IsDeleteDisabled = false;
             clock.CountdownFinished -= ClockCountdownFinished;
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
