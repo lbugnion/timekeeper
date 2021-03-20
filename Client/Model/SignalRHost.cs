@@ -39,7 +39,7 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        protected override string SessionKey => "HostSessionKey";
+        protected override string SessionKey => "Timekeeper.HostSession";
 
         public SignalRHost(
             IConfiguration config,

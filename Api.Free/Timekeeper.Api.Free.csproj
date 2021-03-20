@@ -7,11 +7,17 @@
     <Compile Include="..\Api\HttpRequestExtensions.cs" Link="HttpRequestExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Queues" Version="12.6.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.SignalRService" Version="1.2.2" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Timekeeper.DataModel\Timekeeper.DataModel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GitHubHelper">
+      <HintPath>..\Dependencies\GitHubHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

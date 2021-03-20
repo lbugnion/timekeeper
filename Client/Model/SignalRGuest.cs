@@ -23,7 +23,7 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        protected override string SessionKey => throw new NotImplementedException();
+        protected override string SessionKey => "Timekeeper.GuestSession";
 
         public SignalRGuest(
             IConfiguration config,
@@ -254,6 +254,35 @@ namespace Timekeeper.Client.Model
 
             guestSession.SessionId = sessionId;
             guestSession.Clocks = new List<Clock>(); // Always reset the clocks
+
+#if DEBUG
+            guestSession.Clocks.Add(new Clock(new StartClockMessage
+                {
+                    Label = "Test clock"
+                })
+            {
+                ClockDisplay = "00:00:00",
+                CurrentBackgroundColor = "#00FF00"
+            });
+
+            guestSession.Clocks.Add(new Clock(new StartClockMessage
+            {
+                Label = "Test clock 2"
+            })
+            {
+                ClockDisplay = "00:00:00",
+                CurrentBackgroundColor = "#FF0000"
+            });
+
+            guestSession.Clocks.Add(new Clock(new StartClockMessage
+            {
+                Label = "Test clock 3"
+            })
+            {
+                ClockDisplay = "00:00:00",
+                CurrentBackgroundColor = "#0000FF"
+            });
+#endif
 
             _log.LogDebug($"UserID {guestSession.UserId}");
             _log.LogDebug($"UserName {guestSession.UserName}");
