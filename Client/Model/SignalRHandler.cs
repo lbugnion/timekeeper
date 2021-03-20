@@ -303,7 +303,7 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            await StopLocalClock(clockId);
+            await StopLocalClock(clockId, true);
 
             _log.LogDebug("Clock stopped, removing");
 
@@ -440,7 +440,7 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        protected virtual async Task StopLocalClock(string clockId)
+        protected virtual async Task StopLocalClock(string clockId, bool keepClock)
         {
             _log.LogInformation($"-> {nameof(StopLocalClock)}");
             _log.LogDebug($"clockId: {clockId}");
@@ -460,8 +460,16 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            existingClock.IsClockRunning = false;
-            existingClock.ResetDisplay();
+            if (keepClock)
+            {
+                existingClock.IsClockRunning = false;
+                existingClock.ResetDisplay();
+            }
+            else
+            {
+                CurrentSession.Clocks.Remove(existingClock);
+            }
+
             await CurrentSession.Save(SessionKey, _log);
 
             Status = $"Clock {existingClock.Message.Label} was stopped";

@@ -214,37 +214,6 @@ namespace Timekeeper.Client.Model
             clock.CountdownFinished -= ClockCountdownFinished;
             await DeleteLocalClock(clock.Message.ClockId);
 
-            // Notify clients
-
-            try
-            {
-                var deleteClockUrl = $"{_hostName}/delete";
-                _log.LogDebug($"deleteClockUrl: {deleteClockUrl}");
-
-                var httpRequest = new HttpRequestMessage(HttpMethod.Post, deleteClockUrl);
-                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-
-                var content = new StringContent(clock.Message.ClockId);
-                httpRequest.Content = content;
-                var response = await _http.SendAsync(httpRequest);
-
-                _log.LogDebug($"Response code: {response.StatusCode}");
-                _log.LogDebug($"Response phrase: {response.ReasonPhrase}");
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    _log.LogError($"Error sending stop instruction: {response.ReasonPhrase}");
-                    ErrorStatus = "Couldn't reach the guests";
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.LogError($"Error sending stop instruction: {ex.Message}");
-                ErrorStatus = "Couldn't reach the guests";
-            }
-
-            clock.CountdownFinished -= ClockCountdownFinished;
-
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
 
             IsDeleteSessionDisabled = isOneClockRunning;
@@ -834,7 +803,7 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> StopClock");
 
-            await StopLocalClock(clock.Message.ClockId);
+            await StopLocalClock(clock.Message.ClockId, true);
             await RestoreClock(clock);
 
             // Notify clients

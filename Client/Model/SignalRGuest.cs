@@ -171,7 +171,7 @@ namespace Timekeeper.Client.Model
             {
                 _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
                 _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
-                _connection.On<string>(Constants.StopClockMessage, StopLocalClock);
+                _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
                 _connection.On<string>(Constants.DeleteClockMessage, DeleteLocalClock);
 
                 ok = await StartConnection();
