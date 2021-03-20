@@ -49,7 +49,13 @@
                 <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
             }
 
-            @if (Handler.CurrentSession != null)
+            @if (Handler.CurrentSession == null)
+            {
+                <blockquote class="guest-no-clocks">
+                    Clocks will appear here when the Host starts them. Stay tuned!!
+                </blockquote>
+            }
+            else
             {
                 <ul id="listofclocks">
                     @foreach (var clock in Handler.CurrentSession.Clocks)

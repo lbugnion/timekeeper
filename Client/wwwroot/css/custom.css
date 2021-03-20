@@ -64,6 +64,11 @@ a:hover {
     margin-top: 30px;
 }
 
+.guest-no-clocks {
+  font-size: 2em;
+  margin-bottom: -85px;
+}
+
 /* Clocks */
 #listofclocks {
     list-style-type: none;
