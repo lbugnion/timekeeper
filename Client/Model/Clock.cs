@@ -13,7 +13,6 @@ namespace Timekeeper.Client.Model
         public const string DefaultPayAttentionColor = "#FFFB91";
         public const string DefaultRunningColor = "#3AFFA9";
         public static readonly TimeSpan DefaultAlmostDone = TimeSpan.FromSeconds(30);
-        public static readonly string DefaultClockId = Guid.Empty.ToString();
         public static readonly TimeSpan DefaultCountDown = TimeSpan.FromMinutes(5);
         public static readonly TimeSpan DefaultPayAttention = TimeSpan.FromMinutes(2);
 
@@ -53,50 +52,35 @@ namespace Timekeeper.Client.Model
             internal set;
         }
 
-        public bool IsStartDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsStopDisabled
-        {
-            get;
-            internal set;
-        }
-
         public StartClockMessage Message
         {
             get;
             private set;
         }
 
+        public TimeSpan Remains 
+        { 
+            get
+            {
+                var elapsed = DateTime.Now - Message.ServerTime;
+                var remains = Message.CountDown - elapsed;
+                return remains;
+            }
+        }
+
         public Clock(StartClockMessage message)
             : base()
         {
-            if (message.ClockId == DefaultClockId)
-            {
-                Message.AlmostDone = message.AlmostDone;
-                Message.CountDown = message.CountDown;
-                Message.Label = message.Label;
-                Message.PayAttention = message.PayAttention;
-                Message.RunningColor = message.RunningColor;
-                Message.ServerTime = message.ServerTime;
-            }
-            else
-            {
-                Message = message;
-            }
+            Message = message;
         }
 
         public Clock()
         {
-            IsStopDisabled = true;
             CurrentBackgroundColor = DefaultBackgroundColor;
 
             Message = new StartClockMessage
             {
-                ClockId = DefaultClockId, // Default ID
+                ClockId = Guid.NewGuid().ToString(),
                 AlmostDone = DefaultAlmostDone,
                 PayAttention = DefaultPayAttention,
                 CountDown = DefaultCountDown,
@@ -117,13 +101,13 @@ namespace Timekeeper.Client.Model
         public void Reset()
         {
             ResetDisplay();
-            CurrentBackgroundColor = DefaultBackgroundColor;
             Message.ServerTime = DateTime.Now;
         }
 
         public void ResetDisplay()
         {
             ClockDisplay = Message.CountDown.ToString("c");
+            CurrentBackgroundColor = DefaultBackgroundColor;
         }
 
         public void Restore(Clock clockInSavedSession)
