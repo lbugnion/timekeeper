@@ -74,13 +74,15 @@
                         <div class="clock-controls-area">
                             @if (clock.IsClockRunning)
                             {
-                                <button @onclick="(e => Handler.StopClock(clock))">
+                                <button @onclick="(e => Handler.StopClock(clock))"
+                                        title="Stop this clock">
                                     <i class="fa fa-stop"></i>
                                 </button>
                             }
                             else
                             {
-                                <button @onclick="(e => Handler.StartClock(clock, true))">
+                                <button @onclick="(e => Handler.StartClock(clock, true))"
+                                        title="Start this clock">
                                     <i class="fa fa-play"></i>
                                 </button>
                             }
@@ -88,16 +90,19 @@
                             @if (!Handler.CurrentSession.CreatedFromTemplate)
                             {
                                 <button @onclick="(e => ConfigureClock(clock))"
+                                        title="Configure this clock"
                                         disabled="@clock.IsConfigDisabled">
                                     <i class="fa fa-cog"></i>
                                 </button>
-                                <button @onclick="(e => Handler.AddClockAfter(clock))">
+                                <button @onclick="(e => Handler.AddClockAfter(clock))"
+                                        title="Add a clock after this one">
                                     <i class="fa fa-plus-square"></i>
                                 </button>
 
                                 @if (Handler.CurrentSession.Clocks.Count > 1)
                                 {
                                     <button @onclick="(e => Handler.DeleteClock(clock))"
+                                            title="Delete this clock"
                                             disabled="@clock.IsDeleteDisabled">
                                         <i class="fa fa-minus-square"></i>
                                     </button>
