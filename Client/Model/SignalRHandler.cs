@@ -377,8 +377,7 @@ namespace Timekeeper.Client.Model
                     {
                         if (clock.IsClockRunning)
                         {
-                            var elapsed = DateTime.Now - clock.Message.ServerTime;
-                            var remains = clock.Message.CountDown - elapsed;
+                            var remains = clock.Remains;
 
                             if (remains.TotalSeconds <= 0)
                             {
@@ -387,10 +386,12 @@ namespace Timekeeper.Client.Model
                                 clock.IsNudgeDisabled = true;
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
+                                clock.Message.ServerTime = DateTime.MinValue;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
                                 RaiseUpdateEvent();
                                 await RestoreClock(clock);
+                                await CurrentSession.Save(SessionKey, _log);
                                 continue;
                             }
 
@@ -463,6 +464,7 @@ namespace Timekeeper.Client.Model
             if (keepClock)
             {
                 existingClock.IsClockRunning = false;
+                existingClock.Message.ServerTime = DateTime.MinValue;
                 existingClock.ResetDisplay();
             }
             else
@@ -478,8 +480,7 @@ namespace Timekeeper.Client.Model
         }
 
         public abstract Task Connect(
-            string templateName = null,
-            bool forceDeleteSession = false);
+            string templateName = null);
 
         public async Task Disconnect()
         {

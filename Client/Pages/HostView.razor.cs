@@ -88,7 +88,7 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogInformation("HIGHLIGHT---> HostView.OnInitializedAsync");
+            Log.LogInformation("-> HostView.OnInitializedAsync");
 
             IsEditingSessionName = false;
             SessionName = "Loading...";

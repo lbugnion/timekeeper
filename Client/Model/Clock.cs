@@ -58,6 +58,16 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        public TimeSpan Remains 
+        { 
+            get
+            {
+                var elapsed = DateTime.Now - Message.ServerTime;
+                var remains = Message.CountDown - elapsed;
+                return remains;
+            }
+        }
+
         public Clock(StartClockMessage message)
             : base()
         {
@@ -91,13 +101,13 @@ namespace Timekeeper.Client.Model
         public void Reset()
         {
             ResetDisplay();
-            CurrentBackgroundColor = DefaultBackgroundColor;
             Message.ServerTime = DateTime.Now;
         }
 
         public void ResetDisplay()
         {
             ClockDisplay = Message.CountDown.ToString("c");
+            CurrentBackgroundColor = DefaultBackgroundColor;
         }
 
         public void Restore(Clock clockInSavedSession)

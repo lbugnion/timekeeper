@@ -57,6 +57,8 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
 
+            _log.LogDebug(message);
+
             IList<StartClockMessage> clockMessages;
 
             try
@@ -68,6 +70,9 @@ namespace Timekeeper.Client.Model
                 _log.LogWarning("Not a list of clocks");
                 return;
             }
+
+            var clockStarted = 0;
+            var newList = new List<Clock>();
 
             foreach (var clockMessage in clockMessages)
             {
@@ -82,7 +87,7 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogTrace($"No found clock, adding");
                     existingClock = new Clock(clockMessage);
-                    CurrentSession.Clocks.Add(existingClock);
+                    clockStarted++;
                 }
                 else
                 {
@@ -95,19 +100,28 @@ namespace Timekeeper.Client.Model
                     existingClock.Message.PayAttentionColor = clockMessage.PayAttentionColor;
                     existingClock.Message.RunningColor = clockMessage.RunningColor;
                     existingClock.Message.ServerTime = clockMessage.ServerTime;
+                    existingClock.Message.Position = clockMessage.Position;
                 }
 
-                RunClock(existingClock);
+                _log.LogDebug($"Clock {existingClock.Message.Label} remains {existingClock.Remains}");
 
-                if (clockMessages.Count == 1)
+                if (existingClock.Remains.TotalSeconds > 0)
                 {
-                    Status = $"Clock {existingClock.Message.Label} started";
+                    // Clock hasn't expired yet
+                    newList.Add(existingClock);
                 }
             }
 
-            if (clockMessages.Count != 1)
+            if (clockStarted > 0)
             {
-                Status = $"{clockMessages.Count} clocks started";
+                Status = $"{clockStarted} clock(s) started";
+            }
+
+            CurrentSession.Clocks = newList.OrderBy(c => c.Message.Position).ToList();
+
+            foreach (Clock clock in CurrentSession.Clocks)
+            {
+                RunClock(clock);
             }
 
             RaiseUpdateEvent();
@@ -156,8 +170,7 @@ namespace Timekeeper.Client.Model
         }
 
         public override async Task Connect(
-            string templateName = null,
-            bool forceDeleteSession = false)
+            string templateName = null)
         {
             _log.LogInformation("-> SignalRGuest.Connect");
 

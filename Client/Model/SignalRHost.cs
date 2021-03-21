@@ -109,6 +109,13 @@ namespace Timekeeper.Client.Model
                     CurrentSession.Clocks.Insert(index + 1, newClock);
                     await CurrentSession.Save(SessionKey, _log);
                 }
+
+                var position = 0;
+
+                foreach (var existingClock in CurrentSession.Clocks)
+                {
+                    existingClock.Message.Position = position;
+                }
             }
         }
 
@@ -153,9 +160,10 @@ namespace Timekeeper.Client.Model
                         clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
 
+                        // TODO CHECK, IS THAT CORRECT
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
-                            _log.LogDebug($"Clock {clock.Message.Label} is still active");
+                            _log.LogDebug($"HIGHLIGHT--Clock {clock.Message.Label} is still active");
                             await StartClock(clock, false);
                         }
                     }
@@ -307,11 +315,11 @@ namespace Timekeeper.Client.Model
 
             if (CurrentSession == null)
             {
-                _log.LogDebug("HIGHLIGHT--Session in storage is Null");
+                _log.LogDebug("Session in storage is Null");
             }
             else
             {
-                _log.LogDebug($"HIGHLIGHT--SessionId in Storage: {CurrentSession.SessionId}");
+                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
             }
 
             if (!string.IsNullOrEmpty(templateName))
@@ -441,7 +449,7 @@ namespace Timekeeper.Client.Model
 
             if (CurrentSession == null)
             {
-                _log.LogTrace("HIGHLIGHT--CurrentSession is null");
+                _log.LogTrace("CurrentSession is null");
 
                 CurrentSession = new SessionBase();
                 CurrentSession.Clocks.Add(new Clock());
@@ -462,7 +470,7 @@ namespace Timekeeper.Client.Model
             }
 
             _log.LogDebug($"UserID {CurrentSession.UserId}");
-            _log.LogInformation("HIGHLIGHT--SignalRHost.InitializeSession ->");
+            _log.LogInformation("SignalRHost.InitializeSession ->");
             return true;
         }
 
@@ -681,6 +689,8 @@ namespace Timekeeper.Client.Model
 
         public async Task StartClock(Clock clock, bool startFresh)
         {
+            _log.LogInformation($"HIGHLIGHT--SignalRHost.StartClock {clock.Message.Label}");
+
             await StartClocks(new List<Clock>
                 {
                     clock
@@ -725,7 +735,7 @@ namespace Timekeeper.Client.Model
                 }
             }
 
-            _log.LogInformation("-> SignalRHost.StartClock");
+            _log.LogInformation($"HIGHLIGHT---> SignalRHost.StartClocks {clocks.Count} clock(s)");
 
             foreach (var clock in clocks)
             {
@@ -745,6 +755,7 @@ namespace Timekeeper.Client.Model
                 {
                     foreach (var clock in clocks)
                     {
+                        _log.LogDebug($"HIGHLIGHT--Reset clock {clock.Message.Label}");
                         clock.Reset();
                     }
 
@@ -752,7 +763,8 @@ namespace Timekeeper.Client.Model
                     await CurrentSession.Save(SessionKey, _log);
                 }
 
-                var json = JsonConvert.SerializeObject(clocks
+                var json = JsonConvert.SerializeObject(CurrentSession.Clocks
+                    .OrderBy(c => c.Message.Position)
                     .Select(c => c.Message)
                     .ToList());
 
@@ -833,7 +845,7 @@ namespace Timekeeper.Client.Model
             clock.IsConfigDisabled = false;
             clock.IsDeleteDisabled = false;
             clock.IsNudgeDisabled = true;
-            clock.Reset();
+            clock.ResetDisplay();
             clock.CountdownFinished -= ClockCountdownFinished;
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
