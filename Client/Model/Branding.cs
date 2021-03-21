@@ -13,12 +13,12 @@
     /// </summary>
     public class Branding
     {
-        public const string AboutPageTitle = "Timekeeper: About";
+        public const string AboutPageTitle = "About";
         public const bool CanEditSessionAndGuestName = true;
-        public const string ConfigurePageTitle = "Timekeeper: Configure";
-        public const string GuestPageTitle = "Timekeeper Guest Page";
-        public const string HostPageTitle = "Timekeeper Host Page";
-        public const string LoginPageTitle = "Timekeeper: Login";
+        public const string ConfigurePageTitle = "Configure clock";
+        public const string GuestPageTitle = "Guest Page";
+        public const string HostPageTitle = "Host Page";
+        public const string LoginPageTitle = "Login";
         public const string MainPageTitle = "Timekeeper";
         public const bool MustAuthorize = false;
         public const string TemplateName = null;
