@@ -120,8 +120,7 @@ namespace Timekeeper.Client.Model
         }
 
         public override async Task Connect(
-            string templateName = null,
-            bool forceDeleteSession = false)
+            string templateName = null)
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
@@ -131,7 +130,7 @@ namespace Timekeeper.Client.Model
             IsDeleteSessionDisabled = true;
             IsCreateNewSessionDisabled = true;
 
-            var ok = await InitializeSession(templateName, forceDeleteSession)
+            var ok = await InitializeSession(templateName)
                 && await CreateConnection();
 
             if (ok)
@@ -243,9 +242,12 @@ namespace Timekeeper.Client.Model
                 _log.LogTrace("Connection is stopped and disposed");
             }
 
-            foreach (var clock in CurrentSession.Clocks)
+            if (CurrentSession != null)
             {
-                clock.CountdownFinished -= ClockCountdownFinished;
+                foreach (var clock in CurrentSession.Clocks)
+                {
+                    clock.CountdownFinished -= ClockCountdownFinished;
+                }
             }
 
             await SessionBase.DeleteFromStorage(SessionKey, _log);
@@ -297,16 +299,9 @@ namespace Timekeeper.Client.Model
         
 
         public async Task<bool> InitializeSession(
-            string templateName = null,
-            bool forceDeleteSession = false)
+            string templateName = null)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRHost.InitializeSession");
-            _log.LogDebug($"forceDeleteSession: {forceDeleteSession}");
-
-            if (forceDeleteSession)
-            {
-                await SessionBase.DeleteFromStorage(SessionKey, _log);
-            }
+            _log.LogInformation("-> SignalRHost.InitializeSession");
 
             CurrentSession = await SessionBase.GetFromStorage(SessionKey, _log);
 
