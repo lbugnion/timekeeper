@@ -1,21 +1,6 @@
 ﻿.logo-image {
-    width: 270px;
-}
-
-header {
-    background-color: #003084;
-}
-
-footer {
-    background-color: #7FC9FF;
-}
-
-h1 {
-    color: #003084;
-}
-
-h2 {
-    color: #003084;
+    width: 300px;
+    margin: 0 0 0 -5px;
 }
 
 .connected-guests {
@@ -25,4 +10,94 @@ h2 {
 .start-all-clocks-area button {
     color: white;
     background-color: red;
+}
+
+/* Hello world colors of the day */
+
+.background-day-mon {
+    background-color: #233BC2;
+}
+
+.background-day-tue {
+    background-color: #8120BA;
+}
+
+.background-day-wed {
+    background-color: #05574C;
+}
+
+.background-day-thu {
+    background-color: #595959;
+}
+
+.background-day-fri {
+    background-color: #1A3B1F;
+}
+
+.background-day-sat {
+    background-color: #1f1f1f;
+}
+
+.background-day-sun {
+    background-color: #1A3B1F;
+}
+
+.foreground-day-mon {
+    color: #233BC2;
+}
+
+.foreground-day-tue {
+    color: #8120BA;
+}
+
+.foreground-day-wed {
+    color: #05574C;
+}
+
+.foreground-day-thu {
+    color: #595959;
+}
+
+.foreground-day-fri {
+    color: #1A3B1F;
+}
+
+.foreground-day-sat {
+    color: #333333;
+}
+
+.foreground-day-sun {
+    color: #333333;
+}
+
+.footer-day-mon {
+    background-color: #53E1FC;
+}
+
+.footer-day-tue {
+    background-color: #CD91FA;
+}
+
+.footer-day-wed {
+    background-color: #3BE0C9;
+}
+
+.footer-day-thu {
+    background-color: #FAED3B;
+}
+
+.footer-day-fri {
+    background-color: #92EE39;
+}
+
+.footer-day-fri {
+    background-color: #92EE39;
+}
+
+.footer-day-sat {
+    background-color: #CCCCCC;
+}
+
+.footer-day-sun {
+    background-color: #CCCCCC;
 }

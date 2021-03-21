@@ -6,8 +6,8 @@
 @inject ILocalStorageService LocalStorage
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
          class="logo-image" />
 </header>
 
@@ -15,7 +15,7 @@
     <article>
         @if (ShowNoSessionMessage)
         {
-            <h1>@Branding.GuestPageTitle</h1>
+            <h1 class="@Today.ForegroundClass">@Branding.GuestPageTitle</h1>
 
             <blockquote class="warning">
                 Please ask the Host to give you a link with a session ID.
@@ -31,7 +31,7 @@
                 }
                 else
                 {
-                    <h1>@GuestName</h1>
+                    <h1 class="@Today.ForegroundClass">@GuestName</h1>
                 }
 
                 @if (!Handler.IsBusy)
@@ -41,7 +41,7 @@
             }
             else
             {
-                <h1>@Branding.GuestPageTitle</h1>
+                <h1 class="@Today.ForegroundClass">@Branding.GuestPageTitle</h1>
             }
 
             @if (Program.IsExperimental)
@@ -90,7 +90,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Today.FooterClass">
     @if (!ShowNoSessionMessage)
     {
         <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>

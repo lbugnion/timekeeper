@@ -4,14 +4,14 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Nav
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.ConfigurePageTitle</h1>
+        <h1 class="@Today.ForegroundClass">@Branding.ConfigurePageTitle</h1>
 
         @if (CurrentClockMessage != null)
         {
@@ -92,6 +92,6 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Today.FooterClass">
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>

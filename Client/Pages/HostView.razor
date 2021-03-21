@@ -13,7 +13,7 @@
         }
         else
         {
-            <h1>@SessionName</h1>
+            <h1 class="@Today.ForegroundClass">@SessionName</h1>
         }
 
         @if (!Handler.IsBusy)
@@ -23,7 +23,7 @@
     }
     else
     {
-        <h1>@Branding.HostPageTitle</h1>
+        <h1 class="@Today.ForegroundClass">@Branding.HostPageTitle</h1>
     }
 
 
@@ -162,10 +162,10 @@ else
     </div>
 </div>
 
-<h2>Session</h2>
+<h2 class="@Today.ForegroundClass">Session</h2>
 
 @if (Handler.CurrentSession != null
- && !Handler.IsInError)
+    && !Handler.IsInError)
 {
     <div class="session-information-area">
         <h3>Send this link to your guests so they can connect to the session:</h3>

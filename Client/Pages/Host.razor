@@ -7,8 +7,8 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
          class="logo-image" />
 
     @if (Branding.MustAuthorize)
@@ -76,7 +76,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Today.FooterClass">
     @if (Branding.MustAuthorize)
     {
         <AuthorizeView>
