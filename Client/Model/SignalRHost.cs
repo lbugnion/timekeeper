@@ -542,7 +542,7 @@ namespace Timekeeper.Client.Model
 
         public async Task StartAllClocks(bool startFresh)
         {
-            await StartClocks(CurrentSession.Clocks, startFresh, false);
+            await StartClocks(CurrentSession.Clocks.ToList(), startFresh, false);
         }
 
         public async Task StartClock(Clock clock, bool startFresh, bool localOnly)
