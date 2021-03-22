@@ -15,6 +15,9 @@ namespace Timekeeper.Client.Model
 {
     public class SignalRHost : SignalRHandler
     {
+        public const string StartAllClocksText = "Start all clocks";
+        public const string StartSelectedClocksText = "Start selected clocks";
+
         public IList<GuestMessage> ConnectedGuests
         {
             get;
@@ -48,6 +51,7 @@ namespace Timekeeper.Client.Model
             HttpClient http) : base(config, localStorage, log, http)
         {
             ConnectedGuests = new List<GuestMessage>();
+            StartClocksButtonText = StartAllClocksText;
         }
 
         private void ClockCountdownFinished(object sender, EventArgs e)
@@ -244,12 +248,14 @@ namespace Timekeeper.Client.Model
 
             if (CurrentSession.Clocks.Any(c => c.IsSelected))
             {
-                StartClocksButtonText = "Start selected clocks";
+                StartClocksButtonText = StartSelectedClocksText;
             }
             else
             {
-                StartClocksButtonText = "Start all clocks";
+                StartClocksButtonText = StartAllClocksText;
             }
+
+            RaiseUpdateEvent();
         }
 
         public void DeleteSession()
@@ -762,7 +768,14 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation($"HIGHLIGHT---> SignalRHost.StartClocks {clocks.Count} clock(s)");
 
-            foreach (var clock in clocks)
+            var clocksToStart = clocks.ToList();
+
+            if (clocks.Any(c => c.IsSelected))
+            {
+                clocksToStart = clocks.Where(c => c.IsSelected).ToList();
+            }
+
+            foreach (var clock in clocksToStart)
             {
                 clock.IsConfigDisabled = true;
                 clock.IsDeleteDisabled = true;
@@ -778,7 +791,7 @@ namespace Timekeeper.Client.Model
             {
                 if (startFresh)
                 {
-                    foreach (var clock in clocks)
+                    foreach (var clock in clocksToStart)
                     {
                         _log.LogDebug($"HIGHLIGHT--Reset clock {clock.Message.Label}");
                         clock.Reset();
@@ -808,7 +821,7 @@ namespace Timekeeper.Client.Model
 
                 if (response.IsSuccessStatusCode)
                 {
-                    foreach (var clock in clocks)
+                    foreach (var clock in clocksToStart)
                     {
                         RunClock(clock);
                     }
