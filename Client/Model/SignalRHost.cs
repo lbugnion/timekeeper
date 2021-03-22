@@ -709,7 +709,7 @@ namespace Timekeeper.Client.Model
 
         public async Task StartAllClocks(bool startFresh)
         {
-            await StartClocks(CurrentSession.Clocks, startFresh);
+            await StartClocks(CurrentSession.Clocks.ToList(), startFresh);
         }
 
         public async Task StartClock(Clock clock, bool startFresh)
