@@ -105,6 +105,7 @@ namespace Timekeeper.Client.Model
                 if (index > -1)
                 {
                     var newClock = new Clock();
+                    newClock.SelectionChanged += ClockSelectionChanged;
                     newClock.Message.ClockId = Guid.NewGuid().ToString();
                     CurrentSession.Clocks.Insert(index + 1, newClock);
                     await CurrentSession.Save(SessionKey, _log);
@@ -159,6 +160,7 @@ namespace Timekeeper.Client.Model
                         clock.IsConfigDisabled = false;
                         clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
+                        clock.SelectionChanged += ClockSelectionChanged;
 
                         // TODO CHECK, IS THAT CORRECT
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
@@ -219,6 +221,7 @@ namespace Timekeeper.Client.Model
         public async Task DeleteClock(Clock clock)
         {
             clock.CountdownFinished -= ClockCountdownFinished;
+            clock.SelectionChanged -= ClockSelectionChanged;
             await DeleteLocalClock(clock.Message.ClockId);
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
@@ -227,6 +230,26 @@ namespace Timekeeper.Client.Model
             IsCreateNewSessionDisabled = isOneClockRunning;
             _log.LogInformation("DeleteClock ->");
 
+        }
+
+        public string StartClocksButtonText
+        {
+            get;
+            private set;
+        }
+
+        private void ClockSelectionChanged(object sender, bool e)
+        {
+            _log.LogInformation("HIGHLIGHT---> ClockSelectionChanged");
+
+            if (CurrentSession.Clocks.Any(c => c.IsSelected))
+            {
+                StartClocksButtonText = "Start selected clocks";
+            }
+            else
+            {
+                StartClocksButtonText = "Start all clocks";
+            }
         }
 
         public void DeleteSession()
@@ -468,6 +491,8 @@ namespace Timekeeper.Client.Model
                 clock.IsClockRunning = false;
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
             }
+
+            RaiseUpdateEvent();
 
             _log.LogDebug($"UserID {CurrentSession.UserId}");
             _log.LogInformation("SignalRHost.InitializeSession ->");

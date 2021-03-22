@@ -6,6 +6,7 @@ namespace Timekeeper.Client.Model
     public class Clock
     {
         public event EventHandler CountdownFinished;
+        public event EventHandler<bool> SelectionChanged;
 
         public const string DefaultAlmostDoneColor = "#FF6B77";
         public const string DefaultBackgroundColor = "#EEEEEE";
@@ -34,6 +35,18 @@ namespace Timekeeper.Client.Model
             set;
         }
 
+        public bool IsSelected
+        {
+            get;
+            set;
+        }
+
+        public void ToggleSelect()
+        {
+            IsSelected = !IsSelected;
+            SelectionChanged?.Invoke(this, IsSelected);
+        }
+
         public bool IsConfigDisabled
         {
             get;
@@ -58,8 +71,8 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public TimeSpan Remains 
-        { 
+        public TimeSpan Remains
+        {
             get
             {
                 var elapsed = DateTime.Now - Message.ServerTime;

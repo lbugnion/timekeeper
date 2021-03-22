@@ -159,8 +159,12 @@ a:hover {
         font-weight: bold;
     }
 
-/* Messages and controls */
+.clock-selection {
+    float: right;
+    margin-right: 8px;
+}
 
+/* Messages and controls */
 .send-message-area {
 }
 

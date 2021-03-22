@@ -38,6 +38,21 @@
         {
             <li style="background-color: @clock.CurrentBackgroundColor">
                 <div class="clock-area">
+                    @if (clock.IsSelected)
+                    {
+                        <button @onclick="clock.ToggleSelect"
+                                title="Unselect this clock">
+                            <i class="fa fa-check-square-o"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button @onclick="clock.ToggleSelect"
+                                title="Select this clock">
+                            <i class="fa fa-square-o"></i>
+                        </button>
+                    }
+
                     <div class="nudge-buttons-area">
                         <button class="nudge-button"
                                 title="Nudge up 30 seconds"
