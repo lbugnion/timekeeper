@@ -41,14 +41,16 @@
                     @if (clock.IsSelected)
                     {
                         <button @onclick="clock.ToggleSelect"
-                                title="Unselect this clock">
+                                title="Unselect this clock"
+                                class="clock-selection">
                             <i class="fa fa-check-square-o"></i>
                         </button>
                     }
                     else
                     {
                         <button @onclick="clock.ToggleSelect"
-                                title="Select this clock">
+                                title="Select this clock"
+                                class="clock-selection">
                             <i class="fa fa-square-o"></i>
                         </button>
                     }
