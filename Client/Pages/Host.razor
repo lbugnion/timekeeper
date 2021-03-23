@@ -4,10 +4,11 @@
 @inject ILogger<Host> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
+@inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
          class="logo-image" />
 
     @if (Branding.MustAuthorize)
@@ -36,7 +37,7 @@
             <Authorized>
                 <div class="start-all-clocks-area">
                     <button @onclick="(e => Handler.StartAllClocks(true))">
-                        Start all clocks
+                        @Handler.StartClocksButtonText
                     </button>
                 </div>
             </Authorized>
@@ -46,7 +47,7 @@
     {
         <div class="start-all-clocks-area">
             <button @onclick="(e => Handler.StartAllClocks(true))">
-                Start all clocks
+                @Handler.StartClocksButtonText
             </button>
         </div>
     }
@@ -75,7 +76,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Today.FooterClass">
     @if (Branding.MustAuthorize)
     {
         <AuthorizeView>

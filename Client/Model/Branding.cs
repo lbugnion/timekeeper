@@ -13,15 +13,20 @@
     /// </summary>
     public class Branding
     {
-        public const string AboutPageTitle = "Timekeeper: About";
-        public const bool CanEditSessionAndGuestName = true;
-        public const string ConfigurePageTitle = "Timekeeper: Configure";
-        public const string GuestPageTitle = "Timekeeper Guest Page";
-        public const string HostPageTitle = "Timekeeper Host Page";
-        public const string LoginPageTitle = "Timekeeper: Login";
-        public const string MainPageTitle = "Timekeeper";
+        public const string AboutPageTitle = "Hello World Backstage: About";
+        public const bool CanEditSessionAndGuestName = false;
+        public const string ConfigurePageTitle = "Hello World Backstage: Configure";
+        public const string GuestPageTitle = "Welcome Backstage!";
+        public const string HostPageTitle = "Welcome Backstage!";
+        public const string LoginPageTitle = "Hello World Backstage: Login";
+        public const string MainPageTitle = "Hello World Backstage";
+        public const string TemplateName = "HelloWorldClocksTemplate";
+        public const string WindowTitle = "Hello World Backstage";
+
+#if DEBUG
         public const bool MustAuthorize = false;
-        public const string TemplateName = "ClocksTemplate";
-        public const string WindowTitle = "Timekeeper";
+#else
+        public const bool MustAuthorize = true;
+#endif
     }
 }

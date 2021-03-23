@@ -29,6 +29,12 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
@@ -47,6 +53,8 @@ namespace Timekeeper.Client.Pages
 
             try
             {
+                Today = new Days(Log);
+
                 var version = Assembly
                     .GetExecutingAssembly()
                     .GetName()

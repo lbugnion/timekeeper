@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -22,6 +23,8 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        protected override string SessionKey => "GuestSession";
+
         public SignalRGuest(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -35,9 +38,26 @@ namespace Timekeeper.Client.Model
             Guest.SetLocalStorage(localStorage, log);
         }
 
+        private async void ClockCountdownFinished(object sender, EventArgs e)
+        {
+            _log.LogInformation("-> ClockCountdownFinished");
+
+            var clock = sender as Clock;
+
+            if (clock == null)
+            {
+                return;
+            }
+
+            clock.CountdownFinished -= ClockCountdownFinished;
+            await DeleteLocalClock(clock.Message.ClockId);
+        }
+
         private void ReceiveStartClock(string message)
         {
             _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
+
+            _log.LogDebug(message);
 
             IList<StartClockMessage> clockMessages;
 
@@ -50,6 +70,9 @@ namespace Timekeeper.Client.Model
                 _log.LogWarning("Not a list of clocks");
                 return;
             }
+
+            var clockStarted = 0;
+            var newList = new List<Clock>();
 
             foreach (var clockMessage in clockMessages)
             {
@@ -64,7 +87,7 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogTrace($"No found clock, adding");
                     existingClock = new Clock(clockMessage);
-                    CurrentSession.Clocks.Add(existingClock);
+                    clockStarted++;
                 }
                 else
                 {
@@ -77,19 +100,28 @@ namespace Timekeeper.Client.Model
                     existingClock.Message.PayAttentionColor = clockMessage.PayAttentionColor;
                     existingClock.Message.RunningColor = clockMessage.RunningColor;
                     existingClock.Message.ServerTime = clockMessage.ServerTime;
+                    existingClock.Message.Position = clockMessage.Position;
                 }
 
-                RunClock(existingClock);
+                _log.LogDebug($"Clock {existingClock.Message.Label} remains {existingClock.Remains}");
 
-                if (clockMessages.Count == 1)
+                if (existingClock.Remains.TotalSeconds > 0)
                 {
-                    Status = $"Clock {existingClock.Message.Label} started";
+                    // Clock hasn't expired yet
+                    newList.Add(existingClock);
                 }
             }
 
-            if (clockMessages.Count != 1)
+            if (clockStarted > 0)
             {
-                Status = $"{clockMessages.Count} clocks started";
+                Status = $"{clockStarted} clock(s) started";
+            }
+
+            CurrentSession.Clocks = newList.OrderBy(c => c.Message.Position).ToList();
+
+            foreach (Clock clock in CurrentSession.Clocks)
+            {
+                RunClock(clock);
             }
 
             RaiseUpdateEvent();
@@ -138,8 +170,7 @@ namespace Timekeeper.Client.Model
         }
 
         public override async Task Connect(
-            string templateName = null,
-            bool forceDeleteSession = false)
+            string templateName = null)
         {
             _log.LogInformation("-> SignalRGuest.Connect");
 
@@ -153,7 +184,7 @@ namespace Timekeeper.Client.Model
             {
                 _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
                 _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
-                _connection.On<string>(Constants.StopClockMessage, StopLocalClock);
+                _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
                 _connection.On<string>(Constants.DeleteClockMessage, DeleteLocalClock);
 
                 ok = await StartConnection();
@@ -218,6 +249,33 @@ namespace Timekeeper.Client.Model
 
             _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
+
+            return true;
+        }
+
+        public async Task<bool> InitializeSession(string sessionId)
+        {
+            _log.LogInformation("-> InitializeSession");
+            _log.LogDebug($"sessionId: {sessionId}");
+
+            var guestSession = await SessionBase.GetFromStorage(SessionKey, _log);
+
+            if (guestSession == null)
+            {
+                guestSession = new SessionBase();
+            }
+
+            guestSession.SessionId = sessionId;
+            guestSession.Clocks = new List<Clock>(); // Always reset the clocks
+
+            _log.LogDebug($"UserID {guestSession.UserId}");
+            _log.LogDebug($"UserName {guestSession.UserName}");
+
+            CurrentSession = guestSession;
+            await CurrentSession.Save(SessionKey, _log);
+            _log.LogTrace("Session saved to storage");
+
+            _log.LogInformation("InitializeSession ->");
             return true;
         }
     }

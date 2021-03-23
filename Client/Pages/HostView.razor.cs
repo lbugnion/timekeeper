@@ -80,6 +80,12 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         public MobileHandler Mobile
         {
             get;
@@ -88,6 +94,8 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogInformation("-> HostView.OnInitializedAsync");
+            Today = new Days(Log);
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
@@ -126,7 +134,7 @@ namespace Timekeeper.Client.Pages
             {
                 EditSessionNameLinkText = EditSessionNameText;
                 Handler.CurrentSession.SessionName = SessionName;
-                await Handler.CurrentSession.Save(Log);
+                await Handler.SaveSession();
             }
         }
 

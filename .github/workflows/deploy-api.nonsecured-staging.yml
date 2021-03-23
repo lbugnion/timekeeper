@@ -3,13 +3,11 @@ name: STAGING Non secured API deploy
 on:
   push:
     branches:
-    - Staging-Hello-World
     - Test
     paths:
     - 'Api.Free/**'
   pull_request:
     branches:
-    - Staging-Hello-World
     - Test
     paths:
     - 'Api.Free/**'

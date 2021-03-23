@@ -268,6 +268,12 @@ namespace Timekeeper.DataModel
             }
         }
 
+        public int Position
+        {
+            get;
+            set;
+        }
+
         [Required]
         [MinLength(4, ErrorMessage = ColorErrorMessage)]
         [MaxLength(7, ErrorMessage = ColorErrorMessage)]
