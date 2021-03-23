@@ -4,6 +4,7 @@
 @inject ILogger<Host> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
+@inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
 <header class="@Today.BackgroundClass">
@@ -36,7 +37,7 @@
             <Authorized>
                 <div class="start-all-clocks-area">
                     <button @onclick="(e => Handler.StartAllClocks(true))">
-                        Start all clocks
+                        @Handler.StartClocksButtonText
                     </button>
                 </div>
             </Authorized>
@@ -46,7 +47,7 @@
     {
         <div class="start-all-clocks-area">
             <button @onclick="(e => Handler.StartAllClocks(true))">
-                Start all clocks
+                @Handler.StartClocksButtonText
             </button>
         </div>
     }

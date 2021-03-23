@@ -94,6 +94,7 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogInformation("-> HostView.OnInitializedAsync");
             Today = new Days(Log);
             IsEditingSessionName = false;
             SessionName = "Loading...";
@@ -133,7 +134,7 @@ namespace Timekeeper.Client.Pages
             {
                 EditSessionNameLinkText = EditSessionNameText;
                 Handler.CurrentSession.SessionName = SessionName;
-                await Handler.CurrentSession.Save(Log);
+                await Handler.SaveSession();
             }
         }
 
