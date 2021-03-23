@@ -22,7 +22,7 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public Session CurrentSession
+        public SignalRHost Host
         {
             get;
             set;
@@ -35,13 +35,13 @@ namespace Timekeeper.Client.Pages
             if (CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Log.LogTrace("Saving");
-                await CurrentSession.Save(Log);
+                await Host.SaveSession();
             }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("setTitle", Branding.WindowTitle);
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
         protected override void OnInitialized()
@@ -54,7 +54,7 @@ namespace Timekeeper.Client.Pages
                 return;
             }
 
-            CurrentSession = Program.ClockToConfigure.CurrentSession;
+            Host = Program.ClockToConfigure.Host;
             CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
             Program.ClockToConfigure = null;
 

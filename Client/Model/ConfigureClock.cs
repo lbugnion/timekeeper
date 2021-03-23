@@ -8,7 +8,7 @@
             set;
         }
 
-        public Session CurrentSession
+        public SignalRHost Host
         {
             get;
             set;

@@ -32,78 +32,112 @@
         <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
     }
 
-    @if (Handler == null
-        || Handler.CurrentSession == null
-        || Handler.CurrentSession.Clocks == null)
-    {
-        <p>Please wait...</p>
-    }
-    else
-    {
-        <ul id="listofclocks">
+    <ul id="listofclocks">
 
-            @foreach (var clock in Handler.CurrentSession.Clocks)
-            {
-                <li style="background-color: @clock.CurrentBackgroundColor">
-                    <div class="clock-area">
-                        <div class="nudge-buttons-area">
-                            <button class="nudge-button"
-                                    title="Nudge up 30 seconds"
-                                    disabled="@clock.IsNudgeDisabled"
-                                    @onclick="(e => Handler.Nudge(clock, 30))">
-                                +30
-                            </button>
-                            <button class="nudge-button"
-                                    title="Nudge up 10 seconds"
-                                    disabled="@clock.IsNudgeDisabled"
-                                    @onclick="(e => Handler.Nudge(clock, 10))">
-                                +10
-                            </button>
-                            <button class="nudge-button"
-                                    title="Nudge down 10 seconds"
-                                    disabled="@clock.IsNudgeDisabled"
-                                    @onclick="(e => Handler.Nudge(clock, -10))">
-                                -10
-                            </button>
-                            <button class="nudge-button"
-                                    title="Nudge down 30 seconds"
-                                    disabled="@clock.IsNudgeDisabled"
-                                    @onclick="(e => Handler.Nudge(clock, -30))">
-                                -30
-                            </button>
+        @foreach (var clock in Handler.CurrentSession.Clocks)
+        {
+            <li style="background-color: @clock.CurrentBackgroundColor">
+                <div class="clock-area">
+                    @if (clock.IsSelected)
+                    {
+                        <button @onclick="clock.ToggleSelect"
+                                title="Unselect this clock"
+                                class="clock-selection">
+                            <i class="fa fa-check-square-o"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button @onclick="clock.ToggleSelect"
+                                title="Select this clock"
+                                class="clock-selection">
+                            <i class="fa fa-square-o"></i>
+                        </button>
+                    }
+
+                    <div class="nudge-buttons-area">
+                        <button class="nudge-button"
+                                title="Nudge up 30 seconds"
+                                disabled="@clock.IsNudgeDisabled"
+                                @onclick="(e => Handler.Nudge(clock, 30))">
+                            +30
+                        </button>
+                        <button class="nudge-button"
+                                title="Nudge up 10 seconds"
+                                disabled="@clock.IsNudgeDisabled"
+                                @onclick="(e => Handler.Nudge(clock, 10))">
+                            +10
+                        </button>
+                        <button class="nudge-button"
+                                title="Nudge down 10 seconds"
+                                disabled="@clock.IsNudgeDisabled"
+                                @onclick="(e => Handler.Nudge(clock, -10))">
+                            -10
+                        </button>
+                        <button class="nudge-button"
+                                title="Nudge down 30 seconds"
+                                disabled="@clock.IsNudgeDisabled"
+                                @onclick="(e => Handler.Nudge(clock, -30))">
+                            -30
+                        </button>
+                    </div>
+
+                    <div class="clock-display-controls-area">
+                        <div class="clock-display-area">
+                            <div class="clock-label">@clock.Message.Label</div>
+                            <div class="clock-text">@clock.ClockDisplay</div>
                         </div>
 
-                        <div class="clock-display-controls-area">
-                            <div class="clock-display-area">
-                                <div class="clock-label">@clock.Message.Label</div>
-                                <div class="clock-text">@clock.ClockDisplay</div>
-                            </div>
-
-                            <div class="clock-controls-area">
-                                <button @onclick="(e => Handler.StartClock(clock, true, false))"
-                                        disabled="@clock.IsStartDisabled">
-                                    Start
-                                </button>
+                        <div class="clock-controls-area">
+                            @if (clock.IsClockRunning)
+                            {
                                 <button @onclick="(e => Handler.StopClock(clock))"
-                                        disabled="@clock.IsStopDisabled">
-                                    Stop
+                                        title="Stop this clock">
+                                    <i class="fa fa-stop"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button @onclick="(e => Handler.StartClock(clock, true))"
+                                        title="Start this clock">
+                                    <i class="fa fa-play"></i>
+                                </button>
+                            }
+
+                            @if (!Handler.CurrentSession.CreatedFromTemplate)
+                            {
+                                <button @onclick="(e => ConfigureClock(clock))"
+                                        title="Configure this clock"
+                                        disabled="@clock.IsConfigDisabled">
+                                    <i class="fa fa-cog"></i>
+                                </button>
+                                <button @onclick="(e => Handler.AddClockAfter(clock))"
+                                        title="Add a clock after this one">
+                                    <i class="fa fa-plus-square"></i>
                                 </button>
 
-                                @if (!Handler.CurrentSession.CreatedFromTemplate)
+                                @if (Handler.CurrentSession.Clocks.Count > 1)
                                 {
-                                    <button @onclick="(e => ConfigureClock(clock))"
-                                            disabled="@clock.IsConfigDisabled">
-                                        Config
+                                    <button @onclick="(e => Handler.DeleteClock(clock))"
+                                            title="Delete this clock"
+                                            disabled="@clock.IsDeleteDisabled">
+                                        <i class="fa fa-minus-square"></i>
                                     </button>
                                 }
-                            </div>
+                            }
                         </div>
                     </div>
-                </li>
-            }
+                </div>
+            </li>
+        }
 
-        </ul>
-    }
+    </ul>
+}
+else
+{
+    <blockquote class="no-clocks-no-session">
+        Reload this page to create a new session.
+    </blockquote>
 }
 
 <div class="message-area">
@@ -148,7 +182,7 @@
 <h2>Session</h2>
 
 @if (Handler.CurrentSession != null
- && !Handler.IsInError)
+    && !Handler.IsInError)
 {
     <div class="session-information-area">
         <h3>Send this link to your guests so they can connect to the session:</h3>

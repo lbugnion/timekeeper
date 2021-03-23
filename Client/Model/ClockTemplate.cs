@@ -5,19 +5,13 @@ namespace Timekeeper.Client.Model
 {
     public class ClockDefinition
     {
-        /// <summary>
-        /// Color
-        /// </summary>
-        public string C
+        public string Color
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Time
-        /// </summary>
-        public TimeSpan T
+        public TimeSpan Time
         {
             get;
             set;
@@ -26,46 +20,25 @@ namespace Timekeeper.Client.Model
 
     public class ClockForTemplate
     {
-        /// <summary>
-        /// Almost done
-        /// </summary>
-        public ClockDefinition A
+        public ClockDefinition AlmostDone
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// CountDown
-        /// </summary>
-        public ClockDefinition C
+        public ClockDefinition Countdown
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Default clock
-        /// </summary>
-        public bool D
+        public string Label
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Label
-        /// </summary>
-        public string L
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Pay attention
-        /// </summary>
-        public ClockDefinition P
+        public ClockDefinition PayAttention
         {
             get;
             set;
@@ -74,28 +47,19 @@ namespace Timekeeper.Client.Model
 
     public class ClockTemplate
     {
-        /// <summary>
-        /// Clocks
-        /// </summary>
-        public IList<ClockForTemplate> CK
+        public IList<ClockForTemplate> Clocks
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Session ID
-        /// </summary>
         public string SessionId
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Session name
-        /// </summary>
-        public string SN
+        public string SessionName
         {
             get;
             set;

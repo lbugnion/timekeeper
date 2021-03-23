@@ -42,6 +42,8 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            Log.LogInformation("-> Host.OnInitializedAsync");
+
 #if !DEBUG
             if (Branding.MustAuthorize)
             {
@@ -64,8 +66,15 @@ namespace Timekeeper.Client.Pages
                 Log,
                 Http);
 
+            if (ResetSession == "reset")
+            {
+                await Handler.DoDeleteSession();
+                Nav.NavigateTo("/host", true);
+                return;
+            }
+
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect(Branding.TemplateName, ResetSession == "reset");
+            await Handler.Connect(Branding.TemplateName);
             SessionName = Handler.CurrentSession.SessionName;
         }
 
