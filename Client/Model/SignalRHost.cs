@@ -722,15 +722,6 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation($"HIGHLIGHT--SignalRHost.StartClock {clock.Message.Label}");
 
-            // Just for security
-
-            var selectedClocks = CurrentSession.Clocks.Where(c => c.IsSelected);
-
-            foreach (var c in selectedClocks)
-            {
-                c.IsSelected = false;
-            }
-
             await StartClocks(new List<Clock>
                 {
                     clock
@@ -742,40 +733,7 @@ namespace Timekeeper.Client.Model
             IList<Clock> clocks,
             bool startFresh)
         {
-            if (startFresh)
-            {
-                var activeClocks = clocks
-                    .Where(c => c.IsClockRunning)
-                    .ToList();
-
-                foreach (var activeClock in activeClocks)
-                {
-                    clocks.Remove(activeClock);
-                }
-
-                if (clocks.Count == 0)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                var inactiveClocks = clocks
-                    .Where(c => !c.IsClockRunning)
-                    .ToList();
-
-                foreach (var inactiveClock in inactiveClocks)
-                {
-                    clocks.Remove(inactiveClock);
-                }
-
-                if (clocks.Count == 0)
-                {
-                    return;
-                }
-            }
-
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.StartClocks {clocks.Count} clock(s)");
+            StartClocksButtonText = StartAllClocksText;
 
             var clocksToStart = clocks.ToList();
 
@@ -783,6 +741,43 @@ namespace Timekeeper.Client.Model
             {
                 clocksToStart = clocks.Where(c => c.IsSelected).ToList();
             }
+
+            if (startFresh)
+            {
+                var activeClocks = clocksToStart
+                    .Where(c => c.IsClockRunning)
+                    .ToList();
+
+                foreach (var activeClock in activeClocks)
+                {
+                    activeClock.IsSelected = false;
+                    clocksToStart.Remove(activeClock);
+                }
+
+                if (clocksToStart.Count == 0)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                var inactiveClocks = clocksToStart
+                    .Where(c => !c.IsClockRunning)
+                    .ToList();
+
+                foreach (var inactiveClock in inactiveClocks)
+                {
+                    inactiveClock.IsSelected = false;
+                    clocksToStart.Remove(inactiveClock);
+                }
+
+                if (clocksToStart.Count == 0)
+                {
+                    return;
+                }
+            }
+
+            _log.LogInformation($"HIGHLIGHT---> SignalRHost.StartClocks {clocksToStart.Count} clock(s)");
 
             foreach (var clock in clocksToStart)
             {
