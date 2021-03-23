@@ -161,18 +161,22 @@ namespace Timekeeper.Client.Model
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
+                        _log.LogDebug($"HIGHLIGHT--{clock.Message.ServerTime}");
+                        _log.LogDebug($"HIGHLIGHT--{clock.Message.CountDown}");
+
                         clock.IsConfigDisabled = false;
                         clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
                         clock.SelectionChanged += ClockSelectionChanged;
 
-                        // TODO CHECK, IS THAT CORRECT
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
-                            _log.LogDebug($"HIGHLIGHT--Clock {clock.Message.Label} is still active");
-                            await StartClock(clock, false);
+                            clock.IsClockRunning = true;
+                            _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
                         }
                     }
+
+                    await StartClocks(CurrentSession.Clocks.Where(c => c.IsClockRunning).ToList(), false);
 
                     IsSendMessageDisabled = false;
                     IsDeleteSessionDisabled = false;
@@ -244,7 +248,7 @@ namespace Timekeeper.Client.Model
 
         private void ClockSelectionChanged(object sender, bool e)
         {
-            _log.LogInformation("HIGHLIGHT---> ClockSelectionChanged");
+            _log.LogInformation("-> ClockSelectionChanged");
 
             if (CurrentSession.Clocks.Any(c => c.IsSelected))
             {
@@ -720,7 +724,7 @@ namespace Timekeeper.Client.Model
 
         public async Task StartClock(Clock clock, bool startFresh)
         {
-            _log.LogInformation($"HIGHLIGHT--SignalRHost.StartClock {clock.Message.Label}");
+            _log.LogInformation($"SignalRHost.StartClock {clock.Message.Label}");
 
             await StartClocks(new List<Clock>
                 {
@@ -733,6 +737,7 @@ namespace Timekeeper.Client.Model
             IList<Clock> clocks,
             bool startFresh)
         {
+            _log.LogInformation("HIGHLIGHT---> StartClocks");
             StartClocksButtonText = StartAllClocksText;
 
             var clocksToStart = clocks.ToList();
@@ -741,6 +746,8 @@ namespace Timekeeper.Client.Model
             {
                 clocksToStart = clocks.Where(c => c.IsSelected).ToList();
             }
+
+            _log.LogDebug($"HIGHLIGHT--{clocksToStart.Count} clock(s) to start");
 
             if (startFresh)
             {
@@ -773,11 +780,12 @@ namespace Timekeeper.Client.Model
 
                 if (clocksToStart.Count == 0)
                 {
+                    _log.LogTrace("HIGHLIGHT--No more active clocks");
                     return;
                 }
             }
 
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.StartClocks {clocksToStart.Count} clock(s)");
+            _log.LogInformation($"-> SignalRHost.StartClocks {clocksToStart.Count} clock(s)");
 
             foreach (var clock in clocksToStart)
             {
@@ -798,7 +806,7 @@ namespace Timekeeper.Client.Model
                 {
                     foreach (var clock in clocksToStart)
                     {
-                        _log.LogDebug($"HIGHLIGHT--Reset clock {clock.Message.Label}");
+                        _log.LogDebug($"Reset clock {clock.Message.Label}");
                         clock.Reset();
                     }
 

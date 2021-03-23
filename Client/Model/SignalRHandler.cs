@@ -67,6 +67,12 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        public bool IsTaskRunning
+        {
+            get;
+            private set;
+        }
+
         public bool IsAnyClockRunning
         {
             get
@@ -354,7 +360,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"CurrentBackgroundColor: {activeClock.CurrentBackgroundColor}");
             _log.LogDebug($"Label: {activeClock.Message.Label}");
 
-            if (IsAnyClockRunning)
+            if (IsTaskRunning)
             {
                 _log.LogTrace("Clock task already running");
                 activeClock.IsClockRunning = true;
@@ -367,6 +373,8 @@ namespace Timekeeper.Client.Model
             {
                 do
                 {
+                    IsTaskRunning = true;
+
                     if (CurrentSession.Clocks.Count == 0)
                     {
                         _log.LogTrace("No clocks found");
@@ -417,6 +425,8 @@ namespace Timekeeper.Client.Model
                     await Task.Delay(delay);
                 }
                 while (IsAnyClockRunning);
+
+                IsTaskRunning = false;
             });
         }
 
