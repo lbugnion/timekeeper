@@ -28,12 +28,6 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         private async void CurrentEditContextOnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
         {
             Log.LogInformation("-> CurrentEditContextOnValidationStateChanged");
@@ -59,8 +53,6 @@ namespace Timekeeper.Client.Pages
                 Nav.NavigateTo("/");
                 return;
             }
-
-            Today = new Days(Log);
 
             Host = Program.ClockToConfigure.Host;
             CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;

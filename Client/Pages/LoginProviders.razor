@@ -7,18 +7,16 @@
         { "github", "GitHub" },
         { "twitter", "Twitter" }
     };
-
-    var today = new Timekeeper.Client.Model.Days(Log);
 }
 
-<header class="@today.BackgroundClass">
-    <img src="@today.ImagePath"
+<header>
+    <img src="images/header-logo.png"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1 class="@today.ForegroundClass">@Branding.LoginPageTitle</h1>
+        <h1>@Branding.LoginPageTitle</h1>
 
         <ul>
             @foreach (var provider in providers)
@@ -33,7 +31,7 @@
     </article>
 </main>
 
-<footer class="@today.FooterClass">
+<footer>
     <div class="status-message">Please log in</div>
 
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>

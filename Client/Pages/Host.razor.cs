@@ -22,12 +22,6 @@ namespace Timekeeper.Client.Pages
             await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         public SignalRHost Handler
         {
             get;
@@ -49,7 +43,6 @@ namespace Timekeeper.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> Host.OnInitializedAsync");
-            Today = new Days(Log);
 
 #if !DEBUG
             if (Branding.MustAuthorize)
