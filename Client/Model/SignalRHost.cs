@@ -722,6 +722,15 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation($"HIGHLIGHT--SignalRHost.StartClock {clock.Message.Label}");
 
+            // Just for security
+
+            var selectedClocks = CurrentSession.Clocks.Where(c => c.IsSelected);
+
+            foreach (var c in selectedClocks)
+            {
+                c.IsSelected = false;
+            }
+
             await StartClocks(new List<Clock>
                 {
                     clock
@@ -777,6 +786,7 @@ namespace Timekeeper.Client.Model
 
             foreach (var clock in clocksToStart)
             {
+                clock.IsSelected = false;
                 clock.IsConfigDisabled = true;
                 clock.IsDeleteDisabled = true;
                 clock.IsNudgeDisabled = false;
