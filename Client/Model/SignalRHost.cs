@@ -166,9 +166,6 @@ namespace Timekeeper.Client.Model
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
-                        _log.LogDebug($"HIGHLIGHT--{clock.Message.ServerTime}");
-                        _log.LogDebug($"HIGHLIGHT--{clock.Message.CountDown}");
-
                         clock.IsConfigDisabled = false;
                         clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
@@ -177,16 +174,26 @@ namespace Timekeeper.Client.Model
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
                             clock.IsClockRunning = true;
-                            _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
+                            _log.LogDebug($"{clock.Message.Label} still active");
                         }
                     }
 
                     await StartClocks(CurrentSession.Clocks.Where(c => c.IsClockRunning).ToList(), false);
 
+                    _log.LogDebug($"HIGHLIGHT--CurrentSession.LastMessage: {CurrentSession.LastMessage}");
+
+                    if (string.IsNullOrEmpty(CurrentSession.LastMessage))
+                    {
+                        CurrentMessage = new MarkupString("Ready");
+                    }
+                    else
+                    {
+                        CurrentMessage = new MarkupString(CurrentSession.LastMessage);
+                    }
+
                     IsSendMessageDisabled = false;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
-                    CurrentMessage = new MarkupString("Ready");
                 }
                 else
                 {
@@ -714,6 +721,8 @@ namespace Timekeeper.Client.Model
                 else
                 {
                     Status = "Message sent";
+                    CurrentSession.LastMessage = htmlMessage;
+                    await CurrentSession.Save(SessionKey, _log);
                 }
             }
             catch (Exception ex)
@@ -745,7 +754,7 @@ namespace Timekeeper.Client.Model
             IList<Clock> clocks,
             bool startFresh)
         {
-            _log.LogInformation("HIGHLIGHT---> StartClocks");
+            _log.LogInformation("-> StartClocks");
             StartClocksButtonText = StartAllClocksText;
 
             var clocksToStart = clocks.ToList();
@@ -755,7 +764,7 @@ namespace Timekeeper.Client.Model
                 clocksToStart = clocks.Where(c => c.IsSelected).ToList();
             }
 
-            _log.LogDebug($"HIGHLIGHT--{clocksToStart.Count} clock(s) to start");
+            _log.LogDebug($"{clocksToStart.Count} clock(s) to start");
 
             if (startFresh)
             {
@@ -788,7 +797,7 @@ namespace Timekeeper.Client.Model
 
                 if (clocksToStart.Count == 0)
                 {
-                    _log.LogTrace("HIGHLIGHT--No more active clocks");
+                    _log.LogTrace("No more active clocks");
                     return;
                 }
             }

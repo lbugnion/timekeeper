@@ -26,6 +26,12 @@ namespace Timekeeper.Client.Model
             set;
         }
 
+        public string LastMessage
+        {
+            get;
+            set;
+        }
+
         [Required]
         public string UserId
         {
@@ -75,7 +81,7 @@ namespace Timekeeper.Client.Model
 
         public async Task Save(string sessionStorageKey, ILogger log)
         {
-            log.LogTrace("CRITICAL--SAVING SESSION");
+            log.LogTrace("SAVING SESSION");
 
             var json = JsonConvert.SerializeObject(this);
 
