@@ -131,6 +131,11 @@ namespace Timekeeper.Client.Model
             IsDeleteSessionWarningVisible = false;
         }
 
+        public async Task SendInputMessage()
+        {
+            await SendMessage(InputMessage);
+        }
+
         public override async Task Connect(
             string templateName = null)
         {
@@ -547,13 +552,14 @@ namespace Timekeeper.Client.Model
 
             if (existingGuest != null)
             {
-                _log.LogWarning("Found existing guest, refresh clock just to be sure");
+                _log.LogWarning("Found existing guest, refresh clock and message just to be sure");
 
                 if (IsAnyClockRunning)
                 {
                     await StartAllClocks(false);
                 }
 
+                await (SendMessage(CurrentMessage.Value));
                 return;
             }
 
@@ -575,6 +581,7 @@ namespace Timekeeper.Client.Model
                 await StartAllClocks(false);
             }
 
+            await (SendMessage(CurrentMessage.Value));
             _log.LogInformation($"SignalRHost.{nameof(ReceiveConnectMessage)} ->");
         }
 
@@ -648,18 +655,19 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
         }
 
-        public async Task SendMessage()
+        public async Task SendMessage(string message)
         {
             _log.LogInformation($"-> {nameof(SendMessage)}");
 
-            if (string.IsNullOrEmpty(InputMessage))
+            if (string.IsNullOrEmpty(message))
             {
                 return;
             }
 
             try
             {
-                var htmlMessage = InputMessage
+                var htmlMessage = message
+                    .Trim()
                     .Replace("\n", "<br />");
 
                 var opening = true;

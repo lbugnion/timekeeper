@@ -140,7 +140,7 @@ namespace Timekeeper.Client.Pages
         {
             if (args.CtrlKey)
             {
-                await Handler.SendMessage();
+                await Handler.SendInputMessage();
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
         }
