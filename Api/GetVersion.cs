@@ -14,7 +14,8 @@ namespace Timekeeper
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
-                Route = "version")] HttpRequest req,
+                Route = "version")] 
+            HttpRequest req,
             ILogger log)
         {
             return new OkObjectResult("0.5.5.0");

@@ -180,7 +180,7 @@ namespace Timekeeper.Client.Model
 
                     await StartClocks(CurrentSession.Clocks.Where(c => c.IsClockRunning).ToList(), false);
 
-                    _log.LogDebug($"HIGHLIGHT--CurrentSession.LastMessage: {CurrentSession.LastMessage}");
+                    _log.LogDebug($"CurrentSession.LastMessage: {CurrentSession.LastMessage}");
 
                     if (string.IsNullOrEmpty(CurrentSession.LastMessage))
                     {
@@ -189,6 +189,15 @@ namespace Timekeeper.Client.Model
                     else
                     {
                         CurrentMessage = new MarkupString(CurrentSession.LastMessage);
+                    }
+
+                    // Request all guests to announce themselves so we can have a correct count
+                    var result = await RequestAnnounce();
+
+                    if (!result)
+                    {
+                        _log.LogWarning("Couldn't get an existing guest count");
+                        // Continue anyway, this is a minor issue
                     }
 
                     IsSendMessageDisabled = false;
@@ -236,6 +245,28 @@ namespace Timekeeper.Client.Model
             IsBusy = false;
             Status = "Connected, your guests will only see clocks when you start them!";
             _log.LogInformation("SignalRHost.Connect ->");
+        }
+
+        private async Task<bool> RequestAnnounce()
+        {
+            _log.LogInformation($"HIGHLIGHT---> {nameof(RequestAnnounce)}");
+
+            var announceUrl = $"{_hostName}/request-announce";
+            _log.LogDebug($"announceUrl: {announceUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, announceUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _log.LogError($"Cannot request guests to announce themselves: {response.ReasonPhrase}");
+                _log.LogInformation($"{nameof(RequestAnnounce)} ->");
+                return false;
+            }
+
+            return true;
         }
 
         public async Task DeleteClock(Clock clock)
@@ -650,6 +681,7 @@ namespace Timekeeper.Client.Model
             if (existingGuest == null)
             {
                 _log.LogWarning("No existing guest found");
+                ConnectedGuests.Add(messageGuest);
             }
             else
             {

@@ -136,7 +136,7 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> AnnounceName()
         {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
+            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
             _log.LogDebug($"UserId: {CurrentSession.UserId}");
             _log.LogDebug($"GuestId: {GuestInfo.Message.GuestId}");
 
@@ -184,6 +184,7 @@ namespace Timekeeper.Client.Model
             {
                 _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
                 _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
+                _connection.On(Constants.HostToGuestRequestAnnounceMessageName, AnnounceName);
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
                 _connection.On<string>(Constants.DeleteClockMessage, DeleteLocalClock);
 
