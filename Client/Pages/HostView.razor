@@ -200,7 +200,29 @@ else
         else
         {
             <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
+
+            <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
         }
+
+        @if (Branding.CanEditSessionAndGuestName
+           && IsGuestListExpanded)
+        {
+            <ul class="connected-guests-list">
+                @if (Handler.AnonymousGuests > 0)
+                {
+                    <li>@Handler.AnonymousGuests anonymous guest(s)</li>
+                }
+
+                @if (Handler.NamedGuests != null)
+                {
+                    foreach (var guest in Handler.NamedGuests)
+                    {
+                        <li>@guest.DisplayName</li>
+                    }
+                }
+            </ul>
+        }
+
     </div>
 }
 

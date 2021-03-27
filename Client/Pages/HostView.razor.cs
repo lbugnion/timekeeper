@@ -14,6 +14,8 @@ namespace Timekeeper.Client.Pages
     {
         private const string EditSessionNameText = "edit session name";
         private const string SaveSessionNameText = "save session name";
+        private const string ShowGuestsText = "show";
+        private const string HideGuestsText = "hide";
         public const string SendMessageInputId = "send-message-input";
 
         public int AnonymousGuests
@@ -92,7 +94,7 @@ namespace Timekeeper.Client.Pages
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
-            GuestListLinkText = "show";
+            GuestListLinkText = ShowGuestsText;
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
         }
@@ -148,7 +150,7 @@ namespace Timekeeper.Client.Pages
         public void ToggleIsGuestListExpanded()
         {
             IsGuestListExpanded = !IsGuestListExpanded;
-            GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
+            GuestListLinkText = IsGuestListExpanded ? HideGuestsText : ShowGuestsText;
         }
     }
 }

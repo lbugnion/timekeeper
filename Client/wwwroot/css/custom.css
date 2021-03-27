@@ -238,6 +238,10 @@ blockquote {
     color: white;
 }
 
+.connected-guests-list {
+    margin-bottom: 20px;
+}
+
 .about-link {
     float: right;
     margin-right: 20px;

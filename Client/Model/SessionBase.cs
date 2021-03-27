@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {
@@ -44,7 +45,7 @@ namespace Timekeeper.Client.Model
             SessionId = Guid.NewGuid().ToString();
             SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             UserId = Guid.NewGuid().ToString();
-            UserName = "Anonymous";
+            UserName = GuestMessage.AnonymousName;
             Clocks = new List<Clock>();
         }
 

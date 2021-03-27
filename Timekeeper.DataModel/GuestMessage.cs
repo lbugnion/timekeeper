@@ -4,6 +4,8 @@ namespace Timekeeper.DataModel
 {
     public class GuestMessage
     {
+        public const string AnonymousName = "Anonymous";
+
         public string CustomName
         {
             get;
@@ -17,7 +19,7 @@ namespace Timekeeper.DataModel
             {
                 if (string.IsNullOrEmpty(CustomName))
                 {
-                    return "Anonymous";
+                    return AnonymousName;
                 }
 
                 return CustomName;
@@ -29,5 +31,6 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
+        public object Guest { get; private set; }
     }
 }

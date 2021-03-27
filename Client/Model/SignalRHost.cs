@@ -42,6 +42,18 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        public int AnonymousGuests
+        {
+            get;
+            private set;
+        }
+
+        public IList<GuestMessage> NamedGuests
+        {
+            get;
+            private set;
+        }
+
         protected override string SessionKey => "HostSessionKey";
 
         public SignalRHost(
@@ -607,11 +619,10 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            ConnectedGuests.Add(new GuestMessage
+            UpdateConnectedGuests(new GuestMessage
             {
                 GuestId = guestId
             });
-
             RaiseUpdateEvent();
 
             if (IsAnyClockRunning)
@@ -621,6 +632,28 @@ namespace Timekeeper.Client.Model
 
             await (SendMessage(CurrentMessage.Value));
             _log.LogInformation($"SignalRHost.{nameof(ReceiveConnectMessage)} ->");
+        }
+
+        private void UpdateConnectedGuests(GuestMessage message)
+        {
+            if (message != null)
+            {
+                ConnectedGuests.Add(message);
+            }
+
+            NamedGuests = ConnectedGuests
+                .Where(g => !string.IsNullOrEmpty(g.CustomName) && g.CustomName != GuestMessage.AnonymousName).ToList();
+
+            AnonymousGuests = ConnectedGuests
+                .Count(g => string.IsNullOrEmpty(g.CustomName) || g.CustomName == GuestMessage.AnonymousName);
+
+            RaiseUpdateEvent();
+
+            foreach (var guest in ConnectedGuests)
+            {
+                _log.LogDebug($"HIGHLIGHT--{guest.CustomName}");
+                _log.LogDebug($"HIGHLIGHT--{guest.DisplayName}");
+            }
         }
 
         public void ReceiveDisconnectMessage(string guestId)
@@ -647,6 +680,7 @@ namespace Timekeeper.Client.Model
             }
 
             ConnectedGuests.Remove(existingGuest);
+            UpdateConnectedGuests(null);
             RaiseUpdateEvent();
             _log.LogInformation($"SignalRHost.{nameof(ReceiveDisconnectMessage)} ->");
         }
@@ -681,12 +715,13 @@ namespace Timekeeper.Client.Model
             if (existingGuest == null)
             {
                 _log.LogWarning("No existing guest found");
-                ConnectedGuests.Add(messageGuest);
+                UpdateConnectedGuests(messageGuest);
             }
             else
             {
                 _log.LogDebug($"Existing guest found: Old name {existingGuest.DisplayName}");
                 existingGuest.CustomName = messageGuest.CustomName;
+                UpdateConnectedGuests(null);
                 _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
             }
 
