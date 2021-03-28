@@ -72,7 +72,7 @@ namespace Timekeeper.Client.Pages
                 await Handler.CheckAuthorize();
 
                 if (Handler.IsAuthorized != null
-                    && Handler.IsAuthorized.Value)
+                    && !Handler.IsAuthorized.Value)
                 {
                     Log.LogError("No authorization");
                     return;
