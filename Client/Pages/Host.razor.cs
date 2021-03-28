@@ -71,7 +71,8 @@ namespace Timekeeper.Client.Pages
                 Log.LogTrace("HIGHLIGHT--Check authorization");
                 await Handler.CheckAuthorize();
 
-                if (!Handler.IsAuthorized)
+                if (Handler.IsAuthorized != null
+                    && Handler.IsAuthorized.Value)
                 {
                     Log.LogError("No authorization");
                     return;

@@ -4,7 +4,8 @@
 @inject IJSRuntime JSRuntime
 
 @if (Handler.CurrentSession != null
-    && Handler.IsAuthorized)
+  && Handler.IsAuthorized != null
+  && Handler.IsAuthorized.Value)
 {
     @if (Branding.CanEditSessionAndGuestName)
     {
@@ -136,21 +137,31 @@
 }
 else
 {
-    @if (Handler.IsAuthorized)
+    @if (Handler.IsAuthorized != null)
     {
-        <blockquote class="no-clocks-no-session">
-            Reload this page to create a new session.
-        </blockquote>
+        @if (Handler.IsAuthorized.Value)
+        {
+            <blockquote class="no-clocks-no-session">
+                Reload this page to create a new session.
+            </blockquote>
+        }
+        else
+        {
+            <blockquote class="no-authorization">
+                You are not authorized to access this page. Please contact <a href="support@timekeeper.cloud">support@timekeeper.cloud</a>.
+            </blockquote>
+        }
     }
     else
     {
         <blockquote class="no-authorization">
-            You are not authorized to access this page. Please contact <a href="support@timekeeper.cloud">support@timekeeper.cloud</a>.
+            Checking authorization...
         </blockquote>
     }
 }
 
-@if (Handler.IsAuthorized)
+@if (Handler.IsAuthorized != null
+    && Handler.IsAuthorized.Value)
 {
     <div class="message-area">
         <p><span class="message-text">@Handler.CurrentMessage</span></p>
@@ -178,7 +189,7 @@ else
             </button>
 
             @if (Mobile != null
-           && Mobile.IsNoSleepVisible)
+         && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
@@ -194,7 +205,7 @@ else
     <h2>Session</h2>
 
     @if (Handler.CurrentSession != null
-    && !Handler.IsInError)
+  && !Handler.IsInError)
     {
         <div class="session-information-area">
             <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -217,7 +228,7 @@ else
             }
 
             @if (Branding.CanEditSessionAndGuestName
-           && IsGuestListExpanded)
+         && IsGuestListExpanded)
             {
                 <ul class="connected-guests-list">
                     @if (Handler.AnonymousGuests > 0)

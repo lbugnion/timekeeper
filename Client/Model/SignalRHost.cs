@@ -36,7 +36,7 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public bool IsAuthorized
+        public bool? IsAuthorized
         {
             get;
             private set;
