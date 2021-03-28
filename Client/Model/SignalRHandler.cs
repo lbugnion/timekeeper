@@ -131,7 +131,7 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http)
         {
-            CurrentMessage = new MarkupString("Welcome!");
+            DisplayMessage("Welcome!", false);
             Status = "Please wait...";
 
             _config = config;
@@ -321,10 +321,15 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"Remaining clocks: {CurrentSession.Clocks.Count}");
         }
 
-        protected virtual void DisplayMessage(string message)
+        protected virtual void DisplayMessage(string message, bool wrapInError)
         {
-            _log.LogInformation("-> DisplayMessage");
-            _log.LogDebug(message);
+            _log?.LogInformation("-> DisplayMessage");
+            _log?.LogDebug(message);
+
+            if (wrapInError)
+            {
+                message = $"<span syle='color: red'>{message}</span>";
+            }
 
             CurrentMessage = new MarkupString(message);
             RaiseUpdateEvent();

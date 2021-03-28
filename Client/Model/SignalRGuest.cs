@@ -128,9 +128,9 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
 
-        protected override void DisplayMessage(string message)
+        protected void DisplayReceivedMessage(string message)
         {
-            base.DisplayMessage(message);
+            base.DisplayMessage(message, false);
             Status = "Received host message";
         }
 
@@ -169,6 +169,11 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
+        internal void SetMessage(string htmlString, bool isError)
+        {
+
+        }
+
         public override async Task Connect(
             string templateName = null)
         {
@@ -183,7 +188,7 @@ namespace Timekeeper.Client.Model
             if (ok)
             {
                 _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
-                _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
+                _connection.On<string>(Constants.HostToGuestMessageName, DisplayReceivedMessage);
                 _connection.On(Constants.HostToGuestRequestAnnounceMessageName, AnnounceName);
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
                 _connection.On<string>(Constants.DeleteClockMessage, DeleteLocalClock);
@@ -193,7 +198,7 @@ namespace Timekeeper.Client.Model
                 if (ok)
                 {
                     IsConnected = true;
-                    CurrentMessage = new MarkupString("Ready");
+                    DisplayMessage("Ready", false);
 
                     _log.LogTrace($"Name is {GuestInfo.Message.DisplayName}");
 
@@ -206,20 +211,20 @@ namespace Timekeeper.Client.Model
                         if (!ok)
                         {
                             IsConnected = false;
-                            CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                            DisplayMessage("Error", true);
                         }
                     }
                 }
                 else
                 {
                     IsConnected = false;
-                    CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                    DisplayMessage("Error", true);
                 }
             }
             else
             {
                 IsConnected = false;
-                CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                DisplayMessage("Error", true);
             }
 
             IsBusy = false;
@@ -228,14 +233,14 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> InitializeGuestInfo()
         {
-            _log.LogInformation("HIGHLIGHT---> InitializeGuestInfo");
+            _log.LogInformation("-> InitializeGuestInfo");
 
             var message = await Guest.GetFromStorage();
 
             if (message == null)
             {
-                _log.LogTrace("HIGHLIGHT--Saved GuestInfo is null");
-                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
+                _log.LogTrace("Saved GuestInfo is null");
+                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo = new Guest(CurrentSession.UserId);
                 await GuestInfo.Save();
             }
@@ -249,14 +254,14 @@ namespace Timekeeper.Client.Model
 
             if (GuestInfo.Message.GuestId != CurrentSession.UserId)
             {
-                _log.LogTrace($"HIGHLIGHT--Fixing GuestId");
-                _log.LogDebug($"HIGHLIGHT--GuestInfo.Message.GuestId {GuestInfo.Message.GuestId}");
-                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
+                _log.LogTrace($"Fixing GuestId");
+                _log.LogDebug($"GuestInfo.Message.GuestId {GuestInfo.Message.GuestId}");
+                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo.Message.GuestId = CurrentSession.UserId;
                 await GuestInfo.Save();
             }
 
-            _log.LogDebug($"HIGHLIGHT--name: {GuestInfo.Message.DisplayName}");
+            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
 
             return true;

@@ -31,12 +31,12 @@ namespace Timekeeper.Client.Model
             var json = await _localStorage.GetItemAsStringAsync(
                 GuestStorageKey);
 
-            _log.LogDebug($"HIGHLIGHT--Getting: {json}");
+            _log.LogDebug($"Getting: {json}");
 
             if (!string.IsNullOrEmpty(json))
             {
                 var savedGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
-                _log.LogDebug($"HIGHLIGHT--Guest name: {savedGuest.DisplayName}");
+                _log.LogDebug($"Guest name: {savedGuest.DisplayName}");
 
                 return savedGuest;
             }
@@ -61,7 +61,7 @@ namespace Timekeeper.Client.Model
         {
             var json = JsonConvert.SerializeObject(Message);
 
-            _log.LogDebug($"HIGHLIGHT--Saving: {json}");
+            _log.LogDebug($"Saving: {json}");
 
             await _localStorage.SetItemAsync(
                 GuestStorageKey,

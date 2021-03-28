@@ -30,6 +30,18 @@ namespace Timekeeper.Client.Model
             set;
         }
 
+        public bool IsOffline
+        {
+            get;
+            private set;
+        }
+
+        public bool IsAuthorized
+        {
+            get;
+            private set;
+        }
+
         public bool IsDeleteSessionWarningVisible
         {
             get;
@@ -104,10 +116,36 @@ namespace Timekeeper.Client.Model
             RaiseUpdateEvent();
         }
 
-        protected override void DisplayMessage(string message)
+        public async Task CheckAuthorize()
         {
-            base.DisplayMessage(message);
-            Status = "Message sent";
+            _log.LogInformation("HIGHLIGHT---> CheckAuthorize");
+
+            var versionUrl = $"{_hostName}/version";
+            _log.LogDebug($"HIGHLIGHT--versionUrl: {versionUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, versionUrl);
+            var response = await _http.SendAsync(httpRequest);
+
+            switch (response.StatusCode)
+            {
+                case System.Net.HttpStatusCode.OK:
+                    IsOffline = false;
+                    IsAuthorized = true;
+                    break;
+
+                case System.Net.HttpStatusCode.Unauthorized:
+                    IsOffline = false;
+                    IsAuthorized = false;
+                    DisplayMessage("Error", true);
+                    break;
+
+                default:
+                    IsOffline = true;
+                    IsAuthorized = false;
+                    DisplayMessage("Unauthorized", true);
+                    _log.LogError($"Cannot communicate with functions: {response.StatusCode}");
+                    break;
+            }
         }
 
         public async Task AddClockAfter(Clock clock)
@@ -196,11 +234,11 @@ namespace Timekeeper.Client.Model
 
                     if (string.IsNullOrEmpty(CurrentSession.LastMessage))
                     {
-                        CurrentMessage = new MarkupString("Ready");
+                        DisplayMessage("Ready", false);
                     }
                     else
                     {
-                        CurrentMessage = new MarkupString(CurrentSession.LastMessage);
+                        DisplayMessage(CurrentSession.LastMessage, false);
                     }
 
                     // Request all guests to announce themselves so we can have a correct count
@@ -232,7 +270,7 @@ namespace Timekeeper.Client.Model
                     IsSendMessageDisabled = true;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
-                    CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                    DisplayMessage("Error", true);
                 }
             }
             else
@@ -251,7 +289,7 @@ namespace Timekeeper.Client.Model
                 IsSendMessageDisabled = true;
                 IsDeleteSessionDisabled = false;
                 IsCreateNewSessionDisabled = true;
-                CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                DisplayMessage("Error", true);
             }
 
             IsBusy = false;
@@ -767,7 +805,7 @@ namespace Timekeeper.Client.Model
                     htmlMessage += "</span>";
                 }
 
-                CurrentMessage = new MarkupString(htmlMessage);
+                DisplayMessage(htmlMessage, false);
 
                 var content = new StringContent(htmlMessage);
 
@@ -936,7 +974,7 @@ namespace Timekeeper.Client.Model
             }
             catch
             {
-                CurrentMessage = new MarkupString("<span style='color: red'>Unable to communicate with clients</span>");
+                DisplayMessage("Unable to communicate with clients", true);
                 IsDeleteSessionDisabled = false;
             }
         }

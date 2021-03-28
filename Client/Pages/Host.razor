@@ -15,17 +15,23 @@
     {
         <AuthorizeView>
             <Authorized>
-                <div class="connected-guests">
-                    @Handler.ConnectedGuests.Count guest(s)
-                </div>
+                @if (Handler != null)
+                {
+                    <div class="connected-guests">
+                        @Handler.ConnectedGuests.Count guest(s)
+                    </div>
+                }
             </Authorized>
         </AuthorizeView>
     }
     else
     {
-        <div class="connected-guests">
-            @Handler.ConnectedGuests.Count guest(s)
-        </div>
+        @if (Handler != null)
+        {
+            <div class="connected-guests">
+                @Handler.ConnectedGuests.Count guest(s)
+            </div>
+        }
     }
 
 </header>
@@ -53,7 +59,7 @@
     }
 
     <article>
-        @if (Branding.MustAuthorize)
+        @*@if (Branding.MustAuthorize)
         {
             <AuthorizeView>
                 <NotAuthorized>
@@ -68,10 +74,10 @@
             </AuthorizeView>
         }
         else
-        {
+        {*@
             <HostView Handler="@Handler"
                       SessionName="@SessionName" />
-        }
+        @*}*@
 
     </article>
 </main>

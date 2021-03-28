@@ -3,7 +3,8 @@
 @inject ILogger<HostView> Log
 @inject IJSRuntime JSRuntime
 
-@if (Handler.CurrentSession != null)
+@if (Handler.CurrentSession != null
+    && Handler.IsAuthorized)
 {
     @if (Branding.CanEditSessionAndGuestName)
     {
@@ -135,123 +136,135 @@
 }
 else
 {
-    <blockquote class="no-clocks-no-session">
-        Reload this page to create a new session.
-    </blockquote>
+    @if (Handler.IsAuthorized)
+    {
+        <blockquote class="no-clocks-no-session">
+            Reload this page to create a new session.
+        </blockquote>
+    }
+    else
+    {
+        <blockquote class="no-authorization">
+            You are not authorized to access this page. Please contact <a href="support@timekeeper.cloud">support@timekeeper.cloud</a>.
+        </blockquote>
+    }
 }
 
-<div class="message-area">
-    <p><span class="message-text">@Handler.CurrentMessage</span></p>
-</div>
+@if (Handler.IsAuthorized)
+{
+    <div class="message-area">
+        <p><span class="message-text">@Handler.CurrentMessage</span></p>
+    </div>
 
-<div class="controls-area">
+    <div class="controls-area">
 
-    <div class="send-message-area">
-        <div class="form-label">Message to Guests, Click Ctrl-Enter to send</div>
-        <div class="form-label">Use *<span style='color:red'>stars</span>* for red</div>
+        <div class="send-message-area">
+            <div class="form-label">Message to Guests, Click Ctrl-Enter to send</div>
+            <div class="form-label">Use *<span style='color:red'>stars</span>* for red</div>
 
-        <textarea @bind="@Handler.InputMessage"
-                  id="@SendMessageInputId"
-                  @bind:event="oninput"
-                  @onkeypress="@HandleKeyPress"
-                  @onfocus="@HandleFocus"
-                  class="input-text" />
+            <textarea @bind="@Handler.InputMessage"
+                      id="@SendMessageInputId"
+                      @bind:event="oninput"
+                      @onkeypress="@HandleKeyPress"
+                      @onfocus="@HandleFocus"
+                      class="input-text" />
 
-        <br />
+            <br />
 
-        <button disabled="@Handler.IsSendMessageDisabled"
-                @onclick="@Handler.SendInputMessage"
-                id="send-message-button">
-            Send Message
-        </button>
+            <button disabled="@Handler.IsSendMessageDisabled"
+                    @onclick="@Handler.SendInputMessage"
+                    id="send-message-button">
+                Send Message
+            </button>
 
-        @if (Mobile != null
+            @if (Mobile != null
            && Mobile.IsNoSleepVisible)
-        {
-            <div class="no-sleep-area">
-                <button @onclick="@Mobile.EnableNoSleep"
-                        id="send-message-button">
-                    Keep device awake
-                </button>
-            </div>
-        }
+            {
+                <div class="no-sleep-area">
+                    <button @onclick="@Mobile.EnableNoSleep"
+                            id="send-message-button">
+                        Keep device awake
+                    </button>
+                </div>
+            }
 
+        </div>
     </div>
-</div>
 
-<h2>Session</h2>
+    <h2>Session</h2>
 
-@if (Handler.CurrentSession != null
+    @if (Handler.CurrentSession != null
     && !Handler.IsInError)
-{
-    <div class="session-information-area">
-        <h3>Send this link to your guests so they can connect to the session:</h3>
+    {
+        <div class="session-information-area">
+            <h3>Send this link to your guests so they can connect to the session:</h3>
 
-        <p><a href="@GuestUrl">@GuestUrl</a></p>
-    </div>
+            <p><a href="@GuestUrl">@GuestUrl</a></p>
+        </div>
 
-    <div class="session-information-area">
-        <h3>Connected guests</h3>
+        <div class="session-information-area">
+            <h3>Connected guests</h3>
 
-        @if (Handler.ConnectedGuests.Count == 0)
-        {
-            <p>There are no connected guests at the moment.</p>
-        }
-        else
-        {
-            <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
+            @if (Handler.ConnectedGuests.Count == 0)
+            {
+                <p>There are no connected guests at the moment.</p>
+            }
+            else
+            {
+                <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
 
-            <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
-        }
+                <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
+            }
 
-        @if (Branding.CanEditSessionAndGuestName
+            @if (Branding.CanEditSessionAndGuestName
            && IsGuestListExpanded)
-        {
-            <ul class="connected-guests-list">
-                @if (Handler.AnonymousGuests > 0)
-                {
-                    <li>@Handler.AnonymousGuests anonymous guest(s)</li>
-                }
-
-                @if (Handler.NamedGuests != null)
-                {
-                    foreach (var guest in Handler.NamedGuests)
+            {
+                <ul class="connected-guests-list">
+                    @if (Handler.AnonymousGuests > 0)
                     {
-                        <li>@guest.DisplayName</li>
+                        <li>@Handler.AnonymousGuests anonymous guest(s)</li>
                     }
-                }
-            </ul>
-        }
 
+                    @if (Handler.NamedGuests != null)
+                    {
+                        foreach (var guest in Handler.NamedGuests)
+                        {
+                            <li>@guest.DisplayName</li>
+                        }
+                    }
+                </ul>
+            }
+
+        </div>
+    }
+
+    @if (Handler.IsDeleteSessionWarningVisible)
+    {
+        <blockquote class="warning">
+            <strong>Deleting the session is irreversible. Are you sure?</strong>
+            <br /><br />
+            If you delete the session and create a new one, all your guests will
+            need to reconnect.
+            <br /><br />
+            <button @onclick="@Handler.DoDeleteSession"
+                    class="small-button">
+                Yes
+            </button>
+            <button @onclick="@Handler.CancelDeleteSession"
+                    class="small-button">
+                No
+            </button>
+        </blockquote>
+    }
+
+    <div class="controls-area last-controls-area">
+        <button disabled="@Handler.IsDeleteSessionDisabled"
+                @onclick="@Handler.DeleteSession">
+            Delete the session
+        </button>
+        <button disabled="@Handler.IsCreateNewSessionDisabled"
+                @onclick="@CreateNewSession">
+            Create a new session
+        </button>
     </div>
 }
-
-@if (Handler.IsDeleteSessionWarningVisible)
-{
-    <blockquote class="warning">
-        <strong>Deleting the session is irreversible. Are you sure?</strong>
-        <br /><br />
-        If you delete the session and create a new one, all your guests will
-        need to reconnect.
-        <br /><br />
-        <button @onclick="@Handler.DoDeleteSession"
-                class="small-button">
-            Yes
-        </button>
-        <button @onclick="@Handler.CancelDeleteSession"
-                class="small-button">
-            No
-        </button>
-    </blockquote>
-}
-
-<div class="controls-area last-controls-area">
-    <button disabled="@Handler.IsDeleteSessionDisabled"
-            @onclick="@Handler.DeleteSession">
-        Delete the session
-    </button>
-    <button disabled="@Handler.IsCreateNewSessionDisabled"
-            @onclick="@CreateNewSession">
-        Create a new session
-    </button>
-</div>

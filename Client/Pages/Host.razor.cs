@@ -66,6 +66,18 @@ namespace Timekeeper.Client.Pages
                 Log,
                 Http);
 
+            if (Branding.MustAuthorize)
+            {
+                Log.LogTrace("HIGHLIGHT--Check authorization");
+                await Handler.CheckAuthorize();
+
+                if (!Handler.IsAuthorized)
+                {
+                    Log.LogError("No authorization");
+                    return;
+                }
+            }
+
             if (ResetSession == "reset")
             {
                 await Handler.DoDeleteSession();
