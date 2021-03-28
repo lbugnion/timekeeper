@@ -222,7 +222,23 @@ blockquote {
 
     blockquote.error {
         background-color: crimson;
-        color: red;
+        font-weight: bold;
+        color: white;
+    }
+
+    blockquote.error a {
+        color: white;
+        text-decoration: underline;
+    }
+
+    blockquote.error a:visited {
+        color: white;
+        text-decoration: underline;
+    }
+
+    blockquote.error a:hover {
+        color: white;
+        text-decoration: underline;
     }
 
 .session-information-area {
