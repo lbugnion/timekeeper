@@ -30,7 +30,7 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        public bool IsOffline
+        public bool? IsOffline
         {
             get;
             private set;
@@ -140,14 +140,14 @@ namespace Timekeeper.Client.Model
                     _log.LogTrace("Unauthorized");
                     IsOffline = false;
                     IsAuthorized = false;
-                    DisplayMessage("Error", true);
+                    Status = "Unauthorized";
                     break;
 
                 default:
                     _log.LogTrace("Other error code");
                     IsOffline = true;
                     IsAuthorized = false;
-                    DisplayMessage("Unauthorized", true);
+                    Status = "Cannot communicate with functions";
                     _log.LogError($"Cannot communicate with functions: {response.StatusCode}");
                     break;
             }

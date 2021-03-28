@@ -218,7 +218,11 @@ blockquote {
 
     blockquote.warning {
         background-color: bisque;
-        padding: 10px;
+    }
+
+    blockquote.error {
+        background-color: crimson;
+        color: red;
     }
 
 .session-information-area {
