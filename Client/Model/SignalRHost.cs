@@ -136,7 +136,7 @@ namespace Timekeeper.Client.Model
                     IsAuthorized = true;
                     break;
 
-                case System.Net.HttpStatusCode.Unauthorized:
+                case System.Net.HttpStatusCode.Forbidden:
                     _log.LogTrace("Unauthorized");
                     IsOffline = false;
                     IsAuthorized = false;
@@ -146,7 +146,7 @@ namespace Timekeeper.Client.Model
                 default:
                     _log.LogTrace("Other error code");
                     IsOffline = true;
-                    IsAuthorized = false;
+                    IsAuthorized = true;
                     Status = "Cannot communicate with functions";
                     _log.LogError($"Cannot communicate with functions: {response.StatusCode}");
                     break;
