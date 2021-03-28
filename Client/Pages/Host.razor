@@ -59,7 +59,7 @@
     }
 
     <article>
-        @*@if (Branding.MustAuthorize)
+        @if (Branding.MustAuthorize)
         {
             <AuthorizeView>
                 <NotAuthorized>
@@ -74,10 +74,10 @@
             </AuthorizeView>
         }
         else
-        {*@
+        {
             <HostView Handler="@Handler"
                       SessionName="@SessionName" />
-        @*}*@
+        }
 
     </article>
 </main>
