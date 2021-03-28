@@ -136,7 +136,7 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> AnnounceName()
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
             _log.LogDebug($"UserId: {CurrentSession.UserId}");
             _log.LogDebug($"GuestId: {GuestInfo.Message.GuestId}");
 
@@ -228,27 +228,35 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> InitializeGuestInfo()
         {
-            _log.LogInformation("-> InitializeGuestInfo");
+            _log.LogInformation("HIGHLIGHT---> InitializeGuestInfo");
 
-            GuestInfo = await Guest.GetFromStorage();
+            var message = await Guest.GetFromStorage();
 
-            if (GuestInfo == null)
+            if (message == null)
             {
-                _log.LogTrace("GuestInfo is null");
-                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
+                _log.LogTrace("HIGHLIGHT--Saved GuestInfo is null");
+                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo = new Guest(CurrentSession.UserId);
                 await GuestInfo.Save();
+            }
+            else
+            {
+                GuestInfo = new Guest(message.GuestId)
+                {
+                    Message = message
+                };
             }
 
             if (GuestInfo.Message.GuestId != CurrentSession.UserId)
             {
-                _log.LogTrace($"Fixing GuestId");
-                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
+                _log.LogTrace($"HIGHLIGHT--Fixing GuestId");
+                _log.LogDebug($"HIGHLIGHT--GuestInfo.Message.GuestId {GuestInfo.Message.GuestId}");
+                _log.LogDebug($"HIGHLIGHT--CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo.Message.GuestId = CurrentSession.UserId;
                 await GuestInfo.Save();
             }
 
-            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
+            _log.LogDebug($"HIGHLIGHT--name: {GuestInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
 
             return true;

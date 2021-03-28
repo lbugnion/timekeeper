@@ -31,6 +31,5 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
-        public object Guest { get; private set; }
     }
 }

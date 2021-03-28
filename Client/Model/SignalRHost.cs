@@ -261,7 +261,7 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> RequestAnnounce()
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(RequestAnnounce)}");
+            _log.LogInformation($"-> {nameof(RequestAnnounce)}");
 
             var announceUrl = $"{_hostName}/request-announce";
             _log.LogDebug($"announceUrl: {announceUrl}");
@@ -651,8 +651,8 @@ namespace Timekeeper.Client.Model
 
             foreach (var guest in ConnectedGuests)
             {
-                _log.LogDebug($"HIGHLIGHT--{guest.CustomName}");
-                _log.LogDebug($"HIGHLIGHT--{guest.DisplayName}");
+                _log.LogDebug($"{guest.CustomName}");
+                _log.LogDebug($"{guest.DisplayName}");
             }
         }
 
