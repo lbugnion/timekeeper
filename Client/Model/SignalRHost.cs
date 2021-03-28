@@ -126,20 +126,25 @@ namespace Timekeeper.Client.Model
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, versionUrl);
             var response = await _http.SendAsync(httpRequest);
 
+            _log.LogDebug($"Response code: {response.StatusCode}");
+
             switch (response.StatusCode)
             {
                 case System.Net.HttpStatusCode.OK:
+                    _log.LogTrace("All ok");
                     IsOffline = false;
                     IsAuthorized = true;
                     break;
 
                 case System.Net.HttpStatusCode.Unauthorized:
+                    _log.LogTrace("Unauthorized");
                     IsOffline = false;
                     IsAuthorized = false;
                     DisplayMessage("Error", true);
                     break;
 
                 default:
+                    _log.LogTrace("Other error code");
                     IsOffline = true;
                     IsAuthorized = false;
                     DisplayMessage("Unauthorized", true);
