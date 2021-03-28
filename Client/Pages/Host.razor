@@ -15,7 +15,8 @@
     {
         <AuthorizeView>
             <Authorized>
-                @if (Handler != null)
+                @if (Handler != null
+                    && Handler.IsAuthorized)
                 {
                     <div class="connected-guests">
                         @Handler.ConnectedGuests.Count guest(s)
@@ -41,11 +42,14 @@
     {
         <AuthorizeView>
             <Authorized>
-                <div class="start-all-clocks-area">
-                    <button @onclick="(e => Handler.StartAllClocks(true))">
-                        @Handler.StartClocksButtonText
-                    </button>
-                </div>
+                @if (Handler.IsAuthorized)
+                {
+                    <div class="start-all-clocks-area">
+                        <button @onclick="(e => Handler.StartAllClocks(true))">
+                            @Handler.StartClocksButtonText
+                        </button>
+                    </div>
+                }
             </Authorized>
         </AuthorizeView>
     }
