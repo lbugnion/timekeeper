@@ -258,6 +258,8 @@ namespace Timekeeper.Client.Model
                     IsSendMessageDisabled = false;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
+                    IsOffline = false;
+                    Status = "Connected, your guests will only see clocks when you start them!";
                 }
                 else
                 {
@@ -275,7 +277,8 @@ namespace Timekeeper.Client.Model
                     IsSendMessageDisabled = true;
                     IsDeleteSessionDisabled = false;
                     IsCreateNewSessionDisabled = true;
-                    DisplayMessage("Error", true);
+                    IsOffline = true;
+                    Status = "Cannot connect";
                 }
             }
             else
@@ -294,11 +297,11 @@ namespace Timekeeper.Client.Model
                 IsSendMessageDisabled = true;
                 IsDeleteSessionDisabled = false;
                 IsCreateNewSessionDisabled = true;
-                DisplayMessage("Error", true);
+                IsOffline = true;
+                Status = "Cannot connect";
             }
 
             IsBusy = false;
-            Status = "Connected, your guests will only see clocks when you start them!";
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
