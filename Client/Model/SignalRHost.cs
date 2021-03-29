@@ -938,6 +938,12 @@ namespace Timekeeper.Client.Model
 
             foreach (var clock in clocksToStart)
             {
+                if (clock.Message.ConfiguredCountDown.TotalSeconds == 0)
+                {
+                    _log.LogDebug($"HIGHLIGHT--saving {clock.Message.CountDown} to configured countdown");
+                    clock.Message.ConfiguredCountDown = clock.Message.CountDown;
+                }
+
                 clock.IsSelected = false;
                 clock.IsPlayStopDisabled = false;
                 clock.IsConfigDisabled = true;

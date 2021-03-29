@@ -480,6 +480,9 @@ namespace Timekeeper.Client.Model
             {
                 existingClock.IsClockRunning = false;
                 existingClock.Message.ServerTime = DateTime.MinValue;
+                existingClock.Message.CountDown = existingClock.Message.ConfiguredCountDown;
+                existingClock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
+                _log.LogDebug($"HIGHLIGHT--existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");
                 existingClock.ResetDisplay();
             }
             else
