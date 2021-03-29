@@ -98,7 +98,6 @@ namespace Timekeeper.Client.Pages
 
                     Log.LogDebug($"GuestName: {GuestName}");
                 }
-
             }
 
             Log.LogInformation("OnInitializedAsync ->");

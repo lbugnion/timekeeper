@@ -1,31 +1,29 @@
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 namespace Timekeeper
 {
-    public static class SendMessage
+    public static class RequestAnnounce
     {
-        [FunctionName(nameof(SendMessage))]
+        [FunctionName(nameof(RequestAnnounce))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous,
-                "post",
-                Route = "send")]
+                AuthorizationLevel.Anonymous, 
+                "get", 
+                Route = "request-announce")] 
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
-            log.LogInformation("-> SendMessage");
-
             try
             {
                 var groupId = req.GetGroupId();
@@ -37,15 +35,11 @@ namespace Timekeeper
                     return new BadRequestObjectResult("Invalid request");
                 }
 
-                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
-                log.LogDebug(requestBody);
-
                 await queue.AddAsync(
                     new SignalRMessage
                     {
-                        Target = Constants.HostToGuestMessageName,
-                        Arguments = new[] { requestBody },
+                        Target = Constants.HostToGuestRequestAnnounceMessageName,
+                        Arguments = new object[] { },
                         GroupName = groupId.ToString()
                     });
             }
@@ -59,3 +53,4 @@ namespace Timekeeper
         }
     }
 }
+

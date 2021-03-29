@@ -128,9 +128,9 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
 
-        protected override void DisplayMessage(string message)
+        protected void DisplayReceivedMessage(string message)
         {
-            base.DisplayMessage(message);
+            base.DisplayMessage(message, false);
             Status = "Received host message";
         }
 
@@ -183,7 +183,8 @@ namespace Timekeeper.Client.Model
             if (ok)
             {
                 _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
-                _connection.On<string>(Constants.HostToGuestMessageName, DisplayMessage);
+                _connection.On<string>(Constants.HostToGuestMessageName, DisplayReceivedMessage);
+                _connection.On(Constants.HostToGuestRequestAnnounceMessageName, AnnounceName);
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
                 _connection.On<string>(Constants.DeleteClockMessage, DeleteLocalClock);
 
@@ -192,7 +193,7 @@ namespace Timekeeper.Client.Model
                 if (ok)
                 {
                     IsConnected = true;
-                    CurrentMessage = new MarkupString("Ready");
+                    DisplayMessage("Ready", false);
 
                     _log.LogTrace($"Name is {GuestInfo.Message.DisplayName}");
 
@@ -205,20 +206,20 @@ namespace Timekeeper.Client.Model
                         if (!ok)
                         {
                             IsConnected = false;
-                            CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                            DisplayMessage("Error", true);
                         }
                     }
                 }
                 else
                 {
                     IsConnected = false;
-                    CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                    DisplayMessage("Error", true);
                 }
             }
             else
             {
                 IsConnected = false;
-                CurrentMessage = new MarkupString("<span style='color: red'>Error</span>");
+                DisplayMessage("Error", true);
             }
 
             IsBusy = false;
@@ -229,19 +230,27 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> InitializeGuestInfo");
 
-            GuestInfo = await Guest.GetFromStorage();
+            var message = await Guest.GetFromStorage();
 
-            if (GuestInfo == null)
+            if (message == null)
             {
-                _log.LogTrace("GuestInfo is null");
+                _log.LogTrace("Saved GuestInfo is null");
                 _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo = new Guest(CurrentSession.UserId);
                 await GuestInfo.Save();
+            }
+            else
+            {
+                GuestInfo = new Guest(message.GuestId)
+                {
+                    Message = message
+                };
             }
 
             if (GuestInfo.Message.GuestId != CurrentSession.UserId)
             {
                 _log.LogTrace($"Fixing GuestId");
+                _log.LogDebug($"GuestInfo.Message.GuestId {GuestInfo.Message.GuestId}");
                 _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
                 GuestInfo.Message.GuestId = CurrentSession.UserId;
                 await GuestInfo.Save();

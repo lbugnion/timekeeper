@@ -47,6 +47,12 @@ namespace Timekeeper.Client.Model
             SelectionChanged?.Invoke(this, IsSelected);
         }
 
+        public bool IsPlayStopDisabled
+        {
+            get;
+            internal set;
+        }
+
         public bool IsConfigDisabled
         {
             get;
