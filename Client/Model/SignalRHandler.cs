@@ -142,8 +142,8 @@ namespace Timekeeper.Client.Model
 
             _hostName = _config.GetValue<string>(HostNameKey);
             _hostNameFree = _config.GetValue<string>(HostNameFreeKey);
-            _log.LogDebug($"HIGHLIGHT--_hostName: {_hostName}");
-            _log.LogDebug($"HIGHLIGHT--_hostNameFree: {_hostNameFree}");
+            _log.LogDebug($"_hostName: {_hostName}");
+            _log.LogDebug($"_hostNameFree: {_hostNameFree}");
         }
 
         private Task ConnectionReconnected(string arg)

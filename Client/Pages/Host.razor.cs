@@ -73,7 +73,7 @@ namespace Timekeeper.Client.Pages
                 Log,
                 Http);
 
-            Log.LogTrace("HIGHLIGHT--Check authorization");
+            Log.LogTrace("Check authorization");
             await Handler.CheckAuthorize();
 
             if (Handler.IsAuthorized != null

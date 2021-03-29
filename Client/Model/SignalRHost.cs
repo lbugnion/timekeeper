@@ -119,10 +119,10 @@ namespace Timekeeper.Client.Model
 
         public async Task CheckAuthorize()
         {
-            _log.LogInformation("HIGHLIGHT---> CheckAuthorize");
+            _log.LogInformation("-> CheckAuthorize");
 
             var versionUrl = $"{_hostName}/version";
-            _log.LogDebug($"HIGHLIGHT--versionUrl: {versionUrl}");
+            _log.LogDebug($"versionUrl: {versionUrl}");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, versionUrl);
             HttpResponseMessage response = null;
@@ -244,7 +244,7 @@ namespace Timekeeper.Client.Model
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
                             clock.IsClockRunning = true;
-                            _log.LogDebug($"{clock.Message.Label} still active");
+                            _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
                         }
                     }
 
@@ -466,16 +466,17 @@ namespace Timekeeper.Client.Model
 
             if (CurrentSession == null)
             {
-                _log.LogDebug("Session in storage is Null");
+                _log.LogDebug("HIGHLIGHT--Session in storage is Null");
             }
             else
             {
-                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
+                _log.LogDebug($"HIGHLIGHT--SessionId in Storage: {CurrentSession.SessionId}");
             }
 
-            if (!string.IsNullOrEmpty(templateName))
+            if (CurrentSession == null
+                && !string.IsNullOrEmpty(templateName))
             {
-                _log.LogTrace("Checking template");
+                _log.LogTrace("HIGHLIGHT--Checking template");
 
                 var section = _config.GetSection(templateName);
                 var config = section.Get<ClockTemplate>();
