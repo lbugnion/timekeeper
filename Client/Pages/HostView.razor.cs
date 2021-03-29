@@ -119,7 +119,7 @@ namespace Timekeeper.Client.Pages
 
         public void LogOut()
         {
-            Nav.NavigateTo("/.auth/logout", forceLoad: true);
+            Nav.NavigateTo("/.auth/logout?post_logout_redirect_uri=/", forceLoad: true);
         }
 
         public async Task EditSessionName()
