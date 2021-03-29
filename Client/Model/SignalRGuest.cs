@@ -169,11 +169,6 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        internal void SetMessage(string htmlString, bool isError)
-        {
-
-        }
-
         public override async Task Connect(
             string templateName = null)
         {

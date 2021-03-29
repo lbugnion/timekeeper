@@ -191,7 +191,7 @@ else
             </button>
 
             @if (Mobile != null
-         && Mobile.IsNoSleepVisible)
+                && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
@@ -226,7 +226,10 @@ else
             {
                 <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
 
-                <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
+                @if (Branding.CanEditSessionAndGuestName)
+                {
+                    <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
+                }
             }
 
             @if (Branding.CanEditSessionAndGuestName

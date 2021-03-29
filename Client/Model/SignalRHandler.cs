@@ -142,8 +142,8 @@ namespace Timekeeper.Client.Model
 
             _hostName = _config.GetValue<string>(HostNameKey);
             _hostNameFree = _config.GetValue<string>(HostNameFreeKey);
-            _log.LogDebug($"HIGHLIGHT--_hostName: {_hostName}");
-            _log.LogDebug($"HIGHLIGHT--_hostNameFree: {_hostNameFree}");
+            _log.LogDebug($"_hostName: {_hostName}");
+            _log.LogDebug($"_hostNameFree: {_hostNameFree}");
         }
 
         private Task ConnectionReconnected(string arg)
@@ -480,6 +480,9 @@ namespace Timekeeper.Client.Model
             {
                 existingClock.IsClockRunning = false;
                 existingClock.Message.ServerTime = DateTime.MinValue;
+                existingClock.Message.CountDown = existingClock.Message.ConfiguredCountDown;
+                existingClock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
+                _log.LogDebug($"HIGHLIGHT--existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");
                 existingClock.ResetDisplay();
             }
             else
