@@ -117,6 +117,11 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
+        public void LogOut()
+        {
+            Nav.NavigateTo("/.auth/logout", forceLoad: true);
+        }
+
         public async Task EditSessionName()
         {
             IsEditingSessionName = !IsEditingSessionName;
