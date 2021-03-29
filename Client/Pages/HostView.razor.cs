@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -133,7 +134,17 @@ namespace Timekeeper.Client.Pages
             else
             {
                 EditSessionNameLinkText = EditSessionNameText;
-                Handler.CurrentSession.SessionName = SessionName;
+
+                if (string.IsNullOrEmpty(SessionName))
+                {
+                    Handler.CurrentSession.ResetName();
+                    SessionName = Handler.CurrentSession.SessionName;
+                }
+                else
+                {
+                    Handler.CurrentSession.SessionName = SessionName;
+                }
+
                 await Handler.SaveSession();
             }
         }

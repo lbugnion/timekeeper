@@ -43,10 +43,15 @@ namespace Timekeeper.Client.Model
         public SessionBase()
         {
             SessionId = Guid.NewGuid().ToString();
-            SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            ResetName();
             UserId = Guid.NewGuid().ToString();
             UserName = GuestMessage.AnonymousName;
             Clocks = new List<Clock>();
+        }
+
+        public void ResetName()
+        {
+            SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
         public static async Task DeleteFromStorage(string storageKey, ILogger log = null)
