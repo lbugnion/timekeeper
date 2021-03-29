@@ -7,6 +7,7 @@ html, body {
 
 h1, h2 {
     font-family: 'Segoe UI Light', Tahoma, Geneva, Verdana, sans-serif;
+    height: 1em;
     color: darkblue;
 }
 
@@ -100,10 +101,12 @@ a:hover {
 .clock-controls-area {
     margin-top: 34px;
     margin-left: 10px;
+    margin-right: -30px;
+    width: 335px;
 }
 
     .clock-controls-area button {
-        width: 50px;
+        width: 40px;
         height: 30px;
         font-size: 22px;
     }
@@ -161,11 +164,6 @@ a:hover {
 
 .clock-selection {
     float: right;
-    margin-right: 4px;
-    background-color: white;
-    width: 30px;
-    height: 30px;
-    z-index: 1000;
     border: solid 0px black;
     background-color: #CCCCCC;
 }
@@ -218,7 +216,27 @@ blockquote {
 
     blockquote.warning {
         background-color: bisque;
-        padding: 10px;
+    }
+
+    blockquote.error {
+        background-color: crimson;
+        font-weight: bold;
+        color: white;
+    }
+
+    blockquote.error a {
+        color: white;
+        text-decoration: underline;
+    }
+
+    blockquote.error a:visited {
+        color: white;
+        text-decoration: underline;
+    }
+
+    blockquote.error a:hover {
+        color: white;
+        text-decoration: underline;
     }
 
 .session-information-area {
@@ -236,6 +254,10 @@ blockquote {
     margin-top: -5px;
     font-size: 2em;
     color: white;
+}
+
+.connected-guests-list {
+    margin-bottom: 20px;
 }
 
 .about-link {

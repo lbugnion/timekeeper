@@ -73,6 +73,22 @@ namespace Timekeeper.Client.Pages
                 Log,
                 Http);
 
+            Log.LogTrace("HIGHLIGHT--Check authorization");
+            await Handler.CheckAuthorize();
+
+            if (Handler.IsAuthorized != null
+                && !Handler.IsAuthorized.Value)
+            {
+                Log.LogError("No authorization");
+                return;
+            }
+            else if (Handler.IsOffline != null
+                && Handler.IsOffline.Value)
+            {
+                Log.LogError("Offline");
+                return;
+            }
+
             if (ResetSession == "reset")
             {
                 await Handler.DoDeleteSession();

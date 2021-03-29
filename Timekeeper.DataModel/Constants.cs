@@ -9,6 +9,7 @@
         public const string GroupIdHeaderKey = "x-timekeeper-group-id";
         public const string GuestToHostMessageName = "guest-to-host";
         public const string HostToGuestMessageName = "host-to-guest";
+        public const string HostToGuestRequestAnnounceMessageName = "host-to-guest-request-announce";
         public const string HubName = "timekeeper";
         public const string StartClockMessageName = "start-clock";
         public const string StopClockMessage = "stop-clock";

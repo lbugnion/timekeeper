@@ -67,6 +67,12 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        public bool IsTaskRunning
+        {
+            get;
+            private set;
+        }
+
         public bool IsAnyClockRunning
         {
             get
@@ -125,14 +131,19 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http)
         {
-            CurrentMessage = new MarkupString("Welcome!");
+            DisplayMessage("Welcome!", false);
             Status = "Please wait...";
 
             _config = config;
             _localStorage = localStorage;
-            SessionBase.SetLocalStorage(_localStorage);
             _log = log;
             _http = http;
+            SessionBase.SetLocalStorage(_localStorage);
+
+            _hostName = _config.GetValue<string>(HostNameKey);
+            _hostNameFree = _config.GetValue<string>(HostNameFreeKey);
+            _log.LogDebug($"HIGHLIGHT--_hostName: {_hostName}");
+            _log.LogDebug($"HIGHLIGHT--_hostNameFree: {_hostNameFree}");
         }
 
         private Task ConnectionReconnected(string arg)
@@ -209,11 +220,6 @@ namespace Timekeeper.Client.Model
         protected async Task<bool> CreateConnection()
         {
             _log.LogInformation("-> SignalRHandler.CreateConnection");
-
-            _hostName = _config.GetValue<string>(HostNameKey);
-            _hostNameFree = _config.GetValue<string>(HostNameFreeKey);
-            _log.LogDebug($"_hostName: {_hostName}");
-            _log.LogDebug($"_hostNameFree: {_hostNameFree}");
 
             NegotiateInfo negotiateInfo = null;
 
@@ -315,10 +321,15 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"Remaining clocks: {CurrentSession.Clocks.Count}");
         }
 
-        protected virtual void DisplayMessage(string message)
+        protected virtual void DisplayMessage(string message, bool wrapInError)
         {
-            _log.LogInformation("-> DisplayMessage");
-            _log.LogDebug(message);
+            _log?.LogInformation("-> DisplayMessage");
+            _log?.LogDebug(message);
+
+            if (wrapInError)
+            {
+                message = $"<span syle='color: red'>{message}</span>";
+            }
 
             CurrentMessage = new MarkupString(message);
             RaiseUpdateEvent();
@@ -354,7 +365,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"CurrentBackgroundColor: {activeClock.CurrentBackgroundColor}");
             _log.LogDebug($"Label: {activeClock.Message.Label}");
 
-            if (IsAnyClockRunning)
+            if (IsTaskRunning)
             {
                 _log.LogTrace("Clock task already running");
                 activeClock.IsClockRunning = true;
@@ -367,6 +378,8 @@ namespace Timekeeper.Client.Model
             {
                 do
                 {
+                    IsTaskRunning = true;
+
                     if (CurrentSession.Clocks.Count == 0)
                     {
                         _log.LogTrace("No clocks found");
@@ -417,6 +430,8 @@ namespace Timekeeper.Client.Model
                     await Task.Delay(delay);
                 }
                 while (IsAnyClockRunning);
+
+                IsTaskRunning = false;
             });
         }
 
