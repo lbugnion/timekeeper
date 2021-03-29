@@ -94,6 +94,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
 
             clock.IsDeleteDisabled = false;
+            clock.IsPlayStopDisabled = false;
             clock.IsNudgeDisabled = true;
 
             if (isAnyClockRunning)
@@ -124,7 +125,20 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"HIGHLIGHT--versionUrl: {versionUrl}");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, versionUrl);
-            var response = await _http.SendAsync(httpRequest);
+            HttpResponseMessage response = null;
+
+            try
+            {
+                response = await _http.SendAsync(httpRequest);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Connection refused: {ex.Message}");
+                IsOffline = true;
+                IsAuthorized = false;
+                Status = "Cannot communicate with functions";
+                return;
+            }
 
             _log.LogDebug($"Response code: {response.StatusCode}");
 
@@ -146,7 +160,7 @@ namespace Timekeeper.Client.Model
                 default:
                     _log.LogTrace("Other error code");
                     IsOffline = true;
-                    IsAuthorized = true;
+                    IsAuthorized = false;
                     Status = "Cannot communicate with functions";
                     _log.LogError($"Cannot communicate with functions: {response.StatusCode}");
                     break;
@@ -221,6 +235,7 @@ namespace Timekeeper.Client.Model
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
+                        clock.IsPlayStopDisabled = false;
                         clock.IsConfigDisabled = false;
                         clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
@@ -269,6 +284,7 @@ namespace Timekeeper.Client.Model
 
                     foreach (var clock in CurrentSession.Clocks)
                     {
+                        clock.IsPlayStopDisabled = true;
                         clock.IsConfigDisabled = true;
                         clock.IsDeleteDisabled = true;
                         clock.IsNudgeDisabled = true;
@@ -289,6 +305,7 @@ namespace Timekeeper.Client.Model
 
                 foreach (var clock in CurrentSession.Clocks)
                 {
+                    clock.IsPlayStopDisabled = true;
                     clock.IsConfigDisabled = true;
                     clock.IsDeleteDisabled = true;
                     clock.IsNudgeDisabled = true;
@@ -597,6 +614,7 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogDebug($"Setting clock {clock.Message.Label}");
 
+                clock.IsPlayStopDisabled = true;
                 clock.IsConfigDisabled = true;
                 clock.IsDeleteDisabled = true;
                 clock.IsClockRunning = false;
@@ -920,6 +938,7 @@ namespace Timekeeper.Client.Model
             foreach (var clock in clocksToStart)
             {
                 clock.IsSelected = false;
+                clock.IsPlayStopDisabled = false;
                 clock.IsConfigDisabled = true;
                 clock.IsDeleteDisabled = true;
                 clock.IsNudgeDisabled = false;

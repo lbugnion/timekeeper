@@ -40,23 +40,6 @@
         {
             <li style="background-color: @clock.CurrentBackgroundColor">
                 <div class="clock-area">
-                    @if (clock.IsSelected)
-                    {
-                        <button @onclick="clock.ToggleSelect"
-                                title="Unselect this clock"
-                                class="clock-selection">
-                            <i class="fa fa-check-square-o"></i>
-                        </button>
-                    }
-                    else
-                    {
-                        <button @onclick="clock.ToggleSelect"
-                                title="Select this clock"
-                                class="clock-selection">
-                            <i class="fa fa-square-o"></i>
-                        </button>
-                    }
-
                     <div class="nudge-buttons-area">
                         <button class="nudge-button"
                                 title="Nudge up 30 seconds"
@@ -94,6 +77,7 @@
                             @if (clock.IsClockRunning)
                             {
                                 <button @onclick="(e => Handler.StopClock(clock))"
+                                        disabled="@clock.IsPlayStopDisabled"
                                         title="Stop this clock">
                                     <i class="fa fa-stop"></i>
                                 </button>
@@ -101,6 +85,7 @@
                             else
                             {
                                 <button @onclick="(e => Handler.StartClock(clock, true))"
+                                        disabled="@clock.IsPlayStopDisabled"
                                         title="Start this clock">
                                     <i class="fa fa-play"></i>
                                 </button>
@@ -126,6 +111,23 @@
                                         <i class="fa fa-minus-square"></i>
                                     </button>
                                 }
+                            }
+
+                            @if (clock.IsSelected)
+                            {
+                                <button @onclick="clock.ToggleSelect"
+                                        title="Unselect this clock"
+                                        class="clock-selection">
+                                    <i class="fa fa-check-square-o"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button @onclick="clock.ToggleSelect"
+                                        title="Select this clock"
+                                        class="clock-selection">
+                                    <i class="fa fa-square-o"></i>
+                                </button>
                             }
                         </div>
                     </div>
