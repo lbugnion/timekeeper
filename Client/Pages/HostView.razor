@@ -226,11 +226,14 @@ else
             {
                 <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
 
-                <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
+                @if (Branding.CanEditSessionAndGuestName)
+                {
+                    <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
+                }
             }
 
             @if (Branding.CanEditSessionAndGuestName
-         && IsGuestListExpanded)
+        && IsGuestListExpanded)
             {
                 <ul class="connected-guests-list">
                     @if (Handler.AnonymousGuests > 0)
