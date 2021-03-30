@@ -196,18 +196,14 @@ namespace Timekeeper.Client.Model
                     DisplayMessage("Ready", false);
 
                     _log.LogTrace($"Name is {GuestInfo.Message.DisplayName}");
+                    _log.LogTrace($"Sending name {GuestInfo.Message.CustomName}");
 
-                    if (!string.IsNullOrEmpty(GuestInfo.Message.CustomName))
+                    ok = await AnnounceName();
+
+                    if (!ok)
                     {
-                        _log.LogTrace($"Sending name {GuestInfo.Message.CustomName}");
-
-                        ok = await AnnounceName();
-
-                        if (!ok)
-                        {
-                            IsConnected = false;
-                            DisplayMessage("Error", true);
-                        }
+                        IsConnected = false;
+                        DisplayMessage("Error", true);
                     }
                 }
                 else
