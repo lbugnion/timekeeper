@@ -233,7 +233,7 @@ else
             }
 
             @if (Branding.CanEditSessionAndGuestName
-        && IsGuestListExpanded)
+                && IsGuestListExpanded)
             {
                 <ul class="connected-guests-list">
                     @if (Handler.AnonymousGuests > 0)
@@ -282,7 +282,8 @@ else
                 @onclick="@CreateNewSession">
             Create a new session
         </button>
-        <button @onclick="@LogOut">
+        <button disabled="@Handler.IsDeleteSessionDisabled"
+                @onclick="@LogOut">
             Log out
         </button>
     </div>

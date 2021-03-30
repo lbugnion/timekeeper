@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Timekeeper.Client.Model;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.5.6.1")]
+[assembly: AssemblyVersion("0.5.6.2")]
 
 namespace Timekeeper.Client
 {
