@@ -26,7 +26,7 @@ namespace Timekeeper.Client.Model
             };
         }
 
-        public static async Task<Guest> GetFromStorage()
+        public static async Task<GuestMessage> GetFromStorage()
         {
             var json = await _localStorage.GetItemAsStringAsync(
                 GuestStorageKey);
@@ -35,11 +35,10 @@ namespace Timekeeper.Client.Model
 
             if (!string.IsNullOrEmpty(json))
             {
-                var guest = JsonConvert.DeserializeObject<Guest>(json);
+                var savedGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
+                _log.LogDebug($"Guest name: {savedGuest.DisplayName}");
 
-                _log.LogDebug($"Guest name: {guest.Message.DisplayName}");
-
-                return guest;
+                return savedGuest;
             }
 
             return null;
@@ -60,7 +59,7 @@ namespace Timekeeper.Client.Model
 
         public async Task Save()
         {
-            var json = JsonConvert.SerializeObject(this);
+            var json = JsonConvert.SerializeObject(Message);
 
             _log.LogDebug($"Saving: {json}");
 

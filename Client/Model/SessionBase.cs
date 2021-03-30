@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {
@@ -26,6 +27,12 @@ namespace Timekeeper.Client.Model
             set;
         }
 
+        public string LastMessage
+        {
+            get;
+            set;
+        }
+
         [Required]
         public string UserId
         {
@@ -36,10 +43,15 @@ namespace Timekeeper.Client.Model
         public SessionBase()
         {
             SessionId = Guid.NewGuid().ToString();
-            SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            ResetName();
             UserId = Guid.NewGuid().ToString();
-            UserName = "Anonymous";
+            UserName = GuestMessage.AnonymousName;
             Clocks = new List<Clock>();
+        }
+
+        public void ResetName()
+        {
+            SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
         public static async Task DeleteFromStorage(string storageKey, ILogger log = null)
@@ -75,7 +87,7 @@ namespace Timekeeper.Client.Model
 
         public async Task Save(string sessionStorageKey, ILogger log)
         {
-            log.LogTrace("CRITICAL--SAVING SESSION");
+            log.LogTrace("SAVING SESSION");
 
             var json = JsonConvert.SerializeObject(this);
 
@@ -105,6 +117,7 @@ namespace Timekeeper.Client.Model
                     clock.IsClockRunning = false;
                     clock.IsConfigDisabled = false;
                     clock.IsDeleteDisabled = false;
+                    clock.IsPlayStopDisabled = false;
                 }
             }
 

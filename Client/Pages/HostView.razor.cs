@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,8 @@ namespace Timekeeper.Client.Pages
     {
         private const string EditSessionNameText = "edit session name";
         private const string SaveSessionNameText = "save session name";
+        private const string ShowGuestsText = "show";
+        private const string HideGuestsText = "hide";
         public const string SendMessageInputId = "send-message-input";
 
         public int AnonymousGuests
@@ -92,7 +95,7 @@ namespace Timekeeper.Client.Pages
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
-            GuestListLinkText = "show";
+            GuestListLinkText = ShowGuestsText;
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
         }
@@ -115,6 +118,11 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
+        public void LogOut()
+        {
+            Nav.NavigateTo("/.auth/logout?post_logout_redirect_uri=/", forceLoad: true);
+        }
+
         public async Task EditSessionName()
         {
             IsEditingSessionName = !IsEditingSessionName;
@@ -126,7 +134,17 @@ namespace Timekeeper.Client.Pages
             else
             {
                 EditSessionNameLinkText = EditSessionNameText;
-                Handler.CurrentSession.SessionName = SessionName;
+
+                if (string.IsNullOrEmpty(SessionName))
+                {
+                    Handler.CurrentSession.ResetName();
+                    SessionName = Handler.CurrentSession.SessionName;
+                }
+                else
+                {
+                    Handler.CurrentSession.SessionName = SessionName;
+                }
+
                 await Handler.SaveSession();
             }
         }
@@ -140,7 +158,7 @@ namespace Timekeeper.Client.Pages
         {
             if (args.CtrlKey)
             {
-                await Handler.SendMessage();
+                await Handler.SendInputMessage();
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
         }
@@ -148,7 +166,7 @@ namespace Timekeeper.Client.Pages
         public void ToggleIsGuestListExpanded()
         {
             IsGuestListExpanded = !IsGuestListExpanded;
-            GuestListLinkText = IsGuestListExpanded ? "hide" : "show";
+            GuestListLinkText = IsGuestListExpanded ? HideGuestsText : ShowGuestsText;
         }
     }
 }
