@@ -222,7 +222,7 @@ namespace Timekeeper.Client.Model
             if (ok)
             {
                 _connection.On<string>(Constants.GuestToHostMessageName, ReceiveGuestMessage);
-                _connection.On<string>(Constants.ConnectMessage, ReceiveConnectMessage);
+                //_connection.On<string>(Constants.ConnectMessage, ReceiveConnectMessage);
                 _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
 
                 ok = await StartConnection();
@@ -244,7 +244,7 @@ namespace Timekeeper.Client.Model
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
                             clock.IsClockRunning = true;
-                            _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
+                            _log.LogDebug($"{clock.Message.Label} still active");
                         }
                     }
 
@@ -466,17 +466,17 @@ namespace Timekeeper.Client.Model
 
             if (CurrentSession == null)
             {
-                _log.LogDebug("HIGHLIGHT--Session in storage is Null");
+                _log.LogDebug("Session in storage is Null");
             }
             else
             {
-                _log.LogDebug($"HIGHLIGHT--SessionId in Storage: {CurrentSession.SessionId}");
+                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
             }
 
             if (CurrentSession == null
                 && !string.IsNullOrEmpty(templateName))
             {
-                _log.LogTrace("HIGHLIGHT--Checking template");
+                _log.LogTrace("Checking template");
 
                 var section = _config.GetSection(templateName);
                 var config = section.Get<ClockTemplate>();
@@ -648,56 +648,56 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        public async Task ReceiveConnectMessage(string guestId)
-        {
-            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveConnectMessage)}");
-            _log.LogDebug($"{nameof(guestId)} {guestId}");
-            _log.LogDebug($"UserId in CurrentSession: {CurrentSession.UserId}");
+        //public async Task ReceiveConnectMessage(string guestId)
+        //{
+        //    _log.LogInformation($"-> SignalRHost.{nameof(ReceiveConnectMessage)}");
+        //    _log.LogDebug($"{nameof(guestId)} {guestId}");
+        //    _log.LogDebug($"UserId in CurrentSession: {CurrentSession.UserId}");
 
-            var success = Guid.TryParse(guestId, out Guid guestGuid);
+        //    var success = Guid.TryParse(guestId, out Guid guestGuid);
 
-            if (!success
-                || guestGuid == Guid.Empty)
-            {
-                _log.LogWarning($"GuestId is not a GUID");
-                return;
-            }
+        //    if (!success
+        //        || guestGuid == Guid.Empty)
+        //    {
+        //        _log.LogWarning($"GuestId is not a GUID");
+        //        return;
+        //    }
 
-            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == guestId);
+        //    var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == guestId);
 
-            if (existingGuest != null)
-            {
-                _log.LogWarning("Found existing guest, refresh clock and message just to be sure");
+        //    if (existingGuest != null)
+        //    {
+        //        _log.LogWarning("Found existing guest, refresh clock and message just to be sure");
 
-                if (IsAnyClockRunning)
-                {
-                    await StartAllClocks(false);
-                }
+        //        if (IsAnyClockRunning)
+        //        {
+        //            await StartAllClocks(false);
+        //        }
 
-                await (SendMessage(CurrentMessage.Value));
-                return;
-            }
+        //        await (SendMessage(CurrentMessage.Value));
+        //        return;
+        //    }
 
-            if (guestId == CurrentSession.UserId)
-            {
-                _log.LogWarning($"Self connect received");
-                return;
-            }
+        //    if (guestId == CurrentSession.UserId)
+        //    {
+        //        _log.LogWarning($"Self connect received");
+        //        return;
+        //    }
 
-            UpdateConnectedGuests(new GuestMessage
-            {
-                GuestId = guestId
-            });
-            RaiseUpdateEvent();
+        //    UpdateConnectedGuests(new GuestMessage
+        //    {
+        //        GuestId = guestId
+        //    });
+        //    RaiseUpdateEvent();
 
-            if (IsAnyClockRunning)
-            {
-                await StartAllClocks(false);
-            }
+        //    if (IsAnyClockRunning)
+        //    {
+        //        await StartAllClocks(false);
+        //    }
 
-            await (SendMessage(CurrentMessage.Value));
-            _log.LogInformation($"SignalRHost.{nameof(ReceiveConnectMessage)} ->");
-        }
+        //    await (SendMessage(CurrentMessage.Value));
+        //    _log.LogInformation($"SignalRHost.{nameof(ReceiveConnectMessage)} ->");
+        //}
 
         private void UpdateConnectedGuests(GuestMessage message)
         {
@@ -750,14 +750,12 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"SignalRHost.{nameof(ReceiveDisconnectMessage)} ->");
         }
 
-        public void ReceiveGuestMessage(string json)
+        public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
-
-            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
 
             if (messageGuest == null
                 || string.IsNullOrEmpty(messageGuest.GuestId))
@@ -765,6 +763,8 @@ namespace Timekeeper.Client.Model
                 _log.LogWarning($"No GuestId found");
                 return;
             }
+
+            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
 
             var success = Guid.TryParse(messageGuest.GuestId, out Guid guestGuid);
 
@@ -791,6 +791,16 @@ namespace Timekeeper.Client.Model
             }
 
             RaiseUpdateEvent();
+            _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
+
+            // Refresh the clocks and the message for everyone
+
+            if (IsAnyClockRunning)
+            {
+                await StartAllClocks(false);
+            }
+
+            await SendMessage(CurrentMessage.Value);
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
         }
 
@@ -940,7 +950,7 @@ namespace Timekeeper.Client.Model
             {
                 if (clock.Message.ConfiguredCountDown.TotalSeconds == 0)
                 {
-                    _log.LogDebug($"HIGHLIGHT--saving {clock.Message.CountDown} to configured countdown");
+                    _log.LogDebug($"saving {clock.Message.CountDown} to configured countdown");
                     clock.Message.ConfiguredCountDown = clock.Message.CountDown;
                 }
 
