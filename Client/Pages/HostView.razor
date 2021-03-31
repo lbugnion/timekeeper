@@ -282,9 +282,14 @@ else
                 @onclick="@CreateNewSession">
             Create a new session
         </button>
-        <button disabled="@Handler.IsDeleteSessionDisabled"
-                @onclick="@LogOut">
-            Log out
-        </button>
+
+        @if (Branding.MustAuthorize)
+        {
+            <button disabled="@Handler.IsDeleteSessionDisabled"
+                    @onclick="@LogOut">
+                Log out
+            </button>
+        }
+
     </div>
 }
