@@ -222,7 +222,6 @@ namespace Timekeeper.Client.Model
             if (ok)
             {
                 _connection.On<string>(Constants.GuestToHostMessageName, ReceiveGuestMessage);
-                //_connection.On<string>(Constants.ConnectMessage, ReceiveConnectMessage);
                 _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
 
                 ok = await StartConnection();
@@ -647,57 +646,6 @@ namespace Timekeeper.Client.Model
             Program.ClockToConfigure = param;
             return true;
         }
-
-        //public async Task ReceiveConnectMessage(string guestId)
-        //{
-        //    _log.LogInformation($"-> SignalRHost.{nameof(ReceiveConnectMessage)}");
-        //    _log.LogDebug($"{nameof(guestId)} {guestId}");
-        //    _log.LogDebug($"UserId in CurrentSession: {CurrentSession.UserId}");
-
-        //    var success = Guid.TryParse(guestId, out Guid guestGuid);
-
-        //    if (!success
-        //        || guestGuid == Guid.Empty)
-        //    {
-        //        _log.LogWarning($"GuestId is not a GUID");
-        //        return;
-        //    }
-
-        //    var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == guestId);
-
-        //    if (existingGuest != null)
-        //    {
-        //        _log.LogWarning("Found existing guest, refresh clock and message just to be sure");
-
-        //        if (IsAnyClockRunning)
-        //        {
-        //            await StartAllClocks(false);
-        //        }
-
-        //        await (SendMessage(CurrentMessage.Value));
-        //        return;
-        //    }
-
-        //    if (guestId == CurrentSession.UserId)
-        //    {
-        //        _log.LogWarning($"Self connect received");
-        //        return;
-        //    }
-
-        //    UpdateConnectedGuests(new GuestMessage
-        //    {
-        //        GuestId = guestId
-        //    });
-        //    RaiseUpdateEvent();
-
-        //    if (IsAnyClockRunning)
-        //    {
-        //        await StartAllClocks(false);
-        //    }
-
-        //    await (SendMessage(CurrentMessage.Value));
-        //    _log.LogInformation($"SignalRHost.{nameof(ReceiveConnectMessage)} ->");
-        //}
 
         private void UpdateConnectedGuests(GuestMessage message)
         {
