@@ -455,7 +455,6 @@ namespace Timekeeper.Client.Model
             await StartClock(clock, false); ;
         }
         
-
         public async Task<bool> InitializeSession(
             string templateName = null)
         {
@@ -498,7 +497,8 @@ namespace Timekeeper.Client.Model
                     CurrentSession = new SessionBase
                     {
                         CreatedFromTemplate = true,
-                        SessionId = config.SessionId
+                        SessionId = config.SessionId,
+                        BranchId = Environment.GetEnvironmentVariable(Constants.BranchIdKey)
                     };
 
                     if (!string.IsNullOrEmpty(config.SessionName))
@@ -602,7 +602,10 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogTrace("CurrentSession is null");
 
-                CurrentSession = new SessionBase();
+                CurrentSession = new SessionBase
+                {
+                    BranchId = Environment.GetEnvironmentVariable(Constants.BranchIdKey)
+                };
                 CurrentSession.Clocks.Add(new Clock());
 
                 _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");

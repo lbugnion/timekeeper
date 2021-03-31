@@ -18,19 +18,29 @@ namespace Timekeeper
             [HttpTrigger(
                 AuthorizationLevel.Anonymous, 
                 "post",
-                Route = "save-session/{sessionId}")] 
+                Route = "save-session/{branchId}/{sessionId}")] 
             HttpRequest req,
+            string branchId,
             string sessionId,
-            [Blob("sessions/{sessionId}.json", FileAccess.Write)]
+            [Blob("sessions/branchId/{sessionId}.json", FileAccess.Write)]
             Stream sessionBlob,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation("-> SaveSession");
 
-            var success = Guid.TryParse(sessionId, out Guid sessionGuid);
+            var success = Guid.TryParse(branchId, out Guid testGuid);
 
             if (!success
-                || sessionGuid == Guid.Empty)
+                || testGuid == Guid.Empty)
+            {
+                log.LogError("Invalid branch ID");
+                return new BadRequestObjectResult("Invalid branch ID");
+            }
+
+            success = Guid.TryParse(sessionId, out testGuid);
+
+            if (!success
+                || testGuid == Guid.Empty)
             {
                 log.LogError("Invalid session ID");
                 return new BadRequestObjectResult("Invalid session ID");
@@ -46,7 +56,13 @@ namespace Timekeeper
 
             var session = JsonConvert.DeserializeObject<SessionBase>(requestBody);
 
-            if (session.SessionId != sessionId)
+            if (session.BranchId.ToLower() != branchId.ToLower())
+            {
+                log.LogError("Branch IDs don't match");
+                return new BadRequestObjectResult("Branch IDs don't match");
+            }
+
+            if (session.SessionId.ToLower() != sessionId.ToLower())
             {
                 log.LogError("Session IDs don't match");
                 return new BadRequestObjectResult("Session IDs don't match");

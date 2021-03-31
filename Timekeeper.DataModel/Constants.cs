@@ -2,6 +2,7 @@
 {
     public class Constants
     {
+        public const string BranchIdKey = "BranchId";
         public const string ClaimsUserIdHeaderKey = "x-timekeeper-claims-userid";
         public const string ConnectMessage = "connect";
         public const string DeleteClockMessage = "delete-clock";

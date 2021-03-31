@@ -2,12 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
 namespace Timekeeper.DataModel
 {
     public class SessionBase
     {
+        [Required]
+        public string BranchId
+        {
+            get;
+            set;
+        }
+
         [Required]
         public string SessionId
         {
