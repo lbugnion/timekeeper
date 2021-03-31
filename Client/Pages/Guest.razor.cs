@@ -38,7 +38,7 @@ namespace Timekeeper.Client.Pages
         }
 
         [Parameter]
-        public string Session
+        public string SessionId
         {
             get;
             set;
@@ -64,13 +64,13 @@ namespace Timekeeper.Client.Pages
         {
             Log.LogInformation("-> OnInitializedAsync");
 
-            if (string.IsNullOrEmpty(Session))
+            if (string.IsNullOrEmpty(SessionId))
             {
                 ShowNoSessionMessage = true;
             }
             else
             {
-                var success = Guid.TryParse(Session, out Guid guid);
+                var success = Guid.TryParse(SessionId, out Guid guid);
 
                 if (!success
                     || guid == Guid.Empty)
@@ -88,6 +88,7 @@ namespace Timekeeper.Client.Pages
                         LocalStorage,
                         Log,
                         Http,
+                        SessionId,
                         Session);
 
                     Handler.UpdateUi += HandlerUpdateUi;

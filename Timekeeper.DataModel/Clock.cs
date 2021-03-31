@@ -1,7 +1,6 @@
 ﻿using System;
-using Timekeeper.DataModel;
 
-namespace Timekeeper.Client.Model
+namespace Timekeeper.DataModel
 {
     public class Clock
     {
@@ -50,25 +49,25 @@ namespace Timekeeper.Client.Model
         public bool IsPlayStopDisabled
         {
             get;
-            internal set;
+            set;
         }
 
         public bool IsConfigDisabled
         {
             get;
-            internal set;
+            set;
         }
 
         public bool IsDeleteDisabled
         {
             get;
-            internal set;
+            set;
         }
 
         public bool IsNudgeDisabled
         {
             get;
-            internal set;
+            set;
         }
 
         public StartClockMessage Message

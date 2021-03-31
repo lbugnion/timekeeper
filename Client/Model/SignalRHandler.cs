@@ -17,7 +17,6 @@ namespace Timekeeper.Client.Model
     {
         public event EventHandler UpdateUi;
 
-        private readonly ILocalStorageService _localStorage;
         private string _errorStatus;
         private string _status;
         protected const string AnnounceGuestKeyKey = "AnnounceGuestKey";
@@ -30,16 +29,15 @@ namespace Timekeeper.Client.Model
         protected const string StartClockKeyKey = "StartClockKey";
         protected const string StopClockKeyKey = "StopClockKey";
         protected const string UnregisterKeyKey = "UnregisterKey";
-        protected IConfiguration _config;
+        protected readonly IConfiguration _config;
         protected HubConnection _connection;
 
         protected string _hostName;
-
         protected string _hostNameFree;
 
-        protected HttpClient _http;
-
-        protected ILogger _log;
+        protected readonly HttpClient _http;
+        protected readonly SessionHandler _session;
+        protected readonly ILogger _log;
 
         public MarkupString CurrentMessage
         {
@@ -127,18 +125,17 @@ namespace Timekeeper.Client.Model
 
         public SignalRHandler(
             IConfiguration config,
-            ILocalStorageService localStorage,
             ILogger log,
-            HttpClient http)
+            HttpClient http,
+            SessionHandler session)
         {
             DisplayMessage("Welcome!", false);
             Status = "Please wait...";
 
             _config = config;
-            _localStorage = localStorage;
             _log = log;
             _http = http;
-            SessionBase.SetLocalStorage(_localStorage);
+            _session = session;
 
             _hostName = _config.GetValue<string>(HostNameKey);
             _hostNameFree = _config.GetValue<string>(HostNameFreeKey);
@@ -348,7 +345,7 @@ namespace Timekeeper.Client.Model
         protected async Task RestoreClock(Clock clock)
         {
             // Get saved clock and restore
-            var savedSession = await SessionBase.GetFromStorage(SessionKey, _log);
+            var savedSession = await _session.GetFromStorage(SessionKey, _log);
             var clockInSavedSession = savedSession.Clocks
                 .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
 
@@ -404,7 +401,7 @@ namespace Timekeeper.Client.Model
                                 clock.RaiseCountdownFinished();
                                 RaiseUpdateEvent();
                                 await RestoreClock(clock);
-                                await CurrentSession.Save(SessionKey, _log);
+                                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                                 continue;
                             }
 
@@ -490,7 +487,7 @@ namespace Timekeeper.Client.Model
                 CurrentSession.Clocks.Remove(existingClock);
             }
 
-            await CurrentSession.Save(SessionKey, _log);
+            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
 
             Status = $"Clock {existingClock.Message.Label} was stopped";
             RaiseUpdateEvent();
@@ -513,7 +510,7 @@ namespace Timekeeper.Client.Model
 
         public async Task SaveSession()
         {
-            await CurrentSession.Save(SessionKey, _log);
+            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
         }
     }
 }

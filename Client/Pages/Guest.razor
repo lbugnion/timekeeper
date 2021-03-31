@@ -1,10 +1,11 @@
 ﻿@page "/guest"
-@page "/guest/{Session}"
+@page "/guest/{SessionId}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
 @inject IJSRuntime JSRuntime
+@inject SessionHandler Session
 
 <header>
     <img src="images/header-logo.png"

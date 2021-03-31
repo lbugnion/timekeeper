@@ -48,6 +48,9 @@ namespace Timekeeper.Client
                 .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
                 .AddStaticWebAppsAuthentication();
 
+            builder.Services
+                .AddScoped<SessionHandler>();
+
             builder.Services.AddBlazoredLocalStorage();
 
             builder.Logging

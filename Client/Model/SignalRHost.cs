@@ -70,9 +70,9 @@ namespace Timekeeper.Client.Model
 
         public SignalRHost(
             IConfiguration config,
-            ILocalStorageService localStorage,
             ILogger log,
-            HttpClient http) : base(config, localStorage, log, http)
+            HttpClient http,
+            SessionHandler session) : base(config, log, http, session)
         {
             ConnectedGuests = new List<GuestMessage>();
             StartClocksButtonText = StartAllClocksText;
@@ -181,7 +181,7 @@ namespace Timekeeper.Client.Model
                     newClock.SelectionChanged += ClockSelectionChanged;
                     newClock.Message.ClockId = Guid.NewGuid().ToString();
                     CurrentSession.Clocks.Insert(index + 1, newClock);
-                    await CurrentSession.Save(SessionKey, _log);
+                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                 }
 
                 var position = 0;
@@ -408,7 +408,7 @@ namespace Timekeeper.Client.Model
                 }
             }
 
-            await SessionBase.DeleteFromStorage(SessionKey, _log);
+            await _session.DeleteFromStorage(SessionKey, _log);
             CurrentSession = null;
             _log.LogTrace("CurrentSession is deleted");
 
@@ -461,7 +461,7 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRHost.InitializeSession");
 
-            CurrentSession = await SessionBase.GetFromStorage(SessionKey, _log);
+            CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
             if (CurrentSession == null)
             {
@@ -594,7 +594,7 @@ namespace Timekeeper.Client.Model
                         CurrentSession.Clocks.Add(newClock);
                     }
 
-                    await CurrentSession.Save(SessionKey, _log);
+                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                 }
             }
 
@@ -606,7 +606,7 @@ namespace Timekeeper.Client.Model
                 CurrentSession.Clocks.Add(new Clock());
 
                 _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
-                await CurrentSession.Save(SessionKey, _log);
+                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                 _log.LogTrace("Session saved to storage");
             }
 
@@ -812,7 +812,7 @@ namespace Timekeeper.Client.Model
                 {
                     Status = "Message sent";
                     CurrentSession.LastMessage = htmlMessage;
-                    await CurrentSession.Save(SessionKey, _log);
+                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                 }
             }
             catch (Exception ex)
@@ -925,7 +925,7 @@ namespace Timekeeper.Client.Model
                     }
 
                     // Save so that we can restart the clock if the page is reloaded
-                    await CurrentSession.Save(SessionKey, _log);
+                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                 }
 
                 var json = JsonConvert.SerializeObject(CurrentSession.Clocks

@@ -15,7 +15,7 @@ namespace Timekeeper.Client.Model
 {
     public class SignalRGuest : SignalRHandler
     {
-        private string _session;
+        private string _sessionId;
 
         public Guest GuestInfo
         {
@@ -30,11 +30,12 @@ namespace Timekeeper.Client.Model
             ILocalStorageService localStorage,
             ILogger log,
             HttpClient http,
-            string session) : base(config, localStorage, log, http)
+            string sessionId,
+            SessionHandler session) : base(config, log, http, session)
         {
             _log.LogInformation("> SignalRGuest()");
 
-            _session = session;
+            _sessionId = sessionId;
             Guest.SetLocalStorage(localStorage, log);
         }
 
@@ -176,7 +177,7 @@ namespace Timekeeper.Client.Model
 
             IsBusy = true;
 
-            var ok = await InitializeSession(_session)
+            var ok = await InitializeSession(_sessionId)
                 && await InitializeGuestInfo()
                 && await CreateConnection();
 
@@ -263,7 +264,7 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> InitializeSession");
             _log.LogDebug($"sessionId: {sessionId}");
 
-            var guestSession = await SessionBase.GetFromStorage(SessionKey, _log);
+            var guestSession = await _session.GetFromStorage(SessionKey, _log);
 
             if (guestSession == null)
             {
@@ -277,7 +278,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"UserName {guestSession.UserName}");
 
             CurrentSession = guestSession;
-            await CurrentSession.Save(SessionKey, _log);
+            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
             _log.LogTrace("Session saved to storage");
 
             _log.LogInformation("InitializeSession ->");
