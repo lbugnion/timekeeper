@@ -22,7 +22,7 @@ namespace Timekeeper
             HttpRequest req,
             string branchId,
             string sessionId,
-            [Blob("sessions/branchId/{sessionId}.json", FileAccess.Write)]
+            [Blob("sessions/{branchId}/{sessionId}.json", FileAccess.Write)]
             Stream sessionBlob,
             ILogger log)
         {
@@ -56,13 +56,15 @@ namespace Timekeeper
 
             var session = JsonConvert.DeserializeObject<SessionBase>(requestBody);
 
-            if (session.BranchId.ToLower() != branchId.ToLower())
+            if (session.BranchId == null
+                || session.BranchId.ToLower() != branchId.ToLower())
             {
                 log.LogError("Branch IDs don't match");
                 return new BadRequestObjectResult("Branch IDs don't match");
             }
 
-            if (session.SessionId.ToLower() != sessionId.ToLower())
+            if (session.SessionId == null
+                || session.SessionId.ToLower() != sessionId.ToLower())
             {
                 log.LogError("Session IDs don't match");
                 return new BadRequestObjectResult("Session IDs don't match");
