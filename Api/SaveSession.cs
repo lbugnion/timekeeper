@@ -18,7 +18,7 @@ namespace Timekeeper
             [HttpTrigger(
                 AuthorizationLevel.Anonymous, 
                 "post",
-                Route = "save-session/{branchId}/{sessionId}")] 
+                Route = "session/{branchId}/{sessionId}")] 
             HttpRequest req,
             string branchId,
             string sessionId,
