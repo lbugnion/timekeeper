@@ -44,21 +44,21 @@ namespace Timekeeper.Client
             builder.Logging.AddConfiguration(
                 builder.Configuration.GetSection("Logging"));
 
-            builder.Services
-                .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
-                .AddStaticWebAppsAuthentication();
-
-            builder.Services
-                .AddScoped<SessionHandler>();
-
-            builder.Services.AddBlazoredLocalStorage();
-
             builder.Logging
                 .ClearProviders()
                 .AddProvider(new TimekeeperLoggerProvider(new TimekeeperLoggerConfiguration
                 {
                     MinimumLogLevel = LogLevel.Trace
                 }));
+
+            builder.Services
+                .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
+                .AddStaticWebAppsAuthentication();
+
+            builder.Services.AddBlazoredLocalStorage();
+
+            builder.Services
+                .AddScoped<SessionHandler>();
 
             await builder.Build().RunAsync();
         }

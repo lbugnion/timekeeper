@@ -21,8 +21,6 @@ namespace Timekeeper.Client.Model
         private string _status;
         protected const string AnnounceGuestKeyKey = "AnnounceGuestKey";
         protected const string FunctionCodeHeaderKey = "x-functions-key";
-        protected const string HostNameFreeKey = "HostNameFree";
-        protected const string HostNameKey = "HostName";
         protected const string NegotiateKeyKey = "NegotiateKey";
         protected const string RegisterKeyKey = "RegisterKey";
         protected const string SendMessageKeyKey = "SendMessageKey";
@@ -91,18 +89,6 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
-        public bool IsCreateNewSessionDisabled
-        {
-            get;
-            protected set;
-        }
-
-        public bool IsDeleteSessionDisabled
-        {
-            get;
-            protected set;
-        }
-
         public bool IsInError
         {
             get;
@@ -137,8 +123,8 @@ namespace Timekeeper.Client.Model
             _http = http;
             _session = session;
 
-            _hostName = _config.GetValue<string>(HostNameKey);
-            _hostNameFree = _config.GetValue<string>(HostNameFreeKey);
+            _hostName = _config.GetValue<string>(Constants.HostNameKey);
+            _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
             _log.LogDebug($"_hostName: {_hostName}");
             _log.LogDebug($"_hostNameFree: {_hostNameFree}");
         }
@@ -159,8 +145,6 @@ namespace Timekeeper.Client.Model
             IsBusy = true;
             IsConnected = false;
             IsInError = true;
-
-            // TODO Should also disable the controls for the Host
 
             tcs.SetResult(true);
             return tcs.Task;

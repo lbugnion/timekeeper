@@ -118,6 +118,11 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
+        public void NavigateToSession()
+        {
+            Nav.NavigateTo("/session");
+        }
+
         public void LogOut()
         {
             Nav.NavigateTo("/.auth/logout?post_logout_redirect_uri=/", forceLoad: true);

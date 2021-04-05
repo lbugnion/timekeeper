@@ -10,13 +10,6 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
-        [Parameter]
-        public string ResetSession
-        {
-            get;
-            set;
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
@@ -64,6 +57,7 @@ namespace Timekeeper.Client.Pages
                 Config,
                 Log,
                 Http,
+                Nav,
                 Session);
 
             Log.LogTrace("Check authorization");
@@ -79,13 +73,6 @@ namespace Timekeeper.Client.Pages
                 && Handler.IsOffline.Value)
             {
                 Log.LogError("Offline");
-                return;
-            }
-
-            if (ResetSession == "reset")
-            {
-                await Handler.DoDeleteSession();
-                Nav.NavigateTo("/host", true);
                 return;
             }
 

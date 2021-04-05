@@ -17,5 +17,7 @@
         public const string TokenHeaderKey = "x-timekeeper-token";
         public const string UserIdHeaderKey = "x-timekeeper-userid";
         public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
+        public const string HostNameFreeKey = "HostNameFree";
+        public const string HostNameKey = "HostName";
     }
 }

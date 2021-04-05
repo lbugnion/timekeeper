@@ -1,5 +1,4 @@
 ﻿@page "/host"
-@page "/host/{ResetSession}"
 @inject HttpClient Http
 @inject ILogger<Host> Log
 @inject IConfiguration Config
@@ -108,7 +107,7 @@
                 else 
                 { 
                     <HostView Handler="@Handler"
-                                SessionName="@SessionName" />
+                              SessionName="@SessionName" />
                 }
             }
         }

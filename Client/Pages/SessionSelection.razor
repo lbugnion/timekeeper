@@ -1,0 +1,23 @@
+﻿@page "/session"
+@inject ILogger<Index> Log
+@inject IConfiguration Config
+@inject HttpClient Http
+@inject SessionHandler Session   
+@inject IJSRuntime JSRuntime
+
+<header>
+    <img src="images/header-logo.png"
+         class="logo-image" />
+</header>
+
+<main>
+    <article>
+        <h1>@Branding.SessionPageTitle</h1>
+
+
+    </article>
+</main>
+
+<footer>
+    <div class="status-message"><span class="error-message">@Session.ErrorStatus</span><span>@Session.Status</span></div>
+</footer>

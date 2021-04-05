@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -17,6 +16,7 @@ namespace Timekeeper.Client.Model
     {
         public const string StartAllClocksText = "Start all clocks";
         public const string StartSelectedClocksText = "Start selected clocks";
+        private NavigationManager _nav;
 
         public IList<GuestMessage> ConnectedGuests
         {
@@ -42,7 +42,7 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public bool IsDeleteSessionWarningVisible
+        public bool IsNavigateToSessionDisabled
         {
             get;
             private set;
@@ -72,8 +72,10 @@ namespace Timekeeper.Client.Model
             IConfiguration config,
             ILogger log,
             HttpClient http,
+            NavigationManager nav,
             SessionHandler session) : base(config, log, http, session)
         {
+            _nav = nav;
             ConnectedGuests = new List<GuestMessage>();
             StartClocksButtonText = StartAllClocksText;
         }
@@ -106,7 +108,7 @@ namespace Timekeeper.Client.Model
             }
             else
             {
-                IsDeleteSessionDisabled = false;
+                IsNavigateToSessionDisabled = false;
 
                 foreach (var anyClock in CurrentSession.Clocks)
                 {
@@ -125,7 +127,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"versionUrl: {versionUrl}");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, versionUrl);
-            HttpResponseMessage response = null;
+            HttpResponseMessage response;
 
             try
             {
@@ -193,13 +195,6 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public void CancelDeleteSession()
-        {
-            _log.LogInformation("-> CancelDeleteSession");
-            IsDeleteSessionDisabled = false;
-            IsDeleteSessionWarningVisible = false;
-        }
-
         public async Task SendInputMessage()
         {
             await SendMessage(InputMessage);
@@ -213,11 +208,17 @@ namespace Timekeeper.Client.Model
             IsBusy = true;
 
             IsSendMessageDisabled = true;
-            IsDeleteSessionDisabled = true;
-            IsCreateNewSessionDisabled = true;
+            IsNavigateToSessionDisabled = true;
 
-            var ok = await InitializeSession(templateName)
-                && await CreateConnection();
+            var ok = await InitializeSession(templateName);
+
+            if (!ok)
+            {
+                _log.LogWarning("Interrupt after initializing session");
+                return;
+            }
+
+            ok = await CreateConnection();
 
             if (ok)
             {
@@ -270,8 +271,7 @@ namespace Timekeeper.Client.Model
                     }
 
                     IsSendMessageDisabled = false;
-                    IsDeleteSessionDisabled = false;
-                    IsCreateNewSessionDisabled = true;
+                    IsNavigateToSessionDisabled = false;
                     IsOffline = false;
                     Status = "Connected, your guests will only see clocks when you start them!";
                 }
@@ -290,8 +290,7 @@ namespace Timekeeper.Client.Model
                     }
 
                     IsSendMessageDisabled = true;
-                    IsDeleteSessionDisabled = false;
-                    IsCreateNewSessionDisabled = true;
+                    IsNavigateToSessionDisabled = false;
                     IsOffline = true;
                     Status = "Cannot connect";
                 }
@@ -311,8 +310,7 @@ namespace Timekeeper.Client.Model
                 }
 
                 IsSendMessageDisabled = true;
-                IsDeleteSessionDisabled = false;
-                IsCreateNewSessionDisabled = true;
+                IsNavigateToSessionDisabled = false;
                 IsOffline = true;
                 Status = "Cannot connect";
             }
@@ -351,8 +349,7 @@ namespace Timekeeper.Client.Model
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
 
-            IsDeleteSessionDisabled = isOneClockRunning;
-            IsCreateNewSessionDisabled = isOneClockRunning;
+            IsNavigateToSessionDisabled = isOneClockRunning;
             _log.LogInformation("DeleteClock ->");
 
         }
@@ -377,46 +374,6 @@ namespace Timekeeper.Client.Model
             }
 
             RaiseUpdateEvent();
-        }
-
-        public void DeleteSession()
-        {
-            _log.LogInformation("-> DeleteSession");
-            IsDeleteSessionDisabled = true;
-            IsDeleteSessionWarningVisible = true;
-        }
-
-        public async Task DoDeleteSession()
-        {
-            _log.LogInformation("-> DoDeleteSession");
-
-            IsDeleteSessionWarningVisible = false;
-
-            if (_connection != null)
-            {
-                await _connection.StopAsync();
-                await _connection.DisposeAsync();
-                _connection = null;
-                _log.LogTrace("Connection is stopped and disposed");
-            }
-
-            if (CurrentSession != null)
-            {
-                foreach (var clock in CurrentSession.Clocks)
-                {
-                    clock.CountdownFinished -= ClockCountdownFinished;
-                }
-            }
-
-            await _session.DeleteFromStorage(SessionKey, _log);
-            CurrentSession = null;
-            _log.LogTrace("CurrentSession is deleted");
-
-            IsDeleteSessionDisabled = true;
-            IsCreateNewSessionDisabled = false;
-            Status = "Disconnected";
-
-            _log.LogInformation("DoDeleteSession ->");
         }
         
         public async Task Nudge(Clock clock, int seconds)
@@ -458,13 +415,15 @@ namespace Timekeeper.Client.Model
         public async Task<bool> InitializeSession(
             string templateName = null)
         {
-            _log.LogInformation("-> SignalRHost.InitializeSession");
+            _log.LogInformation("HIGHLIGHT---> SignalRHost.InitializeSession");
 
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
             if (CurrentSession == null)
             {
                 _log.LogDebug("Session in storage is Null");
+                _nav.NavigateTo("/session");
+                return false;
             }
             else
             {
@@ -703,7 +662,7 @@ namespace Timekeeper.Client.Model
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
@@ -914,8 +873,7 @@ namespace Timekeeper.Client.Model
                 clock.CountdownFinished += ClockCountdownFinished;
             }
 
-            IsDeleteSessionDisabled = true;
-            IsCreateNewSessionDisabled = true;
+            IsNavigateToSessionDisabled = true;
 
             try
             {
@@ -964,13 +922,13 @@ namespace Timekeeper.Client.Model
                 else
                 {
                     ErrorStatus = "Unable to communicate with clients";
-                    IsDeleteSessionDisabled = false;
+                    IsNavigateToSessionDisabled = false;
                 }
             }
             catch
             {
                 DisplayMessage("Unable to communicate with clients", true);
-                IsDeleteSessionDisabled = false;
+                IsNavigateToSessionDisabled = false;
             }
         }
 
@@ -1018,8 +976,7 @@ namespace Timekeeper.Client.Model
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
 
-            IsDeleteSessionDisabled = isOneClockRunning;
-            IsCreateNewSessionDisabled = !isOneClockRunning;
+            IsNavigateToSessionDisabled = isOneClockRunning;
             _log.LogInformation("StopClock ->");
         }
     }
