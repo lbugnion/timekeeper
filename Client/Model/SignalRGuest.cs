@@ -39,21 +39,6 @@ namespace Timekeeper.Client.Model
             Guest.SetLocalStorage(localStorage, log);
         }
 
-        private async void ClockCountdownFinished(object sender, EventArgs e)
-        {
-            _log.LogInformation("-> ClockCountdownFinished");
-
-            var clock = sender as Clock;
-
-            if (clock == null)
-            {
-                return;
-            }
-
-            clock.CountdownFinished -= ClockCountdownFinished;
-            await DeleteLocalClock(clock.Message.ClockId);
-        }
-
         private void ReceiveStartClock(string message)
         {
             _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
@@ -117,6 +102,8 @@ namespace Timekeeper.Client.Model
             {
                 Status = $"{newList.Count} clock(s) started";
             }
+
+            CurrentSession.Clocks.Clear();
 
             foreach (var clock in newList.OrderBy(c => c.Message.Position))
             {

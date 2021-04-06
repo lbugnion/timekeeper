@@ -283,10 +283,15 @@ namespace Timekeeper.Client.Model
 
             var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
 
-            if (clock == null
-                || clock.IsClockRunning)
+            if (clock == null)
             {
                 _log.LogTrace($"No clock found with id {clockId}");
+                return;
+            }
+
+            if (clock.IsClockRunning)
+            {
+                _log.LogTrace($"Clock {clockId} is still running");
                 return;
             }
 
