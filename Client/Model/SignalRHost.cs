@@ -449,8 +449,12 @@ namespace Timekeeper.Client.Model
             if (CurrentSession == null)
             {
                 _log.LogDebug("Session in storage is Null");
-                _nav.NavigateTo("/session");
-                return false;
+             
+                if (Branding.AllowSessionSelection)
+                {
+                    _nav.NavigateTo("/session");
+                    return false;
+                }
             }
             else
             {

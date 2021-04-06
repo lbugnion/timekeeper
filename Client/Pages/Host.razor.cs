@@ -77,7 +77,10 @@ namespace Timekeeper.Client.Pages
                 return;
             }
 
-            await Handler.CheckState();
+            if (Branding.AllowSessionSelection)
+            {
+                await Handler.CheckState();
+            }
 
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect(Branding.TemplateName);

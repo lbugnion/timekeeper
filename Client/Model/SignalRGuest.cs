@@ -113,14 +113,17 @@ namespace Timekeeper.Client.Model
                 }
             }
 
-            if (clockStarted > 0)
+            if (newList.Count > 0)
             {
-                Status = $"{clockStarted} clock(s) started";
+                Status = $"{newList.Count} clock(s) started";
             }
 
-            CurrentSession.Clocks = newList.OrderBy(c => c.Message.Position).ToList();
+            foreach (var clock in newList.OrderBy(c => c.Message.Position))
+            {
+                CurrentSession.Clocks.Add(clock);
+            }
 
-            foreach (Clock clock in CurrentSession.Clocks)
+            foreach (var clock in CurrentSession.Clocks)
             {
                 RunClock(clock);
             }
