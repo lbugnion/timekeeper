@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "guest/407c1759-3b6b-4ee4-b127-20bfe363212d",
+      "launchUrl": "host",
       "environmentVariables": {
         "Environment": "Development",
         "ASPNETCORE_ENVIRONMENT": "Development"

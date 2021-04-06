@@ -50,8 +50,8 @@
                 <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
             }
 
-            @if (Session.CurrentSession == null
-                || Session.CurrentSession.Clocks.Count == 0)
+            @if (Handler.CurrentSession == null
+                || Handler.CurrentSession.Clocks.Count == 0)
             {
                 <blockquote class="no-clocks-no-session">
                     Clocks will appear here when the Host starts them. Stay tuned!!
@@ -60,7 +60,7 @@
             else
             {
                 <ul id="listofclocks">
-                    @foreach (var clock in Session.CurrentSession.Clocks)
+                    @foreach (var clock in Handler.CurrentSession.Clocks)
                     {
                         <li style="background-color: @clock.CurrentBackgroundColor">
                             <div class="clock-area clock-area-guest">
