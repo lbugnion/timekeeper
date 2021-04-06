@@ -255,14 +255,44 @@ else
     }
 
     <div class="controls-area last-controls-area">
-        <button disabled="@Handler.IsNavigateToSessionDisabled"
-                @onclick="@NavigateToSession">
-            Change the session
-        </button>
+
+        @if (Branding.AllowSessionSelection)
+        { 
+            <button disabled="@Handler.IsModifySessionDisabled"
+                    @onclick="@NavigateToSession">
+                Change the session
+            </button>
+        }
+        else
+        {
+            @if (Handler.IsDeleteSessionWarningVisible)
+            {
+                <blockquote class="warning">
+                    <strong>Deleting the session is irreversible. Are you sure?</strong>
+                    <br /><br />
+                    If you delete the session and create a new one, all your guests will
+                    need to reconnect.
+                    <br /><br />
+                    <button @onclick="@DoDeleteSession"
+                            class="small-button">
+                        Yes
+                    </button>
+                    <button @onclick="@Handler.CancelDeleteSession"
+                            class="small-button">
+                        No
+                    </button>
+                </blockquote>
+            }
+
+            <button disabled="@Handler.IsModifySessionDisabled"
+                    @onclick="@Handler.DeleteSession">
+                Delete the session
+            </button>
+        }
 
         @if (Branding.MustAuthorize)
         {
-            <button disabled="@Handler.IsNavigateToSessionDisabled"
+            <button disabled="@Handler.IsModifySessionDisabled"
                     @onclick="@LogOut">
                 Log out
             </button>

@@ -27,6 +27,12 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        private async Task DoDeleteSession()
+        {
+            await Handler.DoDeleteSession();
+            Nav.NavigateTo("/host", forceLoad: true);
+        }
+
         public string EditSessionNameLinkText
         {
             get;

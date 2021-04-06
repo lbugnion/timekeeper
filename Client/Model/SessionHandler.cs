@@ -37,12 +37,12 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public bool CheckSetNewSession()
+        public async Task<bool> CheckSetNewSession(ILogger log)
         {
             var isValid = NewSessionEditContext.Validate();
             if (isValid)
             {
-                CurrentSession = NewSession;
+                await SaveToStorage(NewSession, SignalRHost.HostSessionKey, log);
                 return true;
             }
 
@@ -134,8 +134,7 @@ namespace Timekeeper.Client.Model
                 throw new ArgumentException($"Invalid sessionId {sessionId}");
             }
 
-            CurrentSession = selectedSession;
-            await SaveToStorage(CurrentSession, SignalRHost.HostSessionKey, log);
+            await SaveToStorage(selectedSession, SignalRHost.HostSessionKey, log);
             State = 2;
         }
 
@@ -177,12 +176,6 @@ namespace Timekeeper.Client.Model
             await _localStorage.SetItemAsync(
                 sessionStorageKey,
                 json);
-        }
-
-        public SessionBase CurrentSession
-        {
-            get;
-            private set;
         }
 
         public string ErrorStatus

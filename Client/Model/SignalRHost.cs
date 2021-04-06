@@ -44,7 +44,7 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public bool IsNavigateToSessionDisabled
+        public bool IsModifySessionDisabled
         {
             get;
             private set;
@@ -114,7 +114,7 @@ namespace Timekeeper.Client.Model
             }
             else
             {
-                IsNavigateToSessionDisabled = false;
+                IsModifySessionDisabled = false;
 
                 foreach (var anyClock in CurrentSession.Clocks)
                 {
@@ -235,7 +235,7 @@ namespace Timekeeper.Client.Model
             IsBusy = true;
 
             IsSendMessageDisabled = true;
-            IsNavigateToSessionDisabled = true;
+            IsModifySessionDisabled = true;
 
             var ok = await InitializeSession(templateName);
 
@@ -298,7 +298,7 @@ namespace Timekeeper.Client.Model
                     }
 
                     IsSendMessageDisabled = false;
-                    IsNavigateToSessionDisabled = false;
+                    IsModifySessionDisabled = false;
                     IsOffline = false;
                     Status = "Connected, your guests will only see clocks when you start them!";
                 }
@@ -317,7 +317,7 @@ namespace Timekeeper.Client.Model
                     }
 
                     IsSendMessageDisabled = true;
-                    IsNavigateToSessionDisabled = false;
+                    IsModifySessionDisabled = false;
                     IsOffline = true;
                     Status = "Cannot connect";
                 }
@@ -337,7 +337,7 @@ namespace Timekeeper.Client.Model
                 }
 
                 IsSendMessageDisabled = true;
-                IsNavigateToSessionDisabled = false;
+                IsModifySessionDisabled = false;
                 IsOffline = true;
                 Status = "Cannot connect";
             }
@@ -376,7 +376,7 @@ namespace Timekeeper.Client.Model
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
 
-            IsNavigateToSessionDisabled = isOneClockRunning;
+            IsModifySessionDisabled = isOneClockRunning;
             _log.LogInformation("DeleteClock ->");
 
         }
@@ -904,7 +904,7 @@ namespace Timekeeper.Client.Model
                 clock.CountdownFinished += ClockCountdownFinished;
             }
 
-            IsNavigateToSessionDisabled = true;
+            IsModifySessionDisabled = true;
 
             try
             {
@@ -953,13 +953,13 @@ namespace Timekeeper.Client.Model
                 else
                 {
                     ErrorStatus = "Unable to communicate with clients";
-                    IsNavigateToSessionDisabled = false;
+                    IsModifySessionDisabled = false;
                 }
             }
             catch
             {
                 DisplayMessage("Unable to communicate with clients", true);
-                IsNavigateToSessionDisabled = false;
+                IsModifySessionDisabled = false;
             }
         }
 
@@ -1007,8 +1007,60 @@ namespace Timekeeper.Client.Model
 
             var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
 
-            IsNavigateToSessionDisabled = isOneClockRunning;
+            IsModifySessionDisabled = isOneClockRunning;
             _log.LogInformation("StopClock ->");
+        }
+
+        public bool IsDeleteSessionWarningVisible
+        {
+            get;
+            private set;
+        }
+
+        public void DeleteSession()
+        {
+            _log.LogInformation("-> DeleteSession");
+            IsModifySessionDisabled = true;
+            IsDeleteSessionWarningVisible = true;
+        }
+
+        public async Task DoDeleteSession()
+        {
+            _log.LogInformation("-> DoDeleteSession");
+
+            IsDeleteSessionWarningVisible = false;
+
+            if (_connection != null)
+            {
+                await _connection.StopAsync();
+                await _connection.DisposeAsync();
+                _connection = null;
+                _log.LogTrace("Connection is stopped and disposed");
+            }
+
+            if (CurrentSession != null)
+            {
+                foreach (var clock in CurrentSession.Clocks)
+                {
+                    clock.CountdownFinished -= ClockCountdownFinished;
+                }
+            }
+
+            await _session.DeleteFromStorage(SessionKey, _log);
+            CurrentSession = null;
+            _log.LogTrace("CurrentSession is deleted");
+
+            IsModifySessionDisabled = true;
+            Status = "Disconnected";
+
+            _log.LogInformation("DoDeleteSession ->");
+        }
+
+        public void CancelDeleteSession()
+        {
+            _log.LogInformation("-> CancelDeleteSession");
+            IsModifySessionDisabled = false;
+            IsDeleteSessionWarningVisible = false;
         }
     }
 }

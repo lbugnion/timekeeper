@@ -28,9 +28,9 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("OnInitializedAsync ->");
         }
 
-        private void CheckSetNewSession()
+        private async Task CheckSetNewSession()
         {
-            if (Session.CheckSetNewSession())
+            if (await Session.CheckSetNewSession(Log))
             {
                 Nav.NavigateTo("/host");
             }
