@@ -1,9 +1,11 @@
 ﻿@page "/session"
-@inject ILogger<Index> Log
+@inject ILogger<SessionSelection> Log
 @inject IConfiguration Config
 @inject HttpClient Http
 @inject SessionHandler Session   
 @inject IJSRuntime JSRuntime
+@inject NavigationManager Nav
+@inject ILocalStorageService Storage
 
 <header>
     <img src="images/header-logo.png"
@@ -14,6 +16,52 @@
     <article>
         <h1>@Branding.SessionPageTitle</h1>
 
+        @if (Session.CloudSessions == null)
+        {
+            <blockquote>Loading...</blockquote>
+        }
+        else
+        {
+            @if (Session.CloudSessions.Count == 0)
+            {
+                <blockquote class="warning">No sessions found in cloud storage. Click below to create a new one.</blockquote>
+            }
+            else
+            {
+                <h2>Select a session</h2>
+
+                <ul>
+                    @foreach (var session in Session.CloudSessions)
+                    {
+                        <li>
+                            <a href="#"
+                               @onclick="(e => SelectSession(session.SessionId))"
+                               @onclick:preventDefault>@session.SessionName</a>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+
+        @if (Session.State >= 1)
+        {
+            <h2>Create a new session</h2>
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <blockquote class="error">@ErrorMessage</blockquote>
+            }
+
+            <EditForm EditContext="@Session.NewSessionEditContext">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <InputText @bind-Value="Session.NewSession.SessionName" />
+                <br />
+                <button @onclick="@CheckSetNewSession">Create</button>
+
+            </EditForm>
+        }
 
     </article>
 </main>

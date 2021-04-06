@@ -51,6 +51,8 @@ namespace Timekeeper.Client
                     MinimumLogLevel = LogLevel.Trace
                 }));
 
+            var provider = builder.Services.BuildServiceProvider();
+
             builder.Services
                 .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
                 .AddStaticWebAppsAuthentication();

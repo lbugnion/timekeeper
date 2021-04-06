@@ -120,6 +120,7 @@ namespace Timekeeper.Client.Pages
 
         public void NavigateToSession()
         {
+            Handler.ResetState();
             Nav.NavigateTo("/session");
         }
 

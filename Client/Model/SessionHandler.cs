@@ -1,9 +1,11 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -17,6 +19,36 @@ namespace Timekeeper.Client.Model
         private readonly IConfiguration _config;
         private readonly string _hostName;
 
+        public EditContext NewSessionEditContext
+        {
+            get;
+            private set;
+        }
+
+        public IList<SessionBase> CloudSessions
+        {
+            get;
+            private set;
+        }
+
+        public SessionBase NewSession
+        {
+            get;
+            private set;
+        }
+
+        public bool CheckSetNewSession()
+        {
+            var isValid = NewSessionEditContext.Validate();
+            if (isValid)
+            {
+                CurrentSession = NewSession;
+                return true;
+            }
+
+            return false;
+        }
+
         public async Task DeleteFromStorage(
             string storageKey,
             ILogger log = null)
@@ -26,13 +58,13 @@ namespace Timekeeper.Client.Model
         }
 
         public async Task<IList<SessionBase>> GetSessions(
-            string storageKey,
             ILogger log)
         {
-            log.LogInformation("-> SessionHandler.Get");
-            log.LogDebug($"storageKey: {storageKey}");
+            log.LogInformation("HIGHLIGHT---> SessionHandler.Get");
 
-            var getSessionsUrl = $"{_hostName}/sessions";
+            var branchId = _config.GetValue<string>(Constants.BranchIdKey);
+            log.LogDebug($"branchId: {branchId}");
+            var getSessionsUrl = $"{_hostName}/sessions/{branchId}";
             log.LogDebug($"getSessionsUrl: {getSessionsUrl}");
 
             try
@@ -44,8 +76,8 @@ namespace Timekeeper.Client.Model
                     return null;
                 }
 
-                var session = JsonConvert.DeserializeObject<IList<SessionBase>>(json);
-                return session;
+                CloudSessions = JsonConvert.DeserializeObject<IList<SessionBase>>(json);
+                return CloudSessions;
             }
             catch (Exception ex)
             {
@@ -91,6 +123,22 @@ namespace Timekeeper.Client.Model
             return session;
         }
 
+        public async Task SelectSession(string sessionId, ILogger log)
+        {
+            log.LogInformation("HIGHLIGHT---> SelectSession");
+
+            var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
+
+            if (selectedSession == null)
+            {
+                throw new ArgumentException($"Invalid sessionId {sessionId}");
+            }
+
+            CurrentSession = selectedSession;
+            await SaveToStorage(CurrentSession, SignalRHost.HostSessionKey, log);
+            State = 2;
+        }
+
         public SessionHandler(
             ILocalStorageService localStorage,
             HttpClient http,
@@ -101,6 +149,20 @@ namespace Timekeeper.Client.Model
             _config = config;
 
             _hostName = _config.GetValue<string>(Constants.HostNameKey);
+        }
+
+        public void InitializeContext(ILogger log)
+        {
+            log.LogInformation("-> SessionHandler.InitializeContext");
+
+            NewSession = new SessionBase
+            {
+                BranchId = _config.GetValue<string>(Constants.BranchIdKey),
+                SessionId = Guid.NewGuid().ToString(),
+                SessionName = null
+            };
+
+            NewSessionEditContext = new EditContext(NewSession);
         }
 
         public async Task SaveToStorage(
@@ -120,7 +182,7 @@ namespace Timekeeper.Client.Model
         public SessionBase CurrentSession
         {
             get;
-            protected set;
+            private set;
         }
 
         public string ErrorStatus
@@ -135,9 +197,10 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public async Task LoadAllSessions(ILogger log)
-        {
-            throw new NotImplementedException();
+        public int State 
+        { 
+            get; 
+            internal set; 
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ namespace Timekeeper.Client.Model
         public const string StartAllClocksText = "Start all clocks";
         public const string StartSelectedClocksText = "Start selected clocks";
         private NavigationManager _nav;
+        private readonly ILocalStorageService _storage;
 
         public IList<GuestMessage> ConnectedGuests
         {
@@ -66,16 +68,20 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        protected override string SessionKey => "HostSessionKey";
+        public const string HostSessionKey = "HostSessionKey";
+
+        protected override string SessionKey => HostSessionKey;
 
         public SignalRHost(
             IConfiguration config,
             ILogger log,
             HttpClient http,
             NavigationManager nav,
+            ILocalStorageService storage,
             SessionHandler session) : base(config, log, http, session)
         {
             _nav = nav;
+            _storage = storage;
             ConnectedGuests = new List<GuestMessage>();
             StartClocksButtonText = StartAllClocksText;
         }
@@ -117,6 +123,27 @@ namespace Timekeeper.Client.Model
             }
 
             RaiseUpdateEvent();
+        }
+
+        internal void ResetState()
+        {
+            _session.State = 0;
+        }
+
+        public async Task CheckState()
+        {
+            _log.LogInformation("HIGHLIGHT---> CheckState");
+            var state = _session.State;
+            _log.LogDebug($"State: {state}");
+
+            if (state == 0)
+            {
+                // Nothing yet
+                await _storage.RemoveItemAsync(SessionKey);
+                _session.State = 1;
+                _log.LogTrace("Deleted session and set state to 1");
+                return;
+            }
         }
 
         public async Task CheckAuthorize()
@@ -457,7 +484,7 @@ namespace Timekeeper.Client.Model
                     {
                         CreatedFromTemplate = true,
                         SessionId = config.SessionId,
-                        BranchId = Environment.GetEnvironmentVariable(Constants.BranchIdKey)
+                        BranchId = _config.GetValue<string>(Constants.BranchIdKey)
                     };
 
                     if (!string.IsNullOrEmpty(config.SessionName))
@@ -563,7 +590,7 @@ namespace Timekeeper.Client.Model
 
                 CurrentSession = new SessionBase
                 {
-                    BranchId = Environment.GetEnvironmentVariable(Constants.BranchIdKey)
+                    BranchId = _config.GetValue<string>(Constants.BranchIdKey)
                 };
                 CurrentSession.Clocks.Add(new Clock());
 

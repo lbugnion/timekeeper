@@ -58,6 +58,7 @@ namespace Timekeeper.Client.Pages
                 Log,
                 Http,
                 Nav,
+                LocalStorage,
                 Session);
 
             Log.LogTrace("Check authorization");
@@ -76,9 +77,15 @@ namespace Timekeeper.Client.Pages
                 return;
             }
 
+            await Handler.CheckState();
+
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect(Branding.TemplateName);
-            SessionName = Handler.CurrentSession.SessionName;
+
+            if (Handler.CurrentSession != null)
+            {
+                SessionName = Handler.CurrentSession.SessionName;
+            }
         }
 
         public string SessionName
