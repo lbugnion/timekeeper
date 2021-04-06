@@ -39,92 +39,6 @@ namespace Timekeeper.Client.Model
             Guest.SetLocalStorage(localStorage, log);
         }
 
-        private void ReceiveStartClock(string message)
-        {
-            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
-
-            _log.LogDebug(message);
-
-            IList<StartClockMessage> clockMessages;
-
-            try
-            {
-                clockMessages = JsonConvert.DeserializeObject<IList<StartClockMessage>>(message);
-            }
-            catch
-            {
-                _log.LogWarning("Not a list of clocks");
-                return;
-            }
-
-            var clockStarted = 0;
-            var newList = new List<Clock>();
-
-            foreach (var clockMessage in clockMessages)
-            {
-                _log.LogDebug($"clockID: {clockMessage.ClockId}");
-                _log.LogDebug($"AlmostDoneColor: {clockMessage.AlmostDoneColor}");
-                _log.LogDebug($"PayAttentionColor: {clockMessage.PayAttentionColor}");
-
-                var existingClock = CurrentSession.Clocks
-                    .FirstOrDefault(c => c.Message.ClockId == clockMessage.ClockId);
-
-                if (existingClock == null)
-                {
-                    _log.LogTrace($"No found clock, adding");
-                    existingClock = new Clock(clockMessage);
-                    clockStarted++;
-                }
-                else
-                {
-                    _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
-                    existingClock.Message.Label = clockMessage.Label;
-                    existingClock.Message.CountDown = clockMessage.CountDown;
-                    existingClock.Message.AlmostDone = clockMessage.AlmostDone;
-                    existingClock.Message.PayAttention = clockMessage.PayAttention;
-                    existingClock.Message.AlmostDoneColor = clockMessage.AlmostDoneColor;
-                    existingClock.Message.PayAttentionColor = clockMessage.PayAttentionColor;
-                    existingClock.Message.RunningColor = clockMessage.RunningColor;
-                    existingClock.Message.ServerTime = clockMessage.ServerTime;
-                    existingClock.Message.Position = clockMessage.Position;
-                }
-
-                _log.LogDebug($"Clock {existingClock.Message.Label} remains {existingClock.Remains}");
-
-                if (existingClock.Remains.TotalSeconds > 0)
-                {
-                    // Clock hasn't expired yet
-                    newList.Add(existingClock);
-                }
-            }
-
-            if (newList.Count > 0)
-            {
-                Status = $"{newList.Count} clock(s) started";
-            }
-
-            CurrentSession.Clocks.Clear();
-
-            foreach (var clock in newList.OrderBy(c => c.Message.Position))
-            {
-                CurrentSession.Clocks.Add(clock);
-            }
-
-            foreach (var clock in CurrentSession.Clocks)
-            {
-                RunClock(clock);
-            }
-
-            RaiseUpdateEvent();
-            _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
-        }
-
-        protected void DisplayReceivedMessage(string message)
-        {
-            base.DisplayMessage(message, false);
-            Status = "Received host message";
-        }
-
         public async Task<bool> AnnounceName()
         {
             _log.LogInformation($"-> {nameof(AnnounceName)}");
@@ -173,11 +87,10 @@ namespace Timekeeper.Client.Model
 
             if (ok)
             {
-                _connection.On<string>(Constants.StartClockMessageName, ReceiveStartClock);
                 _connection.On<string>(Constants.HostToGuestMessageName, DisplayReceivedMessage);
                 _connection.On(Constants.HostToGuestRequestAnnounceMessageName, AnnounceName);
+                _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, false));
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
-                _connection.On<string>(Constants.DeleteClockMessage, DeleteLocalClock);
 
                 ok = await StartConnection();
 

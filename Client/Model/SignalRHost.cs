@@ -251,6 +251,9 @@ namespace Timekeeper.Client.Model
             {
                 _connection.On<string>(Constants.GuestToHostMessageName, ReceiveGuestMessage);
                 _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
+                _connection.On<string>(Constants.HostToGuestMessageName, DisplayReceivedMessage);
+                _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, true));
+                _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, true));
 
                 ok = await StartConnection();
 
