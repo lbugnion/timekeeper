@@ -41,8 +41,6 @@ namespace Timekeeper
 
             log.LogDebug($"UserId: {userInfo.UserId}");
 
-            await signalRGroupActions.FlushAsync();
-
             await signalRGroupActions.AddAsync(
                 new SignalRGroupAction
                 {
