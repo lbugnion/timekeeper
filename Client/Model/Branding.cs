@@ -14,14 +14,14 @@
     public class Branding
     {
         public const string AboutPageTitle = "Timekeeper: About";
-        public const bool CanEditSessionAndGuestName = true;
+        public const bool CanEditSessionAndGuestName = false;
         public const string ConfigurePageTitle = "Timekeeper: Configure";
-        public const string GuestPageTitle = "Timekeeper Guest Page";
-        public const string HostPageTitle = "Timekeeper Host Page";
-        public const string LoginPageTitle = "Timekeeper: Login";
-        public const string MainPageTitle = "Timekeeper";
-        public const bool MustAuthorize = false;
-        public const string TemplateName = null;
-        public const string WindowTitle = "Timekeeper";
+        public const string GuestPageTitle = "GX All Hands";
+        public const string HostPageTitle = "GX All Hands";
+        public const string LoginPageTitle = "GX All Hands: Login";
+        public const string MainPageTitle = "GX All Hands";
+        public const bool MustAuthorize = true;
+        public const string TemplateName = "ClocksTemplate";
+        public const string WindowTitle = "GX All Hands";
     }
 }
