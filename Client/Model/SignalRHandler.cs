@@ -44,6 +44,34 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
+        protected async Task<bool> AnnounceName(string json)
+        {
+            var content = new StringContent(json);
+
+            var functionKey = _config.GetValue<string>(AnnounceGuestKeyKey);
+            _log.LogDebug($"functionKey: {functionKey}");
+
+            var announceUrl = $"{_hostNameFree}/announce";
+            _log.LogDebug($"announceUrl: {announceUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, announceUrl);
+            httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+            httpRequest.Content = content;
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _log.LogError($"Cannot send message: {response.ReasonPhrase}");
+                _log.LogInformation($"{nameof(AnnounceName)} ->");
+                return false;
+            }
+
+            _log.LogInformation($"{nameof(AnnounceName)} ->");
+            return true;
+        }
+
         public SessionBase CurrentSession
         {
             get;
@@ -112,6 +140,7 @@ namespace Timekeeper.Client.Model
 
         public SignalRHandler(
             IConfiguration config,
+            ILocalStorageService localStorage,
             ILogger log,
             HttpClient http,
             SessionHandler session)
@@ -123,6 +152,8 @@ namespace Timekeeper.Client.Model
             _log = log;
             _http = http;
             _session = session;
+
+            Guest.SetLocalStorage(localStorage, log);
 
             _hostName = _config.GetValue<string>(Constants.HostNameKey);
             _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
@@ -162,7 +193,6 @@ namespace Timekeeper.Client.Model
                 _log.LogDebug($"functionKey: {functionKey}");
 
                 _log.LogDebug($"SessionId: {CurrentSession.SessionId}");
-                _log.LogDebug($"UserId: {CurrentSession.UserId}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
@@ -170,7 +200,7 @@ namespace Timekeeper.Client.Model
 
                 var registerInfo = new UserInfo
                 {
-                    UserId = CurrentSession.UserId
+                    UserId = GuestInfo.Message.GuestId
                 };
 
                 var content = new StringContent(JsonConvert.SerializeObject(registerInfo));
@@ -215,9 +245,9 @@ namespace Timekeeper.Client.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add(Constants.UserIdHeaderKey, CurrentSession.UserId);
+                httpRequest.Headers.Add(Constants.UserIdHeaderKey, GuestInfo.Message.GuestId);
 
-                _log.LogDebug($"UserId: {CurrentSession.UserId}");
+                _log.LogDebug($"UserId: {GuestInfo.Message.GuestId}");
 
                 var response = await _http.SendAsync(httpRequest);
 
@@ -446,7 +476,7 @@ namespace Timekeeper.Client.Model
 
         protected virtual async Task StopLocalClock(string clockId, bool keepClock)
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(StopLocalClock)}");
+            _log.LogInformation($"-> {nameof(StopLocalClock)}");
             _log.LogDebug($"clockId: {clockId}");
             _log.LogDebug($"keepClock: {keepClock}");
 
@@ -598,6 +628,39 @@ namespace Timekeeper.Client.Model
 
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
+        }
+
+        public Guest GuestInfo
+        {
+            get;
+            private set;
+        }
+
+        protected async Task<bool> InitializeGuestInfo()
+        {
+            _log.LogInformation("HIGHLIGHT---> InitializeGuestInfo");
+
+            var message = await Guest.GetFromStorage();
+
+            if (message == null)
+            {
+                _log.LogTrace("Saved GuestInfo is null");
+                GuestInfo = new Guest(Guid.NewGuid().ToString());
+                await GuestInfo.Save();
+            }
+            else
+            {
+                GuestInfo = new Guest(message.GuestId)
+                {
+                    Message = message
+                };
+            }
+
+            _log.LogDebug($"guest ID: {GuestInfo.Message.GuestId}");
+            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
+            _log.LogInformation("InitializeGuestInfo ->");
+
+            return true;
         }
     }
 }

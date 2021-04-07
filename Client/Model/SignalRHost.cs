@@ -18,7 +18,6 @@ namespace Timekeeper.Client.Model
         public const string StartAllClocksText = "Start all clocks";
         public const string StartSelectedClocksText = "Start selected clocks";
         private NavigationManager _nav;
-        private readonly ILocalStorageService _storage;
 
         public IList<GuestMessage> ConnectedGuests
         {
@@ -74,14 +73,13 @@ namespace Timekeeper.Client.Model
 
         public SignalRHost(
             IConfiguration config,
+            ILocalStorageService localStorage,
             ILogger log,
             HttpClient http,
             NavigationManager nav,
-            ILocalStorageService storage,
-            SessionHandler session) : base(config, log, http, session)
+            SessionHandler session) : base(config, localStorage, log, http, session)
         {
             _nav = nav;
-            _storage = storage;
             ConnectedGuests = new List<GuestMessage>();
             StartClocksButtonText = StartAllClocksText;
         }
@@ -132,14 +130,14 @@ namespace Timekeeper.Client.Model
 
         public async Task CheckState()
         {
-            _log.LogInformation("HIGHLIGHT---> CheckState");
+            _log.LogInformation("-> CheckState");
             var state = _session.State;
             _log.LogDebug($"State: {state}");
 
             if (state == 0)
             {
                 // Nothing yet
-                await _storage.RemoveItemAsync(SessionKey);
+                await _session.DeleteFromStorage(SessionKey, _log);
                 _session.State = 1;
                 _log.LogTrace("Deleted session and set state to 1");
                 return;
@@ -245,7 +243,10 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            ok = await CreateConnection();
+            _log.LogTrace("HIGHLIGHT--Initializing guest info");
+
+            ok = await InitializeGuestInfo()
+                && await CreateConnection();
 
             if (ok)
             {
@@ -300,6 +301,14 @@ namespace Timekeeper.Client.Model
                         // Continue anyway, this is a minor issue
                     }
 
+                    ok = await AnnounceName();
+
+                    if (!ok)
+                    {
+                        IsConnected = false;
+                        DisplayMessage("Error", true);
+                    }
+
                     IsSendMessageDisabled = false;
                     IsModifySessionDisabled = false;
                     IsOffline = false;
@@ -347,6 +356,23 @@ namespace Timekeeper.Client.Model
 
             IsBusy = false;
             _log.LogInformation("SignalRHost.Connect ->");
+        }
+
+        private async Task<bool> AnnounceName()
+        {
+            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
+            _log.LogDebug($"UserId: {GuestInfo.Message.GuestId}");
+
+            var message = new GuestMessage
+            {
+                GuestId = GuestInfo.Message.GuestId,
+                IsHost = true
+            };
+
+            var json = JsonConvert.SerializeObject(message);
+            _log.LogDebug($"json: {json}");
+
+            return await AnnounceName(json);
         }
 
         private async Task<bool> RequestAnnounce()
@@ -445,7 +471,7 @@ namespace Timekeeper.Client.Model
         public async Task<bool> InitializeSession(
             string templateName = null)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRHost.InitializeSession");
+            _log.LogInformation("-> SignalRHost.InitializeSession");
 
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
@@ -619,7 +645,6 @@ namespace Timekeeper.Client.Model
 
             RaiseUpdateEvent();
 
-            _log.LogDebug($"UserID {CurrentSession.UserId}");
             _log.LogInformation("SignalRHost.InitializeSession ->");
             return true;
         }
@@ -669,7 +694,7 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveDisconnectMessage)}");
             _log.LogDebug($"{nameof(guestId)} {guestId}");
-            _log.LogDebug($"UserId in CurrentSession: {CurrentSession.UserId}");
+            _log.LogDebug($"Local UserId: {GuestInfo.Message.GuestId}");
 
             var success = Guid.TryParse(guestId, out Guid guestGuid);
 
@@ -696,7 +721,7 @@ namespace Timekeeper.Client.Model
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
@@ -719,6 +744,21 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
+            // Refresh the clocks and the message for everyone
+
+            if (IsAnyClockRunning)
+            {
+                await StartAllClocks(false);
+            }
+
+            await SendMessage(CurrentMessage.Value);
+
+            if (messageGuest.GuestId == GuestInfo.Message.GuestId)
+            {
+                _log.LogTrace($"HIGHLIGHT--Self announce received");
+                return;
+            }
+
             var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == messageGuest.GuestId);
 
             if (existingGuest == null)
@@ -735,16 +775,6 @@ namespace Timekeeper.Client.Model
             }
 
             RaiseUpdateEvent();
-            _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
-
-            // Refresh the clocks and the message for everyone
-
-            if (IsAnyClockRunning)
-            {
-                await StartAllClocks(false);
-            }
-
-            await SendMessage(CurrentMessage.Value);
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
         }
 

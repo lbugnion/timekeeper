@@ -104,6 +104,7 @@ namespace Timekeeper.Client.Pages
             GuestListLinkText = ShowGuestsText;
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
+            Log.LogInformation("HostView.OnInitializedAsync ->");
         }
 
         public void ConfigureClock(Clock clock)

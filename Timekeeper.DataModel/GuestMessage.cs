@@ -12,6 +12,12 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public bool IsHost
+        {
+            get;
+            set;
+        }
+
         [JsonIgnore]
         public string DisplayName
         {

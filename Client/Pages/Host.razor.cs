@@ -55,10 +55,10 @@ namespace Timekeeper.Client.Pages
 
             Handler = new SignalRHost(
                 Config,
+                LocalStorage,
                 Log,
                 Http,
                 Nav,
-                LocalStorage,
                 Session);
 
             Log.LogTrace("Check authorization");

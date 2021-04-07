@@ -34,19 +34,10 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        [Required]
-        public string UserId
-        {
-            get;
-            set;
-        }
-
         public SessionBase()
         {
             SessionId = Guid.NewGuid().ToString();
             ResetName();
-            UserId = Guid.NewGuid().ToString();
-            UserName = GuestMessage.AnonymousName;
             Clocks = new List<Clock>();
         }
 
@@ -62,12 +53,6 @@ namespace Timekeeper.DataModel
         }
 
         public bool CreatedFromTemplate
-        {
-            get;
-            set;
-        }
-
-        public string UserName
         {
             get;
             set;

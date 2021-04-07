@@ -60,7 +60,7 @@ namespace Timekeeper.Client.Model
         public async Task<IList<SessionBase>> GetSessions(
             ILogger log)
         {
-            log.LogInformation("HIGHLIGHT---> SessionHandler.Get");
+            log.LogInformation("-> SessionHandler.Get");
 
             var branchId = _config.GetValue<string>(Constants.BranchIdKey);
             log.LogDebug($"branchId: {branchId}");
@@ -125,7 +125,7 @@ namespace Timekeeper.Client.Model
 
         public async Task SelectSession(string sessionId, ILogger log)
         {
-            log.LogInformation("HIGHLIGHT---> SelectSession");
+            log.LogInformation("-> SelectSession");
 
             var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
 

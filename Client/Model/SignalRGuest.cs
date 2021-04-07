@@ -17,12 +17,6 @@ namespace Timekeeper.Client.Model
     {
         private string _sessionId;
 
-        public Guest GuestInfo
-        {
-            get;
-            private set;
-        }
-
         protected override string SessionKey => "GuestSession";
 
         public SignalRGuest(
@@ -31,47 +25,21 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http,
             string sessionId,
-            SessionHandler session) : base(config, log, http, session)
+            SessionHandler session) : base(config, localStorage, log, http, session)
         {
             _log.LogInformation("> SignalRGuest()");
-
             _sessionId = sessionId;
-            Guest.SetLocalStorage(localStorage, log);
         }
 
         public async Task<bool> AnnounceName()
         {
             _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"UserId: {CurrentSession.UserId}");
             _log.LogDebug($"GuestId: {GuestInfo.Message.GuestId}");
 
             var json = JsonConvert.SerializeObject(GuestInfo.Message);
             _log.LogDebug($"json: {json}");
 
-            var content = new StringContent(json);
-
-            var functionKey = _config.GetValue<string>(AnnounceGuestKeyKey);
-            _log.LogDebug($"functionKey: {functionKey}");
-
-            var announceUrl = $"{_hostNameFree}/announce";
-            _log.LogDebug($"announceUrl: {announceUrl}");
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, announceUrl);
-            httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-            httpRequest.Content = content;
-
-            var response = await _http.SendAsync(httpRequest);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _log.LogError($"Cannot send message: {response.ReasonPhrase}");
-                _log.LogInformation($"{nameof(AnnounceName)} ->");
-                return false;
-            }
-
-            _log.LogInformation($"{nameof(AnnounceName)} ->");
-            return true;
+            return await AnnounceName(json);
         }
 
         public override async Task Connect(
@@ -126,42 +94,6 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRGuest.Connect ->");
         }
 
-        public async Task<bool> InitializeGuestInfo()
-        {
-            _log.LogInformation("-> InitializeGuestInfo");
-
-            var message = await Guest.GetFromStorage();
-
-            if (message == null)
-            {
-                _log.LogTrace("Saved GuestInfo is null");
-                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
-                GuestInfo = new Guest(CurrentSession.UserId);
-                await GuestInfo.Save();
-            }
-            else
-            {
-                GuestInfo = new Guest(message.GuestId)
-                {
-                    Message = message
-                };
-            }
-
-            if (GuestInfo.Message.GuestId != CurrentSession.UserId)
-            {
-                _log.LogTrace($"Fixing GuestId");
-                _log.LogDebug($"GuestInfo.Message.GuestId {GuestInfo.Message.GuestId}");
-                _log.LogDebug($"CurrentSession.UserId {CurrentSession.UserId}");
-                GuestInfo.Message.GuestId = CurrentSession.UserId;
-                await GuestInfo.Save();
-            }
-
-            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
-            _log.LogInformation("InitializeGuestInfo ->");
-
-            return true;
-        }
-
         public async Task<bool> InitializeSession(string sessionId)
         {
             _log.LogInformation("-> InitializeSession");
@@ -176,9 +108,6 @@ namespace Timekeeper.Client.Model
 
             guestSession.SessionId = sessionId;
             guestSession.Clocks = new List<Clock>(); // Always reset the clocks
-
-            _log.LogDebug($"UserID {guestSession.UserId}");
-            _log.LogDebug($"UserName {guestSession.UserName}");
 
             CurrentSession = guestSession;
             await _session.SaveToStorage(CurrentSession, SessionKey, _log);
