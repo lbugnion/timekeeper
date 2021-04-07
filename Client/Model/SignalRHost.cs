@@ -123,20 +123,30 @@ namespace Timekeeper.Client.Model
             RaiseUpdateEvent();
         }
 
-        internal void ResetState()
+        internal async Task ResetState()
         {
             _session.State = 0;
+            await UnregisterFromPreviousGroup(CurrentSession?.SessionId);
         }
 
         public async Task CheckState()
         {
-            _log.LogInformation("-> CheckState");
+            _log.LogInformation("HIGHLIGHT---> CheckState");
             var state = _session.State;
             _log.LogDebug($"State: {state}");
 
+            await InitializeGuestInfo();
+
             if (state == 0)
             {
-                // Nothing yet
+                // Nothing yet --> Unregister and delete
+                var session = await _session.GetFromStorage(SessionKey, _log);
+
+                if (session != null)
+                {
+                    await UnregisterFromPreviousGroup(session.SessionId);
+                }
+
                 await _session.DeleteFromStorage(SessionKey, _log);
                 _session.State = 1;
                 _log.LogTrace("Deleted session and set state to 1");
@@ -243,10 +253,9 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            _log.LogTrace("HIGHLIGHT--Initializing guest info");
+            _log.LogTrace("Initializing guest info");
 
-            ok = await InitializeGuestInfo()
-                && await CreateConnection();
+            ok = await CreateConnection();
 
             if (ok)
             {
@@ -360,7 +369,7 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> AnnounceName()
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
             _log.LogDebug($"UserId: {GuestInfo.Message.GuestId}");
 
             var message = new GuestMessage
@@ -721,7 +730,7 @@ namespace Timekeeper.Client.Model
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
@@ -744,18 +753,9 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            // Refresh the clocks and the message for everyone
-
-            if (IsAnyClockRunning)
-            {
-                await StartAllClocks(false);
-            }
-
-            await SendMessage(CurrentMessage.Value);
-
             if (messageGuest.GuestId == GuestInfo.Message.GuestId)
             {
-                _log.LogTrace($"HIGHLIGHT--Self announce received");
+                _log.LogTrace($"Self announce received");
                 return;
             }
 
@@ -773,6 +773,15 @@ namespace Timekeeper.Client.Model
                 UpdateConnectedGuests(null);
                 _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
             }
+
+            // Refresh the clocks and the message for everyone
+
+            if (IsAnyClockRunning)
+            {
+                await StartAllClocks(false);
+            }
+
+            await SendMessage(CurrentMessage.Value);
 
             RaiseUpdateEvent();
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");

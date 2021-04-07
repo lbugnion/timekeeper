@@ -184,6 +184,8 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> RegisterToGroup()
         {
+            _log.LogInformation("HIGHLIGHT---> RegisterToGroup");
+
             try
             {
                 var registerUrl = $"{_hostNameFree}/register";
@@ -213,7 +215,7 @@ namespace Timekeeper.Client.Model
                     _log.LogError($"Error registering for group: {response.ReasonPhrase}");
                     ErrorStatus = "Error with the backend, please contact support";
                     IsInError = true;
-                    _log.LogInformation("SignalRHandler.CreateConnection ->");
+                    _log.LogInformation("SignalRHandler.RegisterToGroup ->");
                     return false;
                 }
             }
@@ -222,10 +224,11 @@ namespace Timekeeper.Client.Model
                 _log.LogError($"Error reaching the function: {ex.Message}");
                 ErrorStatus = "Error with the backend, please contact support";
                 IsInError = true;
-                _log.LogInformation("SignalRHandler.CreateConnection ->");
+                _log.LogInformation("SignalRHandler.RegisterToGroup ->");
                 return false;
             }
 
+            _log.LogInformation("SignalRHandler.RegisterToGroup ->");
             return true;
         }
 
@@ -340,8 +343,10 @@ namespace Timekeeper.Client.Model
 
         protected virtual void DisplayMessage(string message, bool wrapInError)
         {
+            // _log might be null in this call!!
+
             _log?.LogInformation("-> DisplayMessage");
-            _log?.LogDebug(message);
+            _log?.LogDebug($"message: {message}");
 
             if (wrapInError)
             {
@@ -351,6 +356,7 @@ namespace Timekeeper.Client.Model
             CurrentMessage = new MarkupString(message);
             Status = "Received host message";
             RaiseUpdateEvent();
+            _log?.LogInformation("DisplayMessage ->");
         }
 
         protected void RaiseUpdateEvent()
@@ -638,7 +644,7 @@ namespace Timekeeper.Client.Model
 
         protected async Task<bool> InitializeGuestInfo()
         {
-            _log.LogInformation("HIGHLIGHT---> InitializeGuestInfo");
+            _log.LogInformation("-> InitializeGuestInfo");
 
             var message = await Guest.GetFromStorage();
 
@@ -659,6 +665,55 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"guest ID: {GuestInfo.Message.GuestId}");
             _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
+            return true;
+        }
+
+        protected async Task<bool> UnregisterFromPreviousGroup(string groupId)
+        {
+            if (string.IsNullOrEmpty(groupId))
+            {
+                return true;
+            }
+
+            _log.LogInformation("HIGHLIGHT---> SignalRHandler.UnregisterFromPreviousGroup");
+
+            try
+            {
+                var unregisterUrl = $"{_hostNameFree}/unregister";
+                _log.LogDebug($"unregisterUrl: {unregisterUrl}");
+
+                var functionKey = _config.GetValue<string>(UnregisterKeyKey);
+                _log.LogDebug($"functionKey: {functionKey}");
+
+                _log.LogDebug($"Group ID: {groupId}");
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, unregisterUrl);
+                httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
+                httpRequest.Headers.Add(Constants.GroupIdHeaderKey, groupId);
+
+                var registerInfo = new UserInfo
+                {
+                    UserId = GuestInfo.Message.GuestId
+                };
+
+                _log.LogDebug($"UserId: {GuestInfo.Message.GuestId}");
+
+                var content = new StringContent(JsonConvert.SerializeObject(registerInfo));
+                httpRequest.Content = content;
+
+                var response = await _http.SendAsync(httpRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _log.LogError($"Error unregistering from group: {response.ReasonPhrase}");
+                    _log.LogInformation("SignalRHandler.UnregisterFromPreviousGroup ->");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Error reaching the function: {ex.Message}");
+                _log.LogInformation("SignalRHandler.UnregisterFromPreviousGroup ->");
+            }
 
             return true;
         }

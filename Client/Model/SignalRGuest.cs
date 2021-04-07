@@ -42,6 +42,8 @@ namespace Timekeeper.Client.Model
             return await AnnounceName(json);
         }
 
+        private string _unregisterFromGroup = null;
+
         public override async Task Connect(
             string templateName = null)
         {
@@ -51,12 +53,13 @@ namespace Timekeeper.Client.Model
 
             var ok = await InitializeSession(_sessionId)
                 && await InitializeGuestInfo()
+                && await UnregisterFromPreviousGroup(_unregisterFromGroup)
                 && await CreateConnection();
 
             if (ok)
             {
                 _connection.On<string>(Constants.HostToGuestMessageName, DisplayReceivedMessage);
-                _connection.On(Constants.HostToGuestRequestAnnounceMessageName, AnnounceName);
+                _connection.On<string>(Constants.HostToGuestRequestAnnounceMessageName, AnnounceName);
                 _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, false));
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
 
@@ -104,6 +107,10 @@ namespace Timekeeper.Client.Model
             if (guestSession == null)
             {
                 guestSession = new SessionBase();
+            }
+            else
+            {
+                _unregisterFromGroup = guestSession.SessionId;
             }
 
             guestSession.SessionId = sessionId;
