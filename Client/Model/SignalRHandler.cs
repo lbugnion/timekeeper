@@ -44,7 +44,7 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
-        protected async Task<bool> AnnounceName(string json)
+        protected async Task<bool> AnnounceNameJson(string json)
         {
             var content = new StringContent(json);
 
@@ -64,11 +64,11 @@ namespace Timekeeper.Client.Model
             if (!response.IsSuccessStatusCode)
             {
                 _log.LogError($"Cannot send message: {response.ReasonPhrase}");
-                _log.LogInformation($"{nameof(AnnounceName)} ->");
+                _log.LogInformation($"{nameof(AnnounceNameJson)} ->");
                 return false;
             }
 
-            _log.LogInformation($"{nameof(AnnounceName)} ->");
+            _log.LogInformation($"{nameof(AnnounceNameJson)} ->");
             return true;
         }
 
@@ -153,7 +153,7 @@ namespace Timekeeper.Client.Model
             _http = http;
             _session = session;
 
-            Guest.SetLocalStorage(localStorage, log);
+            Peer.SetLocalStorage(localStorage, log);
 
             _hostName = _config.GetValue<string>(Constants.HostNameKey);
             _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
@@ -184,7 +184,7 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> RegisterToGroup()
         {
-            _log.LogInformation("HIGHLIGHT---> RegisterToGroup");
+            _log.LogInformation("-> RegisterToGroup");
 
             try
             {
@@ -202,7 +202,7 @@ namespace Timekeeper.Client.Model
 
                 var registerInfo = new UserInfo
                 {
-                    UserId = GuestInfo.Message.GuestId
+                    UserId = PeerInfo.Message.PeerId
                 };
 
                 var content = new StringContent(JsonConvert.SerializeObject(registerInfo));
@@ -248,9 +248,9 @@ namespace Timekeeper.Client.Model
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
-                httpRequest.Headers.Add(Constants.UserIdHeaderKey, GuestInfo.Message.GuestId);
+                httpRequest.Headers.Add(Constants.UserIdHeaderKey, PeerInfo.Message.PeerId);
 
-                _log.LogDebug($"UserId: {GuestInfo.Message.GuestId}");
+                _log.LogDebug($"HIGHLIGHT--UserId: {PeerInfo.Message.PeerId}");
 
                 var response = await _http.SendAsync(httpRequest);
 
@@ -636,7 +636,7 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }
 
-        public Guest GuestInfo
+        public Peer PeerInfo
         {
             get;
             private set;
@@ -646,24 +646,24 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> InitializeGuestInfo");
 
-            var message = await Guest.GetFromStorage();
+            var message = await Peer.GetFromStorage();
 
             if (message == null)
             {
                 _log.LogTrace("Saved GuestInfo is null");
-                GuestInfo = new Guest(Guid.NewGuid().ToString());
-                await GuestInfo.Save();
+                PeerInfo = new Peer(Guid.NewGuid().ToString());
+                await PeerInfo.Save();
             }
             else
             {
-                GuestInfo = new Guest(message.GuestId)
+                PeerInfo = new Peer(message.PeerId)
                 {
                     Message = message
                 };
             }
 
-            _log.LogDebug($"guest ID: {GuestInfo.Message.GuestId}");
-            _log.LogDebug($"name: {GuestInfo.Message.DisplayName}");
+            _log.LogDebug($"guest ID: {PeerInfo.Message.PeerId}");
+            _log.LogDebug($"name: {PeerInfo.Message.DisplayName}");
             _log.LogInformation("InitializeGuestInfo ->");
             return true;
         }
@@ -675,7 +675,7 @@ namespace Timekeeper.Client.Model
                 return true;
             }
 
-            _log.LogInformation("HIGHLIGHT---> SignalRHandler.UnregisterFromPreviousGroup");
+            _log.LogInformation("-> SignalRHandler.UnregisterFromPreviousGroup");
 
             try
             {
@@ -693,10 +693,10 @@ namespace Timekeeper.Client.Model
 
                 var registerInfo = new UserInfo
                 {
-                    UserId = GuestInfo.Message.GuestId
+                    UserId = PeerInfo.Message.PeerId
                 };
 
-                _log.LogDebug($"UserId: {GuestInfo.Message.GuestId}");
+                _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
 
                 var content = new StringContent(JsonConvert.SerializeObject(registerInfo));
                 httpRequest.Content = content;

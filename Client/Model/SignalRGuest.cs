@@ -33,13 +33,13 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> AnnounceName()
         {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"GuestId: {GuestInfo.Message.GuestId}");
+            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
+            _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
 
-            var json = JsonConvert.SerializeObject(GuestInfo.Message);
+            var json = JsonConvert.SerializeObject(PeerInfo.Message);
             _log.LogDebug($"json: {json}");
 
-            return await AnnounceName(json);
+            return await AnnounceNameJson(json);
         }
 
         private string _unregisterFromGroup = null;
@@ -58,8 +58,8 @@ namespace Timekeeper.Client.Model
 
             if (ok)
             {
-                _connection.On<string>(Constants.HostToGuestMessageName, DisplayReceivedMessage);
-                _connection.On<string>(Constants.HostToGuestRequestAnnounceMessageName, AnnounceName);
+                _connection.On<string>(Constants.HostToPeerMessageName, DisplayReceivedMessage);
+                _connection.On(Constants.HostToPeerRequestAnnounceMessageName, AnnounceName);
                 _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, false));
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, false));
 
@@ -70,8 +70,8 @@ namespace Timekeeper.Client.Model
                     IsConnected = true;
                     DisplayMessage("Ready", false);
 
-                    _log.LogTrace($"Name is {GuestInfo.Message.DisplayName}");
-                    _log.LogTrace($"Sending name {GuestInfo.Message.CustomName}");
+                    _log.LogTrace($"Name is {PeerInfo.Message.DisplayName}");
+                    _log.LogTrace($"Sending name {PeerInfo.Message.CustomName}");
 
                     ok = await AnnounceName();
 

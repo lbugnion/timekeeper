@@ -15,17 +15,9 @@ namespace Timekeeper.Client.Pages
     {
         private const string EditSessionNameText = "edit session name";
         private const string SaveSessionNameText = "save session name";
-        private const string ShowGuestsText = "show";
-        private const string HideGuestsText = "hide";
+        private const string ShowPeersText = "show";
+        private const string HidePeersText = "hide";
         public const string SendMessageInputId = "send-message-input";
-
-        public int AnonymousGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests.Count(g => string.IsNullOrEmpty(g.CustomName));
-            }
-        }
 
         private async Task DoDeleteSession()
         {
@@ -39,7 +31,7 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public string GuestListLinkText
+        public string PeerListLinkText
         {
             get;
             private set;
@@ -66,17 +58,17 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public bool IsGuestListExpanded
+        public bool IsPeersListExpanded
         {
             get;
             private set;
         }
 
-        public IList<GuestMessage> NamedGuests
+        public IList<PeerMessage> NamedGuests
         {
             get
             {
-                return Handler.ConnectedGuests
+                return Handler.ConnectedPeers
                     .Where(g => !string.IsNullOrEmpty(g.CustomName))
                     .ToList();
             }
@@ -101,7 +93,7 @@ namespace Timekeeper.Client.Pages
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
-            GuestListLinkText = ShowGuestsText;
+            PeerListLinkText = ShowPeersText;
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
             Log.LogInformation("HostView.OnInitializedAsync ->");
@@ -176,10 +168,10 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public void ToggleIsGuestListExpanded()
+        public void ToggleIsPeersListExpanded()
         {
-            IsGuestListExpanded = !IsGuestListExpanded;
-            GuestListLinkText = IsGuestListExpanded ? HideGuestsText : ShowGuestsText;
+            IsPeersListExpanded = !IsPeersListExpanded;
+            PeerListLinkText = IsPeersListExpanded ? HidePeersText : ShowPeersText;
         }
     }
 }

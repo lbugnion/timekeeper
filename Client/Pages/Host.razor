@@ -21,8 +21,8 @@
                   && Handler.IsOffline != null
                   && !Handler.IsOffline.Value)
                 {
-                    <div class="connected-guests">
-                        @Handler.ConnectedGuests.Count guest(s)
+                    <div class="connected-peers">
+                        @Handler.ConnectedPeers.Count peer(s)
                     </div>
                 }
             </Authorized>
@@ -34,8 +34,8 @@
           && Handler.IsOffline != null
           && !Handler.IsOffline.Value)
         {
-            <div class="connected-guests">
-                @Handler.ConnectedGuests.Count guest(s)
+            <div class="connected-peers">
+                @Handler.ConnectedPeers.Count peer(s)
             </div>
         }
     }

@@ -218,24 +218,37 @@ else
         <div class="session-information-area">
             <h3>Connected guests</h3>
 
-            @if (Handler.ConnectedGuests.Count == 0)
+            @if (Handler.ConnectedPeers.Count == 0)
             {
-                <p>There are no connected guests at the moment.</p>
+                <p>There are no connected peers at the moment.</p>
             }
             else
             {
-                <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
+                <p>There are @Handler.ConnectedPeers.Count connected peer(s).</p>
 
                 @if (Branding.CanEditSessionAndGuestName)
                 {
-                    <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
+                    <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsPeersListExpanded" @onclick:preventDefault>(@PeerListLinkText)</a></div>
                 }
             }
 
             @if (Branding.CanEditSessionAndGuestName
-                && IsGuestListExpanded)
+               && IsPeersListExpanded)
             {
-                <ul class="connected-guests-list">
+                <ul class="connected-peers-list">
+                    @if (Handler.AnonymousHosts > 0)
+                    {
+                        <li>@Handler.AnonymousHosts anonymous host(s)</li>
+                    }
+
+                    @if (Handler.NamedHosts != null)
+                    {
+                        foreach (var host in Handler.NamedHosts)
+                        {
+                            <li>@host.DisplayName</li>
+                        }
+                    }
+
                     @if (Handler.AnonymousGuests > 0)
                     {
                         <li>@Handler.AnonymousGuests anonymous guest(s)</li>

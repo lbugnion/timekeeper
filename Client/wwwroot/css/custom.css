@@ -249,7 +249,7 @@ blockquote {
         font-weight: bold;
     }
 
-.connected-guests {
+.connected-peers {
     float: right;
     margin-right: 30px;
     margin-top: -5px;
@@ -257,7 +257,7 @@ blockquote {
     color: white;
 }
 
-.connected-guests-list {
+.connected-peers-list {
     margin-bottom: 20px;
 }
 

@@ -19,7 +19,7 @@ namespace Timekeeper.Client.Model
         public const string StartSelectedClocksText = "Start selected clocks";
         private NavigationManager _nav;
 
-        public IList<GuestMessage> ConnectedGuests
+        public IList<PeerMessage> ConnectedPeers
         {
             get;
             private set;
@@ -61,7 +61,19 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
-        public IList<GuestMessage> NamedGuests
+        public IList<PeerMessage> NamedGuests
+        {
+            get;
+            private set;
+        }
+
+        public int AnonymousHosts
+        {
+            get;
+            private set;
+        }
+
+        public IList<PeerMessage> NamedHosts
         {
             get;
             private set;
@@ -80,7 +92,7 @@ namespace Timekeeper.Client.Model
             SessionHandler session) : base(config, localStorage, log, http, session)
         {
             _nav = nav;
-            ConnectedGuests = new List<GuestMessage>();
+            ConnectedPeers = new List<PeerMessage>();
             StartClocksButtonText = StartAllClocksText;
         }
 
@@ -131,7 +143,7 @@ namespace Timekeeper.Client.Model
 
         public async Task CheckState()
         {
-            _log.LogInformation("HIGHLIGHT---> CheckState");
+            _log.LogInformation("-> CheckState");
             var state = _session.State;
             _log.LogDebug($"State: {state}");
 
@@ -259,9 +271,10 @@ namespace Timekeeper.Client.Model
 
             if (ok)
             {
-                _connection.On<string>(Constants.GuestToHostMessageName, ReceiveGuestMessage);
+                _connection.On<string>(Constants.PeerToHostMessageName, ReceiveGuestMessage);
+                _connection.On(Constants.HostToPeerRequestAnnounceMessageName, AnnounceName);
                 _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
-                _connection.On<string>(Constants.HostToGuestMessageName, DisplayReceivedMessage);
+                _connection.On<string>(Constants.HostToPeerMessageName, DisplayReceivedMessage);
                 _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, true));
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, true));
 
@@ -369,24 +382,24 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> AnnounceName()
         {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"UserId: {GuestInfo.Message.GuestId}");
+            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
+            _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
 
-            var message = new GuestMessage
+            var message = new PeerMessage
             {
-                GuestId = GuestInfo.Message.GuestId,
+                PeerId = PeerInfo.Message.PeerId,
                 IsHost = true
             };
 
             var json = JsonConvert.SerializeObject(message);
             _log.LogDebug($"json: {json}");
 
-            return await AnnounceName(json);
+            return await AnnounceNameJson(json);
         }
 
         private async Task<bool> RequestAnnounce()
         {
-            _log.LogInformation($"-> {nameof(RequestAnnounce)}");
+            _log.LogInformation($"HIGHLIGHT---> {nameof(RequestAnnounce)}");
 
             var announceUrl = $"{_hostName}/request-announce";
             _log.LogDebug($"announceUrl: {announceUrl}");
@@ -677,22 +690,36 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        private void UpdateConnectedGuests(GuestMessage message)
+        private void UpdateConnectedPeers(PeerMessage message)
         {
             if (message != null)
             {
-                ConnectedGuests.Add(message);
+                ConnectedPeers.Add(message);
             }
 
-            NamedGuests = ConnectedGuests
-                .Where(g => !string.IsNullOrEmpty(g.CustomName) && g.CustomName != GuestMessage.AnonymousName).ToList();
+            NamedGuests = ConnectedPeers
+                .Where(g => !string.IsNullOrEmpty(g.CustomName) 
+                    && g.CustomName != PeerMessage.AnonymousName
+                    && !g.IsHost).ToList();
 
-            AnonymousGuests = ConnectedGuests
-                .Count(g => string.IsNullOrEmpty(g.CustomName) || g.CustomName == GuestMessage.AnonymousName);
+            AnonymousGuests = ConnectedPeers
+                .Count(g => (string.IsNullOrEmpty(g.CustomName) 
+                    || g.CustomName == PeerMessage.AnonymousName)
+                    && !g.IsHost);
+
+            NamedHosts = ConnectedPeers
+                .Where(g => !string.IsNullOrEmpty(g.CustomName)
+                    && g.CustomName != PeerMessage.AnonymousName
+                    && g.IsHost).ToList();
+
+            AnonymousHosts = ConnectedPeers
+                .Count(g => (string.IsNullOrEmpty(g.CustomName)
+                    || g.CustomName == PeerMessage.AnonymousName)
+                    && g.IsHost);
 
             RaiseUpdateEvent();
 
-            foreach (var guest in ConnectedGuests)
+            foreach (var guest in ConnectedPeers)
             {
                 _log.LogDebug($"{guest.CustomName}");
                 _log.LogDebug($"{guest.DisplayName}");
@@ -703,7 +730,7 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveDisconnectMessage)}");
             _log.LogDebug($"{nameof(guestId)} {guestId}");
-            _log.LogDebug($"Local UserId: {GuestInfo.Message.GuestId}");
+            _log.LogDebug($"Local UserId: {PeerInfo.Message.PeerId}");
 
             var success = Guid.TryParse(guestId, out Guid guestGuid);
 
@@ -714,7 +741,7 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == guestId);
+            var existingGuest = ConnectedPeers.FirstOrDefault(g => g.PeerId == guestId);
 
             if (existingGuest == null)
             {
@@ -722,66 +749,73 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            ConnectedGuests.Remove(existingGuest);
-            UpdateConnectedGuests(null);
+            ConnectedPeers.Remove(existingGuest);
+            UpdateConnectedPeers(null);
             RaiseUpdateEvent();
             _log.LogInformation($"SignalRHost.{nameof(ReceiveDisconnectMessage)} ->");
         }
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
-            var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
+            var messagePeer = JsonConvert.DeserializeObject<PeerMessage>(json);
 
-            if (messageGuest == null
-                || string.IsNullOrEmpty(messageGuest.GuestId))
+            if (messagePeer == null
+                || string.IsNullOrEmpty(messagePeer.PeerId))
             {
-                _log.LogWarning($"No GuestId found");
+                _log.LogWarning($"No PeerId found");
                 return;
             }
 
-            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
+            _log.LogDebug($"PeerId: {messagePeer.PeerId}");
 
-            var success = Guid.TryParse(messageGuest.GuestId, out Guid guestGuid);
+            var success = Guid.TryParse(messagePeer.PeerId, out Guid peerId);
 
             if (!success
-                || guestGuid == Guid.Empty)
+                || peerId == Guid.Empty)
             {
-                _log.LogWarning($"GuestId is not a GUID");
+                _log.LogWarning($"PeerId is not a GUID");
                 return;
             }
 
-            if (messageGuest.GuestId == GuestInfo.Message.GuestId)
+            if (messagePeer.PeerId == PeerInfo.Message.PeerId)
             {
-                _log.LogTrace($"Self announce received");
+                _log.LogTrace($"HIGHLIGHT--Self announce received");
                 return;
             }
 
-            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == messageGuest.GuestId);
+            var existingPeer = ConnectedPeers.FirstOrDefault(g => g.PeerId == messagePeer.PeerId);
 
-            if (existingGuest == null)
+            if (existingPeer == null)
             {
                 _log.LogWarning("No existing guest found");
-                UpdateConnectedGuests(messageGuest);
+                UpdateConnectedPeers(messagePeer);
             }
             else
             {
-                _log.LogDebug($"Existing guest found: Old name {existingGuest.DisplayName}");
-                existingGuest.CustomName = messageGuest.CustomName;
-                UpdateConnectedGuests(null);
-                _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
+                _log.LogDebug($"Existing peer found: Old name {existingPeer.DisplayName}");
+                existingPeer.CustomName = messagePeer.CustomName;
+                existingPeer.IsHost = messagePeer.IsHost;
+
+                UpdateConnectedPeers(null);
+                _log.LogDebug($"Existing guest found: New name {existingPeer.DisplayName}");
             }
 
-            // Refresh the clocks and the message for everyone
+            // Refresh the clocks and the message (only when a guest registers)
 
-            if (IsAnyClockRunning)
+            _log.LogDebug($"HIGHLIGHT--messagePeer.IsHost {messagePeer.IsHost}");
+
+            if (!messagePeer.IsHost)
             {
-                await StartAllClocks(false);
-            }
+                if (IsAnyClockRunning)
+                {
+                    await StartAllClocks(false);
+                }
 
-            await SendMessage(CurrentMessage.Value);
+                await SendMessage(CurrentMessage.Value);
+            }
 
             RaiseUpdateEvent();
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
@@ -789,7 +823,8 @@ namespace Timekeeper.Client.Model
 
         public async Task SendMessage(string message)
         {
-            _log.LogInformation($"-> {nameof(SendMessage)}");
+            _log.LogInformation($"HIGHLIGHT---> {nameof(SendMessage)}");
+            _log.LogDebug($"Sender ID: {PeerInfo.Message.PeerId}");
 
             if (string.IsNullOrEmpty(message))
             {
@@ -879,7 +914,8 @@ namespace Timekeeper.Client.Model
             IList<Clock> clocks,
             bool startFresh)
         {
-            _log.LogInformation("-> StartClocks");
+            _log.LogInformation("HIGHLIGHT---> StartClocks");
+            _log.LogDebug($"Sender ID: {PeerInfo.Message.PeerId}");
             StartClocksButtonText = StartAllClocksText;
 
             var clocksToStart = clocks.ToList();

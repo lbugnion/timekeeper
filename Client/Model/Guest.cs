@@ -6,36 +6,36 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {
-    public class Guest
+    public class Peer
     {
         private static ILocalStorageService _localStorage;
         private static ILogger _log;
-        public const string GuestStorageKey = "GuestStorageKey";
+        public const string PeerStorageKey = "PeerStorageKey";
 
-        public GuestMessage Message
+        public PeerMessage Message
         {
             get;
             internal set;
         }
 
-        public Guest(string guestId)
+        public Peer(string peerId)
         {
-            Message = new GuestMessage
+            Message = new PeerMessage
             {
-                GuestId = guestId
+                PeerId = peerId
             };
         }
 
-        public static async Task<GuestMessage> GetFromStorage()
+        public static async Task<PeerMessage> GetFromStorage()
         {
             var json = await _localStorage.GetItemAsStringAsync(
-                GuestStorageKey);
+                PeerStorageKey);
 
             _log.LogDebug($"Getting: {json}");
 
             if (!string.IsNullOrEmpty(json))
             {
-                var savedGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
+                var savedGuest = JsonConvert.DeserializeObject<PeerMessage>(json);
                 _log.LogDebug($"Guest name: {savedGuest.DisplayName}");
 
                 return savedGuest;
@@ -54,7 +54,7 @@ namespace Timekeeper.Client.Model
 
         public async Task DeleteFromStorage()
         {
-            await _localStorage.RemoveItemAsync(GuestStorageKey);
+            await _localStorage.RemoveItemAsync(PeerStorageKey);
         }
 
         public async Task Save()
@@ -64,7 +64,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"Saving: {json}");
 
             await _localStorage.SetItemAsync(
-                GuestStorageKey,
+                PeerStorageKey,
                 json);
         }
     }

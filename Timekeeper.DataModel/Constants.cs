@@ -8,9 +8,9 @@
         public const string DeleteClockMessage = "delete-clock";
         public const string DisconnectMessage = "disconnect";
         public const string GroupIdHeaderKey = "x-timekeeper-group-id";
-        public const string GuestToHostMessageName = "guest-to-host";
-        public const string HostToGuestMessageName = "host-to-guest";
-        public const string HostToGuestRequestAnnounceMessageName = "host-to-guest-request-announce";
+        public const string PeerToHostMessageName = "peer-to-host";
+        public const string HostToPeerMessageName = "host-to-peer";
+        public const string HostToPeerRequestAnnounceMessageName = "host-to-peer-request-announce";
         public const string HubName = "timekeeper";
         public const string StartClockMessageName = "start-clock";
         public const string StopClockMessage = "stop-clock";

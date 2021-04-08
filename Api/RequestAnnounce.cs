@@ -38,8 +38,8 @@ namespace Timekeeper
                 await queue.AddAsync(
                     new SignalRMessage
                     {
-                        Target = Constants.HostToGuestRequestAnnounceMessageName,
-                        Arguments = new object[] { },
+                        Target = Constants.HostToPeerRequestAnnounceMessageName,
+                        Arguments = new object [] {  },
                         GroupName = groupId.ToString()
                     });
             }

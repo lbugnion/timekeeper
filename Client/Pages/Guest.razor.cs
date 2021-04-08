@@ -94,7 +94,7 @@ namespace Timekeeper.Client.Pages
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
 
-                    GuestName = Handler.GuestInfo.Message.DisplayName;
+                    GuestName = Handler.PeerInfo.Message.DisplayName;
                     Mobile = await new MobileHandler().Initialize(JSRuntime);
 
                     Log.LogDebug($"GuestName: {GuestName}");
@@ -136,9 +136,9 @@ namespace Timekeeper.Client.Pages
             else
             {
                 EditGuestNameLinkText = EditGuestNameText;
-                Handler.GuestInfo.Message.CustomName = GuestName;
-                GuestName = Handler.GuestInfo.Message.DisplayName;
-                await Handler.GuestInfo.Save();
+                Handler.PeerInfo.Message.CustomName = GuestName;
+                GuestName = Handler.PeerInfo.Message.DisplayName;
+                await Handler.PeerInfo.Save();
                 await Handler.AnnounceName();
             }
         }
