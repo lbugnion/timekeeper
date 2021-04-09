@@ -230,7 +230,7 @@ namespace Timekeeper.Client.Model
                     newClock.SelectionChanged += ClockSelectionChanged;
                     newClock.Message.ClockId = Guid.NewGuid().ToString();
                     CurrentSession.Clocks.Insert(index + 1, newClock);
-                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                    await _session.Save(CurrentSession, SessionKey, _log);
                 }
 
                 var position = 0;
@@ -882,7 +882,7 @@ namespace Timekeeper.Client.Model
                 {
                     Status = "Message sent";
                     CurrentSession.LastMessage = htmlMessage;
-                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                    await _session.Save(CurrentSession, SessionKey, _log);
                 }
             }
             catch (Exception ex)
@@ -995,7 +995,7 @@ namespace Timekeeper.Client.Model
                     }
 
                     // Save so that we can restart the clock if the page is reloaded
-                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                    await _session.Save(CurrentSession, SessionKey, _log);
                 }
 
                 var json = JsonConvert.SerializeObject(CurrentSession.Clocks

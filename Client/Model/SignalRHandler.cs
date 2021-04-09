@@ -428,7 +428,7 @@ namespace Timekeeper.Client.Model
                                 clock.RaiseCountdownFinished();
                                 RaiseUpdateEvent();
                                 await RestoreClock(clock);
-                                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                                await _session.Save(CurrentSession, SessionKey, _log);
                                 continue;
                             }
 
@@ -515,13 +515,13 @@ namespace Timekeeper.Client.Model
                 existingClock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
                 _log.LogDebug($"existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");
                 existingClock.ResetDisplay();
+                await _session.Save(CurrentSession, SessionKey, _log);
             }
             else
             {
                 CurrentSession.Clocks.Remove(existingClock);
+                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
             }
-
-            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
 
             Status = $"Clock {existingClock.Message.Label} was stopped";
             RaiseUpdateEvent();
@@ -544,7 +544,7 @@ namespace Timekeeper.Client.Model
 
         public async Task SaveSession()
         {
-            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+            await _session.Save(CurrentSession, SessionKey, _log);
         }
 
         protected void DisplayReceivedMessage(string message)

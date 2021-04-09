@@ -117,9 +117,9 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
-        public void NavigateToSession()
+        public async Task NavigateToSession()
         {
-            Handler.ResetState();
+            await Handler.ResetState();
             Nav.NavigateTo("/session");
         }
 
@@ -130,6 +130,8 @@ namespace Timekeeper.Client.Pages
 
         public async Task EditSessionName()
         {
+            Log.LogInformation("HIGHLIGHT---> HostView.EditSessionName");
+
             IsEditingSessionName = !IsEditingSessionName;
 
             if (IsEditingSessionName)

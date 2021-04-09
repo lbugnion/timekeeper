@@ -195,5 +195,33 @@ namespace Timekeeper.Client.Model
             get; 
             internal set; 
         }
+
+        public async Task Save(SessionBase session, string sessionStorageKey, ILogger log)
+        {
+            await SaveToStorage(session, sessionStorageKey, log);
+
+            var json = JsonConvert.SerializeObject(session);
+
+            var content = new StringContent(json);
+
+            var saveSessionUrl = $"{_hostName}/session/{session.BranchId}/{session.SessionId}";
+            log.LogDebug($"saveSessionUrl: {saveSessionUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, saveSessionUrl);
+            httpRequest.Content = content;
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                log.LogDebug($"Saved session {session.SessionId} / {session.SessionName} to the cloud");
+                Status = "Session saved to the cloud";
+            }
+            else
+            {
+                log.LogError($"Cannot save session: {response.ReasonPhrase}");
+                ErrorStatus = "Error saving the session to the cloud";
+            }
+        }
     }
 }

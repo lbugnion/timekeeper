@@ -84,17 +84,20 @@ namespace Timekeeper.Client.Pages
 
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect(Branding.TemplateName);
-
-            if (Handler.CurrentSession != null)
-            {
-                SessionName = Handler.CurrentSession.SessionName;
-            }
         }
 
         public string SessionName
         {
-            get;
-            private set;
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null)
+                {
+                    return "No session";
+                }
+
+                return Handler.CurrentSession.SessionName;
+            }
         }
 
         public async void Dispose()
