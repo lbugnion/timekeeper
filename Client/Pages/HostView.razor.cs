@@ -130,7 +130,7 @@ namespace Timekeeper.Client.Pages
 
         public async Task EditSessionName()
         {
-            Log.LogInformation("HIGHLIGHT---> HostView.EditSessionName");
+            Log.LogInformation("-> HostView.EditSessionName");
 
             IsEditingSessionName = !IsEditingSessionName;
 

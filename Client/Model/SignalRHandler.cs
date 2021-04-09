@@ -250,7 +250,7 @@ namespace Timekeeper.Client.Model
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.UserIdHeaderKey, PeerInfo.Message.PeerId);
 
-                _log.LogDebug($"HIGHLIGHT--UserId: {PeerInfo.Message.PeerId}");
+                _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
 
                 var response = await _http.SendAsync(httpRequest);
 
@@ -511,9 +511,10 @@ namespace Timekeeper.Client.Model
             {
                 existingClock.IsClockRunning = false;
                 existingClock.Message.ServerTime = DateTime.MinValue;
+                _log.LogDebug($"HIGHLIGHT--existingClock.Message.CountDown {existingClock.Message.CountDown}");
+                _log.LogDebug($"existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");
                 existingClock.Message.CountDown = existingClock.Message.ConfiguredCountDown;
                 existingClock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
-                _log.LogDebug($"existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");
                 existingClock.ResetDisplay();
                 await _session.Save(CurrentSession, SessionKey, _log);
             }
@@ -592,7 +593,6 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
                     existingClock.Message.Label = clockMessage.Label;
-                    existingClock.Message.ConfiguredCountDown = existingClock.Message.CountDown;
                     existingClock.Message.CountDown = clockMessage.CountDown;
                     existingClock.Message.AlmostDone = clockMessage.AlmostDone;
                     existingClock.Message.PayAttention = clockMessage.PayAttention;

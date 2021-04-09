@@ -33,7 +33,7 @@ namespace Timekeeper.Client.Model
 
         public async Task<bool> AnnounceName()
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
             _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
 
             var json = JsonConvert.SerializeObject(PeerInfo.Message);

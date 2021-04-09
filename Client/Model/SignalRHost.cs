@@ -432,7 +432,7 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> AnnounceName()
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(AnnounceName)}");
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
             _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
 
             var message = new PeerMessage
@@ -449,7 +449,7 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> RequestAnnounce()
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(RequestAnnounce)}");
+            _log.LogInformation($"-> {nameof(RequestAnnounce)}");
 
             var announceUrl = $"{_hostName}/request-announce";
             _log.LogDebug($"announceUrl: {announceUrl}");
@@ -807,7 +807,7 @@ namespace Timekeeper.Client.Model
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
             var messagePeer = JsonConvert.DeserializeObject<PeerMessage>(json);
@@ -832,7 +832,7 @@ namespace Timekeeper.Client.Model
 
             if (messagePeer.PeerId == PeerInfo.Message.PeerId)
             {
-                _log.LogTrace($"HIGHLIGHT--Self announce received");
+                _log.LogTrace($"Self announce received");
                 return;
             }
 
@@ -855,7 +855,7 @@ namespace Timekeeper.Client.Model
 
             // Refresh the clocks and the message (only when a guest registers)
 
-            _log.LogDebug($"HIGHLIGHT--messagePeer.IsHost {messagePeer.IsHost}");
+            _log.LogDebug($"messagePeer.IsHost {messagePeer.IsHost}");
 
             if (!messagePeer.IsHost)
             {
@@ -873,7 +873,7 @@ namespace Timekeeper.Client.Model
 
         public async Task SendMessage(string message)
         {
-            _log.LogInformation($"HIGHLIGHT---> {nameof(SendMessage)}");
+            _log.LogInformation($"-> {nameof(SendMessage)}");
             _log.LogDebug($"Sender ID: {PeerInfo.Message.PeerId}");
 
             if (string.IsNullOrEmpty(message))
@@ -964,7 +964,7 @@ namespace Timekeeper.Client.Model
             IList<Clock> clocks,
             bool startFresh)
         {
-            _log.LogInformation("HIGHLIGHT---> StartClocks");
+            _log.LogInformation("-> StartClocks");
             _log.LogDebug($"Sender ID: {PeerInfo.Message.PeerId}");
             StartClocksButtonText = StartAllClocksText;
 
