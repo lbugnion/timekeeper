@@ -166,6 +166,36 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        public async Task UpdateHost(string sessionName, StartClockMessage clock)
+        {
+            _log.LogInformation("-> SignalRHost.UpdateHost");
+
+            var info = new UpdateHostInfo
+            {
+                SessionName = sessionName,
+                Clock = clock
+            };
+
+            var json = JsonConvert.SerializeObject(info);
+
+            var content = new StringContent(json);
+
+            var updateUrl = $"{_hostName}/update";
+            _log.LogDebug($"updateUrl: {updateUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, updateUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+            httpRequest.Content = content;
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _log.LogError($"Cannot send update: {response.ReasonPhrase}");
+                ErrorStatus = "Error sending update";
+            }
+        }
+
         public async Task CheckAuthorize()
         {
             _log.LogInformation("-> CheckAuthorize");
@@ -277,6 +307,7 @@ namespace Timekeeper.Client.Model
                 _connection.On<string>(Constants.HostToPeerMessageName, DisplayReceivedMessage);
                 _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, true));
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, true));
+                _connection.On<string>(Constants.UpdateHostMessageName, UpdateHost);
 
                 ok = await StartConnection();
 
@@ -378,6 +409,25 @@ namespace Timekeeper.Client.Model
 
             IsBusy = false;
             _log.LogInformation("SignalRHost.Connect ->");
+        }
+
+        private void UpdateHost(string json)
+        {
+            try
+            {
+                var info = JsonConvert.DeserializeObject<UpdateHostInfo>(json);
+
+                if (!string.IsNullOrEmpty(info.SessionName))
+                {
+                    CurrentSession.SessionName = info.SessionName;
+                    RaiseUpdateEvent();
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Unable to deserialize: {ex.Message}");
+            }
         }
 
         private async Task<bool> AnnounceName()

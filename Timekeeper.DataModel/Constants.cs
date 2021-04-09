@@ -13,6 +13,7 @@
         public const string HostToPeerRequestAnnounceMessageName = "host-to-peer-request-announce";
         public const string HubName = "timekeeper";
         public const string StartClockMessageName = "start-clock";
+        public const string UpdateHostMessageName = "update-host";
         public const string StopClockMessage = "stop-clock";
         public const string TokenHeaderKey = "x-timekeeper-token";
         public const string UserIdHeaderKey = "x-timekeeper-userid";
