@@ -111,26 +111,11 @@ namespace Timekeeper.Client.Model
 
             _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
 
-            clock.IsDeleteDisabled = false;
             clock.IsPlayStopDisabled = false;
             clock.IsNudgeDisabled = true;
+            clock.IsConfigDisabled = false;
 
-            if (isAnyClockRunning)
-            {
-                foreach (var anyClock in CurrentSession.Clocks)
-                {
-                    anyClock.IsConfigDisabled = true;
-                }
-            }
-            else
-            {
-                IsModifySessionDisabled = false;
-
-                foreach (var anyClock in CurrentSession.Clocks)
-                {
-                    anyClock.IsConfigDisabled = false;
-                }
-            }
+            IsModifySessionDisabled = isAnyClockRunning;
 
             RaiseUpdateEvent();
         }
@@ -166,14 +151,15 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task UpdateHost(string sessionName, StartClockMessage clock)
+        public async Task UpdateRemoteHosts(string sessionName, StartClockMessage clock, string previousClockId)
         {
-            _log.LogInformation("-> SignalRHost.UpdateHost");
+            _log.LogInformation("-> SignalRHost.UpdateRemoteHosts");
 
             var info = new UpdateHostInfo
             {
                 SessionName = sessionName,
-                Clock = clock
+                Clock = clock,
+                PreviousClockId = previousClockId
             };
 
             var json = JsonConvert.SerializeObject(info);
@@ -246,10 +232,8 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task AddClockAfter(Clock clock)
+        public async Task AddClockAfter(Clock previousClock, StartClockMessage newClockMessage = null)
         {
-            var previousClock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
-
             if (previousClock != null)
             {
                 var index = CurrentSession.Clocks.IndexOf(previousClock);
@@ -257,17 +241,39 @@ namespace Timekeeper.Client.Model
                 if (index > -1)
                 {
                     var newClock = new Clock();
+
+                    if (newClockMessage != null)
+                    {
+                        newClock.Message.AlmostDone = newClockMessage.AlmostDone;
+                        newClock.Message.AlmostDoneColor = newClockMessage.AlmostDoneColor;
+                        newClock.Message.ClockId = newClockMessage.ClockId;
+                        newClock.Message.CountDown = newClockMessage.CountDown;
+                        newClock.Message.Label = newClockMessage.Label;
+                        newClock.Message.PayAttention = newClockMessage.PayAttention;
+                        newClock.Message.PayAttentionColor = newClockMessage.PayAttentionColor;
+                        newClock.Message.Position = newClockMessage.Position;
+                        newClock.Message.RunningColor = newClockMessage.RunningColor;
+                        newClock.Message.ServerTime = newClockMessage.ServerTime;
+                    }
+                    else
+                    {
+                        newClock.Message.Position = index + 1;
+                    }
+
                     newClock.SelectionChanged += ClockSelectionChanged;
-                    newClock.Message.ClockId = Guid.NewGuid().ToString();
                     CurrentSession.Clocks.Insert(index + 1, newClock);
+
+                    if (newClock == null)
+                    {
+                        await UpdateRemoteHosts(null,  newClock.Message, previousClock.Message.ClockId);
+                    }
+
                     await _session.Save(CurrentSession, SessionKey, _log);
                 }
 
-                var position = 0;
-
-                foreach (var existingClock in CurrentSession.Clocks)
+                for (var clockIndex = 0; clockIndex > CurrentSession.Clocks.Count; clockIndex++)
                 {
-                    existingClock.Message.Position = position;
+                    CurrentSession.Clocks[clockIndex].Message.Position = clockIndex;
                 }
             }
         }
@@ -307,7 +313,7 @@ namespace Timekeeper.Client.Model
                 _connection.On<string>(Constants.HostToPeerMessageName, DisplayReceivedMessage);
                 _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, true));
                 _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, true));
-                _connection.On<string>(Constants.UpdateHostMessageName, UpdateHost);
+                _connection.On<string>(Constants.UpdateHostMessageName, UpdateLocalHost);
 
                 ok = await StartConnection();
 
@@ -321,7 +327,6 @@ namespace Timekeeper.Client.Model
                     {
                         clock.IsPlayStopDisabled = false;
                         clock.IsConfigDisabled = false;
-                        clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
                         clock.SelectionChanged += ClockSelectionChanged;
 
@@ -377,7 +382,6 @@ namespace Timekeeper.Client.Model
                     {
                         clock.IsPlayStopDisabled = true;
                         clock.IsConfigDisabled = true;
-                        clock.IsDeleteDisabled = true;
                         clock.IsNudgeDisabled = true;
                     }
 
@@ -397,7 +401,6 @@ namespace Timekeeper.Client.Model
                 {
                     clock.IsPlayStopDisabled = true;
                     clock.IsConfigDisabled = true;
-                    clock.IsDeleteDisabled = true;
                     clock.IsNudgeDisabled = true;
                 }
 
@@ -411,7 +414,7 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
-        private void UpdateHost(string json)
+        private async Task UpdateLocalHost(string json)
         {
             try
             {
@@ -421,7 +424,21 @@ namespace Timekeeper.Client.Model
                 {
                     CurrentSession.SessionName = info.SessionName;
                     RaiseUpdateEvent();
-                    return;
+                }
+
+                if (info.Clock != null
+                    && info.PreviousClockId != null)
+                {
+                    var previousClock = CurrentSession.Clocks
+                        .FirstOrDefault(c => c.Message.ClockId == info.PreviousClockId);
+
+                    if (previousClock == null)
+                    {
+                        _log.LogWarning($"No clocks found for ID {info.PreviousClockId}");
+                        return;
+                    }
+
+                    await AddClockAfter(previousClock, info.Clock);
                 }
             }
             catch (Exception ex)
@@ -710,7 +727,6 @@ namespace Timekeeper.Client.Model
 
                 clock.IsPlayStopDisabled = true;
                 clock.IsConfigDisabled = true;
-                clock.IsDeleteDisabled = true;
                 clock.IsClockRunning = false;
                 clock.ClockDisplay = clock.Message.CountDown.ToString("c");
             }
@@ -1026,7 +1042,6 @@ namespace Timekeeper.Client.Model
                 clock.IsSelected = false;
                 clock.IsPlayStopDisabled = false;
                 clock.IsConfigDisabled = true;
-                clock.IsDeleteDisabled = true;
                 clock.IsNudgeDisabled = false;
                 clock.CountdownFinished -= ClockCountdownFinished;
                 clock.CountdownFinished += ClockCountdownFinished;
@@ -1071,11 +1086,6 @@ namespace Timekeeper.Client.Model
                     foreach (var clock in clocksToStart)
                     {
                         RunClock(clock);
-                    }
-
-                    foreach (var anyClock in CurrentSession.Clocks)
-                    {
-                        anyClock.IsConfigDisabled = true;
                     }
                 }
                 else
@@ -1128,14 +1138,12 @@ namespace Timekeeper.Client.Model
             }
 
             clock.IsConfigDisabled = false;
-            clock.IsDeleteDisabled = false;
             clock.IsNudgeDisabled = true;
             clock.ResetDisplay();
             clock.CountdownFinished -= ClockCountdownFinished;
 
-            var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
+            IsModifySessionDisabled = IsAnyClockRunning;
 
-            IsModifySessionDisabled = isOneClockRunning;
             _log.LogInformation("StopClock ->");
         }
 

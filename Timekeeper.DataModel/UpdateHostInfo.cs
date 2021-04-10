@@ -17,5 +17,7 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
+
+        public string PreviousClockId { get; set; }
     }
 }

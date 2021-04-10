@@ -115,7 +115,6 @@ namespace Timekeeper.Client.Model
                     clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
                     clock.IsClockRunning = false;
                     clock.IsConfigDisabled = false;
-                    clock.IsDeleteDisabled = false;
                     clock.IsPlayStopDisabled = false;
                 }
             }

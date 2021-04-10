@@ -152,7 +152,7 @@ namespace Timekeeper.Client.Pages
                     Handler.CurrentSession.SessionName = SessionName;
                 }
 
-                await Handler.UpdateHost(SessionName, null);
+                await Handler.UpdateRemoteHosts(SessionName, null, null);
                 await Handler.SaveSession();
             }
         }

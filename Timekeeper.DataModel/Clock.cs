@@ -58,12 +58,6 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public bool IsDeleteDisabled
-        {
-            get;
-            set;
-        }
-
         public bool IsNudgeDisabled
         {
             get;

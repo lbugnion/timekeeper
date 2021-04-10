@@ -511,7 +511,7 @@ namespace Timekeeper.Client.Model
             {
                 existingClock.IsClockRunning = false;
                 existingClock.Message.ServerTime = DateTime.MinValue;
-                _log.LogDebug($"HIGHLIGHT--existingClock.Message.CountDown {existingClock.Message.CountDown}");
+                _log.LogDebug($"existingClock.Message.CountDown {existingClock.Message.CountDown}");
                 _log.LogDebug($"existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");
                 existingClock.Message.CountDown = existingClock.Message.ConfiguredCountDown;
                 existingClock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
@@ -594,6 +594,7 @@ namespace Timekeeper.Client.Model
                     _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
                     existingClock.Message.Label = clockMessage.Label;
                     existingClock.Message.CountDown = clockMessage.CountDown;
+                    existingClock.Message.ConfiguredCountDown = clockMessage.ConfiguredCountDown;
                     existingClock.Message.AlmostDone = clockMessage.AlmostDone;
                     existingClock.Message.PayAttention = clockMessage.PayAttention;
                     existingClock.Message.AlmostDoneColor = clockMessage.AlmostDoneColor;
