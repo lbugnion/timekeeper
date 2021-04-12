@@ -163,7 +163,8 @@ namespace Timekeeper.Client.Model
             {
                 SessionName = sessionName,
                 Clock = clock,
-                PreviousClockId = previousClockId
+                PreviousClockId = previousClockId,
+                Action = action
             };
 
             var json = JsonConvert.SerializeObject(info);
@@ -279,9 +280,9 @@ namespace Timekeeper.Client.Model
                             null,  
                             newClock.Message, 
                             previousClock.Message.ClockId);
-                    }
 
-                    await _session.Save(CurrentSession, SessionKey, _log);
+                        await _session.Save(CurrentSession, SessionKey, _log);
+                    }
                 }
 
                 for (var clockIndex = 0; clockIndex > CurrentSession.Clocks.Count; clockIndex++)
@@ -433,25 +434,49 @@ namespace Timekeeper.Client.Model
             {
                 var info = JsonConvert.DeserializeObject<UpdateHostInfo>(json);
 
-                if (!string.IsNullOrEmpty(info.SessionName))
+                switch (info.Action)
                 {
-                    CurrentSession.SessionName = info.SessionName;
-                    RaiseUpdateEvent();
-                }
-
-                if (info.Clock != null
-                    && info.PreviousClockId != null)
-                {
-                    var previousClock = CurrentSession.Clocks
-                        .FirstOrDefault(c => c.Message.ClockId == info.PreviousClockId);
-
-                    if (previousClock == null)
-                    {
-                        _log.LogWarning($"No clocks found for ID {info.PreviousClockId}");
+                    case UpdateAction.UpdateSessionName:
+                        if (!string.IsNullOrEmpty(info.SessionName))
+                        {
+                            CurrentSession.SessionName = info.SessionName;
+                            RaiseUpdateEvent();
+                        }
                         return;
-                    }
 
-                    await AddClockAfter(previousClock, info.Clock);
+                    case UpdateAction.AddClock:
+                        if (info.Clock != null
+                            && info.PreviousClockId != null)
+                        {
+                            var existingClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.Clock.ClockId);
+
+                            if (existingClock != null)
+                            {
+                                return;
+                            }
+
+                            var previousClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.PreviousClockId);
+
+                            if (previousClock == null)
+                            {
+                                _log.LogWarning($"No clocks found for ID {info.PreviousClockId}");
+                                return;
+                            }
+
+                            await AddClockAfter(previousClock, info.Clock);
+                            RaiseUpdateEvent();
+                        }
+                        break;
+
+                    case UpdateAction.DeleteClock:
+                        if (info.Clock != null)
+                        {
+                            await DeleteLocalClock(info.Clock.ClockId);
+                            RaiseUpdateEvent();
+                        }
+                        break;
                 }
             }
             catch (Exception ex)

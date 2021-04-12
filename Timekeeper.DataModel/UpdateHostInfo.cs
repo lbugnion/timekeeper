@@ -6,6 +6,12 @@ namespace Timekeeper.DataModel
 {
     public class UpdateHostInfo
     {
+        public UpdateAction Action
+        {
+            get;
+            set;
+        }
+
         public string SessionName
         {
             get;

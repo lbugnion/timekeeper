@@ -1,4 +1,4 @@
-﻿namespace Timekeeper.Client.Model
+﻿namespace Timekeeper.DataModel
 {
     public enum UpdateAction
     {
