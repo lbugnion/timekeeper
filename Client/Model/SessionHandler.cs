@@ -195,7 +195,10 @@ namespace Timekeeper.Client.Model
             internal set; 
         }
 
-        public async Task Save(SessionBase session, string sessionStorageKey, ILogger log)
+        public async Task<bool> Save(
+            SessionBase session, 
+            string sessionStorageKey, 
+            ILogger log)
         {
             await SaveToStorage(session, sessionStorageKey, log);
 
@@ -209,17 +212,28 @@ namespace Timekeeper.Client.Model
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, saveSessionUrl);
             httpRequest.Content = content;
 
-            var response = await _http.SendAsync(httpRequest);
+            try
+            {
+                var response = await _http.SendAsync(httpRequest);
 
-            if (response.IsSuccessStatusCode)
-            {
-                log.LogDebug($"Saved session {session.SessionId} / {session.SessionName} to the cloud");
-                Status = "Session saved to the cloud";
+                if (response.IsSuccessStatusCode)
+                {
+                    log.LogDebug($"Saved session {session.SessionId} / {session.SessionName} to the cloud");
+                    Status = "Session saved to the cloud";
+                    return true;
+                }
+                else
+                {
+                    log.LogError($"Cannot save session: {response.ReasonPhrase}");
+                    ErrorStatus = "Error saving, please reload the page";
+                    return false;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                log.LogError($"Cannot save session: {response.ReasonPhrase}");
+                log.LogError($"Cannot save session: {ex.Message}");
                 ErrorStatus = "Error saving the session to the cloud";
+                return false;
             }
         }
     }

@@ -151,7 +151,11 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task UpdateRemoteHosts(string sessionName, StartClockMessage clock, string previousClockId)
+        public async Task UpdateRemoteHosts(
+            UpdateAction action,
+            string sessionName,
+            StartClockMessage clock, 
+            string previousClockId)
         {
             _log.LogInformation("-> SignalRHost.UpdateRemoteHosts");
 
@@ -232,8 +236,12 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task AddClockAfter(Clock previousClock, StartClockMessage newClockMessage = null)
+        public async Task AddClockAfter(
+            Clock previousClock, 
+            StartClockMessage newClockMessage = null)
         {
+            _log.LogInformation("HIGHLIGHT---> SignalRHost.AddClockAfter");
+
             if (previousClock != null)
             {
                 var index = CurrentSession.Clocks.IndexOf(previousClock);
@@ -263,9 +271,14 @@ namespace Timekeeper.Client.Model
                     newClock.SelectionChanged += ClockSelectionChanged;
                     CurrentSession.Clocks.Insert(index + 1, newClock);
 
-                    if (newClock == null)
+                    if (newClockMessage == null)
                     {
-                        await UpdateRemoteHosts(null,  newClock.Message, previousClock.Message.ClockId);
+                        _log.LogTrace("HIGHLIGHT--Updating other hosts");
+                        await UpdateRemoteHosts(
+                            UpdateAction.AddClock,
+                            null,  
+                            newClock.Message, 
+                            previousClock.Message.ClockId);
                     }
 
                     await _session.Save(CurrentSession, SessionKey, _log);
@@ -492,8 +505,20 @@ namespace Timekeeper.Client.Model
             clock.SelectionChanged -= ClockSelectionChanged;
             await DeleteLocalClock(clock.Message.ClockId);
 
-            var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
+            var success = await SaveSession();
 
+            if (!success)
+            {
+                return;
+            }
+
+            await UpdateRemoteHosts(
+                UpdateAction.DeleteClock,
+                null,
+                clock.Message,
+                null);
+
+            var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
             IsModifySessionDisabled = isOneClockRunning;
             _log.LogInformation("DeleteClock ->");
 

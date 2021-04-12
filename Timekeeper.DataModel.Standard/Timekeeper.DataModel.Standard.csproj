@@ -10,6 +10,7 @@
     <Compile Include="..\Timekeeper.DataModel\PeerMessage.cs" Link="PeerMessage.cs" />
     <Compile Include="..\Timekeeper.DataModel\SessionBase.cs" Link="SessionBase.cs" />
     <Compile Include="..\Timekeeper.DataModel\StartClockMessage.cs" Link="StartClockMessage.cs" />
+    <Compile Include="..\Timekeeper.DataModel\UpdateAction.cs" Link="UpdateAction.cs" />
     <Compile Include="..\Timekeeper.DataModel\UpdateHostInfo.cs" Link="UpdateHostInfo.cs" />
     <Compile Include="..\Timekeeper.DataModel\UserInfo.cs" Link="UserInfo.cs" />
   </ItemGroup>

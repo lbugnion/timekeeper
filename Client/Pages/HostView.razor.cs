@@ -152,8 +152,13 @@ namespace Timekeeper.Client.Pages
                     Handler.CurrentSession.SessionName = SessionName;
                 }
 
-                await Handler.UpdateRemoteHosts(SessionName, null, null);
                 await Handler.SaveSession();
+
+                await Handler.UpdateRemoteHosts(
+                    UpdateAction.UpdateSessionName, 
+                    SessionName, 
+                    null, 
+                    null);
             }
         }
 

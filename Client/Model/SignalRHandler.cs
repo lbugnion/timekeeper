@@ -543,9 +543,9 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task SaveSession()
+        public async Task<bool> SaveSession()
         {
-            await _session.Save(CurrentSession, SessionKey, _log);
+            return await _session.Save(CurrentSession, SessionKey, _log);
         }
 
         protected void DisplayReceivedMessage(string message)
