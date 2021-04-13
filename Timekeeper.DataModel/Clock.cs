@@ -126,5 +126,21 @@ namespace Timekeeper.DataModel
         {
             Message = clockInSavedSession.Message;
         }
+
+        public void Update(StartClockMessage newClockMessage)
+        {
+            Message.AlmostDone = newClockMessage.AlmostDone;
+            Message.AlmostDoneColor = newClockMessage.AlmostDoneColor;
+            Message.ClockId = newClockMessage.ClockId;
+            Message.CountDown = newClockMessage.CountDown;
+            Message.Label = newClockMessage.Label;
+            Message.PayAttention = newClockMessage.PayAttention;
+            Message.PayAttentionColor = newClockMessage.PayAttentionColor;
+            Message.Position = newClockMessage.Position;
+            Message.RunningColor = newClockMessage.RunningColor;
+            Message.ServerTime = newClockMessage.ServerTime;
+
+            ResetDisplay();
+        }
     }
 }

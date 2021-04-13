@@ -106,6 +106,8 @@ namespace Timekeeper.Client.Pages
 
         public void ConfigureClock(string clockId)
         {
+            Log.LogInformation("-> ConfigureClock");
+
             if (Handler.PrepareClockToConfigure(clockId))
             {
                 Nav.NavigateTo("/configure");

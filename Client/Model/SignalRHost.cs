@@ -241,7 +241,7 @@ namespace Timekeeper.Client.Model
             Clock previousClock, 
             StartClockMessage newClockMessage = null)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRHost.AddClockAfter");
+            _log.LogInformation("-> SignalRHost.AddClockAfter");
 
             if (previousClock != null)
             {
@@ -253,16 +253,7 @@ namespace Timekeeper.Client.Model
 
                     if (newClockMessage != null)
                     {
-                        newClock.Message.AlmostDone = newClockMessage.AlmostDone;
-                        newClock.Message.AlmostDoneColor = newClockMessage.AlmostDoneColor;
-                        newClock.Message.ClockId = newClockMessage.ClockId;
-                        newClock.Message.CountDown = newClockMessage.CountDown;
-                        newClock.Message.Label = newClockMessage.Label;
-                        newClock.Message.PayAttention = newClockMessage.PayAttention;
-                        newClock.Message.PayAttentionColor = newClockMessage.PayAttentionColor;
-                        newClock.Message.Position = newClockMessage.Position;
-                        newClock.Message.RunningColor = newClockMessage.RunningColor;
-                        newClock.Message.ServerTime = newClockMessage.ServerTime;
+                        newClock.Update(newClockMessage);
                     }
                     else
                     {
@@ -274,7 +265,7 @@ namespace Timekeeper.Client.Model
 
                     if (newClockMessage == null)
                     {
-                        _log.LogTrace("HIGHLIGHT--Updating other hosts");
+                        _log.LogTrace("Updating other hosts");
                         await UpdateRemoteHosts(
                             UpdateAction.AddClock,
                             null,  
@@ -430,9 +421,13 @@ namespace Timekeeper.Client.Model
 
         private async Task UpdateLocalHost(string json)
         {
+            _log.LogInformation("HIGHLIGHT-> SignalRHost.UpdateLocalHost");
+
             try
             {
                 var info = JsonConvert.DeserializeObject<UpdateHostInfo>(json);
+
+                _log.LogDebug($"Action: {info.Action}");
 
                 switch (info.Action)
                 {
@@ -440,6 +435,7 @@ namespace Timekeeper.Client.Model
                         if (!string.IsNullOrEmpty(info.SessionName))
                         {
                             CurrentSession.SessionName = info.SessionName;
+                            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                             RaiseUpdateEvent();
                         }
                         return;
@@ -466,6 +462,7 @@ namespace Timekeeper.Client.Model
                             }
 
                             await AddClockAfter(previousClock, info.Clock);
+                            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                             RaiseUpdateEvent();
                         }
                         break;
@@ -473,8 +470,34 @@ namespace Timekeeper.Client.Model
                     case UpdateAction.DeleteClock:
                         if (info.Clock != null)
                         {
+                            var existingClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.Clock.ClockId);
+
+                            if (existingClock != null)
+                            {
+                                existingClock.Message.WasDeleted = true;
+                            }
+
+                            await StopLocalClock(info.Clock.ClockId, true);
                             await DeleteLocalClock(info.Clock.ClockId);
+                            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                             RaiseUpdateEvent();
+                        }
+                        break;
+
+                    case UpdateAction.UpdateClock:
+                        if (info.Clock != null)
+                        {
+                            var existingClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.Clock.ClockId);
+
+                            if (existingClock != null)
+                            {
+                                await StopLocalClock(info.Clock.ClockId, true);
+                                existingClock.Update(info.Clock);
+                                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                                RaiseUpdateEvent();
+                            }
                         }
                         break;
                 }
@@ -789,7 +812,10 @@ namespace Timekeeper.Client.Model
 
         public bool PrepareClockToConfigure(string clockId)
         {
-            var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
+            _log.LogInformation("-> PrepareClockToConfigure");
+
+            var clock = CurrentSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clockId);
 
             if (clock == null)
             {
@@ -803,6 +829,7 @@ namespace Timekeeper.Client.Model
             };
 
             Program.ClockToConfigure = param;
+            _log.LogInformation("PrepareClockToConfigure ->");
             return true;
         }
 

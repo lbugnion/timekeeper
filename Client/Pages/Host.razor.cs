@@ -53,13 +53,21 @@ namespace Timekeeper.Client.Pages
             }
 #endif
 
-            Handler = new SignalRHost(
-                Config,
-                LocalStorage,
-                Log,
-                Http,
-                Nav,
-                Session);
+            if (Program.ClockToConfigure == null)
+            {
+                Handler = new SignalRHost(
+                    Config,
+                    LocalStorage,
+                    Log,
+                    Http,
+                    Nav,
+                    Session);
+            }
+            else
+            {
+                Handler = Program.ClockToConfigure.Host;
+                Program.ClockToConfigure.Host = null;
+            }
 
             Log.LogTrace("Check authorization");
             await Handler.CheckAuthorize();
@@ -80,6 +88,18 @@ namespace Timekeeper.Client.Pages
             if (Branding.AllowSessionSelection)
             {
                 await Handler.CheckState();
+            }
+
+            Log.LogDebug($"HIGHLIGHT--Current session is null: {Handler.CurrentSession == null}");
+
+            if (Handler.CurrentSession != null)
+            {
+                Log.LogDebug($"HIGHLIGHT--Handler.CurrentSession.Clocks.Count: {Handler.CurrentSession.Clocks.Count}");
+
+                foreach (var clock in Handler.CurrentSession.Clocks)
+                {
+                    Log.LogDebug($"Clock {clock.Message.Label}");
+                }
             }
 
             Handler.UpdateUi += HandlerUpdateUi;
@@ -107,7 +127,12 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
-                await Handler.Disconnect();
+                
+                if (Program.ClockToConfigure == null)
+                {
+                    Log.LogTrace("Disconnecting");
+                    await Handler.Disconnect();
+                }
             }
         }
     }
