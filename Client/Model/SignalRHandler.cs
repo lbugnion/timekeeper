@@ -389,14 +389,17 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"CurrentBackgroundColor: {activeClock.CurrentBackgroundColor}");
             _log.LogDebug($"Label: {activeClock.Message.Label}");
 
+            activeClock.IsSelected = false;
+            activeClock.IsPlayStopDisabled = false;
+            activeClock.IsConfigDisabled = true;
+            activeClock.IsNudgeDisabled = false;
+            activeClock.IsClockRunning = true;
+
             if (IsTaskRunning)
             {
                 _log.LogTrace("Clock task already running");
-                activeClock.IsClockRunning = true;
                 return;
             }
-
-            activeClock.IsClockRunning = true;
 
             Task.Run(async () =>
             {
@@ -420,7 +423,9 @@ namespace Timekeeper.Client.Model
                             {
                                 _log.LogTrace("Countdown finished");
                                 clock.IsClockRunning = false;
+                                clock.IsPlayStopDisabled = false;
                                 clock.IsNudgeDisabled = true;
+                                clock.IsConfigDisabled = false;
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                                 clock.Message.ServerTime = DateTime.MinValue;
@@ -510,6 +515,9 @@ namespace Timekeeper.Client.Model
             if (keepClock)
             {
                 existingClock.IsClockRunning = false;
+                existingClock.IsPlayStopDisabled = false;
+                existingClock.IsNudgeDisabled = true;
+                existingClock.IsConfigDisabled = false;
                 existingClock.Message.ServerTime = DateTime.MinValue;
                 _log.LogDebug($"existingClock.Message.CountDown {existingClock.Message.CountDown}");
                 _log.LogDebug($"existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");

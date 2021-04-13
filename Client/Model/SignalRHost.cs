@@ -108,15 +108,8 @@ namespace Timekeeper.Client.Model
             }
 
             var isAnyClockRunning = IsAnyClockRunning;
-
             _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
-
-            clock.IsPlayStopDisabled = false;
-            clock.IsNudgeDisabled = true;
-            clock.IsConfigDisabled = false;
-
             IsModifySessionDisabled = isAnyClockRunning;
-
             RaiseUpdateEvent();
         }
 
@@ -1116,10 +1109,6 @@ namespace Timekeeper.Client.Model
                     clock.Message.ConfiguredCountDown = clock.Message.CountDown;
                 }
 
-                clock.IsSelected = false;
-                clock.IsPlayStopDisabled = false;
-                clock.IsConfigDisabled = true;
-                clock.IsNudgeDisabled = false;
                 clock.CountdownFinished -= ClockCountdownFinished;
                 clock.CountdownFinished += ClockCountdownFinished;
             }

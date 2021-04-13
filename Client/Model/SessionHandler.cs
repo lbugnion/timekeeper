@@ -133,6 +133,16 @@ namespace Timekeeper.Client.Model
                 throw new ArgumentException($"Invalid sessionId {sessionId}");
             }
 
+            foreach (var clock in selectedSession.Clocks)
+            {
+                clock.IsClockRunning = false;
+                clock.IsConfigDisabled = true;
+                clock.IsNudgeDisabled = true;
+                clock.IsPlayStopDisabled = true;
+                clock.IsSelected = false;
+                clock.ResetDisplay();
+            }
+
             await SaveToStorage(selectedSession, SignalRHost.HostSessionKey, log);
             State = 2;
         }
