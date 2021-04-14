@@ -704,12 +704,6 @@ namespace Timekeeper.Client.Model
                             {
                                 // Almost done color
                                 newClock.Message.AlmostDoneColor = clockInTemplate.AlmostDone.Color;
-
-                                if (!clockInTemplate.AlmostDone.Color.StartsWith("#"))
-                                {
-                                    newClock.Message.AlmostDoneColor = "#" + newClock.Message.AlmostDoneColor;
-                                }
-
                                 _log.LogDebug($"Clock AlmostDoneColor {newClock.Message.AlmostDoneColor}");
                             }
                         }
@@ -727,12 +721,6 @@ namespace Timekeeper.Client.Model
                             {
                                 // Pay attention color
                                 newClock.Message.PayAttentionColor = clockInTemplate.PayAttention.Color;
-
-                                if (!clockInTemplate.PayAttention.Color.StartsWith("#"))
-                                {
-                                    newClock.Message.PayAttentionColor = "#" + newClock.Message.PayAttentionColor;
-                                }
-
                                 _log.LogDebug($"Clock PayAttentionColor {newClock.Message.PayAttentionColor}");
                             }
                         }
@@ -743,24 +731,13 @@ namespace Timekeeper.Client.Model
                             {
                                 // Countdown
                                 newClock.Message.CountDown = clockInTemplate.Countdown.Time;
-
                                 _log.LogDebug($"Clock CountDown {newClock.Message.CountDown}");
                             }
 
                             if (!string.IsNullOrEmpty(clockInTemplate.Countdown.Color))
                             {
-                                _log.LogTrace("Checking countdown color");
-
                                 // Countdown color
                                 newClock.Message.RunningColor = clockInTemplate.Countdown.Color;
-
-                                _log.LogTrace("Checking countdown color");
-
-                                if (!clockInTemplate.Countdown.Color.StartsWith("#"))
-                                {
-                                    newClock.Message.RunningColor = "#" + newClock.Message.RunningColor;
-                                }
-
                                 _log.LogDebug($"Clock RunningColor {newClock.Message.RunningColor}");
                             }
                         }

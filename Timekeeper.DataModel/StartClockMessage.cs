@@ -6,8 +6,6 @@ namespace Timekeeper.DataModel
 {
     public class StartClockMessage
     {
-        private const string ColorErrorMessage = "Please enter a color in the form XXXXXX where X is between 0 and F";
-
         private string _almostDoneColor;
         private string _payAttentionColor;
         private string _runningColor;
@@ -26,8 +24,6 @@ namespace Timekeeper.DataModel
         }
 
         [Required]
-        [MinLength(4, ErrorMessage = ColorErrorMessage)]
-        [MaxLength(7, ErrorMessage = ColorErrorMessage)]
         public string AlmostDoneColor
         {
             get => _almostDoneColor;
@@ -37,11 +33,6 @@ namespace Timekeeper.DataModel
                 {
                     _runningColor = value;
                     return;
-                }
-
-                if (!value.StartsWith("#"))
-                {
-                    value = $"#{value}";
                 }
 
                 _almostDoneColor = value;
@@ -199,8 +190,6 @@ namespace Timekeeper.DataModel
         }
 
         [Required]
-        [MinLength(4, ErrorMessage = ColorErrorMessage)]
-        [MaxLength(7, ErrorMessage = ColorErrorMessage)]
         public string PayAttentionColor
         {
             get => _payAttentionColor;
@@ -210,11 +199,6 @@ namespace Timekeeper.DataModel
                 {
                     _runningColor = value;
                     return;
-                }
-
-                if (!value.StartsWith("#"))
-                {
-                    value = $"#{value}";
                 }
 
                 _payAttentionColor = value;
@@ -288,8 +272,6 @@ namespace Timekeeper.DataModel
         }
 
         [Required]
-        [MinLength(4, ErrorMessage = ColorErrorMessage)]
-        [MaxLength(7, ErrorMessage = ColorErrorMessage)]
         public string RunningColor
         {
             get => _runningColor;
@@ -299,11 +281,6 @@ namespace Timekeeper.DataModel
                 {
                     _runningColor = value;
                     return;
-                }
-
-                if (!value.StartsWith("#"))
-                {
-                    value = $"#{value}";
                 }
 
                 _runningColor = value;
