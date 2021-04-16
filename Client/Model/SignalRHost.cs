@@ -55,6 +55,22 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        public int ConnectedGuests
+        {
+            get
+            {
+                return AnonymousGuests + (NamedGuests == null ? 0 : NamedGuests.Count);
+            }
+        }
+
+        public int ConnectedHosts
+        {
+            get
+            {
+                return AnonymousHosts + (NamedHosts == null ? 0 : NamedHosts.Count);
+            }
+        }
+
         public int AnonymousGuests
         {
             get;
