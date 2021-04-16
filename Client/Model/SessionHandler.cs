@@ -14,18 +14,18 @@ namespace Timekeeper.Client.Model
 {
     public class SessionHandler
     {
-        private readonly ILocalStorageService _localStorage;
-        private readonly HttpClient _http;
         private readonly IConfiguration _config;
         private readonly string _hostName;
+        private readonly HttpClient _http;
+        private readonly ILocalStorageService _localStorage;
 
-        public EditContext NewSessionEditContext
+        public IList<SessionBase> CloudSessions
         {
             get;
             private set;
         }
 
-        public IList<SessionBase> CloudSessions
+        public string ErrorStatus
         {
             get;
             private set;
@@ -35,6 +35,36 @@ namespace Timekeeper.Client.Model
         {
             get;
             private set;
+        }
+
+        public EditContext NewSessionEditContext
+        {
+            get;
+            private set;
+        }
+
+        public int State
+        {
+            get;
+            internal set;
+        }
+
+        public string Status
+        {
+            get;
+            private set;
+        }
+
+        public SessionHandler(
+            ILocalStorageService localStorage,
+            HttpClient http,
+            IConfiguration config)
+        {
+            _localStorage = localStorage;
+            _http = http;
+            _config = config;
+
+            _hostName = _config.GetValue<string>(Constants.HostNameKey);
         }
 
         public async Task<bool> CheckSetNewSession(ILogger log)
@@ -58,37 +88,8 @@ namespace Timekeeper.Client.Model
             await _localStorage.RemoveItemAsync(storageKey);
         }
 
-        public async Task<IList<SessionBase>> GetSessions(
-            ILogger log)
-        {
-            log.LogInformation("-> SessionHandler.Get");
-
-            var branchId = _config.GetValue<string>(Constants.BranchIdKey);
-            log.LogDebug($"branchId: {branchId}");
-            var getSessionsUrl = $"{_hostName}/sessions/{branchId}";
-            log.LogDebug($"getSessionsUrl: {getSessionsUrl}");
-
-            try
-            {
-                var json = await _http.GetStringAsync(getSessionsUrl);
-
-                if (string.IsNullOrEmpty(json))
-                {
-                    return null;
-                }
-
-                CloudSessions = JsonConvert.DeserializeObject<IList<SessionBase>>(json);
-                return CloudSessions;
-            }
-            catch (Exception ex)
-            {
-                log.LogError($"Cannot get session: {ex.Message}");
-                return null;
-            }
-        }
-
         public async Task<SessionBase> GetFromStorage(
-            string storageKey, 
+            string storageKey,
             ILogger log)
         {
             log.LogInformation("-> GetFromStorage");
@@ -123,41 +124,33 @@ namespace Timekeeper.Client.Model
             return session;
         }
 
-        public async Task SelectSession(string sessionId, ILogger log)
+        public async Task<IList<SessionBase>> GetSessions(
+                    ILogger log)
         {
-            log.LogInformation("-> SelectSession");
+            log.LogInformation("-> SessionHandler.Get");
 
-            var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
+            var branchId = _config.GetValue<string>(Constants.BranchIdKey);
+            log.LogDebug($"branchId: {branchId}");
+            var getSessionsUrl = $"{_hostName}/sessions/{branchId}";
+            log.LogDebug($"getSessionsUrl: {getSessionsUrl}");
 
-            if (selectedSession == null)
+            try
             {
-                throw new ArgumentException($"Invalid sessionId {sessionId}");
-            }
+                var json = await _http.GetStringAsync(getSessionsUrl);
 
-            foreach (var clock in selectedSession.Clocks)
+                if (string.IsNullOrEmpty(json))
+                {
+                    return null;
+                }
+
+                CloudSessions = JsonConvert.DeserializeObject<IList<SessionBase>>(json);
+                return CloudSessions;
+            }
+            catch (Exception ex)
             {
-                clock.IsClockRunning = false;
-                clock.IsConfigDisabled = true;
-                clock.IsNudgeDisabled = true;
-                clock.IsPlayStopDisabled = true;
-                clock.IsSelected = false;
-                clock.ResetDisplay();
+                log.LogError($"Cannot get session: {ex.Message}");
+                return null;
             }
-
-            await SaveToStorage(selectedSession, SignalRHost.HostSessionKey, log);
-            State = 2;
-        }
-
-        public SessionHandler(
-            ILocalStorageService localStorage,
-            HttpClient http,
-            IConfiguration config)
-        {
-            _localStorage = localStorage;
-            _http = http;
-            _config = config;
-
-            _hostName = _config.GetValue<string>(Constants.HostNameKey);
         }
 
         public void InitializeContext(ILogger log)
@@ -174,41 +167,9 @@ namespace Timekeeper.Client.Model
             NewSessionEditContext = new EditContext(NewSession);
         }
 
-        public async Task SaveToStorage(
-            SessionBase session, 
-            string sessionStorageKey, 
-            ILogger log)
-        {
-            log.LogInformation("-> SessionHandler.SaveToStorage");
-
-            var json = JsonConvert.SerializeObject(session);
-
-            await _localStorage.SetItemAsync(
-                sessionStorageKey,
-                json);
-        }
-
-        public string ErrorStatus
-        {
-            get;
-            private set;
-        }
-
-        public string Status
-        {
-            get;
-            private set;
-        }
-
-        public int State 
-        { 
-            get; 
-            internal set; 
-        }
-
         public async Task<bool> Save(
-            SessionBase session, 
-            string sessionStorageKey, 
+            SessionBase session,
+            string sessionStorageKey,
             ILogger log)
         {
             await SaveToStorage(session, sessionStorageKey, log);
@@ -246,6 +207,45 @@ namespace Timekeeper.Client.Model
                 ErrorStatus = "Error saving the session to the cloud";
                 return false;
             }
+        }
+
+        public async Task SaveToStorage(
+            SessionBase session,
+            string sessionStorageKey,
+            ILogger log)
+        {
+            log.LogInformation("-> SessionHandler.SaveToStorage");
+
+            var json = JsonConvert.SerializeObject(session);
+
+            await _localStorage.SetItemAsync(
+                sessionStorageKey,
+                json);
+        }
+
+        public async Task SelectSession(string sessionId, ILogger log)
+        {
+            log.LogInformation("-> SelectSession");
+
+            var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
+
+            if (selectedSession == null)
+            {
+                throw new ArgumentException($"Invalid sessionId {sessionId}");
+            }
+
+            foreach (var clock in selectedSession.Clocks)
+            {
+                clock.IsClockRunning = false;
+                clock.IsConfigDisabled = true;
+                clock.IsNudgeDisabled = true;
+                clock.IsPlayStopDisabled = true;
+                clock.IsSelected = false;
+                clock.ResetDisplay();
+            }
+
+            await SaveToStorage(selectedSession, SignalRHost.HostSessionKey, log);
+            State = 2;
         }
     }
 }

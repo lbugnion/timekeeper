@@ -37,6 +37,12 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public MobileHandler Mobile
+        {
+            get;
+            private set;
+        }
+
         [Parameter]
         public string SessionId
         {
@@ -102,12 +108,6 @@ namespace Timekeeper.Client.Pages
             }
 
             Log.LogInformation("OnInitializedAsync ->");
-        }
-
-        public MobileHandler Mobile
-        {
-            get;
-            private set;
         }
 
         public async void Dispose()

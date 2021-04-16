@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Storage;
@@ -10,6 +6,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Model;
 
@@ -20,9 +19,9 @@ namespace Timekeeper
         [FunctionName(nameof(GetSessions))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous, 
-                "get", 
-                Route = "sessions/{branchId}")] 
+                AuthorizationLevel.Anonymous,
+                "get",
+                Route = "sessions/{branchId}")]
             HttpRequest req,
             string branchId,
             ILogger log)
@@ -72,4 +71,3 @@ namespace Timekeeper
         }
     }
 }
-

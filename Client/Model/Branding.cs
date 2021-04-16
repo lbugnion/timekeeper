@@ -14,6 +14,7 @@
     public class Branding
     {
         public const string AboutPageTitle = "Timekeeper: About";
+        public const bool AllowSessionSelection = true;
         public const bool CanEditSessionAndGuestName = true;
         public const string ConfigurePageTitle = "Timekeeper: Configure";
         public const string GuestPageTitle = "Timekeeper Guest Page";
@@ -23,6 +24,5 @@
         public const bool MustAuthorize = false;
         public const string SessionPageTitle = "Timekeeper: Sessions";
         public const string WindowTitle = "Timekeeper";
-        public const bool AllowSessionSelection = true;
     }
 }

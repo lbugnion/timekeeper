@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Timekeeper.DataModel
+﻿namespace Timekeeper.DataModel
 {
     public class UpdateHostInfo
     {
         public UpdateAction Action
-        {
-            get;
-            set;
-        }
-
-        public string SessionName
         {
             get;
             set;
@@ -25,5 +15,11 @@ namespace Timekeeper.DataModel
         }
 
         public string PreviousClockId { get; set; }
+
+        public string SessionName
+        {
+            get;
+            set;
+        }
     }
 }

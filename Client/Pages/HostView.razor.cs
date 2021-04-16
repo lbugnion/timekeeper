@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,24 +13,12 @@ namespace Timekeeper.Client.Pages
     public partial class HostView
     {
         private const string EditSessionNameText = "edit session name";
+        private const string HidePeersText = "hide";
         private const string SaveSessionNameText = "save session name";
         private const string ShowPeersText = "show";
-        private const string HidePeersText = "hide";
         public const string SendMessageInputId = "send-message-input";
 
-        private async Task DoDeleteSession()
-        {
-            await Handler.DoDeleteSession();
-            Nav.NavigateTo("/host", forceLoad: true);
-        }
-
         public string EditSessionNameLinkText
-        {
-            get;
-            private set;
-        }
-
-        public string PeerListLinkText
         {
             get;
             private set;
@@ -64,6 +51,12 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public MobileHandler Mobile
+        {
+            get;
+            private set;
+        }
+
         public IList<PeerMessage> NamedGuests
         {
             get
@@ -74,6 +67,12 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        public string PeerListLinkText
+        {
+            get;
+            private set;
+        }
+
         [Parameter]
         public string SessionName
         {
@@ -81,10 +80,10 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public MobileHandler Mobile
+        private async Task DoDeleteSession()
         {
-            get;
-            private set;
+            await Handler.DoDeleteSession();
+            Nav.NavigateTo("/host", forceLoad: true);
         }
 
         protected override async Task OnInitializedAsync()
@@ -119,17 +118,6 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
-        public async Task NavigateToSession()
-        {
-            await Handler.ResetState();
-            Nav.NavigateTo("/session");
-        }
-
-        public void LogOut()
-        {
-            Nav.NavigateTo("/.auth/logout?post_logout_redirect_uri=/", forceLoad: true);
-        }
-
         public async Task EditSessionName()
         {
             Log.LogInformation("-> HostView.EditSessionName");
@@ -157,9 +145,9 @@ namespace Timekeeper.Client.Pages
                 await Handler.SaveSession();
 
                 await Handler.UpdateRemoteHosts(
-                    UpdateAction.UpdateSessionName, 
-                    SessionName, 
-                    null, 
+                    UpdateAction.UpdateSessionName,
+                    SessionName,
+                    null,
                     null);
             }
         }
@@ -176,6 +164,17 @@ namespace Timekeeper.Client.Pages
                 await Handler.SendInputMessage();
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
+        }
+
+        public void LogOut()
+        {
+            Nav.NavigateTo("/.auth/logout?post_logout_redirect_uri=/", forceLoad: true);
+        }
+
+        public async Task NavigateToSession()
+        {
+            await Handler.ResetState();
+            Nav.NavigateTo("/session");
         }
 
         public void ToggleIsPeersListExpanded()

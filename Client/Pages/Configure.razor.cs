@@ -50,6 +50,11 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        private void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            StateHasChanged();
+        }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
@@ -78,11 +83,6 @@ namespace Timekeeper.Client.Pages
         public void Dispose()
         {
             Host.UpdateUi -= HandlerUpdateUi;
-        }
-
-        private void HandlerUpdateUi(object sender, EventArgs e)
-        {
-            StateHasChanged();
         }
     }
 }

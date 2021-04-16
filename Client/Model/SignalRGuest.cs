@@ -1,12 +1,9 @@
 ﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -16,6 +13,8 @@ namespace Timekeeper.Client.Model
     public class SignalRGuest : SignalRHandler
     {
         private string _sessionId;
+
+        private string _unregisterFromGroup = null;
 
         protected override string SessionKey => "GuestSession";
 
@@ -41,8 +40,6 @@ namespace Timekeeper.Client.Model
 
             return await AnnounceNameJson(json);
         }
-
-        private string _unregisterFromGroup = null;
 
         public override async Task Connect()
         {

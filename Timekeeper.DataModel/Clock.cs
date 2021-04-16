@@ -5,6 +5,7 @@ namespace Timekeeper.DataModel
     public class Clock
     {
         public event EventHandler CountdownFinished;
+
         public event EventHandler<bool> SelectionChanged;
 
         public const string DefaultAlmostDoneColor = "#FF6B77";
@@ -34,16 +35,16 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public bool IsSelected
+        public bool IsConfigDisabled
         {
             get;
             set;
         }
 
-        public void ToggleSelect()
+        public bool IsNudgeDisabled
         {
-            IsSelected = !IsSelected;
-            SelectionChanged?.Invoke(this, IsSelected);
+            get;
+            set;
         }
 
         public bool IsPlayStopDisabled
@@ -52,13 +53,7 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public bool IsConfigDisabled
-        {
-            get;
-            set;
-        }
-
-        public bool IsNudgeDisabled
+        public bool IsSelected
         {
             get;
             set;
@@ -125,6 +120,12 @@ namespace Timekeeper.DataModel
         public void Restore(Clock clockInSavedSession)
         {
             Message = clockInSavedSession.Message;
+        }
+
+        public void ToggleSelect()
+        {
+            IsSelected = !IsSelected;
+            SelectionChanged?.Invoke(this, IsSelected);
         }
 
         public void Update(StartClockMessage newClockMessage)

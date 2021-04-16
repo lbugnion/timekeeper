@@ -14,6 +14,18 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public IList<Clock> Clocks
+        {
+            get;
+            set;
+        }
+
+        public string LastMessage
+        {
+            get;
+            set;
+        }
+
         [Required]
         public string SessionId
         {
@@ -23,12 +35,6 @@ namespace Timekeeper.DataModel
 
         [Required]
         public string SessionName
-        {
-            get;
-            set;
-        }
-
-        public string LastMessage
         {
             get;
             set;
@@ -44,12 +50,6 @@ namespace Timekeeper.DataModel
         public void ResetName()
         {
             SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        }
-
-        public IList<Clock> Clocks
-        {
-            get;
-            set;
         }
     }
 }

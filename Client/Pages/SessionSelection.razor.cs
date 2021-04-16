@@ -12,22 +12,6 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        protected override async Task OnInitializedAsync()
-        {
-            Log.LogInformation("-> OnInitializedAsync");
-            Log.LogDebug($"State: {Session.State}");
-
-            if (Session.State != 1)
-            {
-                Nav.NavigateTo("/host");
-                return;
-            }
-
-            Session.InitializeContext(Log);
-            await Session.GetSessions(Log);
-            Log.LogInformation("OnInitializedAsync ->");
-        }
-
         private async Task CheckSetNewSession()
         {
             if (await Session.CheckSetNewSession(Log))
@@ -47,6 +31,22 @@ namespace Timekeeper.Client.Pages
             {
                 ErrorMessage = ex.Message;
             }
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            Log.LogInformation("-> OnInitializedAsync");
+            Log.LogDebug($"State: {Session.State}");
+
+            if (Session.State != 1)
+            {
+                Nav.NavigateTo("/host");
+                return;
+            }
+
+            Session.InitializeContext(Log);
+            await Session.GetSessions(Log);
+            Log.LogInformation("OnInitializedAsync ->");
         }
     }
 }

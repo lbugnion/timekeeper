@@ -14,7 +14,7 @@ namespace Timekeeper
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
-                Route = "version")] 
+                Route = "version")]
             HttpRequest req,
             ILogger log)
         {

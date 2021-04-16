@@ -12,12 +12,6 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public bool IsHost
-        {
-            get;
-            set;
-        }
-
         [JsonIgnore]
         public string DisplayName
         {
@@ -32,6 +26,12 @@ namespace Timekeeper.DataModel
 
                 return CustomName + suffix;
             }
+        }
+
+        public bool IsHost
+        {
+            get;
+            set;
         }
 
         public string PeerId

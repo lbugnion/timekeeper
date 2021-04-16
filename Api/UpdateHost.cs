@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -8,6 +5,9 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 namespace Timekeeper
@@ -17,9 +17,9 @@ namespace Timekeeper
         [FunctionName(nameof(UpdateHost))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous, 
-                "post", 
-                Route = "update")] 
+                AuthorizationLevel.Anonymous,
+                "post",
+                Route = "update")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
@@ -69,4 +69,3 @@ namespace Timekeeper
         }
     }
 }
-

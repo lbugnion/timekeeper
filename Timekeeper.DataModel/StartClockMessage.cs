@@ -10,13 +10,6 @@ namespace Timekeeper.DataModel
         private string _payAttentionColor;
         private string _runningColor;
 
-        [JsonIgnore]
-        public bool WasDeleted
-        {
-            get;
-            set;
-        }
-
         public TimeSpan AlmostDone
         {
             get;
@@ -288,6 +281,13 @@ namespace Timekeeper.DataModel
         }
 
         public DateTime ServerTime
+        {
+            get;
+            set;
+        }
+
+        [JsonIgnore]
+        public bool WasDeleted
         {
             get;
             set;

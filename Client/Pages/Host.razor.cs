@@ -10,9 +10,11 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            get;
+            set;
         }
 
         public SignalRHost Handler
@@ -21,16 +23,28 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string SessionName
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null)
+                {
+                    return "No session";
+                }
+
+                return Handler.CurrentSession.SessionName;
+            }
+        }
+
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             StateHasChanged();
         }
 
-        [CascadingParameter]
-        private Task<AuthenticationState> AuthenticationStateTask
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            get;
-            set;
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
         protected override async Task OnInitializedAsync()
@@ -106,20 +120,6 @@ namespace Timekeeper.Client.Pages
             await Handler.Connect();
         }
 
-        public string SessionName
-        {
-            get
-            {
-                if (Handler == null
-                    || Handler.CurrentSession == null)
-                {
-                    return "No session";
-                }
-
-                return Handler.CurrentSession.SessionName;
-            }
-        }
-
         public async void Dispose()
         {
             Log.LogTrace("Dispose");
@@ -127,7 +127,7 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
-                
+
                 if (Program.ClockToConfigure == null)
                 {
                     Log.LogTrace("Disconnecting");
