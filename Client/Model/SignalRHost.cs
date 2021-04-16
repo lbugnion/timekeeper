@@ -297,8 +297,7 @@ namespace Timekeeper.Client.Model
             await SendMessage(InputMessage);
         }
 
-        public override async Task Connect(
-            string templateName = null)
+        public override async Task Connect()
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
@@ -307,7 +306,7 @@ namespace Timekeeper.Client.Model
             IsSendMessageDisabled = true;
             IsModifySessionDisabled = true;
 
-            var ok = await InitializeSession(templateName);
+            var ok = await InitializeSession();
 
             if (!ok)
             {
@@ -639,8 +638,7 @@ namespace Timekeeper.Client.Model
             await StartClock(clock, false); ;
         }
         
-        public async Task<bool> InitializeSession(
-            string templateName = null)
+        public async Task<bool> InitializeSession()
         {
             _log.LogInformation("-> SignalRHost.InitializeSession");
 
@@ -659,110 +657,6 @@ namespace Timekeeper.Client.Model
             else
             {
                 _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
-            }
-
-            if (CurrentSession == null
-                && !string.IsNullOrEmpty(templateName))
-            {
-                _log.LogTrace("Checking template");
-
-                var section = _config.GetSection(templateName);
-                var config = section.Get<ClockTemplate>();
-
-                _log.LogDebug($"section found: {section != null}");
-                _log.LogDebug($"config found: {config != null}");
-
-                if (config != null)
-                {
-                    _log.LogDebug($"Found {config.SessionName}");
-                    _log.LogDebug($"Found {config.SessionId}");
-
-                    if (string.IsNullOrEmpty(config.SessionId))
-                    {
-                        config.SessionId = CurrentSession == null 
-                            ? Guid.NewGuid().ToString() 
-                            : CurrentSession.SessionId;
-                    }
-
-                    CurrentSession = new SessionBase
-                    {
-                        CreatedFromTemplate = true,
-                        SessionId = config.SessionId,
-                        BranchId = _config.GetValue<string>(Constants.BranchIdKey)
-                    };
-
-                    if (!string.IsNullOrEmpty(config.SessionName))
-                    {
-                        CurrentSession.SessionName = config.SessionName;
-                    }
-
-                    foreach (var clockInTemplate in config.Clocks)
-                    {
-                        var newClock = new Clock();
-                        _log.LogDebug($"newClock.ClockId: {newClock.Message.ClockId}");
-
-                        if (!string.IsNullOrEmpty(clockInTemplate.Label))
-                        {
-                            newClock.Message.Label = clockInTemplate.Label;
-                            _log.LogDebug($"Clock label {newClock.Message.Label}");
-                        }
-
-                        if (clockInTemplate.AlmostDone != null)
-                        {
-                            if (clockInTemplate.AlmostDone.Time.TotalSeconds > 0)
-                            {
-                                // Almost done
-                                newClock.Message.AlmostDone = clockInTemplate.AlmostDone.Time;
-                                _log.LogDebug($"Clock AlmostDone {newClock.Message.AlmostDone}");
-                            }
-
-                            if (!string.IsNullOrEmpty(clockInTemplate.AlmostDone.Color))
-                            {
-                                // Almost done color
-                                newClock.Message.AlmostDoneColor = clockInTemplate.AlmostDone.Color;
-                                _log.LogDebug($"Clock AlmostDoneColor {newClock.Message.AlmostDoneColor}");
-                            }
-                        }
-
-                        if (clockInTemplate.PayAttention != null)
-                        {
-                            if (clockInTemplate.PayAttention.Time.TotalSeconds > 0)
-                            {
-                                // Pay attention
-                                newClock.Message.PayAttention = clockInTemplate.PayAttention.Time;
-                                _log.LogDebug($"Clock PayAttention {newClock.Message.PayAttention}");
-                            }
-
-                            if (!string.IsNullOrEmpty(clockInTemplate.PayAttention.Color))
-                            {
-                                // Pay attention color
-                                newClock.Message.PayAttentionColor = clockInTemplate.PayAttention.Color;
-                                _log.LogDebug($"Clock PayAttentionColor {newClock.Message.PayAttentionColor}");
-                            }
-                        }
-
-                        if (clockInTemplate.Countdown != null)
-                        {
-                            if (clockInTemplate.Countdown.Time.TotalSeconds > 0)
-                            {
-                                // Countdown
-                                newClock.Message.CountDown = clockInTemplate.Countdown.Time;
-                                _log.LogDebug($"Clock CountDown {newClock.Message.CountDown}");
-                            }
-
-                            if (!string.IsNullOrEmpty(clockInTemplate.Countdown.Color))
-                            {
-                                // Countdown color
-                                newClock.Message.RunningColor = clockInTemplate.Countdown.Color;
-                                _log.LogDebug($"Clock RunningColor {newClock.Message.RunningColor}");
-                            }
-                        }
-
-                        CurrentSession.Clocks.Add(newClock);
-                    }
-
-                    await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-                }
             }
 
             if (CurrentSession == null)

@@ -51,11 +51,5 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
-
-        public bool CreatedFromTemplate
-        {
-            get;
-            set;
-        }
     }
 }

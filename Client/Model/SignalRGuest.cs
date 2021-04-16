@@ -44,8 +44,7 @@ namespace Timekeeper.Client.Model
 
         private string _unregisterFromGroup = null;
 
-        public override async Task Connect(
-            string templateName = null)
+        public override async Task Connect()
         {
             _log.LogInformation("-> SignalRGuest.Connect");
 

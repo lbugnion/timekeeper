@@ -22,7 +22,6 @@
         public const string MainPageTitle = "Timekeeper";
         public const bool MustAuthorize = false;
         public const string SessionPageTitle = "Timekeeper: Sessions";
-        public const string TemplateName = null;
         public const string WindowTitle = "Timekeeper";
         public const bool AllowSessionSelection = true;
     }

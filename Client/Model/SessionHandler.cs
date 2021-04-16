@@ -42,7 +42,8 @@ namespace Timekeeper.Client.Model
             var isValid = NewSessionEditContext.Validate();
             if (isValid)
             {
-                await SaveToStorage(NewSession, SignalRHost.HostSessionKey, log);
+                NewSession.Clocks.Add(new Clock());
+                await Save(NewSession, SignalRHost.HostSessionKey, log);
                 return true;
             }
 

@@ -537,8 +537,7 @@ namespace Timekeeper.Client.Model
             _log.LogInformation($"{nameof(StopLocalClock)} ->");
         }
 
-        public abstract Task Connect(
-            string templateName = null);
+        public abstract Task Connect();
 
         public async Task Disconnect()
         {

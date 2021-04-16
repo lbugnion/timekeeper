@@ -103,7 +103,7 @@ namespace Timekeeper.Client.Pages
             }
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect(Branding.TemplateName);
+            await Handler.Connect();
         }
 
         public string SessionName
