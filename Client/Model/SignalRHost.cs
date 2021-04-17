@@ -306,7 +306,7 @@ namespace Timekeeper.Client.Model
                             if (existingClock != null)
                             {
                                 await StopLocalClock(info.Clock.ClockId, true);
-                                existingClock.Update(info.Clock);
+                                existingClock.Update(info.Clock, true);
                                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                                 RaiseUpdateEvent();
                             }
@@ -342,7 +342,7 @@ namespace Timekeeper.Client.Model
 
                     if (newClockMessage != null)
                     {
-                        newClock.Update(newClockMessage);
+                        newClock.Update(newClockMessage, true);
                     }
                     else
                     {

@@ -444,16 +444,8 @@ namespace Timekeeper.Client.Model
                 else
                 {
                     _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
-                    existingClock.Message.Label = clockMessage.Label;
-                    existingClock.Message.CountDown = clockMessage.CountDown;
-                    existingClock.Message.ConfiguredCountDown = clockMessage.ConfiguredCountDown;
-                    existingClock.Message.AlmostDone = clockMessage.AlmostDone;
-                    existingClock.Message.PayAttention = clockMessage.PayAttention;
-                    existingClock.Message.AlmostDoneColor = clockMessage.AlmostDoneColor;
-                    existingClock.Message.PayAttentionColor = clockMessage.PayAttentionColor;
-                    existingClock.Message.RunningColor = clockMessage.RunningColor;
-                    existingClock.Message.ServerTime = clockMessage.ServerTime;
-                    existingClock.Message.Position = clockMessage.Position;
+
+                    existingClock.Update(clockMessage, false);
                 }
 
                 _log.LogDebug($"Clock {existingClock.Message.Label} remains {existingClock.Remains}");

@@ -88,8 +88,44 @@ namespace Timekeeper.Client.Model
             await _localStorage.RemoveItemAsync(storageKey);
         }
 
+        public async Task<bool> Duplicate(string sessionId, ILogger log)
+        {
+            log.LogInformation("-> Duplicate");
+
+            var modelSession = CloudSessions
+                .FirstOrDefault(s => s.SessionId == sessionId);
+
+            if (modelSession == null)
+            {
+                throw new ArgumentException($"Invalid sessionId {sessionId}");
+            }
+
+            var newSession = new SessionBase
+            {
+                BranchId = modelSession.BranchId,
+                Clocks = new List<Clock>(),
+                SessionId = Guid.NewGuid().ToString(),
+                SessionName = $"{modelSession.SessionName} (copy)"
+            };
+
+            foreach (var clock in modelSession.Clocks)
+            {
+                var duplicatedClock = new Clock();
+                duplicatedClock.Update(clock.Message, false);
+                newSession.Clocks.Add(duplicatedClock);
+            }
+
+            var success = await Save(newSession, SignalRHost.HostSessionKey, log);
+            if (success)
+            {
+                CloudSessions.Add(newSession);
+            }
+
+            return success;
+        }
+
         public async Task<SessionBase> GetFromStorage(
-            string storageKey,
+                    string storageKey,
             ILogger log)
         {
             log.LogInformation("-> GetFromStorage");

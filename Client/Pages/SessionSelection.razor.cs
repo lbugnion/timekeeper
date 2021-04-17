@@ -20,6 +20,21 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        private async Task Duplicate(string sessionId)
+        {
+            try
+            {
+                if (await Session.Duplicate(sessionId, Log))
+                {
+                    Nav.NavigateTo("/host");
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+        }
+
         private async Task SelectSession(string sessionId)
         {
             try

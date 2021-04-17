@@ -340,6 +340,24 @@ li.validation-message {
         margin-bottom: 5px;
     }
 
+/* Session configuration */
+
+.session-button {
+    width: 40px;
+    height: 30px;
+    font-size: 22px;
+}
+
+.session-edit {
+    width: 400px;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.session-edit-area button {
+    font-size: 1.5em;
+}
+
 /* Responsive */
 
 @media (max-height: 400px) {

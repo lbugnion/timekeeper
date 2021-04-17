@@ -128,18 +128,25 @@ namespace Timekeeper.DataModel
             SelectionChanged?.Invoke(this, IsSelected);
         }
 
-        public void Update(StartClockMessage newClockMessage)
+        public void Update(
+            StartClockMessage model,
+            bool copyIdToo)
         {
-            Message.AlmostDone = newClockMessage.AlmostDone;
-            Message.AlmostDoneColor = newClockMessage.AlmostDoneColor;
-            Message.ClockId = newClockMessage.ClockId;
-            Message.CountDown = newClockMessage.CountDown;
-            Message.Label = newClockMessage.Label;
-            Message.PayAttention = newClockMessage.PayAttention;
-            Message.PayAttentionColor = newClockMessage.PayAttentionColor;
-            Message.Position = newClockMessage.Position;
-            Message.RunningColor = newClockMessage.RunningColor;
-            Message.ServerTime = newClockMessage.ServerTime;
+            Message.AlmostDone = model.AlmostDone;
+            Message.AlmostDoneColor = model.AlmostDoneColor;
+            Message.CountDown = model.CountDown;
+            Message.Label = model.Label;
+            Message.PayAttention = model.PayAttention;
+            Message.PayAttentionColor = model.PayAttentionColor;
+            Message.Position = model.Position;
+            Message.RunningColor = model.RunningColor;
+            Message.ServerTime = model.ServerTime;
+            Message.Position = model.Position;
+
+            if (copyIdToo)
+            {
+                Message.ClockId = model.ClockId;
+            }
 
             ResetDisplay();
         }

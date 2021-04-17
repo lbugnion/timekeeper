@@ -31,10 +31,18 @@
                 <h2>Select a session</h2>
 
                 <ul>
-                    @foreach (var session in Session.CloudSessions)
+                    @foreach (var session in Session.CloudSessions.OrderBy(s => s.SessionName))
                     {
                         <li>
+                            <button class="session-button"
+                                    title="Delete this session"><i class="fa fa-trash"></i></button>
+                            <button class="session-button"
+                                    title="Duplicate this session"
+                                    
+                                    @onclick="@(e => Duplicate(session.SessionId))"><i class="fa fa-clone"></i></button>
+
                             <a href="#"
+                               title="Select this session"
                                @onclick="(e => SelectSession(session.SessionId))"
                                @onclick:preventDefault>@session.SessionName</a>
                         </li>
@@ -52,15 +60,20 @@
                 <blockquote class="error">@ErrorMessage</blockquote>
             }
 
-            <EditForm EditContext="@Session.NewSessionEditContext">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+            <div class="session-edit-area">
+                <EditForm EditContext="@Session.NewSessionEditContext">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-                <InputText @bind-Value="Session.NewSession.SessionName" />
-                <br />
-                <button @onclick="@CheckSetNewSession">Create</button>
+                    <p class="form-label">Session name</p>
 
-            </EditForm>
+                    <InputText @bind-Value="Session.NewSession.SessionName"
+                               class="session-edit" />
+                    <br />
+                    <button @onclick="@CheckSetNewSession">Create</button>
+
+                </EditForm>
+            </div>
         }
 
     </article>
