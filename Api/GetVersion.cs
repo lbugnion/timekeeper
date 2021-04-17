@@ -18,7 +18,7 @@ namespace Timekeeper
             HttpRequest req,
             ILogger log)
         {
-            return new OkObjectResult("0.5.6.3");
+            return new OkObjectResult("0.6.0.0");
         }
     }
 }

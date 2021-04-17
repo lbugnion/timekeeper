@@ -20,5 +20,6 @@
         public const string TokenHeaderKey = "x-timekeeper-token";
         public const string UpdateHostMessageName = "update-host";
         public const string UserIdHeaderKey = "x-timekeeper-userid";
+        public const string NotifyDeleteSessionMessageName = "notify-delete-session";
     }
 }
