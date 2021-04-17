@@ -35,6 +35,18 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        private async Task DeleteSession(string sessionId)
+        {
+            try
+            {
+                await Session.DeleteSession(sessionId, Log);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+        }
+
         private async Task SelectSession(string sessionId)
         {
             try

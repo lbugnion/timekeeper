@@ -211,7 +211,6 @@ namespace Timekeeper.Client.Model
             await SaveToStorage(session, sessionStorageKey, log);
 
             var json = JsonConvert.SerializeObject(session);
-
             var content = new StringContent(json);
 
             var saveSessionUrl = $"{_hostName}/session/{session.BranchId}/{session.SessionId}";
@@ -258,6 +257,35 @@ namespace Timekeeper.Client.Model
                 sessionStorageKey,
                 json);
         }
+
+        public async Task DeleteSession(string sessionId, ILogger log)
+        {
+            log.LogInformation("-> DeleteSession");
+
+            var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
+
+            if (selectedSession == null)
+            {
+                throw new ArgumentException($"Invalid sessionId {sessionId}");
+            }
+
+            foreach (var clock in selectedSession.Clocks)
+            {
+                clock.IsClockRunning = false;
+                clock.IsConfigDisabled = true;
+                clock.IsNudgeDisabled = true;
+                clock.IsPlayStopDisabled = true;
+                clock.IsSelected = false;
+                clock.ResetDisplay();
+            }
+
+            // TODO Send notify-delete message
+            // TODO Send delete message
+
+            await DeleteFromStorage(SignalRHost.HostSessionKey, log);
+            State = 2;
+        }
+
 
         public async Task SelectSession(string sessionId, ILogger log)
         {

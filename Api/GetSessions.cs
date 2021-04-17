@@ -28,15 +28,14 @@ namespace Timekeeper
         {
             log.LogInformation($"-> {nameof(GetSessions)}");
 
-            branchId = branchId.ToLower();
-            var success = Guid.TryParse(branchId, out Guid testGuid);
+            var verificationResult = Verification.Verify(branchId, null, log);
 
-            if (!success
-                || testGuid == Guid.Empty)
+            if (verificationResult != null)
             {
-                log.LogError("Invalid branch ID");
-                return new BadRequestObjectResult("Invalid branch ID");
+                return verificationResult;
             }
+
+            branchId = branchId.ToLower();
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(

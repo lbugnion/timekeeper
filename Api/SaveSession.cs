@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
+using Timekeeper.Model;
 
 namespace Timekeeper
 {
@@ -28,22 +29,11 @@ namespace Timekeeper
         {
             log.LogInformation("-> SaveSession");
 
-            var success = Guid.TryParse(branchId, out Guid testGuid);
+            var verificationResult = Verification.Verify(branchId, sessionId, log);
 
-            if (!success
-                || testGuid == Guid.Empty)
+            if (verificationResult != null)
             {
-                log.LogError("Invalid branch ID");
-                return new BadRequestObjectResult("Invalid branch ID");
-            }
-
-            success = Guid.TryParse(sessionId, out testGuid);
-
-            if (!success
-                || testGuid == Guid.Empty)
-            {
-                log.LogError("Invalid session ID");
-                return new BadRequestObjectResult("Invalid session ID");
+                return verificationResult;
             }
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
