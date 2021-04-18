@@ -46,25 +46,33 @@ namespace Timekeeper
 
             var container = blobHelper.GetContainerFromName("sessions");
 
-            BlobContinuationToken continuationToken = null;
             var result = new List<SessionBase>();
 
-            do
+            try
             {
-                var response = await container.ListBlobsSegmentedAsync(prefix: "", useFlatBlobListing: true, BlobListingDetails.None, 5000, continuationToken, new BlobRequestOptions(), new OperationContext());
-                continuationToken = response.ContinuationToken;
+                BlobContinuationToken continuationToken = null;
 
-                foreach (CloudBlockBlob blob in response.Results)
+                do
                 {
-                    if (blob.Name.ToLower().Contains(branchId))
+                    var response = await container.ListBlobsSegmentedAsync(prefix: "", useFlatBlobListing: true, BlobListingDetails.None, 5000, continuationToken, new BlobRequestOptions(), new OperationContext());
+                    continuationToken = response.ContinuationToken;
+
+                    foreach (CloudBlockBlob blob in response.Results)
                     {
-                        var content = await blob.DownloadTextAsync();
-                        var session = JsonConvert.DeserializeObject<SessionBase>(content);
-                        result.Add(session);
+                        if (blob.Name.ToLower().Contains(branchId))
+                        {
+                            var content = await blob.DownloadTextAsync();
+                            var session = JsonConvert.DeserializeObject<SessionBase>(content);
+                            result.Add(session);
+                        }
                     }
                 }
+                while (continuationToken != null);
             }
-            while (continuationToken != null);
+            catch (Exception ex)
+            {
+                log.LogWarning($"Error when loading sessions {ex.Message}");
+            }
 
             return new OkObjectResult(result);
         }

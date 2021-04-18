@@ -3,11 +3,6 @@ GET {{function-url}}/negotiate
 x-functions-key: {{NegotiateKey}}
 x-timekeeper-userid: 1234
 
-### Test hack
-
-POST https://mango-mud-074ee9103.azurestaticapps.net/api/send
-x-timekeeper-group-id: 91f22496-a644-472b-ab73-cd60bbf4be18
-
 ### Save session
 POST {{function-url-protected}}/session/692B42A9-A940-4A11-AD68-43779AB1266D/ef6f4e9b-0a27-4aae-b715-7cd34f38bcd0
 
@@ -15,3 +10,9 @@ POST {{function-url-protected}}/session/692B42A9-A940-4A11-AD68-43779AB1266D/ef6
 
 ### Get sessions
 GET {{function-url-protected}}/sessions/692B42A9-A940-4A11-AD68-43779AB1266D
+
+### Get version (free)
+GET {{function-url}}/version
+
+### Get version (protected)
+GET {{function-url-protected}}/version
