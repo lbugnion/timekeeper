@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        public const string AzureWebJobsStorageVariableName = "AzureWebJobsStorage";
+        public const string AzureStorageVariableName = "AzureStorage";
         public const string BranchIdKey = "BranchId";
         public const string ClaimsUserIdHeaderKey = "x-timekeeper-claims-userid";
         public const string ConnectMessage = "connect";

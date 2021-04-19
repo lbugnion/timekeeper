@@ -184,7 +184,7 @@ namespace Timekeeper.Client.Model
             }
             catch (Exception ex)
             {
-                log.LogError($"Cannot get session: {ex.Message}");
+                log.LogError($"Cannot get sessions: {ex.Message}");
                 return null;
             }
         }

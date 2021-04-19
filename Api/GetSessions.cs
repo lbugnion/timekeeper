@@ -39,7 +39,7 @@ namespace Timekeeper
 
             var account = CloudStorageAccount.Parse(
                 Environment.GetEnvironmentVariable(
-                    Constants.AzureWebJobsStorageVariableName));
+                    Constants.AzureStorageVariableName));
 
             var blobClient = account.CreateCloudBlobClient();
             var blobHelper = new BlobHelper(blobClient, null);
