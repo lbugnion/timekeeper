@@ -23,7 +23,7 @@ namespace Timekeeper
             HttpRequest req,
             string branchId,
             string sessionId,
-            [Blob("sessions/{branchId}/{sessionId}.json", FileAccess.Write)]
+            [Blob("sessions/{branchId}/{sessionId}.json", FileAccess.Write, Connection = "AzureStorage")]
             Stream sessionBlob,
             ILogger log)
         {
