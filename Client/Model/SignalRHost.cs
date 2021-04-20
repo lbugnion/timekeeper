@@ -1033,7 +1033,11 @@ namespace Timekeeper.Client.Model
 
                 var json = JsonConvert.SerializeObject(CurrentSession.Clocks
                     .OrderBy(c => c.Message.Position)
-                    .Select(c => c.Message)
+                    .Select(c =>
+                    {
+                        c.Message.SenderId = PeerInfo.Message.PeerId;
+                        return c.Message;
+                    })
                     .ToList());
 
                 var content = new StringContent(json);

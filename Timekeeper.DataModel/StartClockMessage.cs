@@ -10,6 +10,12 @@ namespace Timekeeper.DataModel
         private string _payAttentionColor;
         private string _runningColor;
 
+        public string SenderId
+        {
+            get;
+            set;
+        }
+
         public TimeSpan AlmostDone
         {
             get;

@@ -104,11 +104,11 @@ namespace Timekeeper.Client.Pages
                 await Handler.CheckState();
             }
 
-            Log.LogDebug($"HIGHLIGHT--Current session is null: {Handler.CurrentSession == null}");
+            Log.LogDebug($"Current session is null: {Handler.CurrentSession == null}");
 
             if (Handler.CurrentSession != null)
             {
-                Log.LogDebug($"HIGHLIGHT--Handler.CurrentSession.Clocks.Count: {Handler.CurrentSession.Clocks.Count}");
+                Log.LogDebug($"Handler.CurrentSession.Clocks.Count: {Handler.CurrentSession.Clocks.Count}");
 
                 foreach (var clock in Handler.CurrentSession.Clocks)
                 {

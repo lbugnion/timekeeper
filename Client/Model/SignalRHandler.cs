@@ -416,6 +416,18 @@ namespace Timekeeper.Client.Model
             try
             {
                 clockMessages = JsonConvert.DeserializeObject<IList<StartClockMessage>>(message);
+
+                if (clockMessages.Count == 0)
+                {
+                    return;
+                }
+
+                var senderId = clockMessages.First().SenderId;
+                if (senderId == PeerInfo.Message.PeerId)
+                {
+                    _log.LogTrace("HIGHLIGHT--Self start clock received");
+                    return;
+                }
             }
             catch
             {
