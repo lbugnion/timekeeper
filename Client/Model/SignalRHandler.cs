@@ -541,6 +541,8 @@ namespace Timekeeper.Client.Model
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                                 clock.Message.ServerTime = DateTime.MinValue;
+                                clock.Message.CountDown = clock.Message.ConfiguredCountDown;
+                                clock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
                                 RaiseUpdateEvent();
