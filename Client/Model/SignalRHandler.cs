@@ -42,6 +42,11 @@ namespace Timekeeper.Client.Model
             get;
         }
 
+        protected abstract string PeerKey
+        {
+            get;
+        }
+
         public MarkupString CurrentMessage
         {
             get;
@@ -375,17 +380,17 @@ namespace Timekeeper.Client.Model
             Status = "Received host message";
         }
 
-        protected async Task<bool> InitializeGuestInfo()
+        protected async Task<bool> InitializePeerInfo()
         {
-            _log.LogInformation("-> InitializeGuestInfo");
+            _log.LogInformation("-> InitializePeerInfo");
 
-            var message = await Peer.GetFromStorage();
+            var message = await Peer.GetFromStorage(PeerKey);
 
             if (message == null)
             {
-                _log.LogTrace("Saved GuestInfo is null");
+                _log.LogTrace("Saved PeerInfo is null");
                 PeerInfo = new Peer(Guid.NewGuid().ToString());
-                await PeerInfo.Save();
+                await PeerInfo.Save(PeerKey);
             }
             else
             {
@@ -425,7 +430,7 @@ namespace Timekeeper.Client.Model
                 var senderId = clockMessages.First().SenderId;
                 if (senderId == PeerInfo.Message.PeerId)
                 {
-                    _log.LogTrace("HIGHLIGHT--Self start clock received");
+                    _log.LogTrace("Self start clock received");
                     return;
                 }
             }
@@ -456,7 +461,6 @@ namespace Timekeeper.Client.Model
                 else
                 {
                     _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
-
                     existingClock.Update(clockMessage, false);
                 }
 
@@ -502,7 +506,9 @@ namespace Timekeeper.Client.Model
 
             if (clockInSavedSession != null)
             {
+                _log.LogDebug($"Before restore: {clock.Message.CountDown}");
                 clock.Restore(clockInSavedSession);
+                _log.LogDebug($"After restore: {clock.Message.CountDown}");
             }
         }
 
@@ -553,8 +559,6 @@ namespace Timekeeper.Client.Model
                                 clock.ClockDisplay = Clock.DefaultClockDisplay;
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
                                 clock.Message.ServerTime = DateTime.MinValue;
-                                clock.Message.CountDown = clock.Message.ConfiguredCountDown;
-                                clock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
                                 RaiseUpdateEvent();
@@ -644,12 +648,10 @@ namespace Timekeeper.Client.Model
                 existingClock.IsPlayStopDisabled = false;
                 existingClock.IsNudgeDisabled = true;
                 existingClock.IsConfigDisabled = false;
+                _log.LogDebug($"HIGHLIGHT--CountDown {existingClock.Message.CountDown}");
+                _log.LogDebug($"HIGHLIGHT--ServerTime {existingClock.Message.ServerTime}");
+                await RestoreClock(existingClock);
                 existingClock.Message.ServerTime = DateTime.MinValue;
-                _log.LogDebug($"existingClock.Message.CountDown {existingClock.Message.CountDown}");
-                _log.LogDebug($"existingClock.Message.ConfiguredCountDown {existingClock.Message.ConfiguredCountDown}");
-                existingClock.Message.CountDown = existingClock.Message.ConfiguredCountDown;
-                existingClock.Message.ConfiguredCountDown = TimeSpan.FromSeconds(0);
-                existingClock.ResetDisplay();
                 await _session.Save(CurrentSession, SessionKey, _log);
             }
             else

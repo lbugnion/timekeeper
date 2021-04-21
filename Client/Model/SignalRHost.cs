@@ -21,6 +21,7 @@ namespace Timekeeper.Client.Model
         public const string StartSelectedClocksText = "Start selected clocks";
 
         protected override string SessionKey => HostSessionKey;
+        protected override string PeerKey => "HostPeer";
 
         public int AnonymousGuests
         {
@@ -435,7 +436,7 @@ namespace Timekeeper.Client.Model
             var state = _session.State;
             _log.LogDebug($"State: {state}");
 
-            await InitializeGuestInfo();
+            await InitializePeerInfo();
 
             if (state == 0)
             {
@@ -503,7 +504,10 @@ namespace Timekeeper.Client.Model
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
                             clock.IsClockRunning = true;
-                            _log.LogDebug($"{clock.Message.Label} still active");
+                            _log.LogDebug($"Label: {clock.Message.Label}");
+                            _log.LogDebug($"ServerTime: {clock.Message.ServerTime}");
+                            _log.LogDebug($"CountDown: {clock.Message.CountDown}");
+                            _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
                         }
                     }
 
@@ -706,7 +710,8 @@ namespace Timekeeper.Client.Model
 
             var timespan = TimeSpan.FromSeconds(Math.Abs(seconds));
 
-            var clockInSession = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
+            var clockInSession = CurrentSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
 
             if (clockInSession == null)
             {
@@ -1005,12 +1010,6 @@ namespace Timekeeper.Client.Model
 
             foreach (var clock in clocksToStart)
             {
-                if (clock.Message.ConfiguredCountDown.TotalSeconds == 0)
-                {
-                    _log.LogDebug($"saving {clock.Message.CountDown} to configured countdown");
-                    clock.Message.ConfiguredCountDown = clock.Message.CountDown;
-                }
-
                 clock.CountdownFinished -= ClockCountdownFinished;
                 clock.CountdownFinished += ClockCountdownFinished;
             }
@@ -1078,7 +1077,6 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> StopClock");
 
             await StopLocalClock(clock.Message.ClockId, true);
-            await RestoreClock(clock);
 
             // Notify clients
 

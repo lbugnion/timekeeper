@@ -10,7 +10,6 @@ namespace Timekeeper.Client.Model
     {
         private static ILocalStorageService _localStorage;
         private static ILogger _log;
-        public const string PeerStorageKey = "PeerStorageKey";
 
         public PeerMessage Message
         {
@@ -26,10 +25,9 @@ namespace Timekeeper.Client.Model
             };
         }
 
-        public static async Task<PeerMessage> GetFromStorage()
+        public static async Task<PeerMessage> GetFromStorage(string key)
         {
-            var json = await _localStorage.GetItemAsStringAsync(
-                PeerStorageKey);
+            var json = await _localStorage.GetItemAsStringAsync(key);
 
             _log.LogDebug($"Getting: {json}");
 
@@ -52,19 +50,19 @@ namespace Timekeeper.Client.Model
             _log = log;
         }
 
-        public async Task DeleteFromStorage()
+        public async Task DeleteFromStorage(string key)
         {
-            await _localStorage.RemoveItemAsync(PeerStorageKey);
+            await _localStorage.RemoveItemAsync(key);
         }
 
-        public async Task Save()
+        public async Task Save(string key)
         {
             var json = JsonConvert.SerializeObject(Message);
 
             _log.LogDebug($"Saving: {json}");
 
             await _localStorage.SetItemAsync(
-                PeerStorageKey,
+                key,
                 json);
         }
     }

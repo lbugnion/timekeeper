@@ -146,9 +146,8 @@ namespace Timekeeper.DataModel
             if (copyIdToo)
             {
                 Message.ClockId = model.ClockId;
+                ResetDisplay();
             }
-
-            ResetDisplay();
         }
     }
 }

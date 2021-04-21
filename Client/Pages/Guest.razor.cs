@@ -138,7 +138,7 @@ namespace Timekeeper.Client.Pages
                 EditGuestNameLinkText = EditGuestNameText;
                 Handler.PeerInfo.Message.CustomName = GuestName;
                 GuestName = Handler.PeerInfo.Message.DisplayName;
-                await Handler.PeerInfo.Save();
+                await Handler.SavePeerInfo();
                 await Handler.AnnounceName();
             }
         }

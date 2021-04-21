@@ -17,6 +17,7 @@ namespace Timekeeper.Client.Model
         private string _unregisterFromGroup = null;
 
         protected override string SessionKey => "GuestSession";
+        protected override string PeerKey => "GuestPeer";
 
         public SignalRGuest(
             IConfiguration config,
@@ -48,7 +49,7 @@ namespace Timekeeper.Client.Model
             IsBusy = true;
 
             var ok = await InitializeSession(_sessionId)
-                && await InitializeGuestInfo()
+                && await InitializePeerInfo()
                 && await UnregisterFromPreviousGroup(_unregisterFromGroup)
                 && await CreateConnection();
 
@@ -118,6 +119,11 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("InitializeSession ->");
             return true;
+        }
+
+        public async Task SavePeerInfo()
+        {
+            await PeerInfo.Save(PeerKey);
         }
     }
 }

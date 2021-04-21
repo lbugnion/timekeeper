@@ -104,12 +104,6 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public TimeSpan ConfiguredCountDown
-        {
-            get;
-            set;
-        }
-
         public TimeSpan CountDown
         {
             get;
