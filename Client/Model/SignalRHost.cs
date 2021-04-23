@@ -141,9 +141,17 @@ namespace Timekeeper.Client.Model
             return await AnnounceNameJson(json);
         }
 
+        internal void SubscribeToClocks()
+        {
+            foreach (var clock in CurrentSession.Clocks)
+            {
+                clock.CountdownFinished += ClockCountdownFinished;
+            }
+        }
+
         private void ClockCountdownFinished(object sender, EventArgs e)
         {
-            _log.LogInformation("-> ClockCountdownFinished");
+            _log.LogInformation("HIGHLIGHT---> ClockCountdownFinished");
 
             var clock = sender as Clock;
 
@@ -155,6 +163,7 @@ namespace Timekeeper.Client.Model
             var isAnyClockRunning = IsAnyClockRunning;
             _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
             IsModifySessionDisabled = isAnyClockRunning;
+            clock.ResetDisplay();
             RaiseUpdateEvent();
         }
 
@@ -1008,12 +1017,6 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation($"-> SignalRHost.StartClocks {clocksToStart.Count} clock(s)");
 
-            foreach (var clock in clocksToStart)
-            {
-                clock.CountdownFinished -= ClockCountdownFinished;
-                clock.CountdownFinished += ClockCountdownFinished;
-            }
-
             IsModifySessionDisabled = true;
 
             try
@@ -1107,10 +1110,11 @@ namespace Timekeeper.Client.Model
                 ErrorStatus = "Couldn't reach the guests";
             }
 
+            await _session.Save(CurrentSession, SessionKey, _log);
+
             clock.IsConfigDisabled = false;
             clock.IsNudgeDisabled = true;
             clock.ResetDisplay();
-            clock.CountdownFinished -= ClockCountdownFinished;
 
             IsModifySessionDisabled = IsAnyClockRunning;
 

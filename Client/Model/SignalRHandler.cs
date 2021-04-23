@@ -499,6 +499,8 @@ namespace Timekeeper.Client.Model
 
         protected async Task RestoreClock(Clock clock)
         {
+            _log.LogInformation("HIGHLIGHT--RestoreClock");
+
             // Get saved clock and restore
             var savedSession = await _session.GetFromStorage(SessionKey, _log);
             var clockInSavedSession = savedSession.Clocks
@@ -551,7 +553,7 @@ namespace Timekeeper.Client.Model
 
                             if (remains.TotalSeconds <= 0)
                             {
-                                _log.LogTrace("Countdown finished");
+                                _log.LogTrace("HIGHLIGHT--Countdown finished");
                                 clock.IsClockRunning = false;
                                 clock.IsPlayStopDisabled = false;
                                 clock.IsNudgeDisabled = true;
@@ -561,9 +563,9 @@ namespace Timekeeper.Client.Model
                                 clock.Message.ServerTime = DateTime.MinValue;
                                 Status = $"Countdown finished for {clock.Message.Label}";
                                 clock.RaiseCountdownFinished();
-                                RaiseUpdateEvent();
                                 await RestoreClock(clock);
-                                await _session.Save(CurrentSession, SessionKey, _log);
+                                RaiseUpdateEvent();
+                                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                                 continue;
                             }
 
@@ -651,8 +653,9 @@ namespace Timekeeper.Client.Model
                 _log.LogDebug($"HIGHLIGHT--CountDown {existingClock.Message.CountDown}");
                 _log.LogDebug($"HIGHLIGHT--ServerTime {existingClock.Message.ServerTime}");
                 await RestoreClock(existingClock);
+                existingClock.ResetDisplay();
                 existingClock.Message.ServerTime = DateTime.MinValue;
-                await _session.Save(CurrentSession, SessionKey, _log);
+                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
             }
             else
             {

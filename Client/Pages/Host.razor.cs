@@ -104,20 +104,9 @@ namespace Timekeeper.Client.Pages
                 await Handler.CheckState();
             }
 
-            Log.LogDebug($"Current session is null: {Handler.CurrentSession == null}");
-
-            if (Handler.CurrentSession != null)
-            {
-                Log.LogDebug($"Handler.CurrentSession.Clocks.Count: {Handler.CurrentSession.Clocks.Count}");
-
-                foreach (var clock in Handler.CurrentSession.Clocks)
-                {
-                    Log.LogDebug($"Clock {clock.Message.Label}");
-                }
-            }
-
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect();
+            Handler.SubscribeToClocks();
         }
 
         public async void Dispose()
