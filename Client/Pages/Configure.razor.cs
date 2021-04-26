@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
@@ -8,7 +9,7 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Pages
 {
-    public partial class Configure
+    public partial class Configure : IDisposable
     {
         public StartClockMessage CurrentClockMessage
         {
@@ -41,8 +42,23 @@ namespace Timekeeper.Client.Pages
             if (CurrentEditContext.GetValidationMessages().Count() == 0)
             {
                 Log.LogTrace("Saving");
-                await Host.SaveSession();
+
+                if (!await Host.SaveSession())
+                {
+                    return;
+                }
+
+                await Host.UpdateRemoteHosts(
+                    UpdateAction.UpdateClock,
+                    null,
+                    CurrentClockMessage,
+                    null);
             }
+        }
+
+        private void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            StateHasChanged();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -61,15 +77,19 @@ namespace Timekeeper.Client.Pages
             }
 
             Today = new Days(Log);
-
             Host = Program.ClockToConfigure.Host;
-            CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
-            Program.ClockToConfigure = null;
+            Host.UpdateUi += HandlerUpdateUi;
 
+            CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
             CurrentEditContext = new EditContext(CurrentClockMessage);
             CurrentEditContext.OnValidationStateChanged += CurrentEditContextOnValidationStateChanged;
 
             Log.LogInformation("OnInitialized ->");
+        }
+
+        public void Dispose()
+        {
+            Host.UpdateUi -= HandlerUpdateUi;
         }
     }
 }

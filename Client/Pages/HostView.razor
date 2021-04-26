@@ -91,26 +91,23 @@
                                 </button>
                             }
 
-                            @if (!Handler.CurrentSession.CreatedFromTemplate)
-                            {
-                                <button @onclick="(e => ConfigureClock(clock))"
-                                        title="Configure this clock"
-                                        disabled="@clock.IsConfigDisabled">
-                                    <i class="fa fa-cog"></i>
-                                </button>
-                                <button @onclick="(e => Handler.AddClockAfter(clock))"
-                                        title="Add a clock after this one">
-                                    <i class="fa fa-plus-square"></i>
-                                </button>
+                            <button @onclick="(e => ConfigureClock(clock))"
+                                    title="Configure this clock"
+                                    disabled="@clock.IsConfigDisabled">
+                                <i class="fa fa-cog"></i>
+                            </button>
+                            <button @onclick="(e => Handler.AddClockAfter(clock))"
+                                    title="Add a clock after this one">
+                                <i class="fa fa-plus-square"></i>
+                            </button>
 
-                                @if (Handler.CurrentSession.Clocks.Count > 1)
-                                {
-                                    <button @onclick="(e => Handler.DeleteClock(clock))"
-                                            title="Delete this clock"
-                                            disabled="@clock.IsDeleteDisabled">
-                                        <i class="fa fa-minus-square"></i>
-                                    </button>
-                                }
+                            @if (Handler.CurrentSession.Clocks.Count > 1)
+                            {
+                                <button @onclick="(e => Handler.DeleteClock(clock))"
+                                        title="Delete this clock"
+                                        disabled="@clock.IsConfigDisabled">
+                                    <i class="fa fa-minus-square"></i>
+                                </button>
                             }
 
                             @if (clock.IsSelected)
@@ -207,7 +204,7 @@ else
 <h2 class="@Today.ForegroundClass">Session</h2>
 
     @if (Handler.CurrentSession != null
-  && !Handler.IsInError)
+        && !Handler.IsInError)
     {
         <div class="session-information-area">
             <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -218,24 +215,37 @@ else
         <div class="session-information-area">
             <h3>Connected guests</h3>
 
-            @if (Handler.ConnectedGuests.Count == 0)
+            @if (Handler.ConnectedPeers.Count == 0)
             {
-                <p>There are no connected guests at the moment.</p>
+                <p>There are no connected peers at the moment.</p>
             }
             else
             {
-                <p>There are @Handler.ConnectedGuests.Count connected guest(s).</p>
+                <p>There are @Handler.ConnectedPeers.Count connected peer(s).</p>
 
                 @if (Branding.CanEditSessionAndGuestName)
                 {
-                    <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsGuestListExpanded" @onclick:preventDefault>(@GuestListLinkText)</a></div>
+                    <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsPeersListExpanded" @onclick:preventDefault>(@PeerListLinkText)</a></div>
                 }
             }
 
             @if (Branding.CanEditSessionAndGuestName
-                && IsGuestListExpanded)
+               && IsPeersListExpanded)
             {
-                <ul class="connected-guests-list">
+                <ul class="connected-peers-list">
+                    @if (Handler.AnonymousHosts > 0)
+                    {
+                        <li>@Handler.AnonymousHosts anonymous host(s)</li>
+                    }
+
+                    @if (Handler.NamedHosts != null)
+                    {
+                        foreach (var host in Handler.NamedHosts)
+                        {
+                            <li>@host.DisplayName</li>
+                        }
+                    }
+
                     @if (Handler.AnonymousGuests > 0)
                     {
                         <li>@Handler.AnonymousGuests anonymous guest(s)</li>
@@ -254,37 +264,49 @@ else
         </div>
     }
 
-    @if (Handler.IsDeleteSessionWarningVisible)
-    {
-        <blockquote class="warning">
-            <strong>Deleting the session is irreversible. Are you sure?</strong>
-            <br /><br />
-            If you delete the session and create a new one, all your guests will
-            need to reconnect.
-            <br /><br />
-            <button @onclick="@Handler.DoDeleteSession"
-                    class="small-button">
-                Yes
-            </button>
-            <button @onclick="@Handler.CancelDeleteSession"
-                    class="small-button">
-                No
-            </button>
-        </blockquote>
-    }
-
     <div class="controls-area last-controls-area">
-        <button disabled="@Handler.IsDeleteSessionDisabled"
-                @onclick="@Handler.DeleteSession">
-            Delete the session
-        </button>
-        <button disabled="@Handler.IsCreateNewSessionDisabled"
-                @onclick="@CreateNewSession">
-            Create a new session
-        </button>
-        <button disabled="@Handler.IsDeleteSessionDisabled"
-                @onclick="@LogOut">
-            Log out
-        </button>
+
+        @if (Branding.AllowSessionSelection)
+        { 
+            <button disabled="@Handler.IsModifySessionDisabled"
+                    @onclick="@NavigateToSession">
+                Change the session
+            </button>
+        }
+        else
+        {
+            @if (Handler.IsDeleteSessionWarningVisible)
+            {
+                <blockquote class="warning">
+                    <strong>Deleting the session is irreversible. Are you sure?</strong>
+                    <br /><br />
+                    If you delete the session and create a new one, all your guests will
+                    need to reconnect.
+                    <br /><br />
+                    <button @onclick="@DoDeleteSession"
+                            class="small-button">
+                        Yes
+                    </button>
+                    <button @onclick="@Handler.CancelDeleteSession"
+                            class="small-button">
+                        No
+                    </button>
+                </blockquote>
+            }
+
+            <button disabled="@Handler.IsModifySessionDisabled"
+                    @onclick="@Handler.DeleteSession">
+                Delete the session
+            </button>
+        }
+
+        @if (Branding.MustAuthorize)
+        {
+            <button disabled="@Handler.IsModifySessionDisabled"
+                    @onclick="@LogOut">
+                Log out
+            </button>
+        }
+
     </div>
 }

@@ -15,10 +15,43 @@ namespace Timekeeper.Client.Model
 {
     public class SignalRHost : SignalRHandler
     {
+        private NavigationManager _nav;
+        public const string HostSessionKey = "HostSessionKey";
         public const string StartAllClocksText = "Start all clocks";
         public const string StartSelectedClocksText = "Start selected clocks";
 
-        public IList<GuestMessage> ConnectedGuests
+        protected override string SessionKey => HostSessionKey;
+        protected override string PeerKey => "HostPeer";
+
+        public int AnonymousGuests
+        {
+            get;
+            private set;
+        }
+
+        public int AnonymousHosts
+        {
+            get;
+            private set;
+        }
+
+        public int ConnectedGuests
+        {
+            get
+            {
+                return AnonymousGuests + (NamedGuests == null ? 0 : NamedGuests.Count);
+            }
+        }
+
+        public int ConnectedHosts
+        {
+            get
+            {
+                return AnonymousHosts + (NamedHosts == null ? 0 : NamedHosts.Count);
+            }
+        }
+
+        public IList<PeerMessage> ConnectedPeers
         {
             get;
             private set;
@@ -28,12 +61,6 @@ namespace Timekeeper.Client.Model
         {
             get;
             set;
-        }
-
-        public bool? IsOffline
-        {
-            get;
-            private set;
         }
 
         public bool? IsAuthorized
@@ -48,39 +75,83 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        public bool IsModifySessionDisabled
+        {
+            get;
+            private set;
+        }
+
+        public bool? IsOffline
+        {
+            get;
+            private set;
+        }
+
         public bool IsSendMessageDisabled
         {
             get;
             private set;
         }
 
-        public int AnonymousGuests
+        public IList<PeerMessage> NamedGuests
         {
             get;
             private set;
         }
 
-        public IList<GuestMessage> NamedGuests
+        public IList<PeerMessage> NamedHosts
         {
             get;
             private set;
         }
 
-        protected override string SessionKey => "HostSessionKey";
+        public string StartClocksButtonText
+        {
+            get;
+            private set;
+        }
 
         public SignalRHost(
-            IConfiguration config,
+                    IConfiguration config,
             ILocalStorageService localStorage,
             ILogger log,
-            HttpClient http) : base(config, localStorage, log, http)
+            HttpClient http,
+            NavigationManager nav,
+            SessionHandler session) : base(config, localStorage, log, http, session)
         {
-            ConnectedGuests = new List<GuestMessage>();
+            _nav = nav;
+            ConnectedPeers = new List<PeerMessage>();
             StartClocksButtonText = StartAllClocksText;
+        }
+
+        private async Task<bool> AnnounceName()
+        {
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
+            _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
+
+            var message = new PeerMessage
+            {
+                PeerId = PeerInfo.Message.PeerId,
+                IsHost = true
+            };
+
+            var json = JsonConvert.SerializeObject(message);
+            _log.LogDebug($"json: {json}");
+
+            return await AnnounceNameJson(json);
+        }
+
+        internal void SubscribeToClocks()
+        {
+            foreach (var clock in CurrentSession.Clocks)
+            {
+                clock.CountdownFinished += ClockCountdownFinished;
+            }
         }
 
         private void ClockCountdownFinished(object sender, EventArgs e)
         {
-            _log.LogInformation("-> ClockCountdownFinished");
+            _log.LogInformation("HIGHLIGHT---> ClockCountdownFinished");
 
             var clock = sender as Clock;
 
@@ -90,31 +161,232 @@ namespace Timekeeper.Client.Model
             }
 
             var isAnyClockRunning = IsAnyClockRunning;
-
             _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
+            IsModifySessionDisabled = isAnyClockRunning;
+            clock.ResetDisplay();
+            RaiseUpdateEvent();
+        }
 
-            clock.IsDeleteDisabled = false;
-            clock.IsPlayStopDisabled = false;
-            clock.IsNudgeDisabled = true;
+        private void ClockSelectionChanged(object sender, bool e)
+        {
+            _log.LogInformation("-> ClockSelectionChanged");
 
-            if (isAnyClockRunning)
+            if (CurrentSession.Clocks.Any(c => c.IsSelected))
             {
-                foreach (var anyClock in CurrentSession.Clocks)
-                {
-                    anyClock.IsConfigDisabled = true;
-                }
+                StartClocksButtonText = StartSelectedClocksText;
             }
             else
             {
-                IsDeleteSessionDisabled = false;
-
-                foreach (var anyClock in CurrentSession.Clocks)
-                {
-                    anyClock.IsConfigDisabled = false;
-                }
+                StartClocksButtonText = StartAllClocksText;
             }
 
             RaiseUpdateEvent();
+        }
+
+        private async Task<bool> RequestAnnounce()
+        {
+            _log.LogInformation($"-> {nameof(RequestAnnounce)}");
+
+            var announceUrl = $"{_hostName}/request-announce";
+            _log.LogDebug($"announceUrl: {announceUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, announceUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _log.LogError($"Cannot request guests to announce themselves: {response.ReasonPhrase}");
+                _log.LogInformation($"{nameof(RequestAnnounce)} ->");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void UpdateConnectedPeers(PeerMessage message)
+        {
+            if (message != null)
+            {
+                ConnectedPeers.Add(message);
+            }
+
+            NamedGuests = ConnectedPeers
+                .Where(g => !string.IsNullOrEmpty(g.CustomName)
+                    && g.CustomName != PeerMessage.AnonymousName
+                    && !g.IsHost).ToList();
+
+            AnonymousGuests = ConnectedPeers
+                .Count(g => (string.IsNullOrEmpty(g.CustomName)
+                    || g.CustomName == PeerMessage.AnonymousName)
+                    && !g.IsHost);
+
+            NamedHosts = ConnectedPeers
+                .Where(g => !string.IsNullOrEmpty(g.CustomName)
+                    && g.CustomName != PeerMessage.AnonymousName
+                    && g.IsHost).ToList();
+
+            AnonymousHosts = ConnectedPeers
+                .Count(g => (string.IsNullOrEmpty(g.CustomName)
+                    || g.CustomName == PeerMessage.AnonymousName)
+                    && g.IsHost);
+
+            RaiseUpdateEvent();
+
+            foreach (var guest in ConnectedPeers)
+            {
+                _log.LogDebug($"{guest.CustomName}");
+                _log.LogDebug($"{guest.DisplayName}");
+            }
+        }
+
+        private async Task UpdateLocalHost(string json)
+        {
+            _log.LogInformation("HIGHLIGHT-> SignalRHost.UpdateLocalHost");
+
+            try
+            {
+                var info = JsonConvert.DeserializeObject<UpdateHostInfo>(json);
+
+                _log.LogDebug($"Action: {info.Action}");
+
+                switch (info.Action)
+                {
+                    case UpdateAction.UpdateSessionName:
+                        if (!string.IsNullOrEmpty(info.SessionName))
+                        {
+                            CurrentSession.SessionName = info.SessionName;
+                            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                            RaiseUpdateEvent();
+                        }
+                        return;
+
+                    case UpdateAction.AddClock:
+                        if (info.Clock != null
+                            && info.PreviousClockId != null)
+                        {
+                            var existingClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.Clock.ClockId);
+
+                            if (existingClock != null)
+                            {
+                                return;
+                            }
+
+                            var previousClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.PreviousClockId);
+
+                            if (previousClock == null)
+                            {
+                                _log.LogWarning($"No clocks found for ID {info.PreviousClockId}");
+                                return;
+                            }
+
+                            await AddClockAfter(previousClock, info.Clock);
+                            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                            RaiseUpdateEvent();
+                        }
+                        break;
+
+                    case UpdateAction.DeleteClock:
+                        if (info.Clock != null)
+                        {
+                            var existingClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.Clock.ClockId);
+
+                            if (existingClock != null)
+                            {
+                                existingClock.Message.WasDeleted = true;
+                            }
+
+                            await StopLocalClock(info.Clock.ClockId, true);
+                            await DeleteLocalClock(info.Clock.ClockId);
+                            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                            RaiseUpdateEvent();
+                        }
+                        break;
+
+                    case UpdateAction.UpdateClock:
+                        if (info.Clock != null)
+                        {
+                            var existingClock = CurrentSession.Clocks
+                                .FirstOrDefault(c => c.Message.ClockId == info.Clock.ClockId);
+
+                            if (existingClock != null)
+                            {
+                                await StopLocalClock(info.Clock.ClockId, true);
+                                existingClock.Update(info.Clock, true);
+                                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                                RaiseUpdateEvent();
+                            }
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"Unable to deserialize: {ex.Message}");
+            }
+        }
+
+        internal async Task ResetState()
+        {
+            _session.State = 0;
+            await UnregisterFromPreviousGroup(CurrentSession?.SessionId);
+        }
+
+        public async Task AddClockAfter(
+            Clock previousClock,
+            StartClockMessage newClockMessage = null)
+        {
+            _log.LogInformation("-> SignalRHost.AddClockAfter");
+
+            if (previousClock != null)
+            {
+                var index = CurrentSession.Clocks.IndexOf(previousClock);
+
+                if (index > -1)
+                {
+                    var newClock = new Clock();
+
+                    if (newClockMessage != null)
+                    {
+                        newClock.Update(newClockMessage, true);
+                    }
+                    else
+                    {
+                        newClock.Message.Position = index + 1;
+                    }
+
+                    newClock.SelectionChanged += ClockSelectionChanged;
+                    CurrentSession.Clocks.Insert(index + 1, newClock);
+
+                    if (newClockMessage == null)
+                    {
+                        _log.LogTrace("Updating other hosts");
+                        await UpdateRemoteHosts(
+                            UpdateAction.AddClock,
+                            null,
+                            newClock.Message,
+                            previousClock.Message.ClockId);
+
+                        await _session.Save(CurrentSession, SessionKey, _log);
+                    }
+                }
+
+                for (var clockIndex = 0; clockIndex > CurrentSession.Clocks.Count; clockIndex++)
+                {
+                    CurrentSession.Clocks[clockIndex].Message.Position = clockIndex;
+                }
+            }
+        }
+
+        public void CancelDeleteSession()
+        {
+            _log.LogInformation("-> CancelDeleteSession");
+            IsModifySessionDisabled = false;
+            IsDeleteSessionWarningVisible = false;
         }
 
         public async Task CheckAuthorize()
@@ -125,7 +397,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"versionUrl: {versionUrl}");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, versionUrl);
-            HttpResponseMessage response = null;
+            HttpResponseMessage response;
 
             try
             {
@@ -167,62 +439,61 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task AddClockAfter(Clock clock)
+        public async Task CheckState()
         {
-            var previousClock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
+            _log.LogInformation("-> CheckState");
+            var state = _session.State;
+            _log.LogDebug($"State: {state}");
 
-            if (previousClock != null)
+            await InitializePeerInfo();
+
+            if (state == 0)
             {
-                var index = CurrentSession.Clocks.IndexOf(previousClock);
+                // Nothing yet --> Unregister and delete
+                var session = await _session.GetFromStorage(SessionKey, _log);
 
-                if (index > -1)
+                if (session != null)
                 {
-                    var newClock = new Clock();
-                    newClock.SelectionChanged += ClockSelectionChanged;
-                    newClock.Message.ClockId = Guid.NewGuid().ToString();
-                    CurrentSession.Clocks.Insert(index + 1, newClock);
-                    await CurrentSession.Save(SessionKey, _log);
+                    await UnregisterFromPreviousGroup(session.SessionId);
                 }
 
-                var position = 0;
-
-                foreach (var existingClock in CurrentSession.Clocks)
-                {
-                    existingClock.Message.Position = position;
-                }
+                await _session.DeleteFromStorage(SessionKey, _log);
+                _session.State = 1;
+                _log.LogTrace("Deleted session and set state to 1");
+                return;
             }
         }
 
-        public void CancelDeleteSession()
-        {
-            _log.LogInformation("-> CancelDeleteSession");
-            IsDeleteSessionDisabled = false;
-            IsDeleteSessionWarningVisible = false;
-        }
-
-        public async Task SendInputMessage()
-        {
-            await SendMessage(InputMessage);
-        }
-
-        public override async Task Connect(
-            string templateName = null)
+        public override async Task Connect()
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
             IsBusy = true;
 
             IsSendMessageDisabled = true;
-            IsDeleteSessionDisabled = true;
-            IsCreateNewSessionDisabled = true;
+            IsModifySessionDisabled = true;
 
-            var ok = await InitializeSession(templateName)
-                && await CreateConnection();
+            var ok = await InitializeSession();
+
+            if (!ok)
+            {
+                _log.LogWarning("Interrupt after initializing session");
+                return;
+            }
+
+            _log.LogTrace("Initializing guest info");
+
+            ok = await CreateConnection();
 
             if (ok)
             {
-                _connection.On<string>(Constants.GuestToHostMessageName, ReceiveGuestMessage);
+                _connection.On<string>(Constants.PeerToHostMessageName, ReceiveGuestMessage);
+                _connection.On(Constants.HostToPeerRequestAnnounceMessageName, AnnounceName);
                 _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
+                _connection.On<string>(Constants.HostToPeerMessageName, DisplayReceivedMessage);
+                _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, true));
+                _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, true));
+                _connection.On<string>(Constants.UpdateHostMessageName, UpdateLocalHost);
 
                 ok = await StartConnection();
 
@@ -236,14 +507,16 @@ namespace Timekeeper.Client.Model
                     {
                         clock.IsPlayStopDisabled = false;
                         clock.IsConfigDisabled = false;
-                        clock.IsDeleteDisabled = false;
                         clock.IsNudgeDisabled = true;
                         clock.SelectionChanged += ClockSelectionChanged;
 
                         if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                         {
                             clock.IsClockRunning = true;
-                            _log.LogDebug($"{clock.Message.Label} still active");
+                            _log.LogDebug($"Label: {clock.Message.Label}");
+                            _log.LogDebug($"ServerTime: {clock.Message.ServerTime}");
+                            _log.LogDebug($"CountDown: {clock.Message.CountDown}");
+                            _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
                         }
                     }
 
@@ -269,9 +542,16 @@ namespace Timekeeper.Client.Model
                         // Continue anyway, this is a minor issue
                     }
 
+                    ok = await AnnounceName();
+
+                    if (!ok)
+                    {
+                        IsConnected = false;
+                        DisplayMessage("Error", true);
+                    }
+
                     IsSendMessageDisabled = false;
-                    IsDeleteSessionDisabled = false;
-                    IsCreateNewSessionDisabled = true;
+                    IsModifySessionDisabled = false;
                     IsOffline = false;
                     Status = "Connected, your guests will only see clocks when you start them!";
                 }
@@ -285,13 +565,11 @@ namespace Timekeeper.Client.Model
                     {
                         clock.IsPlayStopDisabled = true;
                         clock.IsConfigDisabled = true;
-                        clock.IsDeleteDisabled = true;
                         clock.IsNudgeDisabled = true;
                     }
 
                     IsSendMessageDisabled = true;
-                    IsDeleteSessionDisabled = false;
-                    IsCreateNewSessionDisabled = true;
+                    IsModifySessionDisabled = false;
                     IsOffline = true;
                     Status = "Cannot connect";
                 }
@@ -306,13 +584,11 @@ namespace Timekeeper.Client.Model
                 {
                     clock.IsPlayStopDisabled = true;
                     clock.IsConfigDisabled = true;
-                    clock.IsDeleteDisabled = true;
                     clock.IsNudgeDisabled = true;
                 }
 
                 IsSendMessageDisabled = true;
-                IsDeleteSessionDisabled = false;
-                IsCreateNewSessionDisabled = true;
+                IsModifySessionDisabled = false;
                 IsOffline = true;
                 Status = "Cannot connect";
             }
@@ -321,68 +597,35 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
-        private async Task<bool> RequestAnnounce()
-        {
-            _log.LogInformation($"-> {nameof(RequestAnnounce)}");
-
-            var announceUrl = $"{_hostName}/request-announce";
-            _log.LogDebug($"announceUrl: {announceUrl}");
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, announceUrl);
-            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-
-            var response = await _http.SendAsync(httpRequest);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _log.LogError($"Cannot request guests to announce themselves: {response.ReasonPhrase}");
-                _log.LogInformation($"{nameof(RequestAnnounce)} ->");
-                return false;
-            }
-
-            return true;
-        }
-
         public async Task DeleteClock(Clock clock)
         {
             clock.CountdownFinished -= ClockCountdownFinished;
             clock.SelectionChanged -= ClockSelectionChanged;
             await DeleteLocalClock(clock.Message.ClockId);
 
-            var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
+            var success = await SaveSession();
 
-            IsDeleteSessionDisabled = isOneClockRunning;
-            IsCreateNewSessionDisabled = isOneClockRunning;
+            if (!success)
+            {
+                return;
+            }
+
+            await UpdateRemoteHosts(
+                UpdateAction.DeleteClock,
+                null,
+                clock.Message,
+                null);
+
+            var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
+            IsModifySessionDisabled = isOneClockRunning;
             _log.LogInformation("DeleteClock ->");
 
-        }
-
-        public string StartClocksButtonText
-        {
-            get;
-            private set;
-        }
-
-        private void ClockSelectionChanged(object sender, bool e)
-        {
-            _log.LogInformation("-> ClockSelectionChanged");
-
-            if (CurrentSession.Clocks.Any(c => c.IsSelected))
-            {
-                StartClocksButtonText = StartSelectedClocksText;
-            }
-            else
-            {
-                StartClocksButtonText = StartAllClocksText;
-            }
-
-            RaiseUpdateEvent();
         }
 
         public void DeleteSession()
         {
             _log.LogInformation("-> DeleteSession");
-            IsDeleteSessionDisabled = true;
+            IsModifySessionDisabled = true;
             IsDeleteSessionWarningVisible = true;
         }
 
@@ -408,24 +651,76 @@ namespace Timekeeper.Client.Model
                 }
             }
 
-            await SessionBase.DeleteFromStorage(SessionKey, _log);
+            await _session.DeleteFromStorage(SessionKey, _log);
             CurrentSession = null;
             _log.LogTrace("CurrentSession is deleted");
 
-            IsDeleteSessionDisabled = true;
-            IsCreateNewSessionDisabled = false;
+            IsModifySessionDisabled = true;
             Status = "Disconnected";
 
             _log.LogInformation("DoDeleteSession ->");
         }
-        
+
+        public async Task<bool> InitializeSession()
+        {
+            _log.LogInformation("-> SignalRHost.InitializeSession");
+
+            CurrentSession = await _session.GetFromStorage(SessionKey, _log);
+
+            if (CurrentSession == null)
+            {
+                _log.LogDebug("Session in storage is Null");
+
+                if (Branding.AllowSessionSelection)
+                {
+                    _nav.NavigateTo("/session");
+                    return false;
+                }
+            }
+            else
+            {
+                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
+            }
+
+            if (CurrentSession == null)
+            {
+                _log.LogTrace("CurrentSession is null");
+
+                CurrentSession = new SessionBase
+                {
+                    BranchId = _config.GetValue<string>(Constants.BranchIdKey)
+                };
+                CurrentSession.Clocks.Add(new Clock());
+
+                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
+                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+                _log.LogTrace("Session saved to storage");
+            }
+
+            foreach (var clock in CurrentSession.Clocks)
+            {
+                _log.LogDebug($"Setting clock {clock.Message.Label}");
+
+                clock.IsPlayStopDisabled = true;
+                clock.IsConfigDisabled = true;
+                clock.IsClockRunning = false;
+                clock.ClockDisplay = clock.Message.CountDown.ToString("c");
+            }
+
+            RaiseUpdateEvent();
+
+            _log.LogInformation("SignalRHost.InitializeSession ->");
+            return true;
+        }
+
         public async Task Nudge(Clock clock, int seconds)
         {
             _log.LogInformation("-> Nudge");
 
             var timespan = TimeSpan.FromSeconds(Math.Abs(seconds));
 
-            var clockInSession = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
+            var clockInSession = CurrentSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
 
             if (clockInSession == null)
             {
@@ -454,183 +749,13 @@ namespace Timekeeper.Client.Model
 
             await StartClock(clock, false); ;
         }
-        
-
-        public async Task<bool> InitializeSession(
-            string templateName = null)
-        {
-            _log.LogInformation("-> SignalRHost.InitializeSession");
-
-            CurrentSession = await SessionBase.GetFromStorage(SessionKey, _log);
-
-            if (CurrentSession == null)
-            {
-                _log.LogDebug("Session in storage is Null");
-            }
-            else
-            {
-                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
-            }
-
-            if (CurrentSession == null
-                && !string.IsNullOrEmpty(templateName))
-            {
-                _log.LogTrace("Checking template");
-
-                var section = _config.GetSection(templateName);
-                var config = section.Get<ClockTemplate>();
-
-                _log.LogDebug($"section found: {section != null}");
-                _log.LogDebug($"config found: {config != null}");
-
-                if (config != null)
-                {
-                    _log.LogDebug($"Found {config.SessionName}");
-                    _log.LogDebug($"Found {config.SessionId}");
-
-                    if (string.IsNullOrEmpty(config.SessionId))
-                    {
-                        config.SessionId = CurrentSession == null 
-                            ? Guid.NewGuid().ToString() 
-                            : CurrentSession.SessionId;
-                    }
-
-                    CurrentSession = new SessionBase
-                    {
-                        CreatedFromTemplate = true,
-                        SessionId = config.SessionId
-                    };
-
-                    if (!string.IsNullOrEmpty(config.SessionName))
-                    {
-                        CurrentSession.SessionName = config.SessionName;
-                    }
-
-                    foreach (var clockInTemplate in config.Clocks)
-                    {
-                        var newClock = new Clock();
-                        _log.LogDebug($"newClock.ClockId: {newClock.Message.ClockId}");
-
-                        if (!string.IsNullOrEmpty(clockInTemplate.Label))
-                        {
-                            newClock.Message.Label = clockInTemplate.Label;
-                            _log.LogDebug($"Clock label {newClock.Message.Label}");
-                        }
-
-                        if (clockInTemplate.AlmostDone != null)
-                        {
-                            if (clockInTemplate.AlmostDone.Time.TotalSeconds > 0)
-                            {
-                                // Almost done
-                                newClock.Message.AlmostDone = clockInTemplate.AlmostDone.Time;
-                                _log.LogDebug($"Clock AlmostDone {newClock.Message.AlmostDone}");
-                            }
-
-                            if (!string.IsNullOrEmpty(clockInTemplate.AlmostDone.Color))
-                            {
-                                // Almost done color
-                                newClock.Message.AlmostDoneColor = clockInTemplate.AlmostDone.Color;
-
-                                if (!clockInTemplate.AlmostDone.Color.StartsWith("#"))
-                                {
-                                    newClock.Message.AlmostDoneColor = "#" + newClock.Message.AlmostDoneColor;
-                                }
-
-                                _log.LogDebug($"Clock AlmostDoneColor {newClock.Message.AlmostDoneColor}");
-                            }
-                        }
-
-                        if (clockInTemplate.PayAttention != null)
-                        {
-                            if (clockInTemplate.PayAttention.Time.TotalSeconds > 0)
-                            {
-                                // Pay attention
-                                newClock.Message.PayAttention = clockInTemplate.PayAttention.Time;
-                                _log.LogDebug($"Clock PayAttention {newClock.Message.PayAttention}");
-                            }
-
-                            if (!string.IsNullOrEmpty(clockInTemplate.PayAttention.Color))
-                            {
-                                // Pay attention color
-                                newClock.Message.PayAttentionColor = clockInTemplate.PayAttention.Color;
-
-                                if (!clockInTemplate.PayAttention.Color.StartsWith("#"))
-                                {
-                                    newClock.Message.PayAttentionColor = "#" + newClock.Message.PayAttentionColor;
-                                }
-
-                                _log.LogDebug($"Clock PayAttentionColor {newClock.Message.PayAttentionColor}");
-                            }
-                        }
-
-                        if (clockInTemplate.Countdown != null)
-                        {
-                            if (clockInTemplate.Countdown.Time.TotalSeconds > 0)
-                            {
-                                // Countdown
-                                newClock.Message.CountDown = clockInTemplate.Countdown.Time;
-
-                                _log.LogDebug($"Clock CountDown {newClock.Message.CountDown}");
-                            }
-
-                            if (!string.IsNullOrEmpty(clockInTemplate.Countdown.Color))
-                            {
-                                _log.LogTrace("Checking countdown color");
-
-                                // Countdown color
-                                newClock.Message.RunningColor = clockInTemplate.Countdown.Color;
-
-                                _log.LogTrace("Checking countdown color");
-
-                                if (!clockInTemplate.Countdown.Color.StartsWith("#"))
-                                {
-                                    newClock.Message.RunningColor = "#" + newClock.Message.RunningColor;
-                                }
-
-                                _log.LogDebug($"Clock RunningColor {newClock.Message.RunningColor}");
-                            }
-                        }
-
-                        CurrentSession.Clocks.Add(newClock);
-                    }
-
-                    await CurrentSession.Save(SessionKey, _log);
-                }
-            }
-
-            if (CurrentSession == null)
-            {
-                _log.LogTrace("CurrentSession is null");
-
-                CurrentSession = new SessionBase();
-                CurrentSession.Clocks.Add(new Clock());
-
-                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
-                await CurrentSession.Save(SessionKey, _log);
-                _log.LogTrace("Session saved to storage");
-            }
-
-            foreach (var clock in CurrentSession.Clocks)
-            {
-                _log.LogDebug($"Setting clock {clock.Message.Label}");
-
-                clock.IsPlayStopDisabled = true;
-                clock.IsConfigDisabled = true;
-                clock.IsDeleteDisabled = true;
-                clock.IsClockRunning = false;
-                clock.ClockDisplay = clock.Message.CountDown.ToString("c");
-            }
-
-            RaiseUpdateEvent();
-
-            _log.LogDebug($"UserID {CurrentSession.UserId}");
-            _log.LogInformation("SignalRHost.InitializeSession ->");
-            return true;
-        }
 
         public bool PrepareClockToConfigure(string clockId)
         {
-            var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
+            _log.LogInformation("-> PrepareClockToConfigure");
+
+            var clock = CurrentSession.Clocks
+                .FirstOrDefault(c => c.Message.ClockId == clockId);
 
             if (clock == null)
             {
@@ -644,36 +769,15 @@ namespace Timekeeper.Client.Model
             };
 
             Program.ClockToConfigure = param;
+            _log.LogInformation("PrepareClockToConfigure ->");
             return true;
-        }
-
-        private void UpdateConnectedGuests(GuestMessage message)
-        {
-            if (message != null)
-            {
-                ConnectedGuests.Add(message);
-            }
-
-            NamedGuests = ConnectedGuests
-                .Where(g => !string.IsNullOrEmpty(g.CustomName) && g.CustomName != GuestMessage.AnonymousName).ToList();
-
-            AnonymousGuests = ConnectedGuests
-                .Count(g => string.IsNullOrEmpty(g.CustomName) || g.CustomName == GuestMessage.AnonymousName);
-
-            RaiseUpdateEvent();
-
-            foreach (var guest in ConnectedGuests)
-            {
-                _log.LogDebug($"{guest.CustomName}");
-                _log.LogDebug($"{guest.DisplayName}");
-            }
         }
 
         public void ReceiveDisconnectMessage(string guestId)
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveDisconnectMessage)}");
             _log.LogDebug($"{nameof(guestId)} {guestId}");
-            _log.LogDebug($"UserId in CurrentSession: {CurrentSession.UserId}");
+            _log.LogDebug($"Local UserId: {PeerInfo.Message.PeerId}");
 
             var success = Guid.TryParse(guestId, out Guid guestGuid);
 
@@ -684,7 +788,7 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == guestId);
+            var existingGuest = ConnectedPeers.FirstOrDefault(g => g.PeerId == guestId);
 
             if (existingGuest == null)
             {
@@ -692,69 +796,87 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
-            ConnectedGuests.Remove(existingGuest);
-            UpdateConnectedGuests(null);
+            ConnectedPeers.Remove(existingGuest);
+            UpdateConnectedPeers(null);
             RaiseUpdateEvent();
             _log.LogInformation($"SignalRHost.{nameof(ReceiveDisconnectMessage)} ->");
         }
 
         public async Task ReceiveGuestMessage(string json)
         {
-            _log.LogInformation($"HIGHLIGHT---> SignalRHost.{nameof(ReceiveGuestMessage)}");
+            _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
             _log.LogDebug(json);
 
-            var messageGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
+            var messagePeer = JsonConvert.DeserializeObject<PeerMessage>(json);
 
-            if (messageGuest == null
-                || string.IsNullOrEmpty(messageGuest.GuestId))
+            if (messagePeer == null
+                || string.IsNullOrEmpty(messagePeer.PeerId))
             {
-                _log.LogWarning($"No GuestId found");
+                _log.LogWarning($"No PeerId found");
                 return;
             }
 
-            _log.LogDebug($"GuestId: {messageGuest.GuestId}");
+            _log.LogDebug($"PeerId: {messagePeer.PeerId}");
 
-            var success = Guid.TryParse(messageGuest.GuestId, out Guid guestGuid);
+            var success = Guid.TryParse(messagePeer.PeerId, out Guid peerId);
 
             if (!success
-                || guestGuid == Guid.Empty)
+                || peerId == Guid.Empty)
             {
-                _log.LogWarning($"GuestId is not a GUID");
+                _log.LogWarning($"PeerId is not a GUID");
                 return;
             }
 
-            var existingGuest = ConnectedGuests.FirstOrDefault(g => g.GuestId == messageGuest.GuestId);
+            if (messagePeer.PeerId == PeerInfo.Message.PeerId)
+            {
+                _log.LogTrace($"Self announce received");
+                return;
+            }
 
-            if (existingGuest == null)
+            var existingPeer = ConnectedPeers.FirstOrDefault(g => g.PeerId == messagePeer.PeerId);
+
+            if (existingPeer == null)
             {
                 _log.LogWarning("No existing guest found");
-                UpdateConnectedGuests(messageGuest);
+                UpdateConnectedPeers(messagePeer);
             }
             else
             {
-                _log.LogDebug($"Existing guest found: Old name {existingGuest.DisplayName}");
-                existingGuest.CustomName = messageGuest.CustomName;
-                UpdateConnectedGuests(null);
-                _log.LogDebug($"Existing guest found: New name {existingGuest.DisplayName}");
+                _log.LogDebug($"Existing peer found: Old name {existingPeer.DisplayName}");
+                existingPeer.CustomName = messagePeer.CustomName;
+                existingPeer.IsHost = messagePeer.IsHost;
+
+                UpdateConnectedPeers(null);
+                _log.LogDebug($"Existing guest found: New name {existingPeer.DisplayName}");
+            }
+
+            // Refresh the clocks and the message (only when a guest registers)
+
+            _log.LogDebug($"messagePeer.IsHost {messagePeer.IsHost}");
+
+            if (!messagePeer.IsHost)
+            {
+                if (IsAnyClockRunning)
+                {
+                    await StartAllClocks(false);
+                }
+
+                await SendMessage(CurrentMessage.Value);
             }
 
             RaiseUpdateEvent();
             _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
+        }
 
-            // Refresh the clocks and the message for everyone
-
-            if (IsAnyClockRunning)
-            {
-                await StartAllClocks(false);
-            }
-
-            await SendMessage(CurrentMessage.Value);
-            _log.LogInformation($"SignalRHost.{nameof(ReceiveGuestMessage)} ->");
+        public async Task SendInputMessage()
+        {
+            await SendMessage(InputMessage);
         }
 
         public async Task SendMessage(string message)
         {
             _log.LogInformation($"-> {nameof(SendMessage)}");
+            _log.LogDebug($"Sender ID: {PeerInfo.Message.PeerId}");
 
             if (string.IsNullOrEmpty(message))
             {
@@ -812,7 +934,7 @@ namespace Timekeeper.Client.Model
                 {
                     Status = "Message sent";
                     CurrentSession.LastMessage = htmlMessage;
-                    await CurrentSession.Save(SessionKey, _log);
+                    await _session.Save(CurrentSession, SessionKey, _log);
                 }
             }
             catch (Exception ex)
@@ -845,6 +967,7 @@ namespace Timekeeper.Client.Model
             bool startFresh)
         {
             _log.LogInformation("-> StartClocks");
+            _log.LogDebug($"Sender ID: {PeerInfo.Message.PeerId}");
             StartClocksButtonText = StartAllClocksText;
 
             var clocksToStart = clocks.ToList();
@@ -894,25 +1017,7 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation($"-> SignalRHost.StartClocks {clocksToStart.Count} clock(s)");
 
-            foreach (var clock in clocksToStart)
-            {
-                if (clock.Message.ConfiguredCountDown.TotalSeconds == 0)
-                {
-                    _log.LogDebug($"saving {clock.Message.CountDown} to configured countdown");
-                    clock.Message.ConfiguredCountDown = clock.Message.CountDown;
-                }
-
-                clock.IsSelected = false;
-                clock.IsPlayStopDisabled = false;
-                clock.IsConfigDisabled = true;
-                clock.IsDeleteDisabled = true;
-                clock.IsNudgeDisabled = false;
-                clock.CountdownFinished -= ClockCountdownFinished;
-                clock.CountdownFinished += ClockCountdownFinished;
-            }
-
-            IsDeleteSessionDisabled = true;
-            IsCreateNewSessionDisabled = true;
+            IsModifySessionDisabled = true;
 
             try
             {
@@ -925,12 +1030,16 @@ namespace Timekeeper.Client.Model
                     }
 
                     // Save so that we can restart the clock if the page is reloaded
-                    await CurrentSession.Save(SessionKey, _log);
+                    await _session.Save(CurrentSession, SessionKey, _log);
                 }
 
                 var json = JsonConvert.SerializeObject(CurrentSession.Clocks
                     .OrderBy(c => c.Message.Position)
-                    .Select(c => c.Message)
+                    .Select(c =>
+                    {
+                        c.Message.SenderId = PeerInfo.Message.PeerId;
+                        return c.Message;
+                    })
                     .ToList());
 
                 var content = new StringContent(json);
@@ -952,22 +1061,17 @@ namespace Timekeeper.Client.Model
                     {
                         RunClock(clock);
                     }
-
-                    foreach (var anyClock in CurrentSession.Clocks)
-                    {
-                        anyClock.IsConfigDisabled = true;
-                    }
                 }
                 else
                 {
                     ErrorStatus = "Unable to communicate with clients";
-                    IsDeleteSessionDisabled = false;
+                    IsModifySessionDisabled = false;
                 }
             }
             catch
             {
                 DisplayMessage("Unable to communicate with clients", true);
-                IsDeleteSessionDisabled = false;
+                IsModifySessionDisabled = false;
             }
         }
 
@@ -976,7 +1080,6 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> StopClock");
 
             await StopLocalClock(clock.Message.ClockId, true);
-            await RestoreClock(clock);
 
             // Notify clients
 
@@ -1007,17 +1110,51 @@ namespace Timekeeper.Client.Model
                 ErrorStatus = "Couldn't reach the guests";
             }
 
+            await _session.Save(CurrentSession, SessionKey, _log);
+
             clock.IsConfigDisabled = false;
-            clock.IsDeleteDisabled = false;
             clock.IsNudgeDisabled = true;
             clock.ResetDisplay();
-            clock.CountdownFinished -= ClockCountdownFinished;
 
-            var isOneClockRunning = CurrentSession.Clocks.Any(c => c.IsClockRunning);
+            IsModifySessionDisabled = IsAnyClockRunning;
 
-            IsDeleteSessionDisabled = isOneClockRunning;
-            IsCreateNewSessionDisabled = !isOneClockRunning;
             _log.LogInformation("StopClock ->");
+        }
+
+        public async Task UpdateRemoteHosts(
+                                                                                                                                    UpdateAction action,
+            string sessionName,
+            StartClockMessage clock,
+            string previousClockId)
+        {
+            _log.LogInformation("-> SignalRHost.UpdateRemoteHosts");
+
+            var info = new UpdateHostInfo
+            {
+                SessionName = sessionName,
+                Clock = clock,
+                PreviousClockId = previousClockId,
+                Action = action
+            };
+
+            var json = JsonConvert.SerializeObject(info);
+
+            var content = new StringContent(json);
+
+            var updateUrl = $"{_hostName}/update";
+            _log.LogDebug($"updateUrl: {updateUrl}");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, updateUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+            httpRequest.Content = content;
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _log.LogError($"Cannot send update: {response.ReasonPhrase}");
+                ErrorStatus = "Error sending update";
+            }
         }
     }
 }

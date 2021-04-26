@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Timekeeper.Client.Model;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.5.6.3")]
+[assembly: AssemblyVersion("0.6.0.0")]
 
 namespace Timekeeper.Client
 {
@@ -44,18 +44,23 @@ namespace Timekeeper.Client
             builder.Logging.AddConfiguration(
                 builder.Configuration.GetSection("Logging"));
 
-            builder.Services
-                .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
-                .AddStaticWebAppsAuthentication();
-
-            builder.Services.AddBlazoredLocalStorage();
-
             builder.Logging
                 .ClearProviders()
                 .AddProvider(new TimekeeperLoggerProvider(new TimekeeperLoggerConfiguration
                 {
                     MinimumLogLevel = LogLevel.Trace
                 }));
+
+            var provider = builder.Services.BuildServiceProvider();
+
+            builder.Services
+                .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
+                .AddStaticWebAppsAuthentication();
+
+            builder.Services.AddBlazoredLocalStorage();
+
+            builder.Services
+                .AddScoped<SessionHandler>();
 
             await builder.Build().RunAsync();
         }

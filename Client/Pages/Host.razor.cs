@@ -10,19 +10,8 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Host : IDisposable
     {
-        [Parameter]
-        public string ResetSession
-        {
-            get;
-            set;
-        }
-
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
-        }
-
-        public Days Today
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask
         {
             get;
             set;
@@ -34,16 +23,34 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string SessionName
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null)
+                {
+                    return "No session";
+                }
+
+                return Handler.CurrentSession.SessionName;
+            }
+        }
+
+        public Days Today
+        {
+            get;
+            set;
+        }
+
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             StateHasChanged();
         }
 
-        [CascadingParameter]
-        private Task<AuthenticationState> AuthenticationStateTask
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            get;
-            set;
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
         }
 
         protected override async Task OnInitializedAsync()
@@ -67,11 +74,21 @@ namespace Timekeeper.Client.Pages
             }
 #endif
 
-            Handler = new SignalRHost(
-                Config,
-                LocalStorage,
-                Log,
-                Http);
+            if (Program.ClockToConfigure == null)
+            {
+                Handler = new SignalRHost(
+                    Config,
+                    LocalStorage,
+                    Log,
+                    Http,
+                    Nav,
+                    Session);
+            }
+            else
+            {
+                Handler = Program.ClockToConfigure.Host;
+                Program.ClockToConfigure.Host = null;
+            }
 
             Log.LogTrace("Check authorization");
             await Handler.CheckAuthorize();
@@ -89,22 +106,14 @@ namespace Timekeeper.Client.Pages
                 return;
             }
 
-            if (ResetSession == "reset")
+            if (Branding.AllowSessionSelection)
             {
-                await Handler.DoDeleteSession();
-                Nav.NavigateTo("/host", true);
-                return;
+                await Handler.CheckState();
             }
 
             Handler.UpdateUi += HandlerUpdateUi;
-            await Handler.Connect(Branding.TemplateName);
-            SessionName = Handler.CurrentSession.SessionName;
-        }
-
-        public string SessionName
-        {
-            get;
-            private set;
+            await Handler.Connect();
+            Handler.SubscribeToClocks();
         }
 
         public async void Dispose()
@@ -114,7 +123,12 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
-                await Handler.Disconnect();
+
+                if (Program.ClockToConfigure == null)
+                {
+                    Log.LogTrace("Disconnecting");
+                    await Handler.Disconnect();
+                }
             }
         }
     }

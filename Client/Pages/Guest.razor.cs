@@ -37,8 +37,14 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public MobileHandler Mobile
+        {
+            get;
+            private set;
+        }
+
         [Parameter]
-        public string Session
+        public string SessionId
         {
             get;
             set;
@@ -72,13 +78,13 @@ namespace Timekeeper.Client.Pages
 
             Today = new Days(Log);
 
-            if (string.IsNullOrEmpty(Session))
+            if (string.IsNullOrEmpty(SessionId))
             {
                 ShowNoSessionMessage = true;
             }
             else
             {
-                var success = Guid.TryParse(Session, out Guid guid);
+                var success = Guid.TryParse(SessionId, out Guid guid);
 
                 if (!success
                     || guid == Guid.Empty)
@@ -96,12 +102,13 @@ namespace Timekeeper.Client.Pages
                         LocalStorage,
                         Log,
                         Http,
+                        SessionId,
                         Session);
 
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
 
-                    GuestName = Handler.GuestInfo.Message.DisplayName;
+                    GuestName = Handler.PeerInfo.Message.DisplayName;
                     Mobile = await new MobileHandler().Initialize(JSRuntime);
 
                     Log.LogDebug($"GuestName: {GuestName}");
@@ -109,12 +116,6 @@ namespace Timekeeper.Client.Pages
             }
 
             Log.LogInformation("OnInitializedAsync ->");
-        }
-
-        public MobileHandler Mobile
-        {
-            get;
-            private set;
         }
 
         public async void Dispose()
@@ -143,9 +144,9 @@ namespace Timekeeper.Client.Pages
             else
             {
                 EditGuestNameLinkText = EditGuestNameText;
-                Handler.GuestInfo.Message.CustomName = GuestName;
-                GuestName = Handler.GuestInfo.Message.DisplayName;
-                await Handler.GuestInfo.Save();
+                Handler.PeerInfo.Message.CustomName = GuestName;
+                GuestName = Handler.PeerInfo.Message.DisplayName;
+                await Handler.SavePeerInfo();
                 await Handler.AnnounceName();
             }
         }

@@ -1,0 +1,84 @@
+﻿@page "/session"
+@inject ILogger<SessionSelection> Log
+@inject IConfiguration Config
+@inject HttpClient Http
+@inject SessionHandler Session   
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Nav
+@inject ILocalStorageService Storage
+
+<header class="@Today.BackgroundClass">
+    <img src="@Today.ImagePath"
+         class="logo-image" />
+</header>
+
+<main>
+    <article>
+        <h1 class="@Today.ForegroundClass">@Branding.SessionPageTitle</h1>
+
+        @if (Session.CloudSessions == null)
+        {
+            <blockquote>Loading...</blockquote>
+        }
+        else
+        {
+            @if (Session.CloudSessions.Count == 0)
+            {
+                <blockquote class="warning">No sessions found in cloud storage. Create a new one below.</blockquote>
+            }
+            else
+            {
+                <h2>Select a session</h2>
+
+                <ul>
+                    @foreach (var session in Session.CloudSessions.OrderBy(s => s.SessionName))
+                    {
+                        <li>
+                            @*<button class="session-button"
+                                    title="Delete this session"><i class="fa fa-trash"></i></button>*@
+                            <button class="session-button"
+                                    title="Duplicate this session"
+                                    
+                                    @onclick="@(e => Duplicate(session.SessionId))"><i class="fa fa-clone"></i></button>
+
+                            <a href="#"
+                               title="Select this session"
+                               @onclick="(e => SelectSession(session.SessionId))"
+                               @onclick:preventDefault>@session.SessionName</a>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+
+        @if (Session.State >= 1)
+        {
+            <h2 class="@Today.ForegroundClass">Create a new session</h2>
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <blockquote class="error">@ErrorMessage</blockquote>
+            }
+
+            <div class="session-edit-area">
+                <EditForm EditContext="@Session.NewSessionEditContext">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <p class="form-label">Session name</p>
+
+                    <InputText @bind-Value="Session.NewSession.SessionName"
+                               class="session-edit" />
+                    <br />
+                    <button @onclick="@CheckSetNewSession">Create</button>
+
+                </EditForm>
+            </div>
+        }
+
+    </article>
+</main>
+
+<footer>
+    <div class="status-message"><span class="error-message">@Session.ErrorStatus</span><span>@Session.Status</span></div>
+</footer>
