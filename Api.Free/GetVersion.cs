@@ -17,7 +17,7 @@ namespace Timekeeper
                 Route = "version")] HttpRequest req,
             ILogger log)
         {
-            return new OkObjectResult("0.6.0.0");
+            return new OkObjectResult("0.6.8888.0");
         }
     }
 }
