@@ -1,14 +1,14 @@
-name: SAFE Non secured API deploy
+name: BETA Non secured API deploy
 
 on:
   push:
     branches:
-    - Safe
+    - Beta
     paths:
     - 'Api.Free/**'
   pull_request:
     branches:
-    - Safe
+    - Beta
     paths:
     - 'Api.Free/**'
 
@@ -43,4 +43,4 @@ jobs:
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_SAFE }}
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_BETA }}
