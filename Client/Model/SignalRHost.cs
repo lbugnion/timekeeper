@@ -143,6 +143,11 @@ namespace Timekeeper.Client.Model
 
         internal void SubscribeToClocks()
         {
+            if (CurrentSession == null)
+            {
+                return;
+            }
+
             foreach (var clock in CurrentSession.Clocks)
             {
                 clock.CountdownFinished += ClockCountdownFinished;
