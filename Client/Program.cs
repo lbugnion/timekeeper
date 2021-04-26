@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Timekeeper.Client.Model;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.6.0.0")]
+[assembly: AssemblyVersion("0.6.9999.0")]
 
 namespace Timekeeper.Client
 {
@@ -21,6 +21,19 @@ namespace Timekeeper.Client
         {
             get;
             internal set;
+        }
+
+        public static bool IsBeta
+        {
+            get
+            {
+                var version = Assembly
+                    .GetExecutingAssembly()
+                    .GetName()
+                    .Version;
+
+                return version.Build == 9999;
+            }
         }
 
         public static bool IsExperimental

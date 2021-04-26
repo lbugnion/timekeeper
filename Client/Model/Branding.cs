@@ -15,7 +15,7 @@
     {
         public const string AboutPageTitle = "Hello World Backstage: About";
         public const bool AllowSessionSelection = true;
-        public const bool CanEditSessionAndGuestName = false;
+        public const bool CanEditGuestName = false;
         public const string ConfigurePageTitle = "Hello World Backstage: Configure";
         public const string GuestPageTitle = "Welcome Backstage!";
         public const string HostPageTitle = "Welcome Backstage!";

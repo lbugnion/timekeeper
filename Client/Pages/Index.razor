@@ -19,6 +19,11 @@
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
         }
 
+        @if (Program.IsBeta)
+        {
+            <blockquote class="warning"><strong>BETA:</strong> This is the beta version of Timekeeper. <a href="https://github.com/lbugnion/timekeeper/issues">Please report issues here</a>. You can find the <a href="http://www.timekeeper.cloud">stable version of Timekeeper here</a>.</blockquote>
+        }
+
         <blockquote>
             Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
             <br /><br />

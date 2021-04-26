@@ -21,6 +21,12 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string Beta
+        {
+            get;
+            private set;
+        }
+
         public Days Today
         {
             get;
@@ -48,6 +54,18 @@ namespace Timekeeper.Client.Pages
                 Log.LogDebug($"Full version: {version}");
                 ClientVersion = $"V{version.ToString(4)}";
                 Log.LogDebug($"clientVersion: {ClientVersion}");
+
+                if (version.Build == 8888)
+                {
+                    ClientVersion = $"V{version.ToString(2)}";
+                    Beta = "Alpha";
+                }
+
+                if (version.Build == 9999)
+                {
+                    ClientVersion = $"V{version.ToString(2)}";
+                    Beta = "Beta";
+                }
 
                 var environment = Config.GetValue<string>("Environment");
                 if (environment == "Production")

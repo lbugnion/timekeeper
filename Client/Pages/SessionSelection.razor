@@ -80,5 +80,21 @@
 </main>
 
 <footer>
-    <div class="status-message"><span class="error-message">@Session.ErrorStatus</span><span>@Session.Status</span></div>
+    @if (Branding.MustAuthorize)
+    {
+        <AuthorizeView>
+            <Authorized>
+                <div class="status-message"><span class="error-message">@Session.ErrorStatus</span><span>@Session.Status</span></div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="status-message error-message">Please log in</div>
+            </NotAuthorized>
+        </AuthorizeView>
+    }
+    else
+    {
+        <div class="status-message"><span class="error-message">@Session.ErrorStatus</span><span>@Session.Status</span></div>
+    }
+
+    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>
