@@ -28,7 +28,7 @@
             }
             else
             {
-                <h2>Select a session</h2>
+                <h2 class="@Today.ForegroundClass">Select a session</h2>
 
                 <ul>
                     @foreach (var session in Session.CloudSessions.OrderBy(s => s.SessionName))
@@ -79,7 +79,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Today.FooterClass">
     @if (Branding.MustAuthorize)
     {
         <AuthorizeView>

@@ -18,7 +18,6 @@
         public const bool CanEditGuestName = false;
         public const string ConfigurePageTitle = "Hello World Backstage: Configure";
         public const string GuestPageTitle = "Welcome Backstage!";
-        public const string HostPageTitle = "Welcome Backstage!";
         public const string LoginPageTitle = "Hello World Backstage: Login";
         public const string MainPageTitle = "Hello World Backstage";
         public const string SessionPageTitle = "Hello World Backstage: Sessions";
