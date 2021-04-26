@@ -71,6 +71,23 @@ namespace Timekeeper.Client.Pages
                 return;
             }
 
+#if !DEBUG
+            if (Branding.MustAuthorize)
+            {
+                var authState = await AuthenticationStateTask;
+
+                if (authState == null
+                    || authState.User == null
+                    || authState.User.Identity == null
+                    || !authState.User.Identity.IsAuthenticated)
+                {
+                    Log.LogWarning("Unauthenticated");
+                    Nav.NavigateTo("/host");
+                    return;
+                }
+            }
+#endif
+
             Session.InitializeContext(Log);
             await Session.GetSessions(Log);
             Log.LogInformation("OnInitializedAsync ->");

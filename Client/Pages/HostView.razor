@@ -4,8 +4,8 @@
 @inject IJSRuntime JSRuntime
 
 @if (Handler.CurrentSession != null
-  && Handler.IsAuthorized != null
-  && Handler.IsAuthorized.Value)
+ && Handler.IsAuthorized != null
+ && Handler.IsAuthorized.Value)
 {
     @if (IsEditingSessionName)
     {
@@ -24,6 +24,11 @@
     @if (Program.IsExperimental)
     {
         <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+    }
+
+    @if (Program.IsBeta)
+    {
+        <blockquote class="warning"><strong>BETA:</strong> This is the beta version of Timekeeper. <a href="https://github.com/lbugnion/timekeeper/issues">Please report issues here</a>. You can find the <a href="http://www.timekeeper.cloud">stable version of Timekeeper here</a>.</blockquote>
     }
 
     <ul id="listofclocks">
@@ -152,7 +157,7 @@ else
 }
 
 @if (Handler.IsAuthorized != null
-    && Handler.IsAuthorized.Value)
+   && Handler.IsAuthorized.Value)
 {
     <div class="message-area">
         <p><span class="message-text">@Handler.CurrentMessage</span></p>
@@ -180,7 +185,7 @@ else
             </button>
 
             @if (Mobile != null
-                && Mobile.IsNoSleepVisible)
+               && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
@@ -196,7 +201,7 @@ else
     <h2>Session</h2>
 
     @if (Handler.CurrentSession != null
-        && !Handler.IsInError)
+       && !Handler.IsInError)
     {
         <div class="session-information-area">
             <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -222,7 +227,7 @@ else
             }
 
             @if (Branding.CanEditGuestName
-              && IsPeersListExpanded)
+             && IsPeersListExpanded)
             {
                 <ul class="connected-peers-list">
                     @if (Handler.AnonymousHosts > 0)
@@ -259,7 +264,7 @@ else
     <div class="controls-area last-controls-area">
 
         @if (Branding.AllowSessionSelection)
-        { 
+        {
             <button disabled="@Handler.IsModifySessionDisabled"
                     @onclick="@NavigateToSession">
                 Change the session
