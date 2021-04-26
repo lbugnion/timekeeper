@@ -21,8 +21,8 @@
         public const string HostPageTitle = "Timekeeper Host Page";
         public const string LoginPageTitle = "Timekeeper: Login";
         public const string MainPageTitle = "Timekeeper";
-        public const bool MustAuthorize = false;
         public const string SessionPageTitle = "Timekeeper: Sessions";
         public const string WindowTitle = "Timekeeper";
+        public const bool MustAuthorize = false;
     }
 }
