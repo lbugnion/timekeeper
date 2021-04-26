@@ -7,27 +7,19 @@
   && Handler.IsAuthorized != null
   && Handler.IsAuthorized.Value)
 {
-    @if (Branding.CanEditSessionAndGuestName)
+    @if (IsEditingSessionName)
     {
-        @if (IsEditingSessionName)
-        {
-            <input class="h1-edit-field" @bind-value="@SessionName" />
-        }
-        else
-        {
-            <h1>@SessionName</h1>
-        }
-
-        @if (!Handler.IsBusy)
-        {
-            <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
-        }
+        <input class="h1-edit-field" @bind-value="@SessionName" />
     }
     else
     {
-        <h1>@Branding.HostPageTitle</h1>
+        <h1>@SessionName</h1>
     }
 
+    @if (!Handler.IsBusy)
+    {
+        <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
+    }
 
     @if (Program.IsExperimental)
     {
@@ -223,14 +215,14 @@ else
             {
                 <p>There are @Handler.ConnectedPeers.Count connected peer(s).</p>
 
-                @if (Branding.CanEditSessionAndGuestName)
+                @if (Branding.CanEditGuestName)
                 {
                     <div class="edit-link" style="margin-top: -10px;"><a href="#" @onclick="ToggleIsPeersListExpanded" @onclick:preventDefault>(@PeerListLinkText)</a></div>
                 }
             }
 
-            @if (Branding.CanEditSessionAndGuestName
-               && IsPeersListExpanded)
+            @if (Branding.CanEditGuestName
+              && IsPeersListExpanded)
             {
                 <ul class="connected-peers-list">
                     @if (Handler.AnonymousHosts > 0)
