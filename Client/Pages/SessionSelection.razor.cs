@@ -1,11 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class SessionSelection
     {
+        [CascadingParameter]
+        private Task<AuthenticationState> AuthenticationStateTask
+        {
+            get;
+            set;
+        }
+
         public string ErrorMessage
         {
             get;
