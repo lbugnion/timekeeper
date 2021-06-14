@@ -78,6 +78,8 @@ namespace Timekeeper.Client.Pages
 
             Today = new Days(Log);
 
+            return;
+
             if (string.IsNullOrEmpty(SessionId))
             {
                 ShowNoSessionMessage = true;

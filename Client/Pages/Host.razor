@@ -11,15 +11,15 @@
     <img src="@Today.ImagePath"
          class="logo-image" />
 
-    @if (Branding.MustAuthorize)
+    @*@if (Branding.MustAuthorize)
     {
         <AuthorizeView>
             <Authorized>
                 @if (Handler != null
-                  && Handler.IsAuthorized != null
-                  && Handler.IsAuthorized.Value
-                  && Handler.IsOffline != null
-                  && !Handler.IsOffline.Value)
+                 && Handler.IsAuthorized != null
+                 && Handler.IsAuthorized.Value
+                 && Handler.IsOffline != null
+                 && !Handler.IsOffline.Value)
                 {
                     <div class="connected-peers">
                         @Handler.ConnectedPeers.Count peer(s)
@@ -31,19 +31,19 @@
     else
     {
         @if (Handler != null
-          && Handler.IsOffline != null
-          && !Handler.IsOffline.Value)
+         && Handler.IsOffline != null
+         && !Handler.IsOffline.Value)
         {
             <div class="connected-peers">
                 @Handler.ConnectedPeers.Count peer(s)
             </div>
         }
-    }
+    }*@
 
 </header>
 
 <main>
-    @if (Branding.MustAuthorize)
+    @*@if (Branding.MustAuthorize)
     {
         <AuthorizeView>
             <Authorized>
@@ -72,10 +72,16 @@
                 </button>
             </div>
         }
-    }
+    }*@
 
     <article>
-        @if (Branding.MustAuthorize)
+        <blockquote class="warning">
+            The beta branch is not used anymore. For the Hello World Timekeeper production site, <a href="http://helloworld.timekeeper.cloud/">please click here</a>.
+            <br /><br />
+            If you need authorization, contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+        </blockquote>
+
+        @*@if (Branding.MustAuthorize)
         {
             <AuthorizeView>
                 <NotAuthorized>
@@ -129,28 +135,29 @@
                               SessionName="@SessionName" />
                 }
             }
-        }
+        }*@
 
     </article>
 </main>
 
 <footer class="@Today.FooterClass">
-    @if (Branding.MustAuthorize)
-    {
-        <AuthorizeView>
-            <Authorized>
-                <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="status-message error-message">Please log in</div>
-            </NotAuthorized>
-        </AuthorizeView>
-    }
-    else
-    {
-        <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
-    }
+    @*@if (Branding.MustAuthorize)
+        {
+            <AuthorizeView>
+                <Authorized>
+                    <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="status-message error-message">Please log in</div>
+                </NotAuthorized>
+            </AuthorizeView>
+        }
+        else
+        {
+            <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+        }*@
 
+    <div class="status-message error-message">Beta only</div>
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>
 

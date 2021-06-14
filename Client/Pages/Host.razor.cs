@@ -58,6 +58,8 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("-> Host.OnInitializedAsync");
             Today = new Days(Log);
 
+            return;
+
 #if !DEBUG
             if (Branding.MustAuthorize)
             {
