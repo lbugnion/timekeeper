@@ -4,6 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Timekeeper.DataModel;
 
 namespace Timekeeper
 {
@@ -18,7 +19,7 @@ namespace Timekeeper
             HttpRequest req,
             ILogger log)
         {
-            return new OkObjectResult("0.6.0.0");
+            return new OkObjectResult(Constants.Version);
         }
     }
 }

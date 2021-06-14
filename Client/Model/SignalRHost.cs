@@ -488,100 +488,85 @@ namespace Timekeeper.Client.Model
 
             _log.LogTrace("Initializing guest info");
 
-            ok = await CreateConnection();
-
-            if (ok)
+            if (_connection == null)
             {
-                _connection.On<string>(Constants.PeerToHostMessageName, ReceiveGuestMessage);
-                _connection.On(Constants.HostToPeerRequestAnnounceMessageName, AnnounceName);
-                _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
-                _connection.On<string>(Constants.HostToPeerMessageName, DisplayReceivedMessage);
-                _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, true));
-                _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, true));
-                _connection.On<string>(Constants.UpdateHostMessageName, UpdateLocalHost);
-
-                ok = await StartConnection();
+                ok = await CreateConnection();
 
                 if (ok)
                 {
-                    _log.LogTrace("CreateConnection and StartConnection OK");
+                    _connection.On<string>(Constants.PeerToHostMessageName, ReceiveGuestMessage);
+                    _connection.On(Constants.HostToPeerRequestAnnounceMessageName, AnnounceName);
+                    _connection.On<string>(Constants.DisconnectMessage, ReceiveDisconnectMessage);
+                    _connection.On<string>(Constants.HostToPeerMessageName, DisplayReceivedMessage);
+                    _connection.On<string>(Constants.StartClockMessageName, s => ReceiveStartClock(s, true));
+                    _connection.On<string>(Constants.StopClockMessage, s => StopLocalClock(s, true));
+                    _connection.On<string>(Constants.UpdateHostMessageName, UpdateLocalHost);
 
-                    IsConnected = true;
+                    ok = await StartConnection();
+                }
+            }
 
-                    foreach (var clock in CurrentSession.Clocks)
+            if (ok)
+            {
+                _log.LogTrace("CreateConnection and StartConnection OK");
+
+                IsConnected = true;
+
+                foreach (var clock in CurrentSession.Clocks)
+                {
+                    clock.IsPlayStopDisabled = false;
+                    clock.IsConfigDisabled = false;
+                    clock.IsNudgeDisabled = true;
+                    clock.SelectionChanged += ClockSelectionChanged;
+
+                    if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
                     {
-                        clock.IsPlayStopDisabled = false;
-                        clock.IsConfigDisabled = false;
-                        clock.IsNudgeDisabled = true;
-                        clock.SelectionChanged += ClockSelectionChanged;
-
-                        if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
-                        {
-                            clock.IsClockRunning = true;
-                            _log.LogDebug($"Label: {clock.Message.Label}");
-                            _log.LogDebug($"ServerTime: {clock.Message.ServerTime}");
-                            _log.LogDebug($"CountDown: {clock.Message.CountDown}");
-                            _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
-                        }
+                        clock.IsClockRunning = true;
+                        _log.LogDebug($"Label: {clock.Message.Label}");
+                        _log.LogDebug($"ServerTime: {clock.Message.ServerTime}");
+                        _log.LogDebug($"CountDown: {clock.Message.CountDown}");
+                        _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
                     }
+                }
 
-                    await StartClocks(CurrentSession.Clocks.Where(c => c.IsClockRunning).ToList(), false);
+                await StartClocks(CurrentSession.Clocks.Where(c => c.IsClockRunning).ToList(), false);
 
-                    _log.LogDebug($"CurrentSession.LastMessage: {CurrentSession.LastMessage}");
+                _log.LogDebug($"CurrentSession.LastMessage: {CurrentSession.LastMessage}");
 
-                    if (string.IsNullOrEmpty(CurrentSession.LastMessage))
-                    {
-                        DisplayMessage("Ready", false);
-                    }
-                    else
-                    {
-                        DisplayMessage(CurrentSession.LastMessage, false);
-                    }
-
-                    // Request all guests to announce themselves so we can have a correct count
-                    var result = await RequestAnnounce();
-
-                    if (!result)
-                    {
-                        _log.LogWarning("Couldn't get an existing guest count");
-                        // Continue anyway, this is a minor issue
-                    }
-
-                    ok = await AnnounceName();
-
-                    if (!ok)
-                    {
-                        IsConnected = false;
-                        DisplayMessage("Error", true);
-                    }
-
-                    IsSendMessageDisabled = false;
-                    IsModifySessionDisabled = false;
-                    IsOffline = false;
-                    Status = "Connected, your guests will only see clocks when you start them!";
+                if (string.IsNullOrEmpty(CurrentSession.LastMessage))
+                {
+                    DisplayMessage("Ready", false);
                 }
                 else
                 {
-                    _log.LogTrace("StartConnection NOT OK");
-
-                    IsConnected = false;
-
-                    foreach (var clock in CurrentSession.Clocks)
-                    {
-                        clock.IsPlayStopDisabled = true;
-                        clock.IsConfigDisabled = true;
-                        clock.IsNudgeDisabled = true;
-                    }
-
-                    IsSendMessageDisabled = true;
-                    IsModifySessionDisabled = false;
-                    IsOffline = true;
-                    Status = "Cannot connect";
+                    DisplayMessage(CurrentSession.LastMessage, false);
                 }
+
+                // Request all guests to announce themselves so we can have a correct count
+                var result = await RequestAnnounce();
+
+                if (!result)
+                {
+                    _log.LogWarning("Couldn't get an existing guest count");
+                    // Continue anyway, this is a minor issue
+                }
+
+                ok = await AnnounceName();
+
+                if (!ok)
+                {
+                    IsConnected = false;
+                    DisplayMessage("Error", true);
+                }
+
+                IsSendMessageDisabled = false;
+                IsModifySessionDisabled = false;
+                IsOffline = false;
+                Status = "Connected, your guests will only see clocks when you start them!";
             }
             else
             {
-                _log.LogTrace("CreateConnection NOT OK");
+                _log.LogTrace("StartConnection NOT OK");
 
                 IsConnected = false;
 
