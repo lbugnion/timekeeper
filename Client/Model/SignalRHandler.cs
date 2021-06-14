@@ -430,7 +430,7 @@ namespace Timekeeper.Client.Model
                 var senderId = clockMessages.First().SenderId;
                 if (senderId == PeerInfo.Message.PeerId)
                 {
-                    _log.LogTrace("Self start clock received");
+                    _log.LogTrace("HIGHLIGHT--Self start clock received");
                     return;
                 }
             }
