@@ -8,9 +8,10 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
+using Timekeeper.DataModel;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.6.9999.0")]
+[assembly: AssemblyVersion(Constants.Version)]
 
 namespace Timekeeper.Client
 {
