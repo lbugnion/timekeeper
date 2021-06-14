@@ -249,7 +249,7 @@ blockquote {
         font-weight: bold;
     }
 
-.connected-guests {
+.connected-peers {
     float: right;
     margin-right: 30px;
     margin-top: -5px;
@@ -257,7 +257,7 @@ blockquote {
     color: white;
 }
 
-.connected-guests-list {
+.connected-peers-list {
     margin-bottom: 20px;
 }
 
@@ -339,6 +339,24 @@ li.validation-message {
         margin-top: 4px;
         margin-bottom: 5px;
     }
+
+/* Session configuration */
+
+.session-button {
+    width: 40px;
+    height: 30px;
+    font-size: 22px;
+}
+
+.session-edit {
+    width: 400px;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.session-edit-area button {
+    font-size: 1.5em;
+}
 
 /* Responsive */
 

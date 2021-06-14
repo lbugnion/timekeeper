@@ -13,17 +13,17 @@ namespace Timekeeper.Client.Model
             private set;
         }
 
+        public void EnableNoSleep()
+        {
+            _js.InvokeVoidAsync("nosleep.enableDisableNoSleep", true);
+            IsNoSleepVisible = false;
+        }
+
         public async Task<MobileHandler> Initialize(IJSRuntime js)
         {
             _js = js;
             IsNoSleepVisible = await _js.InvokeAsync<bool>("nosleep.isMobile");
             return this;
-        }
-
-        public void EnableNoSleep()
-        {
-            _js.InvokeVoidAsync("nosleep.enableDisableNoSleep", true);
-            IsNoSleepVisible = false;
         }
     }
 }

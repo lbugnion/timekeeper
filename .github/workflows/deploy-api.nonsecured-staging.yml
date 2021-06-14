@@ -6,11 +6,15 @@ on:
     - Test
     paths:
     - 'Api.Free/**'
+    - 'Timekeeper.DataModel/**'
+    - 'Timekeeper.DataModel.Standard/**'
   pull_request:
     branches:
     - Test
     paths:
     - 'Api.Free/**'
+    - 'Timekeeper.DataModel/**'
+    - 'Timekeeper.DataModel.Standard/**'
 
   workflow_dispatch:
 

@@ -1,11 +1,11 @@
 ﻿using System;
-using Timekeeper.DataModel;
 
-namespace Timekeeper.Client.Model
+namespace Timekeeper.DataModel
 {
     public class Clock
     {
         public event EventHandler CountdownFinished;
+
         public event EventHandler<bool> SelectionChanged;
 
         public const string DefaultAlmostDoneColor = "#FF6B77";
@@ -35,40 +35,28 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        public bool IsSelected
+        public bool IsConfigDisabled
         {
             get;
             set;
         }
 
-        public void ToggleSelect()
+        public bool IsNudgeDisabled
         {
-            IsSelected = !IsSelected;
-            SelectionChanged?.Invoke(this, IsSelected);
+            get;
+            set;
         }
 
         public bool IsPlayStopDisabled
         {
             get;
-            internal set;
+            set;
         }
 
-        public bool IsConfigDisabled
+        public bool IsSelected
         {
             get;
-            internal set;
-        }
-
-        public bool IsDeleteDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsNudgeDisabled
-        {
-            get;
-            internal set;
+            set;
         }
 
         public StartClockMessage Message
@@ -132,6 +120,34 @@ namespace Timekeeper.Client.Model
         public void Restore(Clock clockInSavedSession)
         {
             Message = clockInSavedSession.Message;
+        }
+
+        public void ToggleSelect()
+        {
+            IsSelected = !IsSelected;
+            SelectionChanged?.Invoke(this, IsSelected);
+        }
+
+        public void Update(
+            StartClockMessage model,
+            bool copyIdToo)
+        {
+            Message.AlmostDone = model.AlmostDone;
+            Message.AlmostDoneColor = model.AlmostDoneColor;
+            Message.CountDown = model.CountDown;
+            Message.Label = model.Label;
+            Message.PayAttention = model.PayAttention;
+            Message.PayAttentionColor = model.PayAttentionColor;
+            Message.Position = model.Position;
+            Message.RunningColor = model.RunningColor;
+            Message.ServerTime = model.ServerTime;
+            Message.Position = model.Position;
+
+            if (copyIdToo)
+            {
+                Message.ClockId = model.ClockId;
+                ResetDisplay();
+            }
         }
     }
 }

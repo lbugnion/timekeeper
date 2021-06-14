@@ -1,11 +1,11 @@
 ﻿@page "/host"
-@page "/host/{ResetSession}"
 @inject HttpClient Http
 @inject ILogger<Host> Log
 @inject IConfiguration Config
-@inject ILocalStorageService LocalStorage
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
+@inject SessionHandler Session
+@inject ILocalStorageService LocalStorage
 
 <header>
     <img src="images/header-logo.png"
@@ -16,13 +16,13 @@
         <AuthorizeView>
             <Authorized>
                 @if (Handler != null
-                    && Handler.IsAuthorized != null
-                    && Handler.IsAuthorized.Value
-                    && Handler.IsOffline != null
-                    && !Handler.IsOffline.Value)
+                  && Handler.IsAuthorized != null
+                  && Handler.IsAuthorized.Value
+                  && Handler.IsOffline != null
+                  && !Handler.IsOffline.Value)
                 {
-                    <div class="connected-guests">
-                        @Handler.ConnectedGuests.Count guest(s)
+                    <div class="connected-peers">
+                        @Handler.ConnectedPeers.Count peer(s)
                     </div>
                 }
             </Authorized>
@@ -31,11 +31,11 @@
     else
     {
         @if (Handler != null
-            && Handler.IsOffline != null
-            && !Handler.IsOffline.Value)
+          && Handler.IsOffline != null
+          && !Handler.IsOffline.Value)
         {
-            <div class="connected-guests">
-                @Handler.ConnectedGuests.Count guest(s)
+            <div class="connected-peers">
+                @Handler.ConnectedPeers.Count peer(s)
             </div>
         }
     }
@@ -48,9 +48,9 @@
         <AuthorizeView>
             <Authorized>
                 @if (Handler.IsAuthorized != null
-                   && Handler.IsAuthorized.Value
-                   && Handler.IsOffline != null
-                   && !Handler.IsOffline.Value)
+                 && Handler.IsAuthorized.Value
+                 && Handler.IsOffline != null
+                 && !Handler.IsOffline.Value)
                 {
                     <div class="start-all-clocks-area">
                         <button @onclick="(e => Handler.StartAllClocks(true))">
@@ -64,7 +64,7 @@
     else
     {
         @if (Handler.IsOffline != null
-          && !Handler.IsOffline.Value)
+        && !Handler.IsOffline.Value)
         {
             <div class="start-all-clocks-area">
                 <button @onclick="(e => Handler.StartAllClocks(true))">
@@ -84,31 +84,49 @@
                     </blockquote>
                 </NotAuthorized>
                 <Authorized>
-                    <HostView Handler="@Handler"
-                              SessionName="@SessionName" />
+                    @if (Handler.IsOffline == null)
+                    {
+                        <blockquote>
+                            Please wait...
+                        </blockquote>
+                    }
+                    else
+                    {
+                        @if (Handler.IsOffline.Value)
+                        {
+                            <blockquote class="error">
+                                Cannot communicate with functions. Please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                            </blockquote>
+                        }
+                        else
+                        {
+                            <HostView Handler="@Handler"
+                                      SessionName="@SessionName" />
+                        }
+                    }
                 </Authorized>
             </AuthorizeView>
         }
         else
         {
             @if (Handler.IsOffline == null)
-            { 
+            {
                 <blockquote>
                     Please wait...
                 </blockquote>
             }
-            else 
+            else
             {
                 @if (Handler.IsOffline.Value)
-                { 
+                {
                     <blockquote class="error">
                         Cannot communicate with functions. Please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
                     </blockquote>
                 }
-                else 
-                { 
+                else
+                {
                     <HostView Handler="@Handler"
-                                SessionName="@SessionName" />
+                              SessionName="@SessionName" />
                 }
             }
         }

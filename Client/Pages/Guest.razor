@@ -1,10 +1,11 @@
 ﻿@page "/guest"
-@page "/guest/{Session}"
+@page "/guest/{SessionId}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
 @inject IJSRuntime JSRuntime
+@inject SessionHandler Session
 
 <header>
     <img src="images/header-logo.png"
@@ -23,7 +24,7 @@
         }
         else
         {
-            @if (Branding.CanEditSessionAndGuestName)
+            @if (Branding.CanEditGuestName)
             {
                 @if (IsEditingGuestName)
                 {
@@ -50,7 +51,7 @@
             }
 
             @if (Handler.CurrentSession == null
-                || Handler.CurrentSession.Clocks.Count == 0)
+               || Handler.CurrentSession.Clocks.Count == 0)
             {
                 <blockquote class="no-clocks-no-session">
                     Clocks will appear here when the Host starts them. Stay tuned!!
@@ -76,7 +77,7 @@
             </div>
 
             @if (Mobile != null
-               && Mobile.IsNoSleepVisible)
+              && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
