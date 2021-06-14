@@ -1,9 +1,9 @@
-name: HELLOWORLD Deploy client and API to static web
+name: HELLOWORLD BETA Deploy client and API to static web
 
 on:
   push:
     branches:
-      - HelloWorld
+      - HelloWorld-Beta
     paths:
     - 'Api/**'
     - 'Client/**'
@@ -12,7 +12,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - HelloWorld
+      - HelloWorld-Beta
     paths:
     - 'Api/**'
     - 'Client/**'
@@ -34,10 +34,10 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_GROUND_01D124703 }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_MUSHROOM_0BB2B0703 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match you app requirements. ######
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "Client" # App source code path
           api_location: "Api" # Api source code path - optional
@@ -53,5 +53,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_GROUND_01D124703 }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_MUSHROOM_0BB2B0703 }}
           action: "close"
