@@ -34,7 +34,7 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_MUSHROOM_0BB2B0703 }}
+          azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN_HELLOWORLDBETA }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
@@ -53,5 +53,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_MUSHROOM_0BB2B0703 }}
+          azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN_HELLOWORLDBETA }}
           action: "close"
