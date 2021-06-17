@@ -100,11 +100,6 @@ namespace Timekeeper.DataModel
             ResetDisplay();
         }
 
-        public void RaiseCountdownFinished()
-        {
-            CountdownFinished?.Invoke(this, EventArgs.Empty);
-        }
-
         public void Reset()
         {
             ResetDisplay();

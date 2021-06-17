@@ -551,24 +551,6 @@ namespace Timekeeper.Client.Model
                         {
                             var remains = clock.Remains;
 
-                            if (remains.TotalSeconds <= 0)
-                            {
-                                _log.LogTrace("HIGHLIGHT--Countdown finished");
-                                clock.IsClockRunning = false;
-                                clock.IsPlayStopDisabled = false;
-                                clock.IsNudgeDisabled = true;
-                                clock.IsConfigDisabled = false;
-                                clock.ClockDisplay = Clock.DefaultClockDisplay;
-                                clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
-                                clock.Message.ServerTime = DateTime.MinValue;
-                                Status = $"Countdown finished for {clock.Message.Label}";
-                                clock.RaiseCountdownFinished();
-                                await RestoreClock(clock);
-                                RaiseUpdateEvent();
-                                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-                                continue;
-                            }
-
                             clock.CurrentBackgroundColor = clock.Message.RunningColor;
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
@@ -579,6 +561,20 @@ namespace Timekeeper.Client.Model
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.AlmostDone.TotalSeconds)
                             {
                                 clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
+                            }
+
+                            if (remains.TotalSeconds <= 0)
+                            {
+                                _log.LogDebug($"HIGHLIGHT--Countdown finished {remains.TotalSeconds % 2}");
+
+                                if (Math.Floor(remains.TotalSeconds) % 2 == 0)
+                                {
+                                    clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
+                                }
+                                else
+                                {
+                                    clock.CurrentBackgroundColor = clock.Message.PayAttentionColor;
+                                }
                             }
 
                             clock.ClockDisplay = remains.ToString(@"hh\:mm\:ss");

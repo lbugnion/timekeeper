@@ -147,29 +147,6 @@ namespace Timekeeper.Client.Model
             {
                 return;
             }
-
-            foreach (var clock in CurrentSession.Clocks)
-            {
-                clock.CountdownFinished += ClockCountdownFinished;
-            }
-        }
-
-        private void ClockCountdownFinished(object sender, EventArgs e)
-        {
-            _log.LogInformation("HIGHLIGHT---> ClockCountdownFinished");
-
-            var clock = sender as Clock;
-
-            if (clock == null)
-            {
-                return;
-            }
-
-            var isAnyClockRunning = IsAnyClockRunning;
-            _log.LogDebug($"IsAnyClockRunning {isAnyClockRunning}");
-            IsModifySessionDisabled = isAnyClockRunning;
-            clock.ResetDisplay();
-            RaiseUpdateEvent();
         }
 
         private void ClockSelectionChanged(object sender, bool e)
@@ -589,7 +566,6 @@ namespace Timekeeper.Client.Model
 
         public async Task DeleteClock(Clock clock)
         {
-            clock.CountdownFinished -= ClockCountdownFinished;
             clock.SelectionChanged -= ClockSelectionChanged;
             await DeleteLocalClock(clock.Message.ClockId);
 
@@ -631,14 +607,6 @@ namespace Timekeeper.Client.Model
                 await _connection.DisposeAsync();
                 _connection = null;
                 _log.LogTrace("Connection is stopped and disposed");
-            }
-
-            if (CurrentSession != null)
-            {
-                foreach (var clock in CurrentSession.Clocks)
-                {
-                    clock.CountdownFinished -= ClockCountdownFinished;
-                }
             }
 
             await _session.DeleteFromStorage(SessionKey, _log);
