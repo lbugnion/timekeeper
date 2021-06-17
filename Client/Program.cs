@@ -8,9 +8,10 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
+using Timekeeper.DataModel;
 
 // Set version number for the assembly.
-[assembly: AssemblyVersion("0.5.6.3")]
+[assembly: AssemblyVersion(Constants.Version)]
 
 namespace Timekeeper.Client
 {
@@ -21,6 +22,19 @@ namespace Timekeeper.Client
         {
             get;
             internal set;
+        }
+
+        public static bool IsBeta
+        {
+            get
+            {
+                var version = Assembly
+                    .GetExecutingAssembly()
+                    .GetName()
+                    .Version;
+
+                return version.Build == 9999;
+            }
         }
 
         public static bool IsExperimental
@@ -44,18 +58,23 @@ namespace Timekeeper.Client
             builder.Logging.AddConfiguration(
                 builder.Configuration.GetSection("Logging"));
 
-            builder.Services
-                .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
-                .AddStaticWebAppsAuthentication();
-
-            builder.Services.AddBlazoredLocalStorage();
-
             builder.Logging
                 .ClearProviders()
                 .AddProvider(new TimekeeperLoggerProvider(new TimekeeperLoggerConfiguration
                 {
                     MinimumLogLevel = LogLevel.Trace
                 }));
+
+            var provider = builder.Services.BuildServiceProvider();
+
+            builder.Services
+                .AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })
+                .AddStaticWebAppsAuthentication();
+
+            builder.Services.AddBlazoredLocalStorage();
+
+            builder.Services
+                .AddScoped<SessionHandler>();
 
             await builder.Build().RunAsync();
         }

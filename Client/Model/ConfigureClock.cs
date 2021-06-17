@@ -1,4 +1,6 @@
-﻿namespace Timekeeper.Client.Model
+﻿using Timekeeper.DataModel;
+
+namespace Timekeeper.Client.Model
 {
     public class ConfigureClock
     {

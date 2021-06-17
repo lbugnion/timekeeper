@@ -14,13 +14,14 @@
     public class Branding
     {
         public const string AboutPageTitle = "A Bit of AI backstage: About";
-        public const bool CanEditSessionAndGuestName = false;
+        public const bool AllowSessionSelection = true;
+        public const bool CanEditGuestName = false;
         public const string ConfigurePageTitle = "A Bit of AI backstage: Configure";
         public const string GuestPageTitle = "A Bit of AI Guest Page";
         public const string HostPageTitle = "A Bit of AI Host Page";
         public const string LoginPageTitle = "A Bit of AI backstage: Login";
         public const string MainPageTitle = "A Bit of AI backstage";
-        public const string TemplateName = "ClocksTemplate";
+        public const string SessionPageTitle = "A Bit of AI backstage: Sessions";
         public const string WindowTitle = "A Bit of AI backstage";
 
 #if DEBUG
