@@ -1,4 +1,4 @@
-name: AMY-HENK Deploy client and API to static web
+name: AMY-HENK Client and API to static web
 
 on:
   push:
