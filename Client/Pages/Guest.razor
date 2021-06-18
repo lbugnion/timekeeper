@@ -62,9 +62,9 @@
                 <ul id="listofclocks">
                     @foreach (var clock in Handler.CurrentSession.Clocks)
                     {
-                        <li style="background-color: @clock.CurrentBackgroundColor">
+                        <li style="background-color: @clock.CurrentBackgroundColor;color: @clock.CurrentForegroundColor">
                             <div class="clock-area clock-area-guest">
-                                <div class="clock-label">@clock.Message.Label</div>
+                                <div class="clock-label">@clock.CurrentLabel</div>
                                 <div class="clock-text">@clock.ClockDisplay</div>
                             </div>
                         </li>

@@ -34,6 +34,13 @@
                     </div>
 
                     <div class="edit-area">
+                        <p class="form-label">Overtime label</p>
+                        <p class="form-explanation">Enter a text to be shown when the clock is running over.</p>
+                        <InputText class="medium-input-text"
+                                   @bind-Value="@CurrentClockMessage.OvertimeLabel" />
+                    </div>
+
+                    <div class="edit-area">
                         <p class="form-label">Countdown (hh:mm:ss)</p>
                         <p class="form-explanation">Enter the hours, minutes and seconds that the clock should countdown from</p>
 

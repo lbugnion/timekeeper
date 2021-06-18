@@ -502,7 +502,7 @@ namespace Timekeeper.Client.Model
                         _log.LogDebug($"Label: {clock.Message.Label}");
                         _log.LogDebug($"ServerTime: {clock.Message.ServerTime}");
                         _log.LogDebug($"CountDown: {clock.Message.CountDown}");
-                        _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
+                        _log.LogDebug($"{clock.Message.Label} still active");
                     }
                 }
 
@@ -996,6 +996,7 @@ namespace Timekeeper.Client.Model
                     .Select(c =>
                     {
                         c.Message.SenderId = PeerInfo.Message.PeerId;
+                        c.IsClockRunning = true;
                         return c.Message;
                     })
                     .ToList());
@@ -1035,7 +1036,7 @@ namespace Timekeeper.Client.Model
 
         public async Task StopClock(Clock clock)
         {
-            _log.LogInformation("-> StopClock");
+            _log.LogInformation("HIGHLIGHT---> StopClock");
 
             await StopLocalClock(clock.Message.ClockId, true);
 

@@ -170,6 +170,12 @@ namespace Timekeeper.DataModel
             }
         }
 
+        public string OvertimeLabel
+        {
+            get;
+            set;
+        }
+
         public string Label
         {
             get;
@@ -296,6 +302,11 @@ namespace Timekeeper.DataModel
         public override string ToString()
         {
             return ServerTime.ToString();
+        }
+
+        public StartClockMessage()
+        {
+            OvertimeLabel = "OVERTIME!";
         }
     }
 }
