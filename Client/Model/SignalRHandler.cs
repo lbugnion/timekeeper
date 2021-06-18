@@ -447,8 +447,13 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogDebug($"clockID: {clockMessage.ClockId}");
                 _log.LogDebug($"Clock Label: {clockMessage.Label}");
-                _log.LogDebug($"AlmostDoneColor: {clockMessage.AlmostDoneColor}");
-                _log.LogDebug($"PayAttentionColor: {clockMessage.PayAttentionColor}");
+
+                _log.LogDebug($"HIGHLIGHT--{clockMessage.ServerTime}");
+
+                if (clockMessage.ServerTime.Year <= 1)
+                {
+                    continue;
+                }
 
                 var existingClock = CurrentSession.Clocks
                     .FirstOrDefault(c => c.Message.ClockId == clockMessage.ClockId);
@@ -565,16 +570,17 @@ namespace Timekeeper.Client.Model
                             if (remains.TotalSeconds <= 0)
                             {
                                 _log.LogDebug($"Setting overtime label {clock.Message.OvertimeLabel}");
-                                clock.CurrentLabel = clock.Message.OvertimeLabel;
 
                                 if (Math.Floor(remains.TotalSeconds) % 2 == 0)
                                 {
                                     clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
+                                    clock.CurrentLabel = clock.Message.Label;
                                 }
                                 else
                                 {
                                     clock.CurrentBackgroundColor = clock.Message.PayAttentionColor;
                                     clock.CurrentForegroundColor = Clock.OvertimeForegroundColor;
+                                    clock.CurrentLabel = clock.Message.OvertimeLabel;
                                 }
                             }
 

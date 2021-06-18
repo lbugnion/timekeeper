@@ -996,7 +996,6 @@ namespace Timekeeper.Client.Model
                     .Select(c =>
                     {
                         c.Message.SenderId = PeerInfo.Message.PeerId;
-                        c.IsClockRunning = true;
                         return c.Message;
                     })
                     .ToList());
