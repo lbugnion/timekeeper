@@ -110,6 +110,12 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public TimeSpan Nudge
+        {
+            get;
+            set;
+        }
+
         [JsonIgnore]
         [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
 

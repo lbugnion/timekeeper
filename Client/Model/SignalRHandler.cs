@@ -328,7 +328,7 @@ namespace Timekeeper.Client.Model
 
         protected virtual async Task DeleteLocalClock(string clockId)
         {
-            _log.LogInformation("HIGHLIGHT---> DeleteLocalClock");
+            _log.LogInformation("-> DeleteLocalClock");
 
             var clock = CurrentSession.Clocks.FirstOrDefault(c => c.Message.ClockId == clockId);
 
@@ -346,12 +346,12 @@ namespace Timekeeper.Client.Model
 
             await StopLocalClock(clockId, true);
 
-            _log.LogDebug("HIGHLIGHT--Clock stopped, removing");
+            _log.LogDebug("Clock stopped, removing");
 
             CurrentSession.Clocks.Remove(clock);
             RaiseUpdateEvent();
 
-            _log.LogDebug("HIGHLIGHT--Removed");
+            _log.LogDebug("Removed");
 
             _log.LogDebug($"Remaining clocks: {CurrentSession.Clocks.Count}");
         }
@@ -413,7 +413,7 @@ namespace Timekeeper.Client.Model
 
         protected void ReceiveStartClock(string message, bool keepClocks)
         {
-            _log.LogInformation("HIGHLIGHT---> SignalRGuest.ReceiveStartClock");
+            _log.LogInformation("-> SignalRGuest.ReceiveStartClock");
             _log.LogDebug(message);
 
             IList<StartClockMessage> clockMessages;
@@ -497,23 +497,6 @@ namespace Timekeeper.Client.Model
 
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
-        }
-
-        protected async Task RestoreClock(Clock clock)
-        {
-            _log.LogInformation("RestoreClock");
-
-            // Get saved clock and restore
-            var savedSession = await _session.GetFromStorage(SessionKey, _log);
-            var clockInSavedSession = savedSession.Clocks
-                .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
-
-            if (clockInSavedSession != null)
-            {
-                _log.LogDebug($"Before restore: {clock.Message.CountDown}");
-                clock.Restore(clockInSavedSession);
-                _log.LogDebug($"After restore: {clock.Message.CountDown}");
-            }
         }
 
         protected void RunClock(Clock activeClock)
@@ -653,9 +636,9 @@ namespace Timekeeper.Client.Model
                 existingClock.IsPlayStopDisabled = false;
                 existingClock.IsNudgeDisabled = true;
                 existingClock.IsConfigDisabled = false;
-                _log.LogDebug($"CountDown {existingClock.Message.CountDown}");
-                _log.LogDebug($"ServerTime {existingClock.Message.ServerTime}");
-                await RestoreClock(existingClock);
+                _log.LogDebug($"HIGHLIGHT--CountDown {existingClock.Message.CountDown}");
+                _log.LogDebug($"HIGHLIGHT--ServerTime {existingClock.Message.ServerTime}");
+                existingClock.Message.Nudge = TimeSpan.FromSeconds(0);
                 existingClock.ResetDisplay();
                 existingClock.Message.ServerTime = DateTime.MinValue;
                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);

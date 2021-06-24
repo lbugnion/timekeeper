@@ -126,11 +126,6 @@ namespace Timekeeper.DataModel
             CurrentLabel = Message.Label;
         }
 
-        public void Restore(Clock clockInSavedSession)
-        {
-            Message = clockInSavedSession.Message;
-        }
-
         public void ToggleSelect()
         {
             IsSelected = !IsSelected;
@@ -144,6 +139,7 @@ namespace Timekeeper.DataModel
             Message.AlmostDone = model.AlmostDone;
             Message.AlmostDoneColor = model.AlmostDoneColor;
             Message.CountDown = model.CountDown;
+            Message.Nudge = model.Nudge;
             Message.Label = model.Label;
             Message.PayAttention = model.PayAttention;
             Message.PayAttentionColor = model.PayAttentionColor;
