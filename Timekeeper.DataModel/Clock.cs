@@ -82,7 +82,7 @@ namespace Timekeeper.DataModel
             get
             {
                 var elapsed = DateTime.Now - Message.ServerTime;
-                var remains = Message.CountDown - elapsed;
+                var remains = Message.CountDown + Message.Nudge - elapsed;
                 return remains;
             }
         }
@@ -120,7 +120,7 @@ namespace Timekeeper.DataModel
 
         public void ResetDisplay()
         {
-            ClockDisplay = Message.CountDown.ToString("c");
+            ClockDisplay = (Message.CountDown + Message.Nudge).ToString("c");
             CurrentBackgroundColor = DefaultBackgroundColor;
             CurrentForegroundColor = DefaultForegroundColor;
             CurrentLabel = Message.Label;
