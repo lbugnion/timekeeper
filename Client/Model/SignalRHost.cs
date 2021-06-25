@@ -502,7 +502,7 @@ namespace Timekeeper.Client.Model
                         _log.LogDebug($"Label: {clock.Message.Label}");
                         _log.LogDebug($"ServerTime: {clock.Message.ServerTime}");
                         _log.LogDebug($"CountDown: {clock.Message.CountDown}");
-                        _log.LogDebug($"HIGHLIGHT--Nudge: {clock.Message.Nudge}");
+                        _log.LogDebug($"Nudge: {clock.Message.Nudge}");
                         _log.LogDebug($"{clock.Message.Label} still active");
                     }
                 }

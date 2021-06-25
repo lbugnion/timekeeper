@@ -448,7 +448,7 @@ namespace Timekeeper.Client.Model
                 _log.LogDebug($"clockID: {clockMessage.ClockId}");
                 _log.LogDebug($"Clock Label: {clockMessage.Label}");
 
-                _log.LogDebug($"HIGHLIGHT--{clockMessage.ServerTime}");
+                _log.LogDebug($"{clockMessage.ServerTime}");
 
                 if (clockMessage.ServerTime.Year <= 1)
                 {
@@ -491,7 +491,7 @@ namespace Timekeeper.Client.Model
 
             foreach (var clock in newList)
             {
-                _log.LogDebug($"HIGHLIGHT--isClockRunning: {clock.Message.Label} : {clock.IsClockRunning}");
+                _log.LogDebug($"isClockRunning: {clock.Message.Label} : {clock.IsClockRunning}");
                 RunClock(clock);
             }
 
@@ -634,8 +634,8 @@ namespace Timekeeper.Client.Model
                 existingClock.IsPlayStopDisabled = false;
                 existingClock.IsNudgeDisabled = true;
                 existingClock.IsConfigDisabled = false;
-                _log.LogDebug($"HIGHLIGHT--CountDown {existingClock.Message.CountDown}");
-                _log.LogDebug($"HIGHLIGHT--ServerTime {existingClock.Message.ServerTime}");
+                _log.LogDebug($"CountDown {existingClock.Message.CountDown}");
+                _log.LogDebug($"ServerTime {existingClock.Message.ServerTime}");
                 existingClock.Message.Nudge = TimeSpan.FromSeconds(0);
                 existingClock.ResetDisplay();
                 existingClock.Message.ServerTime = DateTime.MinValue;
@@ -643,7 +643,7 @@ namespace Timekeeper.Client.Model
             }
             else
             {
-                _log.LogTrace("HIGHLIGHT--Removing clock in StopLocalClock");
+                _log.LogTrace("Removing clock in StopLocalClock");
                 CurrentSession.Clocks.Remove(existingClock);
                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);
             }

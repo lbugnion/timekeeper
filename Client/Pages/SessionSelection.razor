@@ -7,14 +7,15 @@
 @inject NavigationManager Nav
 @inject ILocalStorageService Storage
 
-<header>
+<header class="visible">
     <img src="images/header-logo.png"
          class="logo-image" />
 </header>
 
-<main>
+<main class="visible">
     <article>
-        <h1>@Branding.SessionPageTitle</h1>
+
+        <h1 class="visible">@Branding.SessionPageTitle</h1>
 
         @if (Session.CloudSessions == null)
         {
@@ -35,11 +36,11 @@
                     {
                         <li>
                             @*<button class="session-button"
-                                    title="Delete this session"><i class="fa fa-trash"></i></button>*@
+                                    title="Delete this session"><i class="fas fa-trash"></i></button>*@
                             <button class="session-button"
                                     title="Duplicate this session"
                                     
-                                    @onclick="@(e => Duplicate(session.SessionId))"><i class="fa fa-clone"></i></button>
+                                    @onclick="@(e => Duplicate(session.SessionId))"><i class="far fa-clone"></i></button>
 
                             <a href="#"
                                title="Select this session"
@@ -79,7 +80,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="visible">
     @if (Branding.MustAuthorize)
     {
         <AuthorizeView>

@@ -13,7 +13,7 @@
     }
     else
     {
-        <h1>@SessionName</h1>
+        <h1 class="visible">@SessionName</h1>
     }
 
     @if (!Handler.IsBusy)
@@ -31,7 +31,7 @@
         <blockquote class="warning"><strong>BETA:</strong> This is the beta version of Timekeeper. <a href="https://github.com/lbugnion/timekeeper/issues">Please report issues here</a>. You can find the <a href="http://www.timekeeper.cloud">stable version of Timekeeper here</a>.</blockquote>
     }
 
-    <ul id="listofclocks">
+    <ul id="listofclocks" class="visible">
 
         @foreach (var clock in Handler.CurrentSession.Clocks)
         {
@@ -76,7 +76,7 @@
                                 <button @onclick="(e => Handler.StopClock(clock))"
                                         disabled="@clock.IsPlayStopDisabled"
                                         title="Stop this clock">
-                                    <i class="fa fa-stop"></i>
+                                    <i class="fas fa-stop"></i>
                                 </button>
                             }
                             else
@@ -84,18 +84,18 @@
                                 <button @onclick="(e => Handler.StartClock(clock, true))"
                                         disabled="@clock.IsPlayStopDisabled"
                                         title="Start this clock">
-                                    <i class="fa fa-play"></i>
+                                    <i class="fas fa-play"></i>
                                 </button>
                             }
 
                             <button @onclick="(e => ConfigureClock(clock))"
                                     title="Configure this clock"
                                     disabled="@clock.IsConfigDisabled">
-                                <i class="fa fa-cog"></i>
+                                <i class="fas fa-cog"></i>
                             </button>
                             <button @onclick="(e => Handler.AddClockAfter(clock))"
                                     title="Add a clock after this one">
-                                <i class="fa fa-plus-square"></i>
+                                <i class="fas fa-plus-square"></i>
                             </button>
 
                             @if (Handler.CurrentSession.Clocks.Count > 1)
@@ -103,7 +103,7 @@
                                 <button @onclick="(e => Handler.DeleteClock(clock))"
                                         title="Delete this clock"
                                         disabled="@clock.IsConfigDisabled">
-                                    <i class="fa fa-minus-square"></i>
+                                    <i class="fas fa-minus-square"></i>
                                 </button>
                             }
 
@@ -112,7 +112,7 @@
                                 <button @onclick="clock.ToggleSelect"
                                         title="Unselect this clock"
                                         class="clock-selection">
-                                    <i class="fa fa-check-square-o"></i>
+                                    <i class="far fa-check-circle"></i>
                                 </button>
                             }
                             else
@@ -120,7 +120,7 @@
                                 <button @onclick="clock.ToggleSelect"
                                         title="Select this clock"
                                         class="clock-selection">
-                                    <i class="fa fa-square-o"></i>
+                                    <i class="far fa-circle"></i>
                                 </button>
                             }
                         </div>
@@ -137,7 +137,7 @@ else
     {
         @if (Handler.IsAuthorized.Value)
         {
-            <blockquote class="no-clocks-no-session">
+            <blockquote class="no-clocks-no-session visible">
                 Reload this page to create a new session.
             </blockquote>
         }

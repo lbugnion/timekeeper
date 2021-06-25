@@ -10,6 +10,16 @@ h1, h2 {
     color: darkblue;
 }
 
+    h1.visible {
+        height: auto;
+        visibility: visible;
+    }
+
+    h1.invisible {
+        height: 0px;
+        visibility: collapse;
+    }
+
 article {
     padding: 10px 15px 10px 15px;
 }
@@ -17,6 +27,27 @@ article {
 header {
     height: 80px;
     padding: 10px 20px;
+}
+
+header.visible {
+}
+
+header.invisible {
+    height: 0;
+    padding: 0;
+}
+
+footer {
+    height: 1.5em;
+    padding: 7px 5px 0 5px;
+}
+
+footer.visible {
+}
+
+footer.invisible {
+    height: 0;
+    padding: 0;
 }
 
 .logo-image {
@@ -27,6 +58,13 @@ header {
 
 main {
     padding: 100px 0 1.5em 0; /* Header + padding / Footer height */
+}
+
+main.visible {
+}
+
+main.invisible {
+    padding: 0px;
 }
 
 .background {
@@ -42,6 +80,14 @@ button {
     button.small-button {
         margin: 0 10px 0 0;
         width: 80px;
+    }
+
+    button.focus {
+        float: right;
+        margin-right: 0px;
+        width: 40px;
+        height: 30px;
+        font-size: 22px;
     }
 
 .input-text {
@@ -65,17 +111,34 @@ a:hover {
 }
 
 .no-clocks-no-session {
-  font-size: 2em;
-  margin-bottom: -85px;
+    font-size: 2em;
+    margin-bottom: -85px;
+}
+
+.no-clocks-no-session.visible {
+}
+
+.no-clocks-no-session.invisible {
+    margin-top: -20px;
 }
 
 /* Clocks */
 
 #listofclocks {
     list-style-type: none;
-    margin: 0px;
+    margin: 0;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
     margin-bottom: -100px;
 }
+
+    #listofclocks.visible {
+    }
+
+    #listofclocks.invisible {
+        margin-top: -20px;
+    }
 
     #listofclocks li {
         display: inline-block;
@@ -282,6 +345,19 @@ blockquote {
     margin-bottom: 15px;
     font-size: 1em;
 }
+
+    .edit-link.invisible {
+        height: auto;
+        visibility: visible;
+    }
+
+    .edit-link.invisible {
+        margin-top: 0px;
+        margin-left: 0px;
+        margin-bottom: 0px;
+        height: 0px;
+        visibility: collapse;
+    }
 
 .config-time {
     width: 100%;
