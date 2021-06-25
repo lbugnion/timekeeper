@@ -552,8 +552,6 @@ namespace Timekeeper.Client.Model
 
                             if (remains.TotalSeconds <= 0)
                             {
-                                _log.LogDebug($"Setting overtime label {clock.Message.OvertimeLabel}");
-
                                 if (Math.Floor(remains.TotalSeconds) % 2 == 0)
                                 {
                                     clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
