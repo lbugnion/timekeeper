@@ -47,15 +47,15 @@ namespace Timekeeper.Client.Pages
                 ClientVersion = $"V{version.ToString(4)}";
                 Log.LogDebug($"clientVersion: {ClientVersion}");
 
-                if (version.Build == 8888)
+                if (version.Revision == 8888)
                 {
-                    ClientVersion = $"V{version.ToString(2)}";
+                    ClientVersion = $"V{version.ToString(3)}";
                     Beta = "Alpha";
                 }
 
-                if (version.Build == 9999)
+                if (version.Revision == 9999)
                 {
-                    ClientVersion = $"V{version.ToString(2)}";
+                    ClientVersion = $"V{version.ToString(3)}";
                     Beta = "Beta";
                 }
 
