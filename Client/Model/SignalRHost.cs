@@ -829,7 +829,13 @@ namespace Timekeeper.Client.Model
 
         public async Task SendInputMessage()
         {
-            await SendMessage(InputMessage);
+            await SendMessage(InputMessage.Trim());
+        }
+
+        public async Task ClearInputMessage()
+        {
+            InputMessage = "";
+            await SendMessage(" ");
         }
 
         public async Task SendMessage(string message)

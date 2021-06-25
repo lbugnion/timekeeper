@@ -4,8 +4,8 @@
 @inject IJSRuntime JSRuntime
 
 @if (Handler.CurrentSession != null
- && Handler.IsAuthorized != null
- && Handler.IsAuthorized.Value)
+&& Handler.IsAuthorized != null
+&& Handler.IsAuthorized.Value)
 {
     @if (IsEditingSessionName)
     {
@@ -157,12 +157,8 @@ else
 }
 
 @if (Handler.IsAuthorized != null
-   && Handler.IsAuthorized.Value)
+  && Handler.IsAuthorized.Value)
 {
-    <div class="message-area">
-        <p><span class="message-text">@Handler.CurrentMessage</span></p>
-    </div>
-
     <div class="controls-area">
 
         <div class="send-message-area">
@@ -179,13 +175,17 @@ else
             <br />
 
             <button disabled="@Handler.IsSendMessageDisabled"
-                    @onclick="@Handler.SendInputMessage"
-                    id="send-message-button">
-                Send Message
+                    @onclick="@Handler.SendInputMessage">
+                Send
+            </button>
+
+            <button disabled="@Handler.IsSendMessageDisabled"
+                    @onclick="@Handler.ClearInputMessage">
+                Clear
             </button>
 
             @if (Mobile != null
-               && Mobile.IsNoSleepVisible)
+             && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
@@ -198,10 +198,14 @@ else
         </div>
     </div>
 
+    <div class="message-area">
+        <p><span class="message-text">@Handler.CurrentMessage</span></p>
+    </div>
+
     <h2>Session</h2>
 
     @if (Handler.CurrentSession != null
-       && !Handler.IsInError)
+      && !Handler.IsInError)
     {
         <div class="session-information-area">
             <h3>Send this link to your guests so they can connect to the session:</h3>
@@ -227,7 +231,7 @@ else
             }
 
             @if (Branding.CanEditGuestName
-             && IsPeersListExpanded)
+            && IsPeersListExpanded)
             {
                 <ul class="connected-peers-list">
                     @if (Handler.AnonymousHosts > 0)

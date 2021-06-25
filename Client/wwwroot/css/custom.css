@@ -236,13 +236,13 @@ a:hover {
 .send-message-area {
 }
 
-
-#send-message-button {
+.send-message-area button {
     font-size: 1.5em;
+    width: 100px;
 }
 
 .message-area {
-    margin-top: 100px;
+    margin-top: 10px;
     margin-bottom: 20px;
 }
 
@@ -252,10 +252,11 @@ a:hover {
 }
 
 .controls-area {
-    margin-top: 10px;
+    margin-top: 100px;
 }
 
 .last-controls-area {
+    margin-top: 10px;
     margin-bottom: 10px;
 }
 
