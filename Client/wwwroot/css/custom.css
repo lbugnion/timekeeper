@@ -316,6 +316,11 @@ blockquote {
         font-weight: bold;
     }
 
+.qr-code {
+    width: 250px;
+    margin: -10px 0 -10px -20px; 
+}
+
 .connected-peers {
     float: right;
     margin-right: 30px;

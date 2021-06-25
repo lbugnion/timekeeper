@@ -211,6 +211,11 @@ else
             <h3>Send this link to your guests so they can connect to the session:</h3>
 
             <p><a href="@GuestUrl">@GuestUrl</a></p>
+
+            <p><img src="@GuestUrlQrCode"
+                    class="qr-code"
+                    alt="Use this QR Code to connect"
+                    title="Use this QR Code to connect"/></p>
         </div>
 
         <div class="session-information-area">
@@ -231,7 +236,7 @@ else
             }
 
             @if (Branding.CanEditGuestName
-            && IsPeersListExpanded)
+                && IsPeersListExpanded)
             {
                 <ul class="connected-peers-list">
                     @if (Handler.AnonymousHosts > 0)
