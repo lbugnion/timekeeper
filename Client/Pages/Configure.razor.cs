@@ -11,12 +11,6 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Configure : IDisposable
     {
-        public StartClockMessage CurrentClockMessage
-        {
-            get;
-            set;
-        }
-
         public EditContext CurrentEditContext
         {
             get;
@@ -78,6 +72,7 @@ namespace Timekeeper.Client.Pages
 
             Today = new Days(Log);
             Host = Program.ClockToConfigure.Host;
+            Clock = Program.ClockToConfigure.CurrentClock;
             Host.UpdateUi += HandlerUpdateUi;
 
             CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
@@ -90,6 +85,31 @@ namespace Timekeeper.Client.Pages
         public void Dispose()
         {
             Host.UpdateUi -= HandlerUpdateUi;
+        }
+
+        public Clock Clock
+        {
+            get;
+            private set;
+        }
+
+        public StartClockMessage CurrentClockMessage
+        {
+            get;
+            private set;
+        }
+
+        public string CurrentClockLabel
+        {
+            get
+            {
+                return CurrentClockMessage.Label;
+            }
+            set
+            {
+                CurrentClockMessage.Label = value;
+                Clock.CurrentLabel = value;
+            }
         }
     }
 }
