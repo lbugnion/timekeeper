@@ -69,7 +69,7 @@
             }
 
             @if (Handler.CurrentSession == null
-            || Handler.CurrentSession.Clocks.Count == 0)
+               || Handler.CurrentSession.Clocks.Count == 0)
             {
                 <blockquote class="no-clocks-no-session @UiVisibility">
                     Clocks will appear here when the Host starts them. Stay tuned!!
@@ -95,7 +95,7 @@
             </div>
 
             @if (Mobile != null
-           && Mobile.IsNoSleepVisible)
+              && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"

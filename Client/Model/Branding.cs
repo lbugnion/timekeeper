@@ -18,7 +18,6 @@
         public const bool CanEditGuestName = true;
         public const string ConfigurePageTitle = "Timekeeper: Configure";
         public const string GuestPageTitle = "Timekeeper Guest Page";
-        public const string HostPageTitle = "Timekeeper Host Page";
         public const string LoginPageTitle = "Timekeeper: Login";
         public const string MainPageTitle = "Timekeeper";
         public const string SessionPageTitle = "Timekeeper: Sessions";

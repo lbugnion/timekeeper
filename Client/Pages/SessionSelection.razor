@@ -7,15 +7,14 @@
 @inject NavigationManager Nav
 @inject ILocalStorageService Storage
 
-<header class="visible">
+<header>
     <img src="images/header-logo.png"
          class="logo-image" />
 </header>
 
-<main class="visible">
+<main>
     <article>
-
-        <h1 class="visible">@Branding.SessionPageTitle</h1>
+        <h1>@Branding.SessionPageTitle</h1>
 
         @if (Session.CloudSessions == null)
         {
@@ -80,7 +79,7 @@
     </article>
 </main>
 
-<footer class="visible">
+<footer>
     @if (Branding.MustAuthorize)
     {
         <AuthorizeView>

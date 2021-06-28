@@ -10,12 +10,6 @@ namespace Timekeeper.DataModel
         private string _payAttentionColor;
         private string _runningColor;
 
-        public string SenderId
-        {
-            get;
-            set;
-        }
-
         public TimeSpan AlmostDone
         {
             get;
@@ -110,12 +104,6 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public TimeSpan Nudge
-        {
-            get;
-            set;
-        }
-
         [JsonIgnore]
         [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
 
@@ -176,13 +164,19 @@ namespace Timekeeper.DataModel
             }
         }
 
-        public string OvertimeLabel
+        public string Label
         {
             get;
             set;
         }
 
-        public string Label
+        public TimeSpan Nudge
+        {
+            get;
+            set;
+        }
+
+        public string OvertimeLabel
         {
             get;
             set;
@@ -292,6 +286,12 @@ namespace Timekeeper.DataModel
             }
         }
 
+        public string SenderId
+        {
+            get;
+            set;
+        }
+
         public DateTime ServerTime
         {
             get;
@@ -305,14 +305,14 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public StartClockMessage()
+        {
+            OvertimeLabel = Clock.DefaultOvertimeLabel;
+        }
+
         public override string ToString()
         {
             return ServerTime.ToString();
-        }
-
-        public StartClockMessage()
-        {
-            OvertimeLabel = "OVERTIME!";
         }
     }
 }

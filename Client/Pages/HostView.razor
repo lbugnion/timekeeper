@@ -4,8 +4,8 @@
 @inject IJSRuntime JSRuntime
 
 @if (Handler.CurrentSession != null
-&& Handler.IsAuthorized != null
-&& Handler.IsAuthorized.Value)
+  && Handler.IsAuthorized != null
+  && Handler.IsAuthorized.Value)
 {
     @if (IsEditingSessionName)
     {
@@ -13,7 +13,7 @@
     }
     else
     {
-        <h1 class="visible">@SessionName</h1>
+        <h1>@SessionName</h1>
     }
 
     @if (!Handler.IsBusy)
@@ -31,7 +31,7 @@
         <blockquote class="warning"><strong>BETA:</strong> This is the beta version of Timekeeper. <a href="https://github.com/lbugnion/timekeeper/issues">Please report issues here</a>. You can find the <a href="http://www.timekeeper.cloud">stable version of Timekeeper here</a>.</blockquote>
     }
 
-    <ul id="listofclocks" class="visible">
+    <ul id="listofclocks">
 
         @foreach (var clock in Handler.CurrentSession.Clocks)
         {
@@ -137,7 +137,7 @@ else
     {
         @if (Handler.IsAuthorized.Value)
         {
-            <blockquote class="no-clocks-no-session visible">
+            <blockquote class="no-clocks-no-session">
                 Reload this page to create a new session.
             </blockquote>
         }
@@ -185,7 +185,7 @@ else
             </button>
 
             @if (Mobile != null
-             && Mobile.IsNoSleepVisible)
+              && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
@@ -236,7 +236,7 @@ else
             }
 
             @if (Branding.CanEditGuestName
-                && IsPeersListExpanded)
+              && IsPeersListExpanded)
             {
                 <ul class="connected-peers-list">
                     @if (Handler.AnonymousHosts > 0)

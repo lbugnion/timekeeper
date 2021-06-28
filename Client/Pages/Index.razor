@@ -12,19 +12,7 @@
 
 <main>
     <article>
-        <h1 class="visible">@Branding.MainPageTitle</h1>
-
-        @*<blockquote class="hello-world-warning">
-            <a href="/helloworld-backstage"
-               target="_blank">
-                <img src="/images/hello-world/hello-world-logo-tue.png"
-                     class="logo-image"
-                     style="width: 200px;" />
-            </a>
-            <br /><br />
-            Are you looking for the <a href="/helloworld-backstage"
-                                       target="_blank">Hello World Backstage Channel?</a>
-        </blockquote>*@
+        <h1>@Branding.MainPageTitle</h1>
 
         @if (Program.IsExperimental)
         {
@@ -67,7 +55,7 @@
     </article>
 </main>
 
-<footer class="visible">
+<footer>
     <div class="status-message">Version: @ClientVersion @Beta @Environment</div>
 
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
