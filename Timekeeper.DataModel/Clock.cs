@@ -8,23 +8,17 @@ namespace Timekeeper.DataModel
 
         public const string DefaultAlmostDoneColor = "#FF6B77";
         public const string DefaultBackgroundColor = "#EEEEEE";
+        public const string DefaultClockDisplay = "00:00:00";
         public const string DefaultForegroundColor = "#000000";
         public const string DefaultOvertimeLabel = "OVERTIME!";
-        public const string OvertimeForegroundColor = "#FF0000";
-        public const string DefaultClockDisplay = "00:00:00";
         public const string DefaultPayAttentionColor = "#FFFB91";
         public const string DefaultRunningColor = "#3AFFA9";
+        public const string OvertimeForegroundColor = "#FF0000";
         public static readonly TimeSpan DefaultAlmostDone = TimeSpan.FromSeconds(30);
         public static readonly TimeSpan DefaultCountDown = TimeSpan.FromMinutes(5);
         public static readonly TimeSpan DefaultPayAttention = TimeSpan.FromMinutes(2);
 
         public string ClockDisplay
-        {
-            get;
-            set;
-        }
-
-        public string CurrentForegroundColor
         {
             get;
             set;
@@ -36,6 +30,12 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public string CurrentForegroundColor
+        {
+            get;
+            set;
+        }
+        
         public string CurrentLabel
         {
             get;
