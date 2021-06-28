@@ -4,12 +4,13 @@ namespace Timekeeper.DataModel
 {
     public class Clock
     {
-        public event EventHandler CountdownFinished;
-
         public event EventHandler<bool> SelectionChanged;
 
         public const string DefaultAlmostDoneColor = "#FF6B77";
         public const string DefaultBackgroundColor = "#EEEEEE";
+        public const string DefaultForegroundColor = "#000000";
+        public const string DefaultOvertimeLabel = "OVERTIME!";
+        public const string OvertimeForegroundColor = "#FF0000";
         public const string DefaultClockDisplay = "00:00:00";
         public const string DefaultPayAttentionColor = "#FFFB91";
         public const string DefaultRunningColor = "#3AFFA9";
@@ -23,7 +24,19 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public string CurrentForegroundColor
+        {
+            get;
+            set;
+        }
+
         public string CurrentBackgroundColor
+        {
+            get;
+            set;
+        }
+
+        public string CurrentLabel
         {
             get;
             set;
@@ -70,7 +83,7 @@ namespace Timekeeper.DataModel
             get
             {
                 var elapsed = DateTime.Now - Message.ServerTime;
-                var remains = Message.CountDown - elapsed;
+                var remains = Message.CountDown + Message.Nudge - elapsed;
                 return remains;
             }
         }
@@ -108,13 +121,10 @@ namespace Timekeeper.DataModel
 
         public void ResetDisplay()
         {
-            ClockDisplay = Message.CountDown.ToString("c");
+            ClockDisplay = (Message.CountDown + Message.Nudge).ToString("c");
             CurrentBackgroundColor = DefaultBackgroundColor;
-        }
-
-        public void Restore(Clock clockInSavedSession)
-        {
-            Message = clockInSavedSession.Message;
+            CurrentForegroundColor = DefaultForegroundColor;
+            CurrentLabel = Message.Label;
         }
 
         public void ToggleSelect()
@@ -130,6 +140,7 @@ namespace Timekeeper.DataModel
             Message.AlmostDone = model.AlmostDone;
             Message.AlmostDoneColor = model.AlmostDoneColor;
             Message.CountDown = model.CountDown;
+            Message.Nudge = model.Nudge;
             Message.Label = model.Label;
             Message.PayAttention = model.PayAttention;
             Message.PayAttentionColor = model.PayAttentionColor;

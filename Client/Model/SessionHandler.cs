@@ -151,6 +151,8 @@ namespace Timekeeper.Client.Model
                 {
                     clock.ResetDisplay();
                     clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
+                    clock.CurrentForegroundColor = Clock.DefaultForegroundColor;
+                    clock.CurrentLabel = clock.Message.Label;
                     clock.IsClockRunning = false;
                     clock.IsConfigDisabled = false;
                     clock.IsPlayStopDisabled = false;

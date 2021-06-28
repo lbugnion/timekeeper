@@ -446,8 +446,14 @@ namespace Timekeeper.Client.Model
             foreach (var clockMessage in clockMessages)
             {
                 _log.LogDebug($"clockID: {clockMessage.ClockId}");
-                _log.LogDebug($"AlmostDoneColor: {clockMessage.AlmostDoneColor}");
-                _log.LogDebug($"PayAttentionColor: {clockMessage.PayAttentionColor}");
+                _log.LogDebug($"Clock Label: {clockMessage.Label}");
+
+                _log.LogDebug($"{clockMessage.ServerTime}");
+
+                if (clockMessage.ServerTime.Year <= 1)
+                {
+                    continue;
+                }
 
                 var existingClock = CurrentSession.Clocks
                     .FirstOrDefault(c => c.Message.ClockId == clockMessage.ClockId);
@@ -465,12 +471,7 @@ namespace Timekeeper.Client.Model
                 }
 
                 _log.LogDebug($"Clock {existingClock.Message.Label} remains {existingClock.Remains}");
-
-                if (existingClock.Remains.TotalSeconds > 0)
-                {
-                    // Clock hasn't expired yet
-                    newList.Add(existingClock);
-                }
+                newList.Add(existingClock);
             }
 
             if (newList.Count > 0)
@@ -490,28 +491,12 @@ namespace Timekeeper.Client.Model
 
             foreach (var clock in newList)
             {
+                _log.LogDebug($"isClockRunning: {clock.Message.Label} : {clock.IsClockRunning}");
                 RunClock(clock);
             }
 
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
-        }
-
-        protected async Task RestoreClock(Clock clock)
-        {
-            _log.LogInformation("HIGHLIGHT--RestoreClock");
-
-            // Get saved clock and restore
-            var savedSession = await _session.GetFromStorage(SessionKey, _log);
-            var clockInSavedSession = savedSession.Clocks
-                .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
-
-            if (clockInSavedSession != null)
-            {
-                _log.LogDebug($"Before restore: {clock.Message.CountDown}");
-                clock.Restore(clockInSavedSession);
-                _log.LogDebug($"After restore: {clock.Message.CountDown}");
-            }
         }
 
         protected void RunClock(Clock activeClock)
@@ -552,6 +537,8 @@ namespace Timekeeper.Client.Model
                             var remains = clock.Remains;
 
                             clock.CurrentBackgroundColor = clock.Message.RunningColor;
+                            clock.CurrentForegroundColor = Clock.DefaultForegroundColor;
+                            clock.CurrentLabel = clock.Message.Label;
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
                             {
@@ -565,15 +552,16 @@ namespace Timekeeper.Client.Model
 
                             if (remains.TotalSeconds <= 0)
                             {
-                                _log.LogDebug($"HIGHLIGHT--Countdown finished {remains.TotalSeconds % 2}");
-
                                 if (Math.Floor(remains.TotalSeconds) % 2 == 0)
                                 {
                                     clock.CurrentBackgroundColor = clock.Message.AlmostDoneColor;
+                                    clock.CurrentLabel = clock.Message.Label;
                                 }
                                 else
                                 {
                                     clock.CurrentBackgroundColor = clock.Message.PayAttentionColor;
+                                    clock.CurrentForegroundColor = Clock.OvertimeForegroundColor;
+                                    clock.CurrentLabel = clock.Message.OvertimeLabel;
                                 }
                             }
 
@@ -646,15 +634,16 @@ namespace Timekeeper.Client.Model
                 existingClock.IsPlayStopDisabled = false;
                 existingClock.IsNudgeDisabled = true;
                 existingClock.IsConfigDisabled = false;
-                _log.LogDebug($"HIGHLIGHT--CountDown {existingClock.Message.CountDown}");
-                _log.LogDebug($"HIGHLIGHT--ServerTime {existingClock.Message.ServerTime}");
-                await RestoreClock(existingClock);
+                _log.LogDebug($"CountDown {existingClock.Message.CountDown}");
+                _log.LogDebug($"ServerTime {existingClock.Message.ServerTime}");
+                existingClock.Message.Nudge = TimeSpan.FromSeconds(0);
                 existingClock.ResetDisplay();
                 existingClock.Message.ServerTime = DateTime.MinValue;
                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);
             }
             else
             {
+                _log.LogTrace("Removing clock in StopLocalClock");
                 CurrentSession.Clocks.Remove(existingClock);
                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);
             }
