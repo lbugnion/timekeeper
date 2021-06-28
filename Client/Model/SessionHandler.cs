@@ -112,6 +112,7 @@ namespace Timekeeper.Client.Model
             {
                 var duplicatedClock = new Clock();
                 duplicatedClock.Update(clock.Message, false);
+                duplicatedClock.CurrentLabel = clock.Message.Label;
                 newSession.Clocks.Add(duplicatedClock);
             }
 

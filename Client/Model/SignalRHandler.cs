@@ -468,6 +468,7 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogDebug($"Found clock {existingClock.Message.Label}, updating");
                     existingClock.Update(clockMessage, false);
+                    existingClock.CurrentLabel = clockMessage.Label;
                 }
 
                 _log.LogDebug($"Clock {existingClock.Message.Label} remains {existingClock.Remains}");

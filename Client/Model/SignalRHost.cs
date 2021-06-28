@@ -299,6 +299,7 @@ namespace Timekeeper.Client.Model
                             {
                                 await StopLocalClock(info.Clock.ClockId, true);
                                 existingClock.Update(info.Clock, true);
+                                existingClock.CurrentLabel = info.Clock.Label;
                                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                                 RaiseUpdateEvent();
                             }
@@ -335,6 +336,7 @@ namespace Timekeeper.Client.Model
                     if (newClockMessage != null)
                     {
                         newClock.Update(newClockMessage, true);
+                        newClock.CurrentLabel = newClockMessage.Label;
                     }
                     else
                     {
