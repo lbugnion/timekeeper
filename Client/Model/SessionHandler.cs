@@ -112,6 +112,7 @@ namespace Timekeeper.Client.Model
             {
                 var duplicatedClock = new Clock();
                 duplicatedClock.Update(clock.Message, false);
+                duplicatedClock.CurrentLabel = clock.Message.Label;
                 newSession.Clocks.Add(duplicatedClock);
             }
 
@@ -151,6 +152,8 @@ namespace Timekeeper.Client.Model
                 {
                     clock.ResetDisplay();
                     clock.CurrentBackgroundColor = Clock.DefaultBackgroundColor;
+                    clock.CurrentForegroundColor = Clock.DefaultForegroundColor;
+                    clock.CurrentLabel = clock.Message.Label;
                     clock.IsClockRunning = false;
                     clock.IsConfigDisabled = false;
                     clock.IsPlayStopDisabled = false;

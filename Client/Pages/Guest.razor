@@ -7,16 +7,34 @@
 @inject IJSRuntime JSRuntime
 @inject SessionHandler Session
 
-<header class="@Today.BackgroundClass">
+<header class="@UiVisibility @Today.BackgroundClass">
     <img src="@Today.ImagePath"
          class="logo-image" />
 </header>
 
-<main>
+<main class="@UiVisibility">
     <article>
+
+        @if (UiVisibility == VisibilityVisible)
+        {
+            <button @onclick="ToggleFocus"
+                    title="Toggle focus mode"
+                    class="focus">
+                <i class="fas fa-expand"></i>
+            </button>
+        }
+        else
+        {
+            <button @onclick="ToggleFocus"
+                    title="Toggle focus mode"
+                    class="focus">
+                <i class="fas fa-compress"></i>
+            </button>
+        }
+
         @if (ShowNoSessionMessage)
         {
-            <h1 class="@Today.ForegroundClass">@Branding.GuestPageTitle</h1>
+            <h1 class="@UiVisibility @Today.ForegroundClass">@Branding.GuestPageTitle</h1>
 
             <blockquote class="warning">
                 Please ask the Host to give you a link with a session ID.
@@ -32,17 +50,17 @@
                 }
                 else
                 {
-                    <h1 class="@Today.ForegroundClass">@GuestName</h1>
+                    <h1 class="@UiVisibility @Today.ForegroundClass">@GuestName</h1>
                 }
 
                 @if (!Handler.IsBusy)
                 {
-                    <div class="edit-link"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
+                    <div class="edit-link @UiVisibility"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
                 }
             }
             else
             {
-                <h1 class="@Today.ForegroundClass">@Branding.GuestPageTitle</h1>
+                <h1 class="@UiVisibility @Today.ForegroundClass">@Branding.GuestPageTitle</h1>
             }
 
             @if (Program.IsExperimental)
@@ -53,18 +71,18 @@
             @if (Handler.CurrentSession == null
                || Handler.CurrentSession.Clocks.Count == 0)
             {
-                <blockquote class="no-clocks-no-session">
+                <blockquote class="no-clocks-no-session @UiVisibility">
                     Clocks will appear here when the Host starts them. Stay tuned!!
                 </blockquote>
             }
             else
             {
-                <ul id="listofclocks">
+                <ul id="listofclocks" class="@UiVisibility">
                     @foreach (var clock in Handler.CurrentSession.Clocks)
                     {
-                        <li style="background-color: @clock.CurrentBackgroundColor">
+                        <li style="background-color: @clock.CurrentBackgroundColor;color: @clock.CurrentForegroundColor">
                             <div class="clock-area clock-area-guest">
-                                <div class="clock-label">@clock.Message.Label</div>
+                                <div class="clock-label">@clock.CurrentLabel</div>
                                 <div class="clock-text">@clock.ClockDisplay</div>
                             </div>
                         </li>
@@ -72,7 +90,7 @@
                 </ul>
             }
 
-            <div class="message-area">
+            <div class="message-area guest-message-area">
                 <p><span class="message-text">@Handler.CurrentMessage</span></p>
             </div>
 
@@ -91,7 +109,7 @@
     </article>
 </main>
 
-<footer class="@Today.FooterClass">
+<footer class="@UiVisibility @Today.FooterClass">
     @if (!ShowNoSessionMessage)
     {
         <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>

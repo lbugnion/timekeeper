@@ -10,12 +10,6 @@ namespace Timekeeper.DataModel
         private string _payAttentionColor;
         private string _runningColor;
 
-        public string SenderId
-        {
-            get;
-            set;
-        }
-
         public TimeSpan AlmostDone
         {
             get;
@@ -176,6 +170,18 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public TimeSpan Nudge
+        {
+            get;
+            set;
+        }
+
+        public string OvertimeLabel
+        {
+            get;
+            set;
+        }
+
         public TimeSpan PayAttention
         {
             get;
@@ -280,6 +286,12 @@ namespace Timekeeper.DataModel
             }
         }
 
+        public string SenderId
+        {
+            get;
+            set;
+        }
+
         public DateTime ServerTime
         {
             get;
@@ -291,6 +303,11 @@ namespace Timekeeper.DataModel
         {
             get;
             set;
+        }
+
+        public StartClockMessage()
+        {
+            OvertimeLabel = Clock.DefaultOvertimeLabel;
         }
 
         public override string ToString()
