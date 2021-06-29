@@ -33,22 +33,52 @@
                                    @bind-Value="@CurrentClockLabel" />
                     </div>
 
-                    <div class="edit-area">
-                        <p class="form-label">Overtime label</p>
-                        <p class="form-explanation">Enter a text to be shown when the clock is running over.</p>
-                        <InputText class="medium-input-text"
-                                   @bind-Value="@CurrentClockMessage.OvertimeLabel" />
-                    </div>
-
-                    <div class="edit-area">
-                        <p class="form-label">Countdown (hh:mm:ss)</p>
-                        <p class="form-explanation">Enter the hours, minutes and seconds that the clock should countdown from</p>
-
-                        <div class="config-time">
-                            <InputNumber class="short-input-text"
-                                         @bind-Value="@CurrentClockMessage.CountDownHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.CountDownMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.CountDownSeconds" />
+                    @if (!CurrentClockMessage.CountDownToTime)
+                    {
+                        <div class="edit-area">
+                            <InputCheckbox @bind-Value="@CurrentClockMessage.ShowCurrentTime" /> Show current time
                         </div>
-                    </div>
+                    }
+
+                    @if (!CurrentClockMessage.ShowCurrentTime)
+                    {
+                        <div class="edit-area">
+                            <InputCheckbox @bind-Value="@CurrentClockMessage.IsCountingDownToTime" /> Count down to time
+                        </div>
+                    }
+
+                    @if (!CurrentClockMessage.ShowCurrentTime
+                        && !CurrentClockMessage.IsCountingDownToTime)
+                    {
+                        <div class="edit-area">
+                            <p class="form-label">Overtime label</p>
+                            <p class="form-explanation">Enter a text to be shown when the clock is running over.</p>
+                            <InputText class="medium-input-text"
+                                       @bind-Value="@CurrentClockMessage.OvertimeLabel" />
+                        </div>
+                    }
+
+                    @if (!CurrentClockMessage.ShowCurrentTime)
+                    {
+                        <div class="edit-area">
+                            @if (CurrentClockMessage.IsCountingDownToTime)
+                            {
+                                <p class="form-label">Target time (hh:mm:ss)</p>
+                                <p class="form-explanation">Enter the time that the clock should countdown to</p>
+                            }
+                            else
+                            {
+                                <p class="form-label">Countdown (hh:mm:ss)</p>
+                                <p class="form-explanation">Enter the hours, minutes and seconds that the clock should countdown from</p>
+                            }
+
+
+                            <div class="config-time">
+                                <InputNumber class="short-input-text"
+                                             @bind-Value="@CurrentClockMessage.CountDownHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.CountDownMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.CountDownSeconds" />
+                            </div>
+                        </div>
+                    }
 
                     <div class="edit-area">
                         <p class="form-label">'Running' color</p>

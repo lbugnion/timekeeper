@@ -98,6 +98,12 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public TimeSpan CountDownToTime
+        {
+            get;
+            set;
+        }
+
         public TimeSpan CountDown
         {
             get;
@@ -313,6 +319,18 @@ namespace Timekeeper.DataModel
         public override string ToString()
         {
             return ServerTime.ToString();
+        }
+
+        public bool ShowCurrentTime
+        {
+            get;
+            set;
+        }
+
+        public bool IsCountingDownToTime
+        {
+            get;
+            set;
         }
     }
 }
