@@ -2,24 +2,6 @@
 
 ## Known issues (still open)
 
-### Planned for [V0.6.2 Small improvements](https://github.com/lbugnion/timekeeper/milestone/33) *(open)*
-
-[bug # 131](https://github.com/lbugnion/timekeeper/issues/131) *(open)*: CSS issue in mobile 
-
-[bug # 134](https://github.com/lbugnion/timekeeper/issues/134) *(open)*: Sometimes the Nudge time is saved to the local session
-
-[bug # 135](https://github.com/lbugnion/timekeeper/issues/135) *(open)*: Logout functionality seems to fail to log the user out
-
-[enhancement # 137](https://github.com/lbugnion/timekeeper/issues/137) *(open)*: Add a [CLEAR] button to clear the chat on the clients
-
-[enhancement # 138](https://github.com/lbugnion/timekeeper/issues/138) *(open)*: Add a "Focus Mode" that removes all headers/footers/branding
-
-[bug # 141](https://github.com/lbugnion/timekeeper/issues/141) *(open)*: Navigation bug after editing a clock
-
-[enhancement # 143](https://github.com/lbugnion/timekeeper/issues/143) *(open)*: Provide the guest URL as a QR Code
-
-[enhancement # 144](https://github.com/lbugnion/timekeeper/issues/144) *(open)*: Flash the timer when it reaches 0:0:0 and count up from zero
-
 ### Planned for [V0.6.3 Multihosts enhancements](https://github.com/lbugnion/timekeeper/milestone/32) *(open)*
 
 [question # 127](https://github.com/lbugnion/timekeeper/issues/127) *(open)*: Do we need to save the session to the cloud when a new message is sent?
@@ -27,6 +9,16 @@
 [question # 128](https://github.com/lbugnion/timekeeper/issues/128) *(open)*: Do we need to save the session to the cloud when a clock is started? 
 
 [bug # 132](https://github.com/lbugnion/timekeeper/issues/132) *(open)*: Stopping the clocks -> Change session button on second host is not re-enabled.
+
+[bug # 135](https://github.com/lbugnion/timekeeper/issues/135) *(open)*: Logout functionality seems to fail to log the user out
+
+[bug # 141](https://github.com/lbugnion/timekeeper/issues/141) *(open)*: Navigation bug after editing a clock
+
+[bug # 147](https://github.com/lbugnion/timekeeper/issues/147) *(open)*: When resizing the Guest window height, the edit button overlaps the guest name
+
+[enhancement # 150](https://github.com/lbugnion/timekeeper/issues/150) *(open)*: Add "show current time" to clock configuration
+
+[enhancement # 151](https://github.com/lbugnion/timekeeper/issues/151) *(open)*: Add "show time remaining until" in clock configuration
 
 ### Planned for [V0.7 Enhancements](https://github.com/lbugnion/timekeeper/milestone/15) *(open)*
 
@@ -47,6 +39,8 @@
 [question # 106](https://github.com/lbugnion/timekeeper/issues/106) *(open)*: Can we trigger full screen mode from the (mobile) screen?
 
 [enhancement # 142](https://github.com/lbugnion/timekeeper/issues/142) *(open)*: Add a feature to delete a session
+
+[enhancement # 146](https://github.com/lbugnion/timekeeper/issues/146) *(open)*: Handle a unique URL leading to a given session for a Host
 
 ### Planned for [V0.8 Teleprompter](https://github.com/lbugnion/timekeeper/milestone/24) *(open)*
 
@@ -106,9 +100,23 @@
 
 [bug # 130](https://github.com/lbugnion/timekeeper/issues/130) *(closed on 01 Jan 0001)*: When clock expires, the display doesn't reset on the Host
 
-### Fixed issues in [V0.6.2 Small improvements](https://github.com/lbugnion/timekeeper/milestone/33) *(open)*
+### Fixed issues in [V0.6.2 Small improvements](https://github.com/lbugnion/timekeeper/milestone/33) *(closed on 29 Jun 2021)*
 
-[enhancement # 136](https://github.com/lbugnion/timekeeper/issues/136) *(closed on 01 Jan 0001)*: Add a possibility to remove a clock once it reached 0
+[bug # 131](https://github.com/lbugnion/timekeeper/issues/131) *(closed on 29 Jun 2021)*: CSS issue in mobile 
+
+[bug # 134](https://github.com/lbugnion/timekeeper/issues/134) *(closed on 29 Jun 2021)*: Sometimes the Nudge time is saved to the local session
+
+[enhancement # 136](https://github.com/lbugnion/timekeeper/issues/136) *(closed on 29 Jun 2021)*: Add a possibility to remove a clock once it reached 0
+
+[enhancement # 137](https://github.com/lbugnion/timekeeper/issues/137) *(closed on 29 Jun 2021)*: Add a [CLEAR] button to clear the chat on the clients
+
+[enhancement # 138](https://github.com/lbugnion/timekeeper/issues/138) *(closed on 29 Jun 2021)*: Add a "Focus Mode" that removes all headers/footers/branding
+
+[enhancement # 143](https://github.com/lbugnion/timekeeper/issues/143) *(closed on 29 Jun 2021)*: Provide the guest URL as a QR Code
+
+[enhancement # 144](https://github.com/lbugnion/timekeeper/issues/144) *(closed on 29 Jun 2021)*: Flash the timer when it reaches 0:0:0 and count up from zero
+
+[bug # 145](https://github.com/lbugnion/timekeeper/issues/145) *(closed on 29 Jun 2021)*: Host should get info on running clocks when it reconnects
 
 ### Fixed issues in [V0.5.6.4_Bugfixes](https://github.com/lbugnion/timekeeper/milestone/31) *(closed on 26 Apr 2021)*
 
