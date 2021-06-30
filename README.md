@@ -6,6 +6,12 @@ Imagine that you are the host for a streamed show, doing some recordings, or any
 
 This application offers a solution to the problem.
 
+## Tutorial
+
+[![See the Timekeeper tutorial](./img/video-thumbnail.png)](https://youtu.be/dMjiX2NFIrg)
+
+## Features
+
 * Send the URL to your guests and ask them to load this on a phone, PC, Mac.
 * When ready, start one or more clock(s). All your guests will see the exact same time.
 * After a predefined time, the screen turns green, yellow and then red for all guests.
@@ -27,4 +33,4 @@ This application offers a solution to the problem.
 
 ## Release notes
 
-You can follow the [progress on the development of this app here](./release-notes-timekeeper.md).
+You can follow the [progress on the development of this app here](./release-notes.md).
