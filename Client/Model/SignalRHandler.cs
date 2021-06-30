@@ -510,7 +510,7 @@ namespace Timekeeper.Client.Model
             activeClock.IsSelected = false;
             activeClock.IsPlayStopDisabled = false;
             activeClock.IsConfigDisabled = true;
-            activeClock.IsNudgeDisabled = false;
+            activeClock.IsNudgeDisabled = activeClock.Message.ShowCurrentTime;
             activeClock.IsClockRunning = true;
 
             if (IsTaskRunning)
@@ -535,11 +535,26 @@ namespace Timekeeper.Client.Model
                     {
                         if (clock.IsClockRunning)
                         {
-                            var remains = clock.Remains;
-
                             clock.CurrentBackgroundColor = clock.Message.RunningColor;
                             clock.CurrentForegroundColor = Clock.DefaultForegroundColor;
                             clock.CurrentLabel = clock.Message.Label;
+
+                            if (clock.Message.ShowCurrentTime)
+                            {
+                                clock.ClockDisplay = DateTime.Now.ToString(@"hh\:mm\:ss");
+                                continue;
+                            }
+
+                            TimeSpan remains;
+
+                            if (clock.Message.IsCountingDownToTime)
+                            {
+                                remains = clock.RemainsToTime;
+                            }
+                            else
+                            {
+                                remains = clock.Remains;
+                            }
 
                             if (Math.Floor(remains.TotalSeconds) <= clock.Message.PayAttention.TotalSeconds)
                             {

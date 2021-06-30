@@ -672,7 +672,16 @@ namespace Timekeeper.Client.Model
                 clock.IsPlayStopDisabled = true;
                 clock.IsConfigDisabled = true;
                 clock.IsClockRunning = false;
-                clock.ClockDisplay = (clock.Message.CountDown + clock.Message.Nudge).ToString("c");
+
+                if (clock.Message.ShowCurrentTime
+                    || clock.Message.IsCountingDownToTime)
+                {
+                    clock.ClockDisplay = TimeSpan.FromSeconds(0).ToString("c");
+                }
+                else
+                {
+                    clock.ClockDisplay = (clock.Message.CountDown + clock.Message.Nudge).ToString("c");
+                }
             }
 
             RaiseUpdateEvent();

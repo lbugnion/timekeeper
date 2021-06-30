@@ -33,7 +33,7 @@
                                    @bind-Value="@CurrentClockLabel" />
                     </div>
 
-                    @if (!CurrentClockMessage.CountDownToTime)
+                    @if (!CurrentClockMessage.IsCountingDownToTime)
                     {
                         <div class="edit-area">
                             <InputCheckbox @bind-Value="@CurrentClockMessage.ShowCurrentTime" /> Show current time
@@ -88,41 +88,45 @@
                                    @bind-Value="@CurrentClockMessage.RunningColor" />
                     </div>
 
-                    <div class="edit-area">
-                        <p class="form-label">'Pay attention' (hh:mm:ss)</p>
-                        <p class="form-explanation">Enter the hours, minutes and seconds from which the screen turns to the 'Pay attention' color (see below)</p>
+                    @if (!CurrentClockMessage.ShowCurrentTime
+                       && !CurrentClockMessage.IsCountingDownToTime)
+                    { 
+                        <div class="edit-area">
+                            <p class="form-label">'Pay attention' (hh:mm:ss)</p>
+                            <p class="form-explanation">Enter the hours, minutes and seconds from which the screen turns to the 'Pay attention' color (see below)</p>
 
-                        <div class="config-time">
-                            <InputNumber class="short-input-text"
-                                         @bind-Value="@CurrentClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.PayAttentionSeconds" />
+                            <div class="config-time">
+                                <InputNumber class="short-input-text"
+                                             @bind-Value="@CurrentClockMessage.PayAttentionHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.PayAttentionMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.PayAttentionSeconds" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="edit-area">
-                        <p class="form-label">'Pay attention' color</p>
-                        <p class="form-explanation-color"
-                           style="background-color: @CurrentClockMessage.PayAttentionColor">The color to which the background will turn when the clock reaches the 'Pay attention' time above. <a href="https://colorpicker.me/">Online colorpicker</a>.</p>
-                        <InputText class="medium-input-text"
-                                   @bind-Value="@CurrentClockMessage.PayAttentionColor" />
-                    </div>
-
-                    <div class="edit-area">
-                        <p class="form-label">'Almost done' (hh:mm:ss)</p>
-                        <p class="form-explanation">Enter the hours, minutes and seconds from which the screen turns to the 'Almost done' color (see below)</p>
-
-                        <div class="config-time">
-                            <InputNumber class="short-input-text"
-                                         @bind-Value="@CurrentClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.AlmostDoneSeconds" />
+                        <div class="edit-area">
+                            <p class="form-label">'Pay attention' color</p>
+                            <p class="form-explanation-color"
+                               style="background-color: @CurrentClockMessage.PayAttentionColor">The color to which the background will turn when the clock reaches the 'Pay attention' time above. <a href="https://colorpicker.me/">Online colorpicker</a>.</p>
+                            <InputText class="medium-input-text"
+                                       @bind-Value="@CurrentClockMessage.PayAttentionColor" />
                         </div>
-                    </div>
 
-                    <div class="edit-area">
-                        <p class="form-label">'Almost done' color</p>
-                        <p class="form-explanation-color"
-                           style="background-color: @CurrentClockMessage.AlmostDoneColor">The color to which the background will turn when the clock reaches the 'Almost done' time above. <a href="https://colorpicker.me/">Online colorpicker</a></p>
-                        <InputText class="medium-input-text"
-                                   @bind-Value="@CurrentClockMessage.AlmostDoneColor" />
-                    </div>
+                        <div class="edit-area">
+                            <p class="form-label">'Almost done' (hh:mm:ss)</p>
+                            <p class="form-explanation">Enter the hours, minutes and seconds from which the screen turns to the 'Almost done' color (see below)</p>
+
+                            <div class="config-time">
+                                <InputNumber class="short-input-text"
+                                             @bind-Value="@CurrentClockMessage.AlmostDoneHours" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.AlmostDoneMinutes" />&nbsp;:&nbsp;<InputNumber class="short-input-text" @bind-Value="@CurrentClockMessage.AlmostDoneSeconds" />
+                            </div>
+                        </div>
+
+                        <div class="edit-area">
+                            <p class="form-label">'Almost done' color</p>
+                            <p class="form-explanation-color"
+                               style="background-color: @CurrentClockMessage.AlmostDoneColor">The color to which the background will turn when the clock reaches the 'Almost done' time above. <a href="https://colorpicker.me/">Online colorpicker</a></p>
+                            <InputText class="medium-input-text"
+                                       @bind-Value="@CurrentClockMessage.AlmostDoneColor" />
+                        </div>
+                    }
 
                     <ValidationSummary />
 

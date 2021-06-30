@@ -98,7 +98,7 @@ namespace Timekeeper.DataModel
             set;
         }
 
-        public TimeSpan CountDownToTime
+        public DateTime CountDownToTime
         {
             get;
             set;
@@ -117,15 +117,36 @@ namespace Timekeeper.DataModel
         {
             get
             {
+                if (IsCountingDownToTime)
+                {
+                    return CountDownToTime.Hour;
+                }
+
                 return CountDown.Hours;
             }
             set
             {
-                if (value != CountDown.Hours
-                    && value >= 0
-                    && value < 24)
+                if (IsCountingDownToTime)
                 {
-                    CountDown = new TimeSpan(value, CountDown.Minutes, CountDown.Seconds);
+                    if (value != CountDownToTime.Hour
+                        && value >= 0
+                        && value < 24)
+                    {
+                        var increment = value - CountDownToTime.Hour;
+                        CountDownToTime += TimeSpan.FromHours(increment);
+                    }
+                }
+                else
+                {
+                    if (value != CountDown.Hours
+                        && value >= 0
+                        && value < 24)
+                    {
+                        CountDown = new TimeSpan(
+                            value, 
+                            CountDown.Minutes, 
+                            CountDown.Seconds);
+                    }
                 }
             }
         }
@@ -137,15 +158,36 @@ namespace Timekeeper.DataModel
         {
             get
             {
+                if (IsCountingDownToTime)
+                {
+                    return CountDownToTime.Minute;
+                }
+
                 return CountDown.Minutes;
             }
             set
             {
-                if (value != CountDown.Minutes
-                    && value >= 0
-                    && value < 60)
+                if (IsCountingDownToTime)
                 {
-                    CountDown = new TimeSpan(CountDown.Hours, value, CountDown.Seconds);
+                    if (value != CountDownToTime.Minute
+                        && value >= 0
+                        && value < 60)
+                    {
+                        var increment = value - CountDownToTime.Minute;
+                        CountDownToTime += TimeSpan.FromMinutes(increment);
+                    }
+                }
+                else
+                {
+                    if (value != CountDown.Minutes
+                        && value >= 0
+                        && value < 60)
+                    {
+                        CountDown = new TimeSpan(
+                            CountDown.Hours, 
+                            value, 
+                            CountDown.Seconds);
+                    }
                 }
             }
         }
@@ -157,15 +199,36 @@ namespace Timekeeper.DataModel
         {
             get
             {
+                if (IsCountingDownToTime)
+                {
+                    return CountDownToTime.Second;
+                }
+
                 return CountDown.Seconds;
             }
             set
             {
-                if (value != CountDown.Seconds
-                    && value >= 0
-                    && value < 60)
+                if (IsCountingDownToTime)
                 {
-                    CountDown = new TimeSpan(CountDown.Hours, CountDown.Minutes, value);
+                    if (value != CountDownToTime.Second
+                        && value >= 0
+                        && value < 60)
+                    {
+                        var increment = value - CountDownToTime.Second;
+                        CountDownToTime += TimeSpan.FromSeconds(increment);
+                    }
+                }
+                else
+                {
+                    if (value != CountDown.Seconds
+                        && value >= 0
+                        && value < 60)
+                    {
+                        CountDown = new TimeSpan(
+                            CountDown.Hours, 
+                            CountDown.Minutes, 
+                            value);
+                    }
                 }
             }
         }

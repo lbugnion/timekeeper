@@ -88,6 +88,15 @@ namespace Timekeeper.DataModel
             }
         }
 
+        public TimeSpan RemainsToTime
+        {
+            get
+            {
+                var remains = Message.CountDownToTime - DateTime.Now + Message.Nudge;
+                return remains;
+            }
+        }
+
         public Clock(StartClockMessage message)
             : base()
         {
@@ -115,13 +124,37 @@ namespace Timekeeper.DataModel
 
         public void Reset()
         {
+            if (Message.IsCountingDownToTime)
+            {
+                if (Message.CountDownToTime < DateTime.Now)
+                {
+                    // TODO CONTINUE
+
+                    Message.CountDownToTime += DateTime.Now - Message.CountDownToTime;
+
+                    while (Message.CountDownToTime < DateTime.Now)
+                    {
+                        Message.CountDownToTime += TimeSpan.FromDays(1);
+                    }
+                }
+            }
+
             ResetDisplay();
             Message.ServerTime = DateTime.Now;
         }
 
         public void ResetDisplay()
         {
-            ClockDisplay = (Message.CountDown + Message.Nudge).ToString("c");
+            if (Message.ShowCurrentTime
+                || Message.IsCountingDownToTime)
+            {
+                ClockDisplay = TimeSpan.FromSeconds(0).ToString("c");
+            }
+            else
+            {
+                ClockDisplay = (Message.CountDown + Message.Nudge).ToString("c");
+            }
+
             CurrentBackgroundColor = DefaultBackgroundColor;
             CurrentForegroundColor = DefaultForegroundColor;
             CurrentLabel = Message.Label;

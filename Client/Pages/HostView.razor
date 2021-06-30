@@ -37,6 +37,7 @@
         {
             <li style="background-color: @clock.CurrentBackgroundColor; color: @clock.CurrentForegroundColor">
                 <div class="clock-area">
+
                     <div class="nudge-buttons-area">
                         <button class="nudge-button"
                                 title="Nudge up 30 seconds"
@@ -93,6 +94,7 @@
                                     disabled="@clock.IsConfigDisabled">
                                 <i class="fas fa-cog"></i>
                             </button>
+
                             <button @onclick="(e => Handler.AddClockAfter(clock))"
                                     title="Add a clock after this one">
                                 <i class="fas fa-plus-square"></i>
@@ -123,6 +125,7 @@
                                     <i class="far fa-circle"></i>
                                 </button>
                             }
+
                         </div>
                     </div>
                 </div>
