@@ -70,7 +70,7 @@ namespace Timekeeper.Client.Pages
                 }
 
                 environment = $"| {config.GetValue<string>("Environment")}";
-                if (environment == "Production")
+                if (environment == "| Production")
                 {
                     environment = string.Empty;
                 }
