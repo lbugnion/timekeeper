@@ -4,8 +4,8 @@
 @inject IJSRuntime JSRuntime
 
 @if (Handler.CurrentSession != null
- && Handler.IsAuthorized != null
- && Handler.IsAuthorized.Value)
+  && Handler.IsAuthorized != null
+  && Handler.IsAuthorized.Value)
 {
     @if (IsEditingSessionName)
     {
@@ -35,7 +35,7 @@
 
         @foreach (var clock in Handler.CurrentSession.Clocks)
         {
-            <li style="background-color: @clock.CurrentBackgroundColor">
+            <li style="background-color: @clock.CurrentBackgroundColor; color: @clock.CurrentForegroundColor">
                 <div class="clock-area">
                     <div class="nudge-buttons-area">
                         <button class="nudge-button"
@@ -66,7 +66,7 @@
 
                     <div class="clock-display-controls-area">
                         <div class="clock-display-area">
-                            <div class="clock-label">@clock.Message.Label</div>
+                            <div class="clock-label">@clock.CurrentLabel</div>
                             <div class="clock-text">@clock.ClockDisplay</div>
                         </div>
 
@@ -76,7 +76,7 @@
                                 <button @onclick="(e => Handler.StopClock(clock))"
                                         disabled="@clock.IsPlayStopDisabled"
                                         title="Stop this clock">
-                                    <i class="fa fa-stop"></i>
+                                    <i class="fas fa-stop"></i>
                                 </button>
                             }
                             else
@@ -84,18 +84,18 @@
                                 <button @onclick="(e => Handler.StartClock(clock, true))"
                                         disabled="@clock.IsPlayStopDisabled"
                                         title="Start this clock">
-                                    <i class="fa fa-play"></i>
+                                    <i class="fas fa-play"></i>
                                 </button>
                             }
 
                             <button @onclick="(e => ConfigureClock(clock))"
                                     title="Configure this clock"
                                     disabled="@clock.IsConfigDisabled">
-                                <i class="fa fa-cog"></i>
+                                <i class="fas fa-cog"></i>
                             </button>
                             <button @onclick="(e => Handler.AddClockAfter(clock))"
                                     title="Add a clock after this one">
-                                <i class="fa fa-plus-square"></i>
+                                <i class="fas fa-plus-square"></i>
                             </button>
 
                             @if (Handler.CurrentSession.Clocks.Count > 1)
@@ -103,7 +103,7 @@
                                 <button @onclick="(e => Handler.DeleteClock(clock))"
                                         title="Delete this clock"
                                         disabled="@clock.IsConfigDisabled">
-                                    <i class="fa fa-minus-square"></i>
+                                    <i class="fas fa-minus-square"></i>
                                 </button>
                             }
 
@@ -112,7 +112,7 @@
                                 <button @onclick="clock.ToggleSelect"
                                         title="Unselect this clock"
                                         class="clock-selection">
-                                    <i class="fa fa-check-square-o"></i>
+                                    <i class="far fa-check-circle"></i>
                                 </button>
                             }
                             else
@@ -120,7 +120,7 @@
                                 <button @onclick="clock.ToggleSelect"
                                         title="Select this clock"
                                         class="clock-selection">
-                                    <i class="fa fa-square-o"></i>
+                                    <i class="far fa-circle"></i>
                                 </button>
                             }
                         </div>
@@ -157,12 +157,8 @@ else
 }
 
 @if (Handler.IsAuthorized != null
-   && Handler.IsAuthorized.Value)
+  && Handler.IsAuthorized.Value)
 {
-    <div class="message-area">
-        <p><span class="message-text">@Handler.CurrentMessage</span></p>
-    </div>
-
     <div class="controls-area">
 
         <div class="send-message-area">
@@ -179,13 +175,17 @@ else
             <br />
 
             <button disabled="@Handler.IsSendMessageDisabled"
-                    @onclick="@Handler.SendInputMessage"
-                    id="send-message-button">
-                Send Message
+                    @onclick="@Handler.SendInputMessage">
+                Send
+            </button>
+
+            <button disabled="@Handler.IsSendMessageDisabled"
+                    @onclick="@Handler.ClearInputMessage">
+                Clear
             </button>
 
             @if (Mobile != null
-               && Mobile.IsNoSleepVisible)
+              && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
@@ -198,15 +198,24 @@ else
         </div>
     </div>
 
+    <div class="message-area">
+        <p><span class="message-text">@Handler.CurrentMessage</span></p>
+    </div>
+
     <h2>Session</h2>
 
     @if (Handler.CurrentSession != null
-       && !Handler.IsInError)
+      && !Handler.IsInError)
     {
         <div class="session-information-area">
             <h3>Send this link to your guests so they can connect to the session:</h3>
 
             <p><a href="@GuestUrl">@GuestUrl</a></p>
+
+            <p><img src="@GuestUrlQrCode"
+                    class="qr-code"
+                    alt="Use this QR Code to connect"
+                    title="Use this QR Code to connect"/></p>
         </div>
 
         <div class="session-information-area">
@@ -227,7 +236,7 @@ else
             }
 
             @if (Branding.CanEditGuestName
-             && IsPeersListExpanded)
+              && IsPeersListExpanded)
             {
                 <ul class="connected-peers-list">
                     @if (Handler.AnonymousHosts > 0)

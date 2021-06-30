@@ -16,3 +16,6 @@ GET {{function-url}}/version
 
 ### Get version (protected)
 GET {{function-url-protected}}/version
+
+### Get QR Code
+GET {{function-url}}/qr?text=http%3A%2F%2Fmicrosoft.com

@@ -16,6 +16,12 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string Beta
+        {
+            get;
+            private set;
+        }
+
         public string Environment
         {
             get;
@@ -45,30 +51,7 @@ namespace Timekeeper.Client.Pages
                 return;
             }
 
-            try
-            {
-                var version = Assembly
-                    .GetExecutingAssembly()
-                    .GetName()
-                    .Version;
-
-                Log.LogDebug($"Full version: {version}");
-                ClientVersion = $"V{version.ToString(4)}";
-                Log.LogDebug($"clientVersion: {ClientVersion}");
-
-                var environment = Config.GetValue<string>("Environment");
-                if (environment == "Production")
-                {
-                    environment = string.Empty;
-                }
-
-                Environment = environment;
-            }
-            catch
-            {
-                Log.LogWarning($"Assembly not found");
-                ClientVersion = "N/A";
-            }
+            (ClientVersion, Beta, Environment) = About.MakeClientVersion(Config, Log);
         }
 
         public void LogInHost()

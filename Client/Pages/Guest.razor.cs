@@ -13,6 +13,9 @@ namespace Timekeeper.Client.Pages
 
         private const string SaveGuestNameText = "save your name";
 
+        private const string VisibilityVisible = "visible";
+        private const string VisibilityInvisible = "invisible";
+
         public string EditGuestNameLinkText
         {
             get;
@@ -69,6 +72,8 @@ namespace Timekeeper.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
+
+            UiVisibility = VisibilityVisible;
 
             if (string.IsNullOrEmpty(SessionId))
             {
@@ -140,6 +145,34 @@ namespace Timekeeper.Client.Pages
                 GuestName = Handler.PeerInfo.Message.DisplayName;
                 await Handler.SavePeerInfo();
                 await Handler.AnnounceName();
+            }
+        }
+
+        public string UiVisibility
+        {
+            get;
+            set;
+        }
+
+        public string ToggleButtonClass
+        {
+            get;
+            set;
+        }
+
+        private void ToggleFocus()
+        {
+            Log.LogTrace("HIGHLIGHT---> ToggleFocus");
+
+            if (UiVisibility == VisibilityVisible)
+            {
+                Log.LogTrace("HIGHLIGHT--Setting Invisible");
+                UiVisibility = VisibilityInvisible;
+            }
+            else
+            {
+                Log.LogTrace("HIGHLIGHT--Setting Visible");
+                UiVisibility = VisibilityVisible;
             }
         }
     }

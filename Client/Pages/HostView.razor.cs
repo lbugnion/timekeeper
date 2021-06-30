@@ -5,6 +5,7 @@ using Microsoft.JSInterop;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Timekeeper.Client.Model;
 using Timekeeper.DataModel;
 
@@ -29,6 +30,22 @@ namespace Timekeeper.Client.Pages
             get
             {
                 return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
+            }
+        }
+
+        public string GuestUrlQrCode
+        {
+            get
+            {
+                var url = HttpUtility.UrlEncode(GuestUrl);
+                var codeUrl = $"{Nav.BaseUri}api/qr?text={url}";
+
+#if DEBUG
+                codeUrl = $"http://localhost:7071/api/qr?text={url}";
+#endif
+
+                Log.LogDebug($"codeUrl: {codeUrl}");
+                return codeUrl;
             }
         }
 

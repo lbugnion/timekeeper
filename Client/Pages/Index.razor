@@ -14,18 +14,6 @@
     <article>
         <h1>@Branding.MainPageTitle</h1>
 
-        @*<blockquote class="hello-world-warning">
-            <a href="/helloworld-backstage"
-               target="_blank">
-                <img src="/images/hello-world/hello-world-logo-tue.png"
-                     class="logo-image"
-                     style="width: 200px;" />
-            </a>
-            <br /><br />
-            Are you looking for the <a href="/helloworld-backstage"
-                                       target="_blank">Hello World Backstage Channel?</a>
-        </blockquote>*@
-
         @if (Program.IsExperimental)
         {
             <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
@@ -38,7 +26,7 @@
 
         <h2>Try it by yourself</h2>
 
-        <div class="controls-area">
+        <div class="controls-area last-controls-area">
             <button @onclick="LogInHost">Log in as the host</button>
         </div>
 
@@ -54,6 +42,7 @@
             <li>After a predefined time, the screen turns green, yellow and then red for all guests.</li>
             <li>The Host can send messages to the guests.</li>
             <li>The Host can configure the countdown time, as well as background colors at predefined times.</li>
+            <li>The Host can prepare, save and run multiple sessions at once.</li>
         </ul>
 
         <h2>Plans for later</h2>
@@ -61,14 +50,13 @@
         <ul>
             <li>The Host will be able to set up predefined messages.</li>
             <li>The Host will be able to pause/resume the clock.</li>
-            <li>The Host will be able to prepare, save and run multiple sessions at once.</li>
             <li>Maybe more...</li>
         </ul>
     </article>
 </main>
 
 <footer>
-    <div class="status-message">Version: @ClientVersion @Environment</div>
+    <div class="status-message">Version: @ClientVersion @Beta @Environment</div>
 
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>
