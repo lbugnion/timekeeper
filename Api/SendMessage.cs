@@ -44,7 +44,7 @@ namespace Timekeeper
                 await queue.AddAsync(
                     new SignalRMessage
                     {
-                        Target = Constants.HostToGuestMessageName,
+                        Target = Constants.HostToPeerMessageName,
                         Arguments = new[] { requestBody },
                         GroupName = groupId.ToString()
                     });

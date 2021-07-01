@@ -2,7 +2,7 @@
 
 namespace Timekeeper.DataModel
 {
-    public class GuestMessage
+    public class PeerMessage
     {
         public const string AnonymousName = "Anonymous";
 
@@ -17,16 +17,24 @@ namespace Timekeeper.DataModel
         {
             get
             {
+                var suffix = IsHost ? " (host)" : string.Empty;
+
                 if (string.IsNullOrEmpty(CustomName))
                 {
-                    return AnonymousName;
+                    return AnonymousName + suffix;
                 }
 
-                return CustomName;
+                return CustomName + suffix;
             }
         }
 
-        public string GuestId
+        public bool IsHost
+        {
+            get;
+            set;
+        }
+
+        public string PeerId
         {
             get;
             set;

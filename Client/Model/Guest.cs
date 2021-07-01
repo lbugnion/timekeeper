@@ -6,36 +6,34 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {
-    public class Guest
+    public class Peer
     {
         private static ILocalStorageService _localStorage;
         private static ILogger _log;
-        public const string GuestStorageKey = "GuestStorageKey";
 
-        public GuestMessage Message
+        public PeerMessage Message
         {
             get;
             internal set;
         }
 
-        public Guest(string guestId)
+        public Peer(string peerId)
         {
-            Message = new GuestMessage
+            Message = new PeerMessage
             {
-                GuestId = guestId
+                PeerId = peerId
             };
         }
 
-        public static async Task<GuestMessage> GetFromStorage()
+        public static async Task<PeerMessage> GetFromStorage(string key)
         {
-            var json = await _localStorage.GetItemAsStringAsync(
-                GuestStorageKey);
+            var json = await _localStorage.GetItemAsStringAsync(key);
 
             _log.LogDebug($"Getting: {json}");
 
             if (!string.IsNullOrEmpty(json))
             {
-                var savedGuest = JsonConvert.DeserializeObject<GuestMessage>(json);
+                var savedGuest = JsonConvert.DeserializeObject<PeerMessage>(json);
                 _log.LogDebug($"Guest name: {savedGuest.DisplayName}");
 
                 return savedGuest;
@@ -52,19 +50,19 @@ namespace Timekeeper.Client.Model
             _log = log;
         }
 
-        public async Task DeleteFromStorage()
+        public async Task DeleteFromStorage(string key)
         {
-            await _localStorage.RemoveItemAsync(GuestStorageKey);
+            await _localStorage.RemoveItemAsync(key);
         }
 
-        public async Task Save()
+        public async Task Save(string key)
         {
             var json = JsonConvert.SerializeObject(Message);
 
             _log.LogDebug($"Saving: {json}");
 
             await _localStorage.SetItemAsync(
-                GuestStorageKey,
+                key,
                 json);
         }
     }

@@ -1,12 +1,11 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 namespace Timekeeper
@@ -16,9 +15,9 @@ namespace Timekeeper
         [FunctionName(nameof(RequestAnnounce))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous, 
-                "get", 
-                Route = "request-announce")] 
+                AuthorizationLevel.Anonymous,
+                "get",
+                Route = "request-announce")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
@@ -38,7 +37,7 @@ namespace Timekeeper
                 await queue.AddAsync(
                     new SignalRMessage
                     {
-                        Target = Constants.HostToGuestRequestAnnounceMessageName,
+                        Target = Constants.HostToPeerRequestAnnounceMessageName,
                         Arguments = new object[] { },
                         GroupName = groupId.ToString()
                     });
@@ -53,4 +52,3 @@ namespace Timekeeper
         }
     }
 }
-

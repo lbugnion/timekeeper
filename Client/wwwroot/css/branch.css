@@ -3,23 +3,19 @@
     margin: 0;
 }
 
-header {
+.header {
     background-color: #68CBDA;
 }
 
-footer {
+.footer {
     background-color: #68CBDA;
 }
 
-h1 {
+.foreground {
     color: #68CBDA;
 }
 
-h2 {
-    color: #68CBDA;
-}
-
-.connected-guests {
+.connected-peers {
     color: white;
 }
 

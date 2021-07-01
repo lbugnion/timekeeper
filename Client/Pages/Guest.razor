@@ -1,21 +1,40 @@
 ﻿@page "/guest"
-@page "/guest/{Session}"
+@page "/guest/{SessionId}"
 @inject HttpClient Http
 @inject ILogger<Guest> Log
 @inject IConfiguration Config
 @inject ILocalStorageService LocalStorage
 @inject IJSRuntime JSRuntime
+@inject SessionHandler Session
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@UiVisibility @Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
-<main>
+<main class="@UiVisibility">
     <article>
+
+        @if (UiVisibility == VisibilityVisible)
+        {
+            <button @onclick="ToggleFocus"
+                    title="Toggle focus mode"
+                    class="focus">
+                <i class="fas fa-expand"></i>
+            </button>
+        }
+        else
+        {
+            <button @onclick="ToggleFocus"
+                    title="Toggle focus mode"
+                    class="focus">
+                <i class="fas fa-compress"></i>
+            </button>
+        }
+
         @if (ShowNoSessionMessage)
         {
-            <h1>@Branding.GuestPageTitle</h1>
+            <h1 class="@UiVisibility @Branding.ForegroundClass">@Branding.GuestPageTitle</h1>
 
             <blockquote class="warning">
                 Please ask the Host to give you a link with a session ID.
@@ -23,7 +42,7 @@
         }
         else
         {
-            @if (Branding.CanEditSessionAndGuestName)
+            @if (Branding.CanEditGuestName)
             {
                 @if (IsEditingGuestName)
                 {
@@ -31,17 +50,17 @@
                 }
                 else
                 {
-                    <h1>@GuestName</h1>
+                    <h1 class="@UiVisibility @Branding.ForegroundClass">@GuestName</h1>
                 }
 
                 @if (!Handler.IsBusy)
                 {
-                    <div class="edit-link"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
+                    <div class="edit-link @UiVisibility"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
                 }
             }
             else
             {
-                <h1>@Branding.GuestPageTitle</h1>
+                <h1 class="@UiVisibility @Branding.ForegroundClass">@Branding.GuestPageTitle</h1>
             }
 
             @if (Program.IsExperimental)
@@ -50,20 +69,20 @@
             }
 
             @if (Handler.CurrentSession == null
-                || Handler.CurrentSession.Clocks.Count == 0)
+               || Handler.CurrentSession.Clocks.Count == 0)
             {
-                <blockquote class="no-clocks-no-session">
+                <blockquote class="no-clocks-no-session @UiVisibility">
                     Clocks will appear here when the Host starts them. Stay tuned!!
                 </blockquote>
             }
             else
             {
-                <ul id="listofclocks">
+                <ul id="listofclocks" class="@UiVisibility">
                     @foreach (var clock in Handler.CurrentSession.Clocks)
                     {
-                        <li style="background-color: @clock.CurrentBackgroundColor">
+                        <li style="background-color: @clock.CurrentBackgroundColor;color: @clock.CurrentForegroundColor">
                             <div class="clock-area clock-area-guest">
-                                <div class="clock-label">@clock.Message.Label</div>
+                                <div class="clock-label">@clock.CurrentLabel</div>
                                 <div class="clock-text">@clock.ClockDisplay</div>
                             </div>
                         </li>
@@ -71,12 +90,12 @@
                 </ul>
             }
 
-            <div class="message-area">
+            <div class="message-area guest-message-area">
                 <p><span class="message-text">@Handler.CurrentMessage</span></p>
             </div>
 
             @if (Mobile != null
-               && Mobile.IsNoSleepVisible)
+              && Mobile.IsNoSleepVisible)
             {
                 <div class="no-sleep-area">
                     <button @onclick="@Mobile.EnableNoSleep"
@@ -90,7 +109,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@UiVisibility @Branding.FooterClass">
     @if (!ShowNoSessionMessage)
     {
         <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>

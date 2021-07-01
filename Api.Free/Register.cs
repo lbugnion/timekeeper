@@ -39,6 +39,8 @@ namespace Timekeeper
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var userInfo = JsonConvert.DeserializeObject<UserInfo>(requestBody);
 
+            log.LogDebug($"UserId: {userInfo.UserId}");
+
             await signalRGroupActions.AddAsync(
                 new SignalRGroupAction
                 {
@@ -74,6 +76,8 @@ namespace Timekeeper
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var userInfo = JsonConvert.DeserializeObject<UserInfo>(requestBody);
+
+            log.LogDebug($"UserId: {userInfo.UserId}");
 
             await signalRGroupActions.AddAsync(
                 new SignalRGroupAction
