@@ -2,19 +2,15 @@
     width: 270px;
 }
 
-header {
+.header {
     background-color: #003084;
 }
 
-footer {
+.footer {
     background-color: #7FC9FF;
 }
 
-h1 {
-    color: #003084;
-}
-
-h2 {
+.foreground {
     color: #003084;
 }
 

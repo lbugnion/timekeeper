@@ -24,5 +24,13 @@
         public const string WindowTitle = "Timekeeper";
         
         public const bool MustAuthorize = false;
+
+        public static string HeaderClass => "header";
+
+        public static string ImagePath => "images/header-logo.png";
+
+        public static string ForegroundClass => "foreground";
+
+        public static string FooterClass => "footer";
     }
 }

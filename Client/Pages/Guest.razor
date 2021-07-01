@@ -7,8 +7,8 @@
 @inject IJSRuntime JSRuntime
 @inject SessionHandler Session
 
-<header class="@UiVisibility">
-    <img src="images/header-logo.png"
+<header class="@UiVisibility @Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
@@ -34,7 +34,7 @@
 
         @if (ShowNoSessionMessage)
         {
-            <h1 class="@UiVisibility">@Branding.GuestPageTitle</h1>
+            <h1 class="@UiVisibility @Branding.ForegroundClass">@Branding.GuestPageTitle</h1>
 
             <blockquote class="warning">
                 Please ask the Host to give you a link with a session ID.
@@ -50,7 +50,7 @@
                 }
                 else
                 {
-                    <h1 class="@UiVisibility">@GuestName</h1>
+                    <h1 class="@UiVisibility @Branding.ForegroundClass">@GuestName</h1>
                 }
 
                 @if (!Handler.IsBusy)
@@ -60,7 +60,7 @@
             }
             else
             {
-                <h1 class="@UiVisibility">@Branding.GuestPageTitle</h1>
+                <h1 class="@UiVisibility @Branding.ForegroundClass">@Branding.GuestPageTitle</h1>
             }
 
             @if (Program.IsExperimental)
@@ -109,7 +109,7 @@
     </article>
 </main>
 
-<footer class="@UiVisibility">
+<footer class="@UiVisibility @Branding.FooterClass">
     @if (!ShowNoSessionMessage)
     {
         <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>

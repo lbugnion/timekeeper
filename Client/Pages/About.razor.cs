@@ -35,7 +35,6 @@ namespace Timekeeper.Client.Pages
         protected override void OnInitialized()
         {
             Log.LogInformation("-> About.OnInitialized");
-
             (ClientVersion, Beta, Environment) = MakeClientVersion(Config, Log);
         }
 

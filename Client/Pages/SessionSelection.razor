@@ -7,14 +7,14 @@
 @inject NavigationManager Nav
 @inject ILocalStorageService Storage
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.SessionPageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.SessionPageTitle</h1>
 
         @if (Session.CloudSessions == null)
         {
@@ -28,7 +28,7 @@
             }
             else
             {
-                <h2>Select a session</h2>
+                <h2 class="@Branding.ForegroundClass">Select a session</h2>
 
                 <ul>
                     @foreach (var session in Session.CloudSessions.OrderBy(s => s.SessionName))
@@ -53,7 +53,7 @@
 
         @if (Session.State >= 1)
         {
-            <h2>Create a new session</h2>
+            <h2 class="@Branding.ForegroundClass">Create a new session</h2>
 
             @if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -79,7 +79,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Branding.FooterClass">
     @if (Branding.MustAuthorize)
     {
         <AuthorizeView>

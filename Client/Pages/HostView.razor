@@ -13,7 +13,7 @@
     }
     else
     {
-        <h1>@SessionName</h1>
+        <h1 class="@Branding.ForegroundClass">@SessionName</h1>
     }
 
     @if (!Handler.IsBusy)
@@ -202,13 +202,13 @@ else
         <p><span class="message-text">@Handler.CurrentMessage</span></p>
     </div>
 
-    <h2>Session</h2>
+    <h2 class="@Branding.ForegroundClass">Session</h2>
 
     @if (Handler.CurrentSession != null
       && !Handler.IsInError)
     {
         <div class="session-information-area">
-            <h3>Send this link to your guests so they can connect to the session:</h3>
+            <h3 class="@Branding.ForegroundClass">Send this link to your guests so they can connect to the session:</h3>
 
             <p><a href="@GuestUrl">@GuestUrl</a></p>
 
@@ -219,7 +219,7 @@ else
         </div>
 
         <div class="session-information-area">
-            <h3>Connected guests</h3>
+            <h3 class="@Branding.ForegroundClass">Connected guests</h3>
 
             @if (Handler.ConnectedPeers.Count == 0)
             {
