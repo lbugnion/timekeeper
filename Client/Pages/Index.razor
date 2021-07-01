@@ -5,14 +5,14 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.MainPageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.MainPageTitle</h1>
 
         @if (Program.IsExperimental)
         {
@@ -24,7 +24,7 @@
             <blockquote class="warning"><strong>BETA:</strong> This is the beta version of Timekeeper. <a href="https://github.com/lbugnion/timekeeper/issues">Please report issues here</a>. You can find the <a href="http://www.timekeeper.cloud">stable version of Timekeeper here</a>.</blockquote>
         }
 
-        <h2>Try it by yourself</h2>
+        <h2 class="@Branding.ForegroundClass">Try it by yourself</h2>
 
         <div class="controls-area last-controls-area">
             <button @onclick="LogInHost">Log in as the host</button>
@@ -46,7 +46,7 @@
             To get a protected version of Timekeeper, contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
         </blockquote>
 
-        <h2>Features</h2>
+        <h2 class="@Branding.ForegroundClass">Features</h2>
 
         <ul>
             <li>Send the URL to your guests and ask them to load this on a phone, PC, Mac.</li>
@@ -57,7 +57,7 @@
             <li>The Host can prepare, save and run multiple sessions at once.</li>
         </ul>
 
-        <h2>Plans for later</h2>
+        <h2 class="@Branding.ForegroundClass">Plans for later</h2>
 
         <ul>
             <li>The Host will be able to set up predefined messages.</li>
@@ -67,7 +67,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Branding.FooterClass">
     <div class="status-message">Version: @ClientVersion @Beta @Environment</div>
 
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>

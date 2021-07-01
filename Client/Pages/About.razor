@@ -3,14 +3,14 @@
 @inject IConfiguration Config
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.AboutPageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.AboutPageTitle</h1>
 
         @if (Program.IsBeta)
         {
@@ -27,11 +27,11 @@
 
         <a name="tutorial"></a>
 
-        <h2>Tutorial</h2>
+        <h2 class="@Branding.ForegroundClass">Tutorial</h2>
 
         <iframe width="560" height="315" src="https://www.youtube.com/embed/x4zD_jvl-uw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-        <h2>Topics</h2>
+        <h2 class="@Branding.ForegroundClass">Topics</h2>
 
         <blockquote>
             This tutorial shows how to log in into a protected version of Timekeeper. The version on this site is not protected by authorization.
@@ -67,8 +67,8 @@
             <li><a href="https://youtu.be/x4zD_jvl-uw?t=243" target="_blank">Recovering from crash etc</a></li>
             <li><a href="https://youtu.be/x4zD_jvl-uw?t=261" target="_blank">Credits</a></li>
         </ul>
-
-        <h2>Dependencies and technologies</h2>
+        
+        <h2 class="@Branding.ForegroundClass">Dependencies and technologies</h2>
 
         <ul>
             <li><a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor">Blazor</a> by Microsoft</li>
@@ -79,7 +79,7 @@
             <li><a href="https://github.com/codebude/QRCoder">QRCoder</a> by <a href="https://github.com/codebude">Raffael Herrmann</a></li>
         </ul>
 
-        <h2>Release notes</h2>
+        <h2 class="@Branding.ForegroundClass">Release notes</h2>
 
         <ul>
             <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-client.md">Timekeeper Client</a></li>
@@ -91,7 +91,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Branding.FooterClass">
     <div class="status-message">
         Version: @ClientVersion @Beta @Environment
     </div>
