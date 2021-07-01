@@ -9,14 +9,14 @@
     };
 }
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.LoginPageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.LoginPageTitle</h1>
 
         <ul>
             @foreach (var provider in providers)
@@ -31,7 +31,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Branding.FooterClass">
     <div class="status-message">Please log in</div>
 
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>

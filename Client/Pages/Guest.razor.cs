@@ -13,6 +13,9 @@ namespace Timekeeper.Client.Pages
 
         private const string SaveGuestNameText = "save your name";
 
+        private const string VisibilityVisible = "visible";
+        private const string VisibilityInvisible = "invisible";
+
         public string EditGuestNameLinkText
         {
             get;
@@ -37,8 +40,14 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public MobileHandler Mobile
+        {
+            get;
+            private set;
+        }
+
         [Parameter]
-        public string Session
+        public string SessionId
         {
             get;
             set;
@@ -64,13 +73,15 @@ namespace Timekeeper.Client.Pages
         {
             Log.LogInformation("-> OnInitializedAsync");
 
-            if (string.IsNullOrEmpty(Session))
+            UiVisibility = VisibilityVisible;
+
+            if (string.IsNullOrEmpty(SessionId))
             {
                 ShowNoSessionMessage = true;
             }
             else
             {
-                var success = Guid.TryParse(Session, out Guid guid);
+                var success = Guid.TryParse(SessionId, out Guid guid);
 
                 if (!success
                     || guid == Guid.Empty)
@@ -88,12 +99,13 @@ namespace Timekeeper.Client.Pages
                         LocalStorage,
                         Log,
                         Http,
+                        SessionId,
                         Session);
 
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
 
-                    GuestName = Handler.GuestInfo.Message.DisplayName;
+                    GuestName = Handler.PeerInfo.Message.DisplayName;
                     Mobile = await new MobileHandler().Initialize(JSRuntime);
 
                     Log.LogDebug($"GuestName: {GuestName}");
@@ -101,12 +113,6 @@ namespace Timekeeper.Client.Pages
             }
 
             Log.LogInformation("OnInitializedAsync ->");
-        }
-
-        public MobileHandler Mobile
-        {
-            get;
-            private set;
         }
 
         public async void Dispose()
@@ -135,10 +141,38 @@ namespace Timekeeper.Client.Pages
             else
             {
                 EditGuestNameLinkText = EditGuestNameText;
-                Handler.GuestInfo.Message.CustomName = GuestName;
-                GuestName = Handler.GuestInfo.Message.DisplayName;
-                await Handler.GuestInfo.Save();
+                Handler.PeerInfo.Message.CustomName = GuestName;
+                GuestName = Handler.PeerInfo.Message.DisplayName;
+                await Handler.SavePeerInfo();
                 await Handler.AnnounceName();
+            }
+        }
+
+        public string UiVisibility
+        {
+            get;
+            set;
+        }
+
+        public string ToggleButtonClass
+        {
+            get;
+            set;
+        }
+
+        private void ToggleFocus()
+        {
+            Log.LogTrace("HIGHLIGHT---> ToggleFocus");
+
+            if (UiVisibility == VisibilityVisible)
+            {
+                Log.LogTrace("HIGHLIGHT--Setting Invisible");
+                UiVisibility = VisibilityInvisible;
+            }
+            else
+            {
+                Log.LogTrace("HIGHLIGHT--Setting Visible");
+                UiVisibility = VisibilityVisible;
             }
         }
     }

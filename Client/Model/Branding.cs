@@ -14,14 +14,23 @@
     public class Branding
     {
         public const string AboutPageTitle = "Timekeeper: About";
-        public const bool CanEditSessionAndGuestName = false;
+        public const bool AllowSessionSelection = false;
+        public const bool CanEditGuestName = false;
         public const string ConfigurePageTitle = "Timekeeper: Configure";
         public const string GuestPageTitle = "GX All Hands";
-        public const string HostPageTitle = "GX All Hands";
         public const string LoginPageTitle = "GX All Hands: Login";
         public const string MainPageTitle = "GX All Hands";
-        public const bool MustAuthorize = true;
-        public const string TemplateName = "ClocksTemplate";
+        public const string SessionPageTitle = "GX All Hands: Sessions";
         public const string WindowTitle = "GX All Hands";
+        
+        public const bool MustAuthorize = true;
+
+        public static string HeaderClass => "header";
+
+        public static string ImagePath => "images/header-logo.png";
+
+        public static string ForegroundClass => "foreground";
+
+        public static string FooterClass => "footer";
     }
 }
