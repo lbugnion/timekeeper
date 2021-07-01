@@ -5,26 +5,14 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.MainPageTitle</h1>
-
-        @*<blockquote class="hello-world-warning">
-            <a href="/helloworld-backstage"
-               target="_blank">
-                <img src="/images/hello-world/hello-world-logo-tue.png"
-                     class="logo-image"
-                     style="width: 200px;" />
-            </a>
-            <br /><br />
-            Are you looking for the <a href="/helloworld-backstage"
-                                       target="_blank">Hello World Backstage Channel?</a>
-        </blockquote>*@
+        <h1 class="@Branding.ForegroundClass">@Branding.MainPageTitle</h1>
 
         @if (Program.IsExperimental)
         {
@@ -36,17 +24,29 @@
             <blockquote class="warning"><strong>BETA:</strong> This is the beta version of Timekeeper. <a href="https://github.com/lbugnion/timekeeper/issues">Please report issues here</a>. You can find the <a href="http://www.timekeeper.cloud">stable version of Timekeeper here</a>.</blockquote>
         }
 
-        <h2>Try it by yourself</h2>
+        <h2 class="@Branding.ForegroundClass">Try it by yourself</h2>
 
-        <div class="controls-area">
+        <div class="controls-area last-controls-area">
             <button @onclick="LogInHost">Log in as the host</button>
         </div>
-
-        <h2>This is a work in progress.</h2>
 
         <p>Imagine that you are the host for a streamed show, doing some recordings, or any activity where you have a remote guest. One of the hardest parts is to keep track of time, and to let your guests know when the time is coming to an end.</p>
 
         <p>This application offers a solution to the problem.</p>
+
+        <h2>Tutorial</h2>
+
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/x4zD_jvl-uw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+        <p>(<a href="/about#tutorial">More info</a>)</p>
+
+        <blockquote>
+            This tutorial shows how to log in into a protected version of Timekeeper. The version on this site is not protected by authorization.
+            <br /><br />
+            To get a protected version of Timekeeper, contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+        </blockquote>
+
+        <h2 class="@Branding.ForegroundClass">Features</h2>
 
         <ul>
             <li>Send the URL to your guests and ask them to load this on a phone, PC, Mac.</li>
@@ -54,21 +54,21 @@
             <li>After a predefined time, the screen turns green, yellow and then red for all guests.</li>
             <li>The Host can send messages to the guests.</li>
             <li>The Host can configure the countdown time, as well as background colors at predefined times.</li>
+            <li>The Host can prepare, save and run multiple sessions at once.</li>
         </ul>
 
-        <h2>Plans for later</h2>
+        <h2 class="@Branding.ForegroundClass">Plans for later</h2>
 
         <ul>
             <li>The Host will be able to set up predefined messages.</li>
             <li>The Host will be able to pause/resume the clock.</li>
-            <li>The Host will be able to prepare, save and run multiple sessions at once.</li>
             <li>Maybe more...</li>
         </ul>
     </article>
 </main>
 
-<footer>
-    <div class="status-message">Version: @ClientVersion @Environment</div>
+<footer class="@Branding.FooterClass">
+    <div class="status-message">Version: @ClientVersion @Beta @Environment</div>
 
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>

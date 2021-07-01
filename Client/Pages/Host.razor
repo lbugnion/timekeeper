@@ -7,8 +7,8 @@
 @inject SessionHandler Session
 @inject ILocalStorageService LocalStorage
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 
     @if (Branding.MustAuthorize)
@@ -134,7 +134,7 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Branding.FooterClass">
     @if (Branding.MustAuthorize)
     {
         <AuthorizeView>

@@ -18,7 +18,6 @@
         public const bool CanEditGuestName = false;
         public const string ConfigurePageTitle = "A Bit of AI backstage: Configure";
         public const string GuestPageTitle = "A Bit of AI Guest Page";
-        public const string HostPageTitle = "A Bit of AI Host Page";
         public const string LoginPageTitle = "A Bit of AI backstage: Login";
         public const string MainPageTitle = "A Bit of AI backstage";
         public const string SessionPageTitle = "A Bit of AI backstage: Sessions";
@@ -29,5 +28,13 @@
 #else
         public const bool MustAuthorize = true;
 #endif
+
+        public static string HeaderClass => "header";
+
+        public static string ImagePath => "images/header-logo.png";
+
+        public static string ForegroundClass => "foreground";
+
+        public static string FooterClass => "footer";
     }
 }

@@ -4,14 +4,14 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Nav
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.ConfigurePageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.ConfigurePageTitle</h1>
 
         @if (CurrentClockMessage != null)
         {
@@ -30,7 +30,14 @@
                         <p class="form-label">Label</p>
                         <p class="form-explanation">Enter a friendly name to identify this clock</p>
                         <InputText class="medium-input-text"
-                                   @bind-Value="@CurrentClockMessage.Label" />
+                                   @bind-Value="@CurrentClockLabel" />
+                    </div>
+
+                    <div class="edit-area">
+                        <p class="form-label">Overtime label</p>
+                        <p class="form-explanation">Enter a text to be shown when the clock is running over.</p>
+                        <InputText class="medium-input-text"
+                                   @bind-Value="@CurrentClockMessage.OvertimeLabel" />
                     </div>
 
                     <div class="edit-area">
@@ -99,6 +106,6 @@
     </article>
 </main>
 
-<footer>
+<footer class="@Branding.FooterClass">
     <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
 </footer>

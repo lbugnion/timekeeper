@@ -35,6 +35,14 @@ namespace Timekeeper.Client.Pages
         protected override void OnInitialized()
         {
             Log.LogInformation("-> About.OnInitialized");
+            (ClientVersion, Beta, Environment) = MakeClientVersion(Config, Log);
+        }
+
+        public static (string clientVersion, string alphaBeta, string environment) MakeClientVersion(
+            IConfiguration config,
+            ILogger log)
+        {
+            string clientVersion, alphaBeta, environment;
 
             try
             {
@@ -43,34 +51,37 @@ namespace Timekeeper.Client.Pages
                     .GetName()
                     .Version;
 
-                Log.LogDebug($"Full version: {version}");
-                ClientVersion = $"V{version.ToString(4)}";
-                Log.LogDebug($"clientVersion: {ClientVersion}");
+                log.LogDebug($"Full version: {version}");
+                clientVersion = $"V{version.ToString(4)}";
+                alphaBeta = string.Empty;
+                log.LogDebug($"clientVersion: {clientVersion}");
 
-                if (version.Build == 8888)
+                if (version.Revision == 8888)
                 {
-                    ClientVersion = $"V{version.ToString(2)}";
-                    Beta = "Alpha";
+                    clientVersion = $"V{version.ToString(3)}";
+                    alphaBeta = "Alpha";
                 }
 
-                if (version.Build == 9999)
+                if (version.Revision == 9999)
                 {
-                    ClientVersion = $"V{version.ToString(2)}";
-                    Beta = "Beta";
+                    clientVersion = $"V{version.ToString(3)}";
+                    alphaBeta = "Beta";
                 }
 
-                var environment = Config.GetValue<string>("Environment");
-                if (environment == "Production")
+                environment = $"| {config.GetValue<string>("Environment")}";
+                if (environment == "| Production")
                 {
                     environment = string.Empty;
                 }
 
-                Environment = environment;
+                log.LogDebug($"environment: {environment}");
+
+                return (clientVersion, alphaBeta, environment);
             }
             catch
             {
-                Log.LogWarning($"Assembly not found");
-                ClientVersion = "N/A";
+                log.LogWarning($"Assembly not found");
+                return ("N/A", string.Empty, string.Empty);
             }
         }
     }

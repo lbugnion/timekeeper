@@ -299,6 +299,7 @@ namespace Timekeeper.Client.Model
                             {
                                 await StopLocalClock(info.Clock.ClockId, true);
                                 existingClock.Update(info.Clock, true);
+                                existingClock.CurrentLabel = info.Clock.Label;
                                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                                 RaiseUpdateEvent();
                             }
@@ -335,6 +336,7 @@ namespace Timekeeper.Client.Model
                     if (newClockMessage != null)
                     {
                         newClock.Update(newClockMessage, true);
+                        newClock.CurrentLabel = newClockMessage.Label;
                     }
                     else
                     {
@@ -496,13 +498,14 @@ namespace Timekeeper.Client.Model
                     clock.IsNudgeDisabled = true;
                     clock.SelectionChanged += ClockSelectionChanged;
 
-                    if (clock.Message.ServerTime + clock.Message.CountDown > DateTime.Now)
+                    if (clock.Message.ServerTime + clock.Message.CountDown + clock.Message.Nudge > DateTime.Now)
                     {
                         clock.IsClockRunning = true;
                         _log.LogDebug($"Label: {clock.Message.Label}");
                         _log.LogDebug($"ServerTime: {clock.Message.ServerTime}");
                         _log.LogDebug($"CountDown: {clock.Message.CountDown}");
-                        _log.LogDebug($"HIGHLIGHT--{clock.Message.Label} still active");
+                        _log.LogDebug($"Nudge: {clock.Message.Nudge}");
+                        _log.LogDebug($"{clock.Message.Label} still active");
                     }
                 }
 
@@ -654,6 +657,13 @@ namespace Timekeeper.Client.Model
                 await _session.SaveToStorage(CurrentSession, SessionKey, _log);
                 _log.LogTrace("Session saved to storage");
             }
+            else
+            {
+                // Refresh session
+                var sessions = await _session.GetSessions(_log);
+                var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+                CurrentSession = outSession;
+            }
 
             foreach (var clock in CurrentSession.Clocks)
             {
@@ -662,7 +672,7 @@ namespace Timekeeper.Client.Model
                 clock.IsPlayStopDisabled = true;
                 clock.IsConfigDisabled = true;
                 clock.IsClockRunning = false;
-                clock.ClockDisplay = clock.Message.CountDown.ToString("c");
+                clock.ClockDisplay = (clock.Message.CountDown + clock.Message.Nudge).ToString("c");
             }
 
             RaiseUpdateEvent();
@@ -675,8 +685,6 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> Nudge");
 
-            var timespan = TimeSpan.FromSeconds(Math.Abs(seconds));
-
             var clockInSession = CurrentSession.Clocks
                 .FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
 
@@ -686,25 +694,20 @@ namespace Timekeeper.Client.Model
                 return;
             }
 
+            var timespan = TimeSpan.FromSeconds(Math.Abs(seconds));
+
             if (seconds > 0)
             {
                 _log.LogDebug($"Adding {seconds} seconds");
-                clockInSession.Message.CountDown += timespan;
+                clockInSession.Message.Nudge += timespan;
             }
             else
             {
                 _log.LogDebug($"Substracting {seconds} seconds");
-
-                if (clockInSession.Message.CountDown.TotalSeconds <= timespan.TotalSeconds)
-                {
-                    clockInSession.Message.CountDown = TimeSpan.FromSeconds(1);
-                }
-                else
-                {
-                    clockInSession.Message.CountDown -= timespan;
-                }
+                clockInSession.Message.Nudge -= timespan;
             }
 
+            await _session.Save(CurrentSession, SessionKey, _log);
             await StartClock(clock, false); ;
         }
 
@@ -828,7 +831,13 @@ namespace Timekeeper.Client.Model
 
         public async Task SendInputMessage()
         {
-            await SendMessage(InputMessage);
+            await SendMessage(InputMessage.Trim());
+        }
+
+        public async Task ClearInputMessage()
+        {
+            InputMessage = "";
+            await SendMessage(" ");
         }
 
         public async Task SendMessage(string message)

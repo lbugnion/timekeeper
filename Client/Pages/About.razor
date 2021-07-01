@@ -3,14 +3,14 @@
 @inject IConfiguration Config
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.AboutPageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.AboutPageTitle</h1>
 
         @if (Program.IsBeta)
         {
@@ -24,11 +24,75 @@
             <br /><br />
             Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
         </blockquote>
+
+        <a name="tutorial"></a>
+
+        <h2 class="@Branding.ForegroundClass">Tutorial</h2>
+
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/x4zD_jvl-uw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+        <h2 class="@Branding.ForegroundClass">Topics</h2>
+
+        <blockquote>
+            This tutorial shows how to log in into a protected version of Timekeeper. The version on this site is not protected by authorization.
+            <br /><br />
+            To get a protected version of Timekeeper, contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+        </blockquote>
+
+        <ul>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=10" target="_blank">Logging in</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=20" target="_blank">Creating a session</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=26" target="_blank">Editing a clock</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=62" target="_blank">Adding a clock</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=71" target="_blank">Overtime label</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=79" target="_blank">Removing a clock</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=83" target="_blank">Sections: Sending messages</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=87" target="_blank">Sections: Session information</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=92" target="_blank">Connecting a guest</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=98" target="_blank">Connected peers</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=111" target="_blank">Starting multiple clocks</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=118" target="_blank">"Nudging"" a clock</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=137" target="_blank">"Pay attention" time</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=141" target="_blank">"Almost done" time</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=147" target="_blank">Going overtime</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=154" target="_blank">Stopping a clock</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=159" target="_blank">Connecting a mobile guest</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=170" target="_blank">Editing mobile guest name</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=176" target="_blank">Keeping mobile devices awake</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=180" target="_blank">Focus mode on mobile</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=186" target="_blank">Sending prompts</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=213" target="_blank">Clearing the prompt</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=217" target="_blank">Duplicating a session</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=231" target="_blank">Multi host</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=243" target="_blank">Recovering from crash etc</a></li>
+            <li><a href="https://youtu.be/x4zD_jvl-uw?t=261" target="_blank">Credits</a></li>
+        </ul>
+        
+        <h2 class="@Branding.ForegroundClass">Dependencies and technologies</h2>
+
+        <ul>
+            <li><a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor">Blazor</a> by Microsoft</li>
+            <li><a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview">Azure Functions</a> by Microsoft</li>
+            <li><a href="https://docs.microsoft.com/en-us/azure/azure-signalr/">Azure SignalR Service</a> by Microsoft</li>
+            <li><a href="https://www.newtonsoft.com/json">Json.NET</a> by Newtonsoft</li>
+            <li><a href="https://github.com/Blazored/LocalStorage">Blazored Local Storage</a> by <a href="https://github.com/chrissainty">Chris Sainty</a></li>
+            <li><a href="https://github.com/codebude/QRCoder">QRCoder</a> by <a href="https://github.com/codebude">Raffael Herrmann</a></li>
+        </ul>
+
+        <h2 class="@Branding.ForegroundClass">Release notes</h2>
+
+        <ul>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-client.md">Timekeeper Client</a></li>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-api.md">Timekeeper API</a></li>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-infrastructure.md">Infrastructure</a></li>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-documentation.md">Documentation</a></li>
+        </ul>
+
     </article>
 </main>
 
-<footer>
+<footer class="@Branding.FooterClass">
     <div class="status-message">
-        Version: @ClientVersion @Beta | @Environment
+        Version: @ClientVersion @Beta @Environment
     </div>
 </footer>
