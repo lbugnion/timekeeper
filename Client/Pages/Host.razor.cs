@@ -37,12 +37,6 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             StateHasChanged();
@@ -56,7 +50,6 @@ namespace Timekeeper.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> Host.OnInitializedAsync");
-            Today = new Days(Log);
 
 #if !DEBUG
             if (Branding.MustAuthorize)

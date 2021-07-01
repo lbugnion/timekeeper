@@ -3,14 +3,14 @@
 @inject IConfiguration Config
 @inject IJSRuntime JSRuntime
 
-<header class="@Today.BackgroundClass">
-    <img src="@Today.ImagePath"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1 class="@Today.ForegroundClass">@Branding.AboutPageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.AboutPageTitle</h1>
 
         @if (Program.IsBeta)
         {
@@ -25,11 +25,11 @@
             Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
         </blockquote>
 
-        <h2>Tutorial</h2>
+        <h2 class="@Branding.ForegroundClass">Tutorial</h2>
 
         <iframe width="560" height="315" src="https://www.youtube.com/embed/caBareE2Tpg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         
-        <h2>Dependencies and technologies</h2>
+        <h2 class="@Branding.ForegroundClass">Dependencies and technologies</h2>
 
         <ul>
             <li><a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor">Blazor</a> by Microsoft</li>
@@ -40,7 +40,7 @@
             <li><a href="https://github.com/codebude/QRCoder">QRCoder</a> by <a href="https://github.com/codebude">Raffael Herrmann</a></li>
         </ul>
 
-        <h2>Release notes</h2>
+        <h2 class="@Branding.ForegroundClass">Release notes</h2>
 
         <ul>
             <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-client.md">Timekeeper Client</a></li>
@@ -52,7 +52,7 @@
     </article>
 </main>
 
-<footer class="@Today.FooterClass">
+<footer class="@Branding.FooterClass">
     <div class="status-message">
         Version: @ClientVersion @Beta @Environment
     </div>

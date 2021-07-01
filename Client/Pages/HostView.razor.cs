@@ -97,12 +97,6 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         private async Task DoDeleteSession()
         {
             await Handler.DoDeleteSession();
@@ -112,7 +106,6 @@ namespace Timekeeper.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> HostView.OnInitializedAsync");
-            Today = new Days(Log);
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;

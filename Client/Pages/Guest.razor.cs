@@ -59,12 +59,6 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             StateHasChanged();
@@ -80,7 +74,6 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("-> OnInitializedAsync");
 
             UiVisibility = VisibilityVisible;
-            Today = new Days(Log);
 
             if (string.IsNullOrEmpty(SessionId))
             {

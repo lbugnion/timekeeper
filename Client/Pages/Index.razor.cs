@@ -35,12 +35,6 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
@@ -56,8 +50,6 @@ namespace Timekeeper.Client.Pages
                 Nav.NavigateTo($"/guest/{Session}");
                 return;
             }
-
-            Today = new Days(Log);
 
             (ClientVersion, Beta, Environment) = About.MakeClientVersion(Config, Log);
         }

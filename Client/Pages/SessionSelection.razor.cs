@@ -22,12 +22,6 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         private async Task CheckSetNewSession()
         {
             if (await Session.CheckSetNewSession(Log))
@@ -80,8 +74,6 @@ namespace Timekeeper.Client.Pages
         {
             Log.LogInformation("-> OnInitializedAsync");
             Log.LogDebug($"State: {Session.State}");
-
-            Today = new Days(Log);
 
             if (Session.State != 1)
             {

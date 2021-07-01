@@ -27,12 +27,6 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public Days Today
-        {
-            get;
-            set;
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
@@ -41,7 +35,6 @@ namespace Timekeeper.Client.Pages
         protected override void OnInitialized()
         {
             Log.LogInformation("-> About.OnInitialized");
-            Today = new Days(Log);
             (ClientVersion, Beta, Environment) = MakeClientVersion(Config, Log);
         }
 

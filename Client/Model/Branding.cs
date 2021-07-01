@@ -1,4 +1,6 @@
-﻿namespace Timekeeper.Client.Model
+﻿using System;
+
+namespace Timekeeper.Client.Model
 {
     /// <summary>
     /// When you create a new branch, use the data in this class
@@ -28,5 +30,42 @@
 #else
         public const bool MustAuthorize = true;
 #endif
+
+        public static string HeaderClass
+        {
+            get;
+            private set;
+        }
+
+        public static string ImagePath
+        {
+            get;
+            private set;
+        }
+
+        public static string ForegroundClass
+        {
+            get;
+            private set;
+        }
+
+        public static string FooterClass
+        {
+            get;
+            private set;
+        }
+
+        static Branding()
+        {
+            var currentDay = DateTime.Now
+                .ToString("ddd", System.Globalization.CultureInfo.InvariantCulture)
+                .ToLower();
+
+            ImagePath = $"/images/hello-world-logo-{currentDay}.png";
+
+            HeaderClass = $"background-day-{currentDay}";
+            ForegroundClass = $"foreground-day-{currentDay}";
+            FooterClass = $"footer-day-{currentDay}";
+        }
     }
 }
