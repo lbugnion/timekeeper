@@ -1,16 +1,21 @@
 ﻿@page "/about"
-@inject ILogger<Index> Log
+@inject ILogger<About> Log
 @inject IConfiguration Config
 @inject IJSRuntime JSRuntime
 
-<header>
-    <img src="images/header-logo.png"
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
          class="logo-image" />
 </header>
 
 <main>
     <article>
-        <h1>@Branding.AboutPageTitle</h1>
+        <h1 class="@Branding.ForegroundClass">@Branding.AboutPageTitle</h1>
+
+        @if (Program.IsBeta)
+        {
+            <blockquote class="warning"><strong>BETA:</strong> This is the beta version of Timekeeper. <a href="https://github.com/lbugnion/timekeeper/issues">Please report issues here</a>. You can find the <a href="http://www.timekeeper.cloud">stable version of Timekeeper here</a>.</blockquote>
+        }
 
         <blockquote>
             Timekeeper is a simple app running on PC, Mac and mobile phones. It allows a host and their guests (for example on a live stream) to keep track of time.
@@ -19,9 +24,32 @@
             <br /><br />
             Twitter: Laurent Bugnion <a href="https://twitter.com/lbugnion">@@LBugnion</a>
         </blockquote>
+        
+        <h2 class="@Branding.ForegroundClass">Dependencies and technologies</h2>
+
+        <ul>
+            <li><a href="https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor">Blazor</a> by Microsoft</li>
+            <li><a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview">Azure Functions</a> by Microsoft</li>
+            <li><a href="https://docs.microsoft.com/en-us/azure/azure-signalr/">Azure SignalR Service</a> by Microsoft</li>
+            <li><a href="https://www.newtonsoft.com/json">Json.NET</a> by Newtonsoft</li>
+            <li><a href="https://github.com/Blazored/LocalStorage">Blazored Local Storage</a> by <a href="https://github.com/chrissainty">Chris Sainty</a></li>
+            <li><a href="https://github.com/codebude/QRCoder">QRCoder</a> by <a href="https://github.com/codebude">Raffael Herrmann</a></li>
+        </ul>
+
+        <h2 class="@Branding.ForegroundClass">Release notes</h2>
+
+        <ul>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-client.md">Timekeeper Client</a></li>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-api.md">Timekeeper API</a></li>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-infrastructure.md">Infrastructure</a></li>
+            <li><a href="https://github.com/lbugnion/timekeeper/blob/main/release-notes-documentation.md">Documentation</a></li>
+        </ul>
+
     </article>
 </main>
 
-<footer>
-    <div class="status-message">Version: @ClientVersion @Environment</div>
+<footer class="@Branding.FooterClass">
+    <div class="status-message">
+        Version: @ClientVersion @Beta @Environment
+    </div>
 </footer>

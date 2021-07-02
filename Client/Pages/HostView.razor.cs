@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Timekeeper.Client.Model;
 using Timekeeper.DataModel;
 
@@ -14,26 +14,12 @@ namespace Timekeeper.Client.Pages
     public partial class HostView
     {
         private const string EditSessionNameText = "edit session name";
+        private const string HidePeersText = "hide";
         private const string SaveSessionNameText = "save session name";
-        private const string ShowGuestsText = "show";
-        private const string HideGuestsText = "hide";
+        private const string ShowPeersText = "show";
         public const string SendMessageInputId = "send-message-input";
 
-        public int AnonymousGuests
-        {
-            get
-            {
-                return Handler.ConnectedGuests.Count(g => string.IsNullOrEmpty(g.CustomName));
-            }
-        }
-
         public string EditSessionNameLinkText
-        {
-            get;
-            private set;
-        }
-
-        public string GuestListLinkText
         {
             get;
             private set;
@@ -44,6 +30,22 @@ namespace Timekeeper.Client.Pages
             get
             {
                 return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
+            }
+        }
+
+        public string GuestUrlQrCode
+        {
+            get
+            {
+                var url = HttpUtility.UrlEncode(GuestUrl);
+                var codeUrl = $"{Nav.BaseUri}api/qr?text={url}";
+
+#if DEBUG
+                codeUrl = $"http://localhost:7071/api/qr?text={url}";
+#endif
+
+                Log.LogDebug($"codeUrl: {codeUrl}");
+                return codeUrl;
             }
         }
 
@@ -60,20 +62,32 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public bool IsGuestListExpanded
+        public bool IsPeersListExpanded
         {
             get;
             private set;
         }
 
-        public IList<GuestMessage> NamedGuests
+        public MobileHandler Mobile
+        {
+            get;
+            private set;
+        }
+
+        public IList<PeerMessage> NamedGuests
         {
             get
             {
-                return Handler.ConnectedGuests
+                return Handler.ConnectedPeers
                     .Where(g => !string.IsNullOrEmpty(g.CustomName))
                     .ToList();
             }
+        }
+
+        public string PeerListLinkText
+        {
+            get;
+            private set;
         }
 
         [Parameter]
@@ -83,10 +97,10 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public MobileHandler Mobile
+        private async Task DoDeleteSession()
         {
-            get;
-            private set;
+            await Handler.DoDeleteSession();
+            Nav.NavigateTo("/host", forceLoad: true);
         }
 
         protected override async Task OnInitializedAsync()
@@ -95,9 +109,10 @@ namespace Timekeeper.Client.Pages
             IsEditingSessionName = false;
             SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
-            GuestListLinkText = ShowGuestsText;
+            PeerListLinkText = ShowPeersText;
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
+            Log.LogInformation("HostView.OnInitializedAsync ->");
         }
 
         public void ConfigureClock(Clock clock)
@@ -107,6 +122,8 @@ namespace Timekeeper.Client.Pages
 
         public void ConfigureClock(string clockId)
         {
+            Log.LogInformation("-> ConfigureClock");
+
             if (Handler.PrepareClockToConfigure(clockId))
             {
                 Nav.NavigateTo("/configure");
@@ -118,13 +135,10 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
-        public void LogOut()
-        {
-            Nav.NavigateTo("/.auth/logout?post_logout_redirect_uri=/", forceLoad: true);
-        }
-
         public async Task EditSessionName()
         {
+            Log.LogInformation("-> HostView.EditSessionName");
+
             IsEditingSessionName = !IsEditingSessionName;
 
             if (IsEditingSessionName)
@@ -146,6 +160,12 @@ namespace Timekeeper.Client.Pages
                 }
 
                 await Handler.SaveSession();
+
+                await Handler.UpdateRemoteHosts(
+                    UpdateAction.UpdateSessionName,
+                    SessionName,
+                    null,
+                    null);
             }
         }
 
@@ -163,10 +183,21 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public void ToggleIsGuestListExpanded()
+        public void LogOut()
         {
-            IsGuestListExpanded = !IsGuestListExpanded;
-            GuestListLinkText = IsGuestListExpanded ? HideGuestsText : ShowGuestsText;
+            Nav.NavigateTo("/.auth/logout?post_logout_redirect_uri=/", forceLoad: true);
+        }
+
+        public async Task NavigateToSession()
+        {
+            await Handler.ResetState();
+            Nav.NavigateTo("/session");
+        }
+
+        public void ToggleIsPeersListExpanded()
+        {
+            IsPeersListExpanded = !IsPeersListExpanded;
+            PeerListLinkText = IsPeersListExpanded ? HidePeersText : ShowPeersText;
         }
     }
 }

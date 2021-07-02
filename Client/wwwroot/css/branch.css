@@ -3,23 +3,19 @@
     margin: 20px 0 0 20px;
 }
 
-header {
+.header {
     background-color: #a3dcf7;
 }
 
-footer {
+.footer {
     background-color: #a3dcf7;
 }
 
-h1 {
+.foreground {
     color: #13AFF2;
 }
 
-h2 {
-    color: #13AFF2;
-}
-
-.connected-guests {
+.connected-peers {
     color: white;
 }
 

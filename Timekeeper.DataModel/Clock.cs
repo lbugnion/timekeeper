@@ -1,18 +1,19 @@
 ﻿using System;
-using Timekeeper.DataModel;
 
-namespace Timekeeper.Client.Model
+namespace Timekeeper.DataModel
 {
     public class Clock
     {
-        public event EventHandler CountdownFinished;
         public event EventHandler<bool> SelectionChanged;
 
         public const string DefaultAlmostDoneColor = "#FF6B77";
         public const string DefaultBackgroundColor = "#EEEEEE";
         public const string DefaultClockDisplay = "00:00:00";
+        public const string DefaultForegroundColor = "#000000";
+        public const string DefaultOvertimeLabel = "OVERTIME!";
         public const string DefaultPayAttentionColor = "#FFFB91";
         public const string DefaultRunningColor = "#3AFFA9";
+        public const string OvertimeForegroundColor = "#FF0000";
         public static readonly TimeSpan DefaultAlmostDone = TimeSpan.FromSeconds(30);
         public static readonly TimeSpan DefaultCountDown = TimeSpan.FromMinutes(5);
         public static readonly TimeSpan DefaultPayAttention = TimeSpan.FromMinutes(2);
@@ -29,7 +30,37 @@ namespace Timekeeper.Client.Model
             set;
         }
 
+        public string CurrentForegroundColor
+        {
+            get;
+            set;
+        }
+        
+        public string CurrentLabel
+        {
+            get;
+            set;
+        }
+
         public bool IsClockRunning
+        {
+            get;
+            set;
+        }
+
+        public bool IsConfigDisabled
+        {
+            get;
+            set;
+        }
+
+        public bool IsNudgeDisabled
+        {
+            get;
+            set;
+        }
+
+        public bool IsPlayStopDisabled
         {
             get;
             set;
@@ -39,36 +70,6 @@ namespace Timekeeper.Client.Model
         {
             get;
             set;
-        }
-
-        public void ToggleSelect()
-        {
-            IsSelected = !IsSelected;
-            SelectionChanged?.Invoke(this, IsSelected);
-        }
-
-        public bool IsPlayStopDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsConfigDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsDeleteDisabled
-        {
-            get;
-            internal set;
-        }
-
-        public bool IsNudgeDisabled
-        {
-            get;
-            internal set;
         }
 
         public StartClockMessage Message
@@ -82,7 +83,7 @@ namespace Timekeeper.Client.Model
             get
             {
                 var elapsed = DateTime.Now - Message.ServerTime;
-                var remains = Message.CountDown - elapsed;
+                var remains = Message.CountDown + Message.Nudge - elapsed;
                 return remains;
             }
         }
@@ -112,11 +113,6 @@ namespace Timekeeper.Client.Model
             ResetDisplay();
         }
 
-        public void RaiseCountdownFinished()
-        {
-            CountdownFinished?.Invoke(this, EventArgs.Empty);
-        }
-
         public void Reset()
         {
             ResetDisplay();
@@ -125,13 +121,39 @@ namespace Timekeeper.Client.Model
 
         public void ResetDisplay()
         {
-            ClockDisplay = Message.CountDown.ToString("c");
+            ClockDisplay = (Message.CountDown + Message.Nudge).ToString("c");
             CurrentBackgroundColor = DefaultBackgroundColor;
+            CurrentForegroundColor = DefaultForegroundColor;
+            CurrentLabel = Message.Label;
         }
 
-        public void Restore(Clock clockInSavedSession)
+        public void ToggleSelect()
         {
-            Message = clockInSavedSession.Message;
+            IsSelected = !IsSelected;
+            SelectionChanged?.Invoke(this, IsSelected);
+        }
+
+        public void Update(
+            StartClockMessage model,
+            bool copyIdToo)
+        {
+            Message.AlmostDone = model.AlmostDone;
+            Message.AlmostDoneColor = model.AlmostDoneColor;
+            Message.CountDown = model.CountDown;
+            Message.Nudge = model.Nudge;
+            Message.Label = model.Label;
+            Message.PayAttention = model.PayAttention;
+            Message.PayAttentionColor = model.PayAttentionColor;
+            Message.Position = model.Position;
+            Message.RunningColor = model.RunningColor;
+            Message.ServerTime = model.ServerTime;
+            Message.Position = model.Position;
+
+            if (copyIdToo)
+            {
+                Message.ClockId = model.ClockId;
+                ResetDisplay();
+            }
         }
     }
 }
