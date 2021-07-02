@@ -166,7 +166,7 @@ namespace Timekeeper.Client.Model
         public async Task<IList<SessionBase>> GetSessions(
                     ILogger log)
         {
-            log.LogInformation("-> SessionHandler.Get");
+            log.LogInformation("-> SessionHandler.GetSessions");
 
             var branchId = _config.GetValue<string>(Constants.BranchIdKey);
             log.LogDebug($"branchId: {branchId}");
@@ -179,10 +179,12 @@ namespace Timekeeper.Client.Model
 
                 if (string.IsNullOrEmpty(json))
                 {
+                    log.LogTrace("Json is null");
                     return null;
                 }
 
                 CloudSessions = JsonConvert.DeserializeObject<IList<SessionBase>>(json);
+                log.LogDebug($"Found {CloudSessions.Count} sessions");
                 return CloudSessions;
             }
             catch (Exception ex)

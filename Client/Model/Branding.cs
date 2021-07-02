@@ -14,7 +14,6 @@
     public class Branding
     {
         public const string AboutPageTitle = "Timekeeper: About";
-        public const bool AllowSessionSelection = false;
         public const bool CanEditGuestName = false;
         public const string ConfigurePageTitle = "Timekeeper: Configure";
         public const string GuestPageTitle = "GX All Hands";
@@ -22,8 +21,12 @@
         public const string MainPageTitle = "GX All Hands";
         public const string SessionPageTitle = "GX All Hands: Sessions";
         public const string WindowTitle = "GX All Hands";
-        
+
+#if DEBUG
+        public const bool MustAuthorize = false;
+#else
         public const bool MustAuthorize = true;
+#endif
 
         public static string HeaderClass => "header";
 

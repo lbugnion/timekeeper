@@ -631,38 +631,33 @@ namespace Timekeeper.Client.Model
             if (CurrentSession == null)
             {
                 _log.LogDebug("Session in storage is Null");
-
-                if (Branding.AllowSessionSelection)
-                {
-                    _nav.NavigateTo("/session");
-                    return false;
-                }
+                _nav.NavigateTo("/session");
+                return false;
             }
             else
             {
                 _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
             }
 
-            if (CurrentSession == null)
-            {
-                _log.LogTrace("CurrentSession is null");
-
-                CurrentSession = new SessionBase
-                {
-                    BranchId = _config.GetValue<string>(Constants.BranchIdKey)
-                };
-                CurrentSession.Clocks.Add(new Clock());
-
-                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
-                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-                _log.LogTrace("Session saved to storage");
-            }
-            else
+            if (CurrentSession != null)
             {
                 // Refresh session
                 var sessions = await _session.GetSessions(_log);
-                var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
-                CurrentSession = outSession;
+
+                if (sessions != null)
+                {
+                    var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+
+                    if (outSession != null)
+                    {
+                        CurrentSession = outSession;
+                    }
+                }
+            }
+
+            if (CurrentSession == null)
+            {
+                await MakeNewSession();
             }
 
             foreach (var clock in CurrentSession.Clocks)
@@ -679,6 +674,21 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("SignalRHost.InitializeSession ->");
             return true;
+        }
+
+        private async Task MakeNewSession()
+        {
+            _log.LogInformation("-> SignalRHost.MakeNewSession");
+
+            CurrentSession = new SessionBase
+            {
+                BranchId = _config.GetValue<string>(Constants.BranchIdKey)
+            };
+            CurrentSession.Clocks.Add(new Clock());
+
+            _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
+            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+            _log.LogTrace("Session saved to storage");
         }
 
         public async Task Nudge(Clock clock, int seconds)

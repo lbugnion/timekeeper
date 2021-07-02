@@ -99,11 +99,7 @@ namespace Timekeeper.Client.Pages
                 return;
             }
 
-            if (Branding.AllowSessionSelection)
-            {
-                await Handler.CheckState();
-            }
-
+            await Handler.CheckState();
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect();
             Handler.SubscribeToClocks();
