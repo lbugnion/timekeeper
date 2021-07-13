@@ -2,6 +2,13 @@
 
 [Timekeeper](http://timekeeper.cloud) is a utility developed by [Laurent Bugnion](http://twitter.com/lbugnion) to make it easier to keep track of time when working with guests online. Providing a dynamic display of timers, warnings, and text, it has been an essential tool for Hello World and beyond.
 
+## Topics
+
+- Using the Timekeeper as a Host (in preparation)
+- Using the Timekeeper as a Guest (in preparation)
+- [Deploying Timekeeper to a dependent branch](./dependent-branch)
+- Deploying a completely independent Timekeeper branch (in preparation)
+
 ## History
 
 Timekeeper was developed as a simple utility at first to help with remote recording of the [Humans of Microsoft segment](https://dev.to/search?q=humansofmicrosoft) for the [Hello World daily show on Microsoft LearnTV](https://aka.ms/learntv). It helps everyone on the recording (or on the live stream) to be aware of time, in real-time, without having to communicate in chat or without interrupting the guests while they are speaking.
