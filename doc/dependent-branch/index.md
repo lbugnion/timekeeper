@@ -2,7 +2,7 @@
 
 A _dependent branch_ is a branch of Timekeeper using own branding (colors, logos etc) and living in its own Static Web App instance, but using the common Azure Functions and Azure SignalR service instances.
 
-If you are looking to deploy a completely independent version of Timekeeper (using its own instance of Azure Functions and Azure SignalR service), [please check this page](../independent-branch).
+If you are looking to deploy a completely independent version of Timekeeper (using its own instance of Azure Functions and Azure SignalR service), [please check this page](../independent-branch/index.md).
 
 ## Preparing the new branch
 
@@ -46,7 +46,7 @@ If you want the branch to be protected by roles, you need to set it up as follow
 
 ## Checking the changes
 
-If you want to verify your changes, you can run the new branch locally. Follow the steps described in [Running the app locally](../running-locally).
+If you want to verify your changes, you can run the new branch locally. Follow the steps described in [Running the app locally](../running-locally/index.md).
 
 ## Preparing the new Azure Static Web Apps instance
 
