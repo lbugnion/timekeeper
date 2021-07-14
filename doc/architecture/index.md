@@ -20,7 +20,7 @@ Timekeeper is composed of multiple Azure services and a cross-platform client ap
 
 The Azure Static Web App (SWA) is in charge of serving the Blazor pages and the Web assembly files to the client. The SWA is also responsible for resolving custom domains, serving the TLS certificate for HTTPS, and managing roles and authentication.
 
-[More information]()
+[More information](https://docs.microsoft.com/azure/static-web-apps/overview)
 
 ### Azure Functions application (with auth)
 
