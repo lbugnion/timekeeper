@@ -135,3 +135,12 @@ Optionally you can change the following settings:
 
 - Change the name of the GitHub action that was generated for your Static Web App instance to follow the conventions of the other actions.
 - Change the name of the GitHub token used by this action.
+  - Go to the Azure Static Web App in the portal.
+  - Select `Manage deployment token`.
+  - Copy the token.
+  - Go to [GitHub action secrets](https://github.com/lbugnion/timekeeper/settings/secrets/actions)
+  - Create a `New repository secret` named `SWA_TOKEN_[YOUR_BRANCH]`.
+  - Paste the token you copied.
+  - Click `Add secret`.
+  - Update the token name in the GitHub action (in 2 locations).
+  - Remove the old token from the secrets.
