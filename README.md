@@ -6,9 +6,13 @@ Imagine that you are the host for a streamed show, doing some recordings, or any
 
 This application offers a solution to the problem.
 
+## Documentation
+
+You can find [user documentation and technical documentation here](./doc/index.md) (work in progress).
+
 ## Tutorial
 
-[![See the Timekeeper tutorial](./img/video-thumbnail.png)](https://youtu.be/dMjiX2NFIrg)
+[![See the Timekeeper tutorial](./img/video-thumbnail.png)](http://gslb.ch/timekeeper-tutorial)
 
 ## Features
 
@@ -16,7 +20,7 @@ This application offers a solution to the problem.
 * When ready, start one or more clock(s). All your guests will see the exact same time.
 * After a predefined time, the screen turns green, yellow and then red for all guests.
 * The Host can send messages to the guests.
-* The clock blinks when going overtime, and a custm message is displayed to the Guest.
+* The clock blinks when going overtime, and a custom message is displayed to the Guest.
 
 ## Settings
 
