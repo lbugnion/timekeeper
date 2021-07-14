@@ -4,9 +4,9 @@
 
 ## Topics
 
-- Running Timekeeper locally for tests (in preparation)
-- Using the Timekeeper as a Host (in preparation)
 - Using the Timekeeper as a Guest (in preparation)
+- Using the Timekeeper as a Host (in preparation)
+- Running Timekeeper locally for tests (in preparation)
 - [Deploying Timekeeper to a dependent branch](./dependent-branch/index.md)
 - Deploying a completely independent Timekeeper branch (in preparation)
 
