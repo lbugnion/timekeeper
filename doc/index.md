@@ -2,13 +2,20 @@
 
 [Timekeeper](http://timekeeper.cloud) is a utility developed by [Laurent Bugnion](http://twitter.com/lbugnion) to make it easier to keep track of time when working with guests online. Providing a dynamic display of timers, warnings, and text, it has been an essential tool for Hello World and beyond.
 
-## Topics
+## Documentation
 
-- Using the Timekeeper as a Guest (in preparation)
-- Using the Timekeeper as a Host (in preparation)
-- Running Timekeeper locally for tests (in preparation)
-- [Deploying Timekeeper to a dependent branch](./dependent-branch/index.md)
-- Deploying a completely independent Timekeeper branch (in preparation)
+A tutorial video is available:
+
+[![Timekeeper tutorial video](../img/video-thumbnail.png)](http://timekeeper.cloud/about)
+
+### More doc
+
+- Using the Timekeeper as a Guest (in preparation).
+- Using the Timekeeper as a Host (in preparation).
+- Running Timekeeper locally for tests (in preparation).
+- [Deploying Timekeeper to a dependent branch](./dependent-branch/index.md).
+- Deploying a completely independent Timekeeper branch (in preparation).
+- Timekeeper architecture (in preparation).
 
 ## History
 
@@ -36,10 +43,6 @@ Timekeeper is powered by Azure ([Azure Functions](https://docs.microsoft.com/azu
 ## For everyone, in the open
 
 > The public version of Timekeeper is also available online at [http://timekeeper.cloud](http://timekeeper.cloud). Everyone can use this for their own online conferences, streams, podcasts etc.
-
-A tutorial video is available:
-
-[![Timekeeper tutorial video](../img/video-thumbnail.png)](http://timekeeper.cloud/about)
 
 After Timekeeper was developed and fine tuned for the Hello World daily show, other organizations and conferences have also adopted it:
 
