@@ -143,5 +143,7 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
+
+        public string SessionName { get; set; }
     }
 }

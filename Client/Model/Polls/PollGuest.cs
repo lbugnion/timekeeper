@@ -106,13 +106,6 @@ namespace Timekeeper.Client.Model.Polls
                 {
                     await ReceivePublishUnpublishPoll(poll, poll.IsPublished);
                 }
-
-                _log.LogDebug($"HIGHLIGHT--CustomTitle: {list.CustomTitle}");
-
-                if (!string.IsNullOrEmpty(list.CustomTitle))
-                {
-                    CurrentSession.SessionName = list.CustomTitle;
-                }
             }
             catch
             {
@@ -130,6 +123,11 @@ namespace Timekeeper.Client.Model.Polls
             _log.LogDebug($"Must publish: {mustPublish}");
 
             poll.IsPublished = mustPublish;
+
+            if (!string.IsNullOrEmpty(poll.SessionName))
+            {
+                CurrentSession.SessionName = poll.SessionName;
+            }
 
             var existingPoll = CurrentSession.Polls
                 .FirstOrDefault(p => p.Uid == poll.Uid);

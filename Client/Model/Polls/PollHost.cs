@@ -113,14 +113,15 @@ namespace Timekeeper.Client.Model.Polls
                 return;
             }
 
-            var list = new ListOfPolls
+            foreach (var poll in publishedPolls)
             {
-                CustomTitle = CurrentSession.SessionName
-            };
+                poll.SessionName = null;
+            }
 
+            publishedPolls.First().SessionName = CurrentSession.SessionName;
+
+            var list = new ListOfPolls();
             list.Polls.AddRange(publishedPolls);
-
-            _log.LogDebug($"HIGHLIGHT--CustomTitle: {list.CustomTitle}");
 
             var json = JsonConvert.SerializeObject(list);
 
@@ -399,6 +400,7 @@ namespace Timekeeper.Client.Model.Polls
             }
 
             poll.IsVotingOpen = mustPublish;
+            poll.SessionName = CurrentSession.SessionName;
 
             var success = await DoPublishUnpublishPoll(poll, mustPublish);
 
