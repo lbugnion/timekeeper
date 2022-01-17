@@ -1,9 +1,9 @@
-name: BETA Client and secured API to static web
+name: LEARN LIVE Client and API to statuc web
 
 on:
   push:
     branches:
-      - Beta
+      - learnlive
     paths:
     - 'Api/**'
     - 'Client/**'
@@ -12,14 +12,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - Beta
+      - learnlive
     paths:
     - 'Api/**'
     - 'Client/**'
     - 'Timekeeper.DataModel/**'
     - 'Timekeeper.DataModel.Standard/**'
-
-  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:
@@ -32,9 +30,9 @@ jobs:
           submodules: true
       - name: Build And Deploy
         id: builddeploy
-        uses: Azure/static-web-apps-deploy@v0.0.1-preview
+        uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN_BETA }}
+          azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN_LEARNLIVE }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
@@ -51,7 +49,7 @@ jobs:
     steps:
       - name: Close Pull Request
         id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v0.0.1-preview
+        uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN_BETA }}
+          azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN_LEARNLIVE }}
           action: "close"
