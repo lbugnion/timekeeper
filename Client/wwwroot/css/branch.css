@@ -3,15 +3,15 @@
 }
 
 .header {
-    background-color: #003084;
+    background-color: #243A5E;
 }
 
 .footer {
-    background-color: #7FC9FF;
+    background-color: #28A7E9;
 }
 
 .foreground {
-    color: #003084;
+    color: #734E9F;
 }
 
 .connected-peers {
@@ -20,5 +20,5 @@
 
 .start-all-clocks-area button {
     color: white;
-    background-color: red;
+    background-color: #744FA0;
 }
