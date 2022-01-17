@@ -30,6 +30,8 @@ namespace Timekeeper.DataModel
 
         public bool IsVotingOpen { get; set; }
 
+        public int TotalAnswers => Answers.Select(a => a.Count).Sum();
+
         public bool IsEdited
         {
             get => _isEdited;

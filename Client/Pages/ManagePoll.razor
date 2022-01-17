@@ -71,7 +71,7 @@ else
                 <div class="poll-answer poll-answer-correct-background">
                     @GetMarkup(answer.TitleHtml)
 
-                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of @CurrentPoll.TotalAnswers voter(s)</span>
 
                 </div>
             }
@@ -80,7 +80,7 @@ else
                 <div class="poll-answer">
                     @GetMarkup(answer.TitleHtml)
 
-                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of @CurrentPoll.TotalAnswers voter(s)</span>
                 </div>
             }
         }
