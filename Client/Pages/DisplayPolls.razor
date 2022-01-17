@@ -1,0 +1,204 @@
+﻿@page "/display-polls"
+@page "/display-polls/{SessionId}"
+@inject HttpClient Http
+@inject ILogger<DisplayPolls> Log
+@inject IConfiguration Config
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime
+@inject SessionHandler Session
+
+<header class="@Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
+         class="logo-image" />
+</header>
+
+<main>
+    <article>
+
+        <div class="polls-guest">
+
+        @if (Handler == null
+            || Handler.CurrentSession == null
+            || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+        {
+            <h2 class="@Branding.ForegroundClass">@Branding.PollsPageTitle</h2>
+        }
+        else
+        {
+            <h2 class="@Branding.ForegroundClass">@Handler.CurrentSession.SessionName</h2>
+        }
+
+        @if (ShowNoSessionMessage)
+        {
+            <blockquote class="warning">
+                Please ask the Host to give you a link with a session ID.
+            </blockquote>
+        }
+        else
+        {
+            @if (Handler.IsInError)
+            {
+                <blockquote class="error">
+                    Unable to connect to polling service. Try refreshing the page. If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+                </blockquote>
+            }
+            else
+            {
+                @if (Program.IsExperimental)
+                {
+                    <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+                }
+
+                @if (Handler.CurrentSession == null
+                   || !Handler.CurrentSession.Polls.Any(p => p.IsPublished))
+                {
+                    <blockquote class="no-clocks-no-session">
+                        Polls will appear here when the Host publishes them. Stay tuned!!
+                    </blockquote>
+                }
+                else
+                {
+                    @foreach (var poll in Handler.CurrentSession.Polls.Where(p => p.IsPublished))
+                    {
+                        <div class="@GetPollClass(poll)">
+
+                            <h3>@GetMarkup(poll.QuestionHtml)</h3>
+
+                            @foreach (var answer in poll.Answers)
+                            {
+                                @if (poll.IsVotingOpen)
+                                {
+                                    @if (string.IsNullOrEmpty(poll.GivenAnswer))
+                                    {
+                                        <button @onclick="(async e => await Handler.SelectAnswer(poll.Uid, answer.Letter))"
+                                                class="poll-answer-button">
+                                            @GetMarkup(answer.TitleHtml)</button>
+                                        <br />
+                                    }
+                                    else
+                                    {
+                                        @if (poll.GivenAnswer == answer.Letter)
+                                        {
+                                            <div class="poll-answer poll-answer-open-background poll-answer-open-voted-foreground">
+                                                @GetMarkup(answer.TitleHtml)
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="poll-answer poll-answer-open-background poll-answer-not-voted-foreground">
+                                                @GetMarkup(answer.TitleHtml)
+                                            </div>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    @if (string.IsNullOrEmpty(poll.GivenAnswer))
+                                    {
+                                        @if (answer.IsCorrect)
+                                        {
+                                            <div class="poll-answer poll-answer-correct-background poll-answer-not-voted-foreground">
+                                                @GetMarkup(answer.TitleHtml) 
+                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="poll-answer poll-answer-open-background poll-answer-not-voted-foreground">
+                                                @GetMarkup(answer.TitleHtml) 
+                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if (answer.IsCorrect)
+                                        {
+                                            @if (poll.GivenAnswer == answer.Letter)
+                                            {
+                                                <div class="poll-answer poll-answer-correct-background poll-answer-correct-correct-foreground">
+                                                    @GetMarkup(answer.TitleHtml) 
+                                                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="poll-answer poll-answer-correct-background poll-answer-not-voted-foreground">
+                                                    @GetMarkup(answer.TitleHtml) 
+                                                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @if (poll.GivenAnswer == answer.Letter)
+                                            {
+                                                <div class="poll-answer poll-answer-open-background poll-answer-incorrect-foreground">
+                                                    @GetMarkup(answer.TitleHtml) 
+                                                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="poll-answer poll-answer-open-background poll-answer-not-voted-foreground">
+                                                    @GetMarkup(answer.TitleHtml) 
+                                                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            <div class="poll-explanation">
+
+                                @if (poll.IsVotingOpen)
+                                {
+                                    @if (!string.IsNullOrEmpty(poll.GivenAnswer))
+                                    {
+                                        <p>Please wait until the vote is closed to see the result...</p>
+                                    }
+                                }
+                                else
+                                {
+                                    @if (!string.IsNullOrEmpty(poll.ExplanationMarkdown))
+                                    {
+                                        @GetMarkup(poll.ExplanationHtml)
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                   }
+                }
+
+                @if (Mobile != null
+                  && Mobile.IsNoSleepVisible)
+                {
+                    <div class="no-sleep-area">
+                        <button @onclick="@Mobile.EnableNoSleep"
+                                id="send-message-button">
+                            Keep device awake
+                        </button>
+                    </div>
+                }
+            }
+        }
+
+        </div>
+
+    </article>
+</main>
+
+<footer class="@Branding.FooterClass">
+    @if (!ShowNoSessionMessage)
+    {
+        <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+    }
+    else
+    {
+        <div class="status-message"><span class="error-message">No session ID found</span></div>
+    }
+
+    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
+</footer>

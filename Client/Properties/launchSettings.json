@@ -11,10 +11,10 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "host",
+      "launchUrl": "https://localhost:44387/polls/a4faa261-8048-471e-aa38-292e2b68e734",
       "environmentVariables": {
-        "Environment": "Development",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Environment": "Development"
       },
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
     },
@@ -22,8 +22,8 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "Environment": "Production",
-        "ASPNETCORE_ENVIRONMENT": "Production"
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "Environment": "Production"
       }
     }
   }

@@ -211,9 +211,14 @@ namespace Timekeeper.Client.Model
             string sessionStorageKey,
             ILogger log)
         {
+            log.LogTrace(nameof(Save));
+
             await SaveToStorage(session, sessionStorageKey, log);
 
             var json = JsonConvert.SerializeObject(session);
+
+            log.LogDebug(json);
+
             var content = new StringContent(json);
 
             var saveSessionUrl = $"{_hostName}/session/{session.BranchId}/{session.SessionId}";
@@ -293,6 +298,9 @@ namespace Timekeeper.Client.Model
         public async Task SelectSession(string sessionId, ILogger log)
         {
             log.LogInformation("-> SelectSession");
+            log.LogDebug($"SessionId: {sessionId}");
+            log.LogDebug($"CloudSessions is null: {CloudSessions == null}");
+            log.LogDebug($"CloudSessions.Count: {CloudSessions.Count}");
 
             var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
 

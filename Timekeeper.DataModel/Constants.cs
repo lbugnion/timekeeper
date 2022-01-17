@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        public const string Version = "0.6.2.0"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
+        public const string Version = "0.7.0.8888"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
 
         public const string AzureStorageVariableName = "AzureStorage";
         public const string BranchIdKey = "BranchId";
@@ -23,5 +23,12 @@
         public const string UpdateHostMessageName = "update-host";
         public const string UserIdHeaderKey = "x-timekeeper-userid";
         public const string NotifyDeleteSessionMessageName = "notify-delete-session";
+        public const string PublishPollMessage = "publish-poll";
+        public const string UnpublishPollMessage = "unpublish-poll";
+        public const string VotePollMessage = "vote-poll";
+        public const string ReceivePollsMessage = "receive-polls";
+        public const string RequestPollsMessage = "request-polls";
+        public const string RolePresenter = "presenter";
+        public const string MovePollMessage = "move-poll";
     }
 }

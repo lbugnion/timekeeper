@@ -20,6 +20,14 @@ h1, h2 {
         visibility: collapse;
     }
 
+strong {
+    font-weight: bold;
+}
+
+em {
+    font-style: italic;
+}
+
 article {
     padding: 10px 15px 10px 15px;
 }
@@ -472,4 +480,142 @@ li.validation-message {
     article {
         padding-top: 0;
     }
+}
+
+/* Polls */
+
+.polls {
+}
+
+.polls label {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+    .polls .validation-errors {
+        margin-top: 10px;
+        margin-bottom: -15px;
+    }
+
+    .polls .input-text {
+        width: 500px;
+    }
+
+        .polls .input-text#question {
+            height: 50px;
+        }
+
+        .polls .input-text#answers {
+            height: 150px;
+        }
+
+        .polls .input-text#explanation {
+            height: 150px;
+        }
+
+    .polls button.poll-create-save {
+        margin-top: 20px;
+        margin-bottom: 13px;
+    }
+
+    .polls select {
+        width: 200px;
+        font-size: 1.3em;
+    }
+
+    .polls h3,
+    .polls-guest h3 {
+        font-size: 1.3em;
+    }
+
+    .polls #instructions h3 {
+        margin-bottom: 10px;
+    }
+
+    .polls .poll-controls button {
+        margin-bottom: 10px;
+    }
+
+.poll-published {
+    background-color: #D1EFFF;
+    border: solid 1px black;
+    padding: 10px;
+}
+
+.poll-closed {
+    background-color: #FFDAD6;
+    border: solid 1px black;
+    padding: 10px;
+}
+
+.poll-unpublished {
+    background-color: #FFFFFF;
+    border: solid 1px black;
+    padding: 10px;
+}
+
+.poll-answer {
+    margin-bottom: 10px;
+    padding: 3px 5px 5px 5px;
+}
+
+.poll-answer-open-background {
+}
+
+.poll-answer-correct-background {
+    background-color: #BAFFC5;
+}
+
+.poll-answer-open-voted-foreground {
+    color: darkorange;
+    font-weight: bold;
+}
+
+.poll-answer-not-voted-foreground {
+    color: black;
+}
+
+.poll-answer-correct-correct-foreground {
+    color: green;
+    font-weight: bold;
+}
+
+.poll-answer-incorrect-foreground {
+    color: red;
+    font-weight: bold;
+}
+
+.poll-answer-ratio {
+    display: block;
+    margin-top: -5px;
+    font-size: 1.3em;
+}
+
+.polls-guest h2 {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
+.poll-unpublished,
+.poll-published,
+.poll-closed {
+    margin-bottom: 20px;
+}
+
+.polls-guest button {
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.polls-guest button p {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    text-align: left;
+    font-size: 1.1em;
+}
+
+.poll-explanation {
+    font-style: italic;
+    font-size: 1.1em;
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,13 +12,14 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Pages
 {
-    public partial class HostView
+    public partial class HostView : IDisposable
     {
         private const string EditSessionNameText = "edit session name";
         private const string HidePeersText = "hide";
         private const string SaveSessionNameText = "save session name";
         private const string ShowPeersText = "show";
         public const string SendMessageInputId = "send-message-input";
+        private SignalRHost _handler;
 
         public string EditSessionNameLinkText
         {
@@ -52,8 +54,26 @@ namespace Timekeeper.Client.Pages
         [Parameter]
         public SignalRHost Handler
         {
-            get;
-            set;
+            get => _handler;
+            set
+            {
+                if (value == null)
+                {
+                    _handler.UpdateUi -= HandlerUpdateUi;
+                }
+
+                _handler = value;
+
+                if (_handler != null)
+                {
+                    _handler.UpdateUi += HandlerUpdateUi;
+                }
+            }
+        }
+
+        private void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            StateHasChanged();
         }
 
         public bool IsEditingSessionName
@@ -96,6 +116,8 @@ namespace Timekeeper.Client.Pages
             get;
             set;
         }
+
+        public string SessionId => Handler.CurrentSession.SessionId;
 
         private async Task DoDeleteSession()
         {
@@ -198,6 +220,14 @@ namespace Timekeeper.Client.Pages
         {
             IsPeersListExpanded = !IsPeersListExpanded;
             PeerListLinkText = IsPeersListExpanded ? HidePeersText : ShowPeersText;
+        }
+
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
         }
     }
 }

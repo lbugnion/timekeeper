@@ -1,0 +1,145 @@
+﻿@using Timekeeper.DataModel
+@inject IJSRuntime JSRuntime
+@inject ILogger<ManagePolls> Log
+
+@if (CurrentPoll.IsEdited)
+{
+    <hr />
+
+    <EditForm EditContext="@CurrentEditContext">
+        <DataAnnotationsValidator />
+
+        <blockquote><strong>Tip: Use [tab] to navigate!</strong></blockquote>
+
+        <label for="question">Enter your question (markdown supported)</label>
+
+        <textarea @bind="@CurrentPoll.QuestionMarkdown"
+                  onfocus="this.select();"
+                  onreadystatechange="this.focus();"
+                  id="question"
+                  class="input-text" />
+
+        <label for="answers">Enter one answer per line! (markdown supported)</label>
+
+        <textarea @bind="@CurrentPoll.AllAnswers"
+                  onfocus="this.select();"
+                  id="answers"
+                  class="input-text" />
+
+        <label for="correct-answer">Which answer is correct?</label>
+
+        <InputSelect @bind-Value="CorrectAnswer" 
+                     id="correct-answer">
+
+            <option value="None">None</option>
+
+            @for (var index = 0; index < CurrentPoll.Answers.Count; index++)
+            {
+                var value = ((char)(index + 'A')).ToString();
+
+                <option value="@value">@value</option>
+            }
+
+        </InputSelect>
+
+        <label for="explanation">Enter an explanation (markdown supported)</label>
+
+        <textarea @bind="@CurrentPoll.ExplanationMarkdown"
+                  onfocus="this.select();"
+                  class="input-text poll-answer-explanation-text"
+                  id="explanation" />
+
+        <ValidationSummary />
+
+    </EditForm>
+
+    <button @onclick="(async e => await SaveCurrentPoll())"
+            class="poll-create-save">Save this poll</button>
+
+    <hr />
+}
+else
+{
+    <div class="@PollClass">
+
+        <h3>@GetMarkup(CurrentPoll.QuestionHtml)</h3>
+
+        @foreach (var answer in CurrentPoll.Answers)
+        {
+            @if (answer.IsCorrect)
+            {
+                <div class="poll-answer poll-answer-correct-background">
+                    @GetMarkup(answer.TitleHtml)
+
+                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+
+                </div>
+            }
+            else
+            {
+                <div class="poll-answer">
+                    @GetMarkup(answer.TitleHtml)
+
+                    <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                </div>
+            }
+        }
+
+        @if (!string.IsNullOrEmpty(CurrentPoll.ExplanationMarkdown))
+        {
+            <div class="poll-explanation">@GetMarkup(CurrentPoll.ExplanationHtml)</div>
+        }
+
+        @if (Role?.ToLower() != Constants.RolePresenter)
+        {
+            <div class="poll-controls">
+
+                <button @onclick="(e => Parent.PublishPoll(CurrentPoll, !CurrentPoll.IsPublished))">
+                    @if (CurrentPoll.IsPublished)
+                    {
+                        <span>Unpublish this poll</span>
+                    }
+                    else
+                    {
+                        <span>Publish this poll</span>
+                    }
+                </button> 
+
+                @if (CurrentPoll.IsPublished)
+                {
+                    <button @onclick="(e => Parent.OpenClosePoll(CurrentPoll, !CurrentPoll.IsVotingOpen))">
+                        @if (CurrentPoll.IsVotingOpen)
+                        {
+                            <span>Close the vote</span>
+                        }
+                        else
+                        {
+                            <span>Open the vote</span>
+                        }
+                    </button> 
+                }
+
+                @if (!Parent.IsAnyPollEdited
+                    && !CurrentPoll.IsPublished)
+                {
+                    <button @onclick="(e => Parent.ToggleEditPoll(CurrentPoll))">Edit this poll</button>
+                }
+
+                @if (!CurrentPoll.IsPublished)
+                {
+                    <button @onclick="(e => Parent.DeletePoll(CurrentPoll))">Delete this poll</button>
+                }
+
+@*                <br />
+                <button @onclick="(e => Parent.MovePollUp(CurrentPoll.Uid))"
+                        class="small-button">
+                    Up</button>
+                <button @onclick="(e => Parent.MovePollDown(CurrentPoll.Uid))"
+                        class="small-button">
+                    Down</button>
+*@
+            </div>
+        }
+
+    </div>
+}

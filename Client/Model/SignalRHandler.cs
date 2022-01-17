@@ -181,8 +181,6 @@ namespace Timekeeper.Client.Model
                 var functionKey = _config.GetValue<string>(RegisterKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
 
-                _log.LogDebug($"SessionId: {CurrentSession.SessionId}");
-
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
@@ -261,9 +259,11 @@ namespace Timekeeper.Client.Model
                 var negotiateUrl = $"{_hostNameFree}/negotiate";
                 _log.LogDebug($"negotiateUrl: {negotiateUrl}");
 
+                _log.LogTrace("Creating the HTTP request");
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.UserIdHeaderKey, PeerInfo.Message.PeerId);
+                _log.LogTrace("HTTP request created");
 
                 _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
 
@@ -376,6 +376,7 @@ namespace Timekeeper.Client.Model
 
         protected void DisplayReceivedMessage(string message)
         {
+            _log.LogTrace("-> DisplayReceivedMessage");
             DisplayMessage(message, false);
             Status = "Received host message";
         }
@@ -715,11 +716,6 @@ namespace Timekeeper.Client.Model
                 _connection = null;
                 _log.LogTrace("Connection is stopped and disposed");
             }
-        }
-
-        public async Task<bool> SaveSession()
-        {
-            return await _session.Save(CurrentSession, SessionKey, _log);
         }
     }
 }

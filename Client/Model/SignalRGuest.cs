@@ -10,14 +10,9 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {
-    public class SignalRGuest : SignalRHandler
+    public class SignalRGuest : SignalRGuestBase
     {
-        private string _sessionId;
-
-        private string _unregisterFromGroup = null;
-
         protected override string SessionKey => "GuestSession";
-        protected override string PeerKey => "GuestPeer";
 
         public SignalRGuest(
             IConfiguration config,
@@ -25,10 +20,9 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http,
             string sessionId,
-            SessionHandler session) : base(config, localStorage, log, http, session)
+            SessionHandler session) : base(config, localStorage, log, http, sessionId, session)
         {
-            _log.LogInformation("> SignalRGuest()");
-            _sessionId = sessionId;
+            _log.LogInformation("-> SignalRGuest()");
         }
 
         public async Task<bool> AnnounceName()
