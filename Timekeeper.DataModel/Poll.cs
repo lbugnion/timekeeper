@@ -79,6 +79,14 @@ namespace Timekeeper.DataModel
             }
         }
 
+        public void Reset()
+        {
+            foreach (var answer in Answers)
+            {
+                answer.Reset();
+            }
+        }
+
         public string QuestionHtml { get; set; }
 
         public void SplitAnswers(string allAnswers)

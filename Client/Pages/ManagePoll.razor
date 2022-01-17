@@ -127,6 +127,7 @@ else
 
                 @if (!CurrentPoll.IsPublished)
                 {
+                    <button @onclick="(e => Parent.ResetPoll(CurrentPoll))">Reset this poll</button>
                     <button @onclick="(e => Parent.DeletePoll(CurrentPoll))">Delete this poll</button>
                 }
 

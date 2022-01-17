@@ -77,7 +77,22 @@ namespace Timekeeper.Client.Pages
             if (Handler.CurrentSession.Polls.Contains(poll))
             {
                 Handler.CurrentSession.Polls.Remove(poll);
-                //await Handler.SaveSession();
+                await Handler.SaveSession();
+                StateHasChanged();
+            }
+        }
+
+        public async Task ResetPoll(Poll poll)
+        {
+            if (poll.IsPublished)
+            {
+                return;
+            }
+
+            if (Handler.CurrentSession.Polls.Contains(poll))
+            {
+                poll.Reset();
+                await Handler.SaveSession();
                 StateHasChanged();
             }
         }
