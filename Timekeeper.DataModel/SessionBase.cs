@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using static Timekeeper.DataModel.Poll;
 
 namespace Timekeeper.DataModel
 {
@@ -45,11 +46,18 @@ namespace Timekeeper.DataModel
             SessionId = Guid.NewGuid().ToString();
             ResetName();
             Clocks = new List<Clock>();
+            Polls = new List<Poll>();
         }
 
         public void ResetName()
         {
             SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+        public IList<Poll> Polls
+        {
+            get;
+            set;
         }
     }
 }

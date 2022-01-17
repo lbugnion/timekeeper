@@ -38,6 +38,8 @@ namespace Timekeeper
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
+            log.LogDebug(requestBody);
+
             if (string.IsNullOrEmpty(requestBody))
             {
                 log.LogError("No body found");
