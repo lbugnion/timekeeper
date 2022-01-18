@@ -85,6 +85,8 @@ namespace Timekeeper.DataModel
             {
                 answer.Reset();
             }
+
+            GivenAnswer = null;
         }
 
         public string QuestionHtml { get; set; }

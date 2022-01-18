@@ -190,10 +190,8 @@ namespace Timekeeper.Client.Model.Polls
                 answer.Ratio = (answer.Count / totalCount);
             }
 
-            poll.GivenAnswer = receivedPoll.GivenAnswer;
-
+            poll.GivenAnswer = null;
             await SaveSession();
-
             RaiseUpdateEvent();
         }
 
