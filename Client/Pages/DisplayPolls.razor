@@ -175,18 +175,28 @@
 
                             <div class="poll-explanation">
 
-                                @if (poll.IsVotingOpen)
-                                {
-                                    @if (!string.IsNullOrEmpty(poll.GivenAnswer))
-                                    {
-                                        <p>Please wait until the vote is closed to see the result...</p>
-                                    }
-                                }
-                                else
+                                @if (Role == Constants.RolePresenter)
                                 {
                                     @if (!string.IsNullOrEmpty(poll.ExplanationMarkdown))
                                     {
                                         @GetMarkup(poll.ExplanationHtml)
+                                    }
+                                }
+                                else
+                                {
+                                    @if (poll.IsVotingOpen)
+                                    {
+                                        @if (!string.IsNullOrEmpty(poll.GivenAnswer))
+                                        {
+                                            <p>Please wait until the vote is closed to see the result...</p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if (!string.IsNullOrEmpty(poll.ExplanationMarkdown))
+                                        {
+                                            @GetMarkup(poll.ExplanationHtml)
+                                        }
                                     }
                                 }
 
