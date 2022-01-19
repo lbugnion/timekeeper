@@ -104,8 +104,8 @@ namespace Timekeeper.Client.Model.Polls
 
             if (ok)
             {
-                _connection.On<string>(Constants.PublishPollMessage, p => ReceivePublishUnpublishPoll(p, true));
-                _connection.On<string>(Constants.UnpublishPollMessage, p => ReceivePublishUnpublishPoll(p, false));
+                _connection.On<string>(Constants.PublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, true));
+                _connection.On<string>(Constants.UnpublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, false));
                 _connection.On<string>(Constants.ReceivePollsMessage, ReceiveAllPublishedPolls);
                 _connection.On<string>(Constants.VotePollMessage, p => ReceiveVote(p));
 
@@ -160,7 +160,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private async Task ReceiveAllPublishedPolls(string json)
         {
-            _log.LogTrace("HIGHLIGHT---> ReceiveAllPublishedPolls");
+            _log.LogTrace("-> ReceiveAllPublishedPolls");
             _log.LogDebug($"JSON: {json}");
 
             try
@@ -183,7 +183,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private async Task ReceivePublishUnpublishPoll(Poll poll, bool mustPublish)
         {
-            _log.LogTrace("HIGHLIGHT---> ReceivePublishUnpublishPoll");
+            _log.LogTrace("-> ReceivePublishUnpublishPoll");
             _log.LogDebug($"Received poll: {poll.Uid}");
             _log.LogDebug($"Must publish: {mustPublish}");
 
@@ -222,9 +222,9 @@ namespace Timekeeper.Client.Model.Polls
             }
         }
 
-        private void ReceivePublishUnpublishPoll(string pollJson, bool mustPublish)
+        private async Task ReceivePublishUnpublishPoll(string pollJson, bool mustPublish)
         {
-            _log.LogTrace("HIGHLIGHT---> ReceivePublishUnpublishPoll");
+            _log.LogTrace("-> ReceivePublishUnpublishPoll");
 
             Poll receivedPoll;
 
@@ -238,20 +238,23 @@ namespace Timekeeper.Client.Model.Polls
                 return;
             }
 
-            ReceivePublishUnpublishPoll(receivedPoll, mustPublish);
+            await ReceivePublishUnpublishPoll(receivedPoll, mustPublish);
         }
 
         public async Task SelectAnswer(string pollId, string answerLetter)
         {
+            _log.LogTrace("HIGHLIGHT---> SelectAnswer");
+
             var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == pollId);
 
             if (poll == null)
             {
+                _log.LogWarning($"Poll not found: {pollId}");
                 return;
             }
 
-            poll.IsAnswered = true;
             poll.GivenAnswer = answerLetter;
+            poll.IsAnswered = true;
 
             var voteUrl = $"{_hostNameFree}/vote-poll";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, voteUrl);
@@ -264,6 +267,7 @@ namespace Timekeeper.Client.Model.Polls
 
             if (response.IsSuccessStatusCode)
             {
+                _log.LogTrace("Saving to local storage");
                 await SaveSessionToStorage();
             }
             else
@@ -271,14 +275,16 @@ namespace Timekeeper.Client.Model.Polls
                 poll.IsAnswered = false;
                 poll.GivenAnswer = null;
                 ErrorStatus = "Error when voting, try again";
+                _log.LogError($"Error when voting: {pollId} / {answerLetter}");
             }
 
             RaiseUpdateEvent();
+            _log.LogTrace("HIGHLIGHT--SelectAnswer ->");
         }
 
         public async Task<bool> InitializeSession(string sessionId)
         {
-            _log.LogInformation("-> InitializeSession");
+            _log.LogInformation("HIGHLIGHT---> InitializeSession");
             _log.LogDebug($"sessionId: {sessionId}");
 
             var guestSession = await _session.GetFromStorage(SessionKey, _log);
@@ -288,14 +294,21 @@ namespace Timekeeper.Client.Model.Polls
                 _unregisterFromGroup = guestSession.SessionId;
             }
 
-            CurrentSession = new SessionBase
+            if (guestSession == null)
             {
-                SessionId = sessionId,
-                SessionName = Branding.PollsPageTitle
-            };
+                CurrentSession = new SessionBase
+                {
+                    SessionId = sessionId,
+                    SessionName = Branding.PollsPageTitle
+                };
 
-            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-            
+                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+            }
+            else
+            {
+                CurrentSession = guestSession;
+            }
+
             _log.LogTrace("Session saved to storage");
             _log.LogInformation("InitializeSession ->");
             return true;

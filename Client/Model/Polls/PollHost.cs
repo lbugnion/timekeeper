@@ -72,7 +72,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private void MovePoll(string json)
         {
-            _log.LogTrace("HIGHLIGHT---> MovePoll");
+            _log.LogTrace("-> MovePoll");
 
             var message = JsonConvert.DeserializeObject<MovePollMessage>(json);
             var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == message.Uid);
@@ -103,7 +103,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private async Task SendPolls(string _)
         {
-            _log.LogTrace("HIGHLIGHT---> SendPolls");
+            _log.LogTrace("-> SendPolls");
 
             var publishedPolls = CurrentSession.Polls
                 .Where(p => p.IsPublished);
@@ -125,7 +125,7 @@ namespace Timekeeper.Client.Model.Polls
 
             var json = JsonConvert.SerializeObject(list);
 
-            _log.LogDebug($"HIGHLIGHT--json: {json}");
+            _log.LogDebug($"json: {json}");
 
             var pollsUrl = $"{_hostName}/polls";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, pollsUrl);
