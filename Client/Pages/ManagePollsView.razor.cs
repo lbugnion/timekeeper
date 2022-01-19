@@ -40,9 +40,6 @@ namespace Timekeeper.Client.Pages
             StateHasChanged();
         }
 
-        [Parameter]
-        public string Role { get; set; }
-
         public string SessionName
         {
             get

@@ -90,57 +90,53 @@ else
             <div class="poll-explanation">@GetMarkup(CurrentPoll.ExplanationHtml)</div>
         }
 
-        @if (Role?.ToLower() != Constants.RolePresenter)
-        {
-            <div class="poll-controls">
+        <div class="poll-controls">
 
-                <button @onclick="(e => Parent.PublishPoll(CurrentPoll, !CurrentPoll.IsPublished))">
-                    @if (CurrentPoll.IsPublished)
+            <button @onclick="(e => Parent.PublishPoll(CurrentPoll, !CurrentPoll.IsPublished))">
+                @if (CurrentPoll.IsPublished)
+                {
+                    <span>Unpublish this poll</span>
+                }
+                else
+                {
+                    <span>Publish this poll</span>
+                }
+            </button> 
+
+            @if (CurrentPoll.IsPublished)
+            {
+                <button @onclick="(e => Parent.OpenClosePoll(CurrentPoll, !CurrentPoll.IsVotingOpen))">
+                    @if (CurrentPoll.IsVotingOpen)
                     {
-                        <span>Unpublish this poll</span>
+                        <span>Close the vote</span>
                     }
                     else
                     {
-                        <span>Publish this poll</span>
+                        <span>Open the vote</span>
                     }
                 </button> 
+            }
 
-                @if (CurrentPoll.IsPublished)
-                {
-                    <button @onclick="(e => Parent.OpenClosePoll(CurrentPoll, !CurrentPoll.IsVotingOpen))">
-                        @if (CurrentPoll.IsVotingOpen)
-                        {
-                            <span>Close the vote</span>
-                        }
-                        else
-                        {
-                            <span>Open the vote</span>
-                        }
-                    </button> 
-                }
+            @if (!Parent.IsAnyPollEdited
+                && !CurrentPoll.IsPublished)
+            {
+                <button @onclick="(e => Parent.ToggleEditPoll(CurrentPoll))">Edit this poll</button>
+            }
 
-                @if (!Parent.IsAnyPollEdited
-                    && !CurrentPoll.IsPublished)
-                {
-                    <button @onclick="(e => Parent.ToggleEditPoll(CurrentPoll))">Edit this poll</button>
-                }
-
-                @if (!CurrentPoll.IsPublished)
-                {
-                    <button @onclick="(e => Parent.ResetPoll(CurrentPoll))">Reset this poll</button>
-                    <button @onclick="(e => Parent.DeletePoll(CurrentPoll))">Delete this poll</button>
-                }
+            @if (!CurrentPoll.IsPublished)
+            {
+                <button @onclick="(e => Parent.ResetPoll(CurrentPoll))">Reset this poll</button>
+                <button @onclick="(e => Parent.DeletePoll(CurrentPoll))">Delete this poll</button>
+            }
 
 @*                <br />
-                <button @onclick="(e => Parent.MovePollUp(CurrentPoll.Uid))"
-                        class="small-button">
-                    Up</button>
-                <button @onclick="(e => Parent.MovePollDown(CurrentPoll.Uid))"
-                        class="small-button">
-                    Down</button>
+            <button @onclick="(e => Parent.MovePollUp(CurrentPoll.Uid))"
+                    class="small-button">
+                Up</button>
+            <button @onclick="(e => Parent.MovePollDown(CurrentPoll.Uid))"
+                    class="small-button">
+                Down</button>
 *@
-            </div>
-        }
-
+        </div>
     </div>
 }

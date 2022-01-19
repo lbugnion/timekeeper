@@ -1,5 +1,7 @@
 ﻿@page "/display-polls"
 @page "/display-polls/{SessionId}"
+@page "/display-polls/{SessionId}/{Role}"
+@using Timekeeper.DataModel
 @inject HttpClient Http
 @inject ILogger<DisplayPolls> Log
 @inject IConfiguration Config
@@ -66,6 +68,27 @@
 
                             @foreach (var answer in poll.Answers)
                             {
+                                @if(Handler.Role == Constants.RolePresenter)
+                                {
+                                    @if (answer.IsCorrect)
+                                    {
+                                        <div class="poll-answer poll-answer-correct-background poll-answer-not-voted-foreground">
+                                            @GetMarkup(answer.TitleHtml) 
+                                            <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of @poll.TotalAnswers voters</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="poll-answer poll-answer-open-background poll-answer-not-voted-foreground">
+                                            @GetMarkup(answer.TitleHtml) 
+                                            <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of @poll.TotalAnswers voters</span>
+                                        </div>
+                                    }
+
+                                    continue;
+                                }
+
+
                                 @if (poll.IsVotingOpen)
                                 {
                                     @if (string.IsNullOrEmpty(poll.GivenAnswer))

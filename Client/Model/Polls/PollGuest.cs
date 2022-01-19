@@ -15,6 +15,70 @@ namespace Timekeeper.Client.Model.Polls
     {
         protected override string SessionKey => "PollGuestSession";
 
+        public string Role { get; set; }
+
+
+        private async Task ReceiveVote(string pollJson)
+        {
+            if (Role != Constants.RolePresenter)
+            {
+                return; // We will display the votes when the poll is closed
+            }
+
+            Poll receivedPoll;
+
+            try
+            {
+                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
+            }
+            catch
+            {
+                _log.LogTrace("Error with received poll");
+                return;
+            }
+
+            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
+
+            if (poll == null)
+            {
+                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
+                return;
+            }
+
+            if (!poll.IsVotingOpen)
+            {
+                _log.LogDebug($"Voting is closed for poll {receivedPoll.Uid}");
+                return;
+            }
+
+            var chosenAnswer = poll.Answers
+                .FirstOrDefault(a => a.Letter == receivedPoll.GivenAnswer);
+
+            if (chosenAnswer == null)
+            {
+                _log.LogDebug($"No such question {receivedPoll.Uid} / receivedPoll.GivenAnswer");
+                return;
+            }
+
+            chosenAnswer.Count++;
+
+            double totalCount = 0;
+
+            foreach (var answer in poll.Answers)
+            {
+                totalCount += answer.Count;
+            }
+
+            foreach (var answer in poll.Answers)
+            {
+                answer.Ratio = (answer.Count / totalCount);
+            }
+
+            poll.GivenAnswer = null;
+            await SaveSessionToStorage();
+            RaiseUpdateEvent();
+        }
+
         public PollGuest(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -43,6 +107,7 @@ namespace Timekeeper.Client.Model.Polls
                 _connection.On<string>(Constants.PublishPollMessage, p => ReceivePublishUnpublishPoll(p, true));
                 _connection.On<string>(Constants.UnpublishPollMessage, p => ReceivePublishUnpublishPoll(p, false));
                 _connection.On<string>(Constants.ReceivePollsMessage, ReceiveAllPublishedPolls);
+                _connection.On<string>(Constants.VotePollMessage, p => ReceiveVote(p));
 
                 ok = await StartConnection();
 

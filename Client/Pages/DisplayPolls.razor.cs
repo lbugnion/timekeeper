@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
@@ -10,6 +11,23 @@ namespace Timekeeper.Client.Pages
 {
     public partial class DisplayPolls
     {
+        private string _role;
+
+        [Parameter]
+        public string Role
+        {
+            get => _role;
+            set
+            {
+                _role = value;
+                
+                if (Handler != null)
+                {
+                    Handler.Role = value;
+                }
+            }
+        }
+
         public PollGuest Handler
         {
             get;
@@ -75,7 +93,10 @@ namespace Timekeeper.Client.Pages
                         Log,
                         Http,
                         SessionId,
-                        Session);
+                        Session)
+                    {
+                        Role = _role
+                    };
 
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();

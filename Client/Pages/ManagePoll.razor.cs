@@ -15,9 +15,6 @@ namespace Timekeeper.Client.Pages
         private Poll _currentPoll;
 
         [Parameter]
-        public string Role { get; set; }
-
-        [Parameter]
         public ManagePollsView Parent
         {
             get;

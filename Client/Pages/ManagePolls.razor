@@ -1,5 +1,4 @@
 ﻿@page "/polls/{SessionId}"
-@page "/polls/{SessionId}/{Role}"
 @inject NavigationManager Nav
 @inject ILogger<ManagePolls> Log
 @inject HttpClient Http
@@ -53,7 +52,6 @@
                             else
                             {
                                 <ManagePollsView Handler="@Handler"
-                                                 Role="@Role"
                                                  Parent="@this" />
                             }
                         }
@@ -92,7 +90,6 @@
                     else
                     {
                         <ManagePollsView Handler="@Handler"
-                                         Role="@Role"
                                          Parent="@this" />
                     }
                 }

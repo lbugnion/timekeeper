@@ -17,9 +17,6 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        [Parameter]
-        public string Role { get; set; }
-
         public void ToggleFocus()
         {
             Log.LogTrace("-> ToggleFocus");
