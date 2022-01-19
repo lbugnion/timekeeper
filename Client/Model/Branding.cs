@@ -15,7 +15,7 @@
     {
         public const string AboutPageTitle = "Timekeeper: About";
         public const bool AllowSessionSelection = true;
-        public const bool CanEditGuestName = true;
+        public const bool CanEditGuestName = false;
         public const string ConfigurePageTitle = "Learn Live: Configure";
         public const string PollsPageTitle = "Learn Live Polls";
         public const string GuestPageTitle = "Learn Live Guest Page";
