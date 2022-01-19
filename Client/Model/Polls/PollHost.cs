@@ -66,8 +66,14 @@ namespace Timekeeper.Client.Model.Polls
 
             IsBusy = true;
 
-            var ok = await InitializeSession(_sessionId)
-                && await InitializePeerInfo()
+            var ok = await InitializeSession(_sessionId);
+
+            if (!ok)
+            {
+                return;
+            }
+
+            ok = await InitializePeerInfo()
                 && await CreateConnection();
 
             if (ok)
