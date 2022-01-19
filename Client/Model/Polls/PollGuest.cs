@@ -321,7 +321,8 @@ namespace Timekeeper.Client.Model.Polls
                 _unregisterFromGroup = guestSession.SessionId;
             }
 
-            if (guestSession == null)
+            if (guestSession == null
+                || guestSession.SessionId != sessionId)
             {
                 CurrentSession = new SessionBase
                 {
