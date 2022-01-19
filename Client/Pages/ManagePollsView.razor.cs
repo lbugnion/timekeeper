@@ -79,21 +79,6 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public async Task ResetPoll(Poll poll)
-        {
-            if (poll.IsPublished)
-            {
-                return;
-            }
-
-            if (Handler.CurrentSession.Polls.Contains(poll))
-            {
-                poll.Reset();
-                await Handler.SaveSession();
-                StateHasChanged();
-            }
-        }
-
         public async Task ToggleEditPoll(Poll poll)
         {
             Log.LogTrace(nameof(ToggleEditPoll));

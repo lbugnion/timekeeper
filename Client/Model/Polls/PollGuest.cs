@@ -17,7 +17,6 @@ namespace Timekeeper.Client.Model.Polls
 
         public string Role { get; set; }
 
-
         private async Task ReceiveVote(string pollJson)
         {
             if (Role != Constants.RolePresenter)
@@ -107,7 +106,8 @@ namespace Timekeeper.Client.Model.Polls
                 _connection.On<string>(Constants.PublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, true));
                 _connection.On<string>(Constants.UnpublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, false));
                 _connection.On<string>(Constants.ReceivePollsMessage, ReceiveAllPublishedPolls);
-                _connection.On<string>(Constants.VotePollMessage, p => ReceiveVote(p));
+                _connection.On<string>(Constants.VotePollMessage, async p => await ReceiveVote(p));
+                _connection.On<string>(Constants.ResetPollMessage, async p => await ResetPoll(p));
 
                 ok = await StartConnection();
 
@@ -156,6 +156,33 @@ namespace Timekeeper.Client.Model.Polls
             IsBusy = false;
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.Connect ->");
+        }
+
+        private async Task ResetPoll(string pollJson)
+        {
+            Poll receivedPoll;
+
+            try
+            {
+                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
+            }
+            catch
+            {
+                _log.LogTrace("Error with received poll");
+                return;
+            }
+
+            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
+
+            if (poll == null)
+            {
+                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
+                return;
+            }
+
+            poll.GivenAnswer = null;
+            await SaveSessionToStorage();
+            RaiseUpdateEvent();
         }
 
         private async Task ReceiveAllPublishedPolls(string json)

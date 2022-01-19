@@ -27,6 +27,39 @@ namespace Timekeeper.Client.Model.Polls
             _sessionId = sessionId;
         }
 
+        public async Task ResetPoll(Poll poll)
+        {
+            if (poll.IsPublished)
+            {
+                return;
+            }
+
+            if (!CurrentSession.Polls.Contains(poll))
+            {
+                _log.LogWarning($"Poll not found: {poll.Uid}");
+                return;
+            }
+
+            poll.Reset();
+            await SaveSession();
+
+            var json = JsonConvert.SerializeObject(poll);
+
+            _log.LogDebug($"json: {json}");
+
+            var pollsUrl = $"{_hostName}/reset-poll";
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, pollsUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+            httpRequest.Content = new StringContent(json);
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                // TODO Handle failure
+            }
+        }
+
         public override async Task Connect()
         {
             _log.LogInformation("-> PollHost.Connect");

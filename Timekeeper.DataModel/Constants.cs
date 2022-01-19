@@ -30,5 +30,6 @@
         public const string RequestPollsMessage = "request-polls";
         public const string RolePresenter = "presenter";
         public const string MovePollMessage = "move-poll";
+        public const string ResetPollMessage = "reset-poll";
     }
 }
