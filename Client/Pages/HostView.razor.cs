@@ -44,7 +44,7 @@ namespace Timekeeper.Client.Pages
                 if (string.IsNullOrEmpty(_guestUrlQrCode))
                 {
                     var url = HttpUtility.UrlEncode(GuestUrl);
-                    var _guestUrlQrCode = $"{Nav.BaseUri}api/qr?text={url}";
+                    _guestUrlQrCode = $"{Nav.BaseUri}api/qr?text={url}";
 
 #if DEBUG
                     _guestUrlQrCode = $"http://localhost:7071/api/qr?text={url}";
