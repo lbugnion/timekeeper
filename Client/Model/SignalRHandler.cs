@@ -152,6 +152,11 @@ namespace Timekeeper.Client.Model
         {
             var tcs = new TaskCompletionSource<bool>();
             Status = "Reconnected!";
+
+            IsBusy = false;
+            IsConnected = true;
+            IsInError = false;
+
             tcs.SetResult(true);
             return tcs.Task;
         }
