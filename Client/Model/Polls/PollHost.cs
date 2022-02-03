@@ -84,10 +84,6 @@ namespace Timekeeper.Client.Model.Polls
                 _connection.On<string>(Constants.RequestPollsMessage, SendPolls);
                 _connection.On<string>(Constants.MovePollMessage, MovePoll);
 
-                _connection.Closed += ConnectionClosed;
-                _connection.Reconnected += ConnectionReconnected;
-                _connection.Reconnecting += ConnectionReconnecting;
-
                 ok = await StartConnection();
             }
 
@@ -111,21 +107,6 @@ namespace Timekeeper.Client.Model.Polls
             Status = "Connected";
             IsBusy = false;
             _log.LogInformation("PollsHost.Connect ->");
-        }
-
-        private async Task ConnectionReconnecting(System.Exception arg)
-        {
-            _log.LogWarning(nameof(ConnectionReconnecting));
-        }
-
-        private async Task ConnectionReconnected(string arg)
-        {
-            _log.LogWarning(nameof(ConnectionReconnected));
-        }
-
-        private async Task ConnectionClosed(System.Exception arg)
-        {
-            _log.LogWarning(nameof(ConnectionClosed));
         }
 
         private void MovePoll(string json)

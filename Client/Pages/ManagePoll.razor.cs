@@ -119,15 +119,15 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            Log.LogTrace("-> OnAfterRenderAsync");
-
             if (CurrentPoll != null)
             {
                 CurrentPoll.OnEdit += CurrentPollOnEdit;
             }
 
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : Polls");
-            Log.LogTrace("OnAfterRenderAsync ->");
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : Polls");
+            }
         }
 
         private async void CurrentPollOnEdit(object sender, EventArgs e)

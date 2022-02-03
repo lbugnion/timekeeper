@@ -36,6 +36,7 @@ namespace Timekeeper.Client.Model
 
         protected string _hostName;
         protected string _hostNameFree;
+        private bool _isManualDisconnection;
 
         protected abstract string SessionKey
         {
@@ -150,6 +151,7 @@ namespace Timekeeper.Client.Model
 
         private Task ConnectionReconnected(string arg)
         {
+            _log.LogWarning(nameof(ConnectionReconnected));
             var tcs = new TaskCompletionSource<bool>();
             Status = "Reconnected!";
 
@@ -163,6 +165,7 @@ namespace Timekeeper.Client.Model
 
         private Task ConnectionReconnecting(Exception arg)
         {
+            _log.LogWarning(nameof(ConnectionReconnecting));
             var tcs = new TaskCompletionSource<bool>();
 
             ErrorStatus = "Lost connection, trying to reconnect...";
@@ -311,6 +314,7 @@ namespace Timekeeper.Client.Model
 
                 _connection.Reconnecting += ConnectionReconnecting;
                 _connection.Reconnected += ConnectionReconnected;
+                _connection.Closed += ConnectionClosed;
             }
             catch (Exception ex)
             {
@@ -329,6 +333,20 @@ namespace Timekeeper.Client.Model
             Status = "Ready...";
             _log.LogInformation("SignalRHandler.CreateConnection ->");
             return true;
+        }
+
+        private async Task ConnectionClosed(Exception arg)
+        {
+            _log.LogWarning(nameof(ConnectionClosed));
+            _log.LogDebug($"_isManualDisconnection: {_isManualDisconnection}");
+
+            if (!_isManualDisconnection)
+            {
+                _log.LogTrace("HIGHLIGHT--Attempting reconnection");
+                await Connect();
+            }
+
+            _isManualDisconnection = false;
         }
 
         protected virtual async Task DeleteLocalClock(string clockId)
@@ -716,6 +734,7 @@ namespace Timekeeper.Client.Model
         {
             if (_connection != null)
             {
+                _isManualDisconnection = true;
                 await _connection.StopAsync();
                 await _connection.DisposeAsync();
                 _connection = null;

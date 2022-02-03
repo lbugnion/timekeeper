@@ -66,7 +66,10 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            }
         }
 
         protected override async Task OnInitializedAsync()

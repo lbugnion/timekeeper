@@ -270,7 +270,7 @@ namespace Timekeeper.Client.Model.Polls
 
         public async Task SelectAnswer(string pollId, string answerLetter)
         {
-            _log.LogTrace("HIGHLIGHT---> SelectAnswer");
+            _log.LogTrace("-> SelectAnswer");
 
             var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == pollId);
 
@@ -306,12 +306,12 @@ namespace Timekeeper.Client.Model.Polls
             }
 
             RaiseUpdateEvent();
-            _log.LogTrace("HIGHLIGHT--SelectAnswer ->");
+            _log.LogTrace("SelectAnswer ->");
         }
 
         public async Task<bool> InitializeSession(string sessionId)
         {
-            _log.LogInformation("HIGHLIGHT---> InitializeSession");
+            _log.LogInformation("-> InitializeSession");
             _log.LogDebug($"sessionId: {sessionId}");
 
             var guestSession = await _session.GetFromStorage(SessionKey, _log);
