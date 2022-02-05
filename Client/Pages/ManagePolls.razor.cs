@@ -56,7 +56,7 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogTrace("-> ManagePolls.OnInitialized");
+            Log.LogTrace("HIGHLIGHT---> ManagePolls.OnInitialized");
             Log.LogDebug($"SessionId: {SessionId}");
 
             UiVisibility = VisibilityVisible;
@@ -79,8 +79,8 @@ namespace Timekeeper.Client.Pages
                 Log.LogError("No authorization");
                 return;
             }
-            else if (Handler.IsOffline != null
-                && Handler.IsOffline.Value)
+            else if (!Handler.IsConnectedTEMPO
+                && Handler.IsInErrorTEMPO)
             {
                 Log.LogError("Offline");
                 return;

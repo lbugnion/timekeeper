@@ -23,7 +23,8 @@ else
 @if (Handler.CurrentSession != null
   && Handler.IsAuthorized != null
   && Handler.IsAuthorized.Value
-  && !Handler.IsBusy)
+  && !Handler.IsInErrorTEMPO
+  && !Handler.IsBusyTEMPO)
 {
     <h2 class="@Parent.UiVisibility @Branding.ForegroundClass">@SessionName</h2>
 
@@ -51,30 +52,30 @@ else
         <button @onclick="CreateNewPoll"
                 class="poll-create-save">Create new poll</button>
     }
+
+    <hr />
+
+    <div id="instructions">
+
+        <h2>Links to send</h2>
+
+        <h3>For the presenters</h3>
+
+        <p>Send this link to the presenters. It will show the answers ratio as the votes come in, but it doesn't not show the polls controls.</p>
+
+        <p><a href="/display-polls/@Handler.CurrentSession.SessionId/@Constants.RolePresenter" target="_blank">
+                Open the Display Polls window (for the presenters)</a></p>
+
+        <h3>For the viewers</h3>
+
+        <p>Send this link in the chats, for all the viewers to vote on the polls.</p>
+
+        <p><a href="/display-polls/@Handler.CurrentSession.SessionId" target="_blank">
+                Open the Display Polls window (for the viewers)</a></p>
+
+    </div>
 }
 else
 {
     <p>Please wait...</p>
 }
-
-<hr />
-
-<div id="instructions">
-
-    <h2>Links to send</h2>
-
-    <h3>For the presenters</h3>
-
-    <p>Send this link to the presenters. It will show the answers ratio as the votes come in, but it doesn't not show the polls controls.</p>
-
-    <p><a href="/display-polls/@Handler.CurrentSession.SessionId/@Constants.RolePresenter" target="_blank">
-            Open the Display Polls window (for the presenters)</a></p>
-
-    <h3>For the viewers</h3>
-
-    <p>Send this link in the chats, for all the viewers to vote on the polls.</p>
-
-    <p><a href="/display-polls/@Handler.CurrentSession.SessionId" target="_blank">
-            Open the Display Polls window (for the viewers)</a></p>
-
-</div>

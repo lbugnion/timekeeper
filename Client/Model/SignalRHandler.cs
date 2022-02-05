@@ -82,19 +82,19 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public bool IsBusy
+        public bool IsBusyTEMPO
         {
             get;
             protected set;
         }
 
-        public bool IsConnected
+        public bool IsConnectedTEMPO
         {
             get;
             protected set;
         }
 
-        public bool IsInError
+        public bool IsInErrorTEMPO
         {
             get;
             protected set;
@@ -155,9 +155,11 @@ namespace Timekeeper.Client.Model
             var tcs = new TaskCompletionSource<bool>();
             Status = "Reconnected!";
 
-            IsBusy = false;
-            IsConnected = true;
-            IsInError = false;
+            IsBusyTEMPO = false;
+            IsConnectedTEMPO = true;
+            IsInErrorTEMPO = false;
+
+            RaiseUpdateEvent();
 
             tcs.SetResult(true);
             return tcs.Task;
@@ -169,9 +171,11 @@ namespace Timekeeper.Client.Model
             var tcs = new TaskCompletionSource<bool>();
 
             ErrorStatus = "Lost connection, trying to reconnect...";
-            IsBusy = true;
-            IsConnected = false;
-            IsInError = true;
+            IsBusyTEMPO = true;
+            IsConnectedTEMPO = false;
+            IsInErrorTEMPO = false;
+
+            RaiseUpdateEvent();
 
             tcs.SetResult(true);
             return tcs.Task;
@@ -207,7 +211,6 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogError($"Error registering for group: {response.ReasonPhrase}");
                     ErrorStatus = "Error with the backend, please contact support";
-                    IsInError = true;
                     _log.LogInformation("SignalRHandler.RegisterToGroup ->");
                     return false;
                 }
@@ -216,7 +219,6 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogError($"Error reaching the function: {ex.Message}");
                 ErrorStatus = "Error with the backend, please contact support";
-                IsInError = true;
                 _log.LogInformation("SignalRHandler.RegisterToGroup ->");
                 return false;
             }
@@ -286,7 +288,6 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogError($"Error reaching the function: {response.ReasonPhrase}");
                     ErrorStatus = "Error with the backend, please contact support";
-                    IsInError = true;
                     _log.LogInformation("SignalRHandler.CreateConnection ->");
                     return false;
                 }
@@ -295,7 +296,6 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogError($"Error reaching the function: {ex.Message}");
                 ErrorStatus = "Error with the backend, please contact support";
-                IsInError = true;
                 _log.LogInformation("SignalRHandler.CreateConnection ->");
                 return false;
             }
@@ -323,7 +323,7 @@ namespace Timekeeper.Client.Model
                 return false;
             }
 
-            var ok = await RegisterToGroup(); // TODO handle failure
+            var ok = await RegisterToGroup();
 
             if (!ok)
             {
@@ -335,18 +335,32 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        private async Task ConnectionClosed(Exception arg)
+        private Task ConnectionClosed(Exception arg)
         {
             _log.LogWarning(nameof(ConnectionClosed));
             _log.LogDebug($"_isManualDisconnection: {_isManualDisconnection}");
+            var tcs = new TaskCompletionSource<bool>();
+
+            ErrorStatus = "Unable to reconnect, please refresh the page...";
+            IsBusyTEMPO = false;
+            IsConnectedTEMPO = false;
 
             if (!_isManualDisconnection)
             {
-                _log.LogTrace("HIGHLIGHT--Attempting reconnection");
-                await Connect();
+                _log.LogTrace("HIGHLIGHT--Showing disconnected message");
+                IsInErrorTEMPO = true;
+            }
+            else
+            {
+                IsInErrorTEMPO = false;
             }
 
             _isManualDisconnection = false;
+
+            RaiseUpdateEvent();
+
+            tcs.SetResult(true);
+            return tcs.Task;
         }
 
         protected virtual async Task DeleteLocalClock(string clockId)

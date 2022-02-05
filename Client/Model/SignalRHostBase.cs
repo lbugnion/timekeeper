@@ -24,12 +24,6 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
-        public bool? IsOffline
-        {
-            get;
-            protected set;
-        }
-
         public SignalRHostBase(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -63,7 +57,9 @@ namespace Timekeeper.Client.Model
             catch (Exception ex)
             {
                 _log.LogError($"Connection refused: {ex.Message}");
-                IsOffline = true;
+                IsInErrorTEMPO = true;
+                IsConnectedTEMPO = false;
+                IsBusyTEMPO = false;
                 IsAuthorized = false;
                 Status = "Cannot communicate with functions";
                 return;
@@ -75,21 +71,24 @@ namespace Timekeeper.Client.Model
             {
                 case System.Net.HttpStatusCode.OK:
                     _log.LogTrace("All ok");
-                    IsOffline = false;
                     IsAuthorized = true;
                     Status = "Ready...";
                     break;
 
                 case System.Net.HttpStatusCode.Forbidden:
                     _log.LogTrace("Unauthorized");
-                    IsOffline = false;
+                    IsInErrorTEMPO = true;
+                    IsConnectedTEMPO = false;
+                    IsBusyTEMPO = false;
                     IsAuthorized = false;
                     Status = "Unauthorized";
                     break;
 
                 default:
                     _log.LogTrace("Other error code");
-                    IsOffline = true;
+                    IsInErrorTEMPO = true;
+                    IsConnectedTEMPO = false;
+                    IsBusyTEMPO = false;
                     IsAuthorized = false;
                     Status = "Cannot communicate with functions";
                     _log.LogError($"Cannot communicate with functions: {response.StatusCode}");

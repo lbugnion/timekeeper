@@ -16,7 +16,7 @@
         <h1 class="@Branding.ForegroundClass">@SessionName</h1>
     }
 
-    @if (!Handler.IsBusy)
+    @if (!Handler.IsBusyTEMPO)
     {
         <div class="edit-link"><a href="#" @onclick="EditSessionName" @onclick:preventDefault>(@EditSessionNameLinkText)</a></div>
     }
@@ -205,7 +205,7 @@ else
     <h2 class="@Branding.ForegroundClass">Session</h2>
 
     @if (Handler.CurrentSession != null
-      && !Handler.IsInError)
+      && !Handler.IsInErrorTEMPO)
     {
         <div class="session-information-area">
             <h3 class="@Branding.ForegroundClass">Send this link to your guests so they can connect to the session:</h3>

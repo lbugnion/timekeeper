@@ -95,8 +95,8 @@ namespace Timekeeper.Client.Pages
                 Log.LogError("No authorization");
                 return;
             }
-            else if (Handler.IsOffline != null
-                && Handler.IsOffline.Value)
+            else if (!Handler.IsConnectedTEMPO
+                && Handler.IsInErrorTEMPO)
             {
                 Log.LogError("Offline");
                 return;
@@ -109,7 +109,6 @@ namespace Timekeeper.Client.Pages
 
             Handler.UpdateUi += HandlerUpdateUi;
             await Handler.Connect();
-            Handler.SubscribeToClocks();
         }
 
         public async void Dispose()

@@ -64,12 +64,15 @@ namespace Timekeeper.Client.Model.Polls
         {
             _log.LogInformation("-> PollHost.Connect");
 
-            IsBusy = true;
+            IsBusyTEMPO = true;
+            IsInErrorTEMPO = false;
+            IsConnectedTEMPO = false;
 
             var ok = await InitializeSession(_sessionId);
 
             if (!ok)
             {
+                // Error cases are handled in InitializeSession
                 return;
             }
 
@@ -87,25 +90,34 @@ namespace Timekeeper.Client.Model.Polls
                 ok = await StartConnection();
             }
 
-            if (ok)
-            {
-                _log.LogTrace("CreateConnection and StartConnection OK");
-                IsConnected = true;
-            }
-            else
+            if (!ok)
             {
                 _log.LogTrace("StartConnection NOT OK");
-                IsConnected = false;
-                IsInError = true;
+                IsConnectedTEMPO = false;
+                IsInErrorTEMPO = true;
+                IsBusyTEMPO = false;
                 ErrorStatus = "Error";
                 RaiseUpdateEvent();
                 return;
             }
 
-            await SendPolls();
+            ok = await SendPolls();
+
+            if (!ok)
+            {
+                _log.LogTrace("Error when sending polls");
+                IsConnectedTEMPO = false;
+                IsInErrorTEMPO = true;
+                IsBusyTEMPO = false;
+                ErrorStatus = "Error sending polls";
+                RaiseUpdateEvent();
+                return;
+            }
 
             Status = "Connected";
-            IsBusy = false;
+            IsBusyTEMPO = false;
+            IsInErrorTEMPO = false;
+            IsConnectedTEMPO = true;
             _log.LogInformation("PollsHost.Connect ->");
         }
 
@@ -135,12 +147,12 @@ namespace Timekeeper.Client.Model.Polls
             RaiseUpdateEvent();
         }
 
-        private async Task SendPolls()
+        private async Task<bool> SendPolls()
         {
-            await SendPolls(string.Empty);
+            return await SendPolls(string.Empty);
         }
 
-        private async Task SendPolls(string _)
+        private async Task<bool> SendPolls(string _)
         {
             _log.LogTrace("-> SendPolls");
 
@@ -149,7 +161,7 @@ namespace Timekeeper.Client.Model.Polls
 
             if (publishedPolls.Count() == 0)
             {
-                return;
+                return true;
             }
 
             foreach (var poll in publishedPolls)
@@ -175,8 +187,10 @@ namespace Timekeeper.Client.Model.Polls
 
             if (!response.IsSuccessStatusCode)
             {
-                // TODO Handle failure
+                return false;
             }
+
+            return true;
         }
 
         private async Task ReceiveVote(string pollJson)
@@ -453,7 +467,10 @@ namespace Timekeeper.Client.Model.Polls
 
             if (CurrentSession == null)
             {
-                _log.LogDebug("Session in storage is Null");
+                _log.LogWarning("Session in storage is Null");
+                IsBusyTEMPO = false;
+                IsInErrorTEMPO = false;
+                IsConnectedTEMPO = false;
                 _nav.NavigateTo("/");
                 return false;
             }
@@ -466,7 +483,9 @@ namespace Timekeeper.Client.Model.Polls
                     _log.LogTrace("Session ID mismatch");
                     CurrentSession = null;
                     ErrorStatus = "Session ID mismatch";
-                    IsOffline = false;
+                    IsBusyTEMPO = false;
+                    IsInErrorTEMPO = false;
+                    IsConnectedTEMPO = false;
                     IsSessionMismatch = true;
                     RaiseUpdateEvent();
                     _log.LogTrace("Done informing user");
