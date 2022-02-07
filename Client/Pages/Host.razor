@@ -16,10 +16,11 @@
         <AuthorizeView>
             <Authorized>
                 @if (Handler != null
-                  && Handler.IsAuthorized != null
-                  && Handler.IsAuthorized.Value
-                  && Handler.IsOffline != null
-                  && !Handler.IsOffline.Value)
+                 && Handler.IsAuthorized != null
+                 && Handler.IsAuthorized.Value
+                 && !Handler.IsBusyTEMPO
+                 && !Handler.IsInErrorTEMPO
+                 && Handler.IsConnectedTEMPO)
                 {
                     <div class="connected-peers">
                         @Handler.ConnectedPeers.Count peer(s)
@@ -31,8 +32,9 @@
     else
     {
         @if (Handler != null
-          && Handler.IsOffline != null
-          && !Handler.IsOffline.Value)
+         && !Handler.IsBusyTEMPO
+         && !Handler.IsInErrorTEMPO
+         && Handler.IsConnectedTEMPO)
         {
             <div class="connected-peers">
                 @Handler.ConnectedPeers.Count peer(s)
@@ -49,8 +51,9 @@
             <Authorized>
                 @if (Handler.IsAuthorized != null
                  && Handler.IsAuthorized.Value
-                 && Handler.IsOffline != null
-                 && !Handler.IsOffline.Value)
+                 && !Handler.IsBusyTEMPO
+                 && !Handler.IsInErrorTEMPO
+                 && Handler.IsConnectedTEMPO)
                 {
                     <div class="start-all-clocks-area">
                         <button @onclick="(e => Handler.StartAllClocks(true))">
@@ -63,8 +66,9 @@
     }
     else
     {
-        @if (Handler.IsOffline != null
-        && !Handler.IsOffline.Value)
+        @if (!Handler.IsBusyTEMPO
+         && !Handler.IsInErrorTEMPO
+         && Handler.IsConnectedTEMPO)
         {
             <div class="start-all-clocks-area">
                 <button @onclick="(e => Handler.StartAllClocks(true))">
@@ -84,7 +88,7 @@
                     </blockquote>
                 </NotAuthorized>
                 <Authorized>
-                    @if (Handler.IsOffline == null)
+                    @if (Handler.IsBusyTEMPO)
                     {
                         <blockquote>
                             Please wait...
@@ -92,16 +96,17 @@
                     }
                     else
                     {
-                        @if (Handler.IsOffline.Value)
+                        @if (Handler.IsInErrorTEMPO)
                         {
                             <blockquote class="error">
-                                Cannot communicate with functions. Please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                                Unable to connect to polling service.
+                                <br /><br /><strong>Try refreshing the page.</strong>
+                                <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
                             </blockquote>
                         }
                         else
                         {
-                            <HostView Handler="@Handler"
-                                      SessionName="@SessionName" />
+                            <HostView Handler="@Handler" />
                         }
                     }
                 </Authorized>
@@ -109,7 +114,7 @@
         }
         else
         {
-            @if (Handler.IsOffline == null)
+            @if (Handler.IsBusyTEMPO)
             {
                 <blockquote>
                     Please wait...
@@ -117,16 +122,17 @@
             }
             else
             {
-                @if (Handler.IsOffline.Value)
+                @if (Handler.IsInErrorTEMPO)
                 {
                     <blockquote class="error">
-                        Cannot communicate with functions. Please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                        Unable to connect to polling service.
+                        <br /><br /><strong>Try refreshing the page.</strong>
+                        <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
                     </blockquote>
                 }
                 else
                 {
-                    <HostView Handler="@Handler"
-                              SessionName="@SessionName" />
+                    <HostView Handler="@Handler" />
                 }
             }
         }

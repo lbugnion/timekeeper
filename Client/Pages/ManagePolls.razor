@@ -24,7 +24,7 @@
                     </blockquote>
                 </NotAuthorized>
                 <Authorized>
-                    @if (Handler.IsOffline == null)
+                    @if (Handler.IsBusyTEMPO)
                     {
                         <blockquote>
                             Please wait...
@@ -32,10 +32,14 @@
                     }
                     else
                     {
-                        @if (Handler.IsOffline.Value)
+                        <p><strong>IS NOT BUSY</strong></p>
+
+                        @if (Handler.IsInErrorTEMPO)
                         {
                             <blockquote class="error">
-                                Cannot communicate with functions. Try refreshing the page. If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                                Cannot communicate with functions.
+                                <br /><br /><strong>Try refreshing the page.</strong>
+                                <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
                             </blockquote>
                         }
                         else
@@ -44,8 +48,9 @@
                             {
                                 <blockquote class="error">
                                     Please use the Manage Polls link from the main Timekeeper window to open this window. 
+                                    <br /><br />
                                     In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
-                                    <br />
+                                    <br /><br />
                                     <a href="/">Go back to the top...</a>
                                 </blockquote>
                             }
@@ -61,7 +66,7 @@
         }
         else
         {
-            @if (Handler.IsOffline == null)
+            @if (Handler.IsBusyTEMPO)
             {
                 <blockquote>
                     Please wait...
@@ -69,11 +74,12 @@
             }
             else
             {
-                @if (Handler.IsOffline.Value
-                    || Handler.IsInError)
+                @if (Handler.IsInErrorTEMPO)
                 {
                     <blockquote class="error">
-                        Cannot communicate with functions. Try refreshing the page. If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                        Cannot communicate with functions.
+                        <br /><br /><strong>Try refreshing the page.</strong>
+                        <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
                     </blockquote>
                 }
                 else
@@ -82,8 +88,9 @@
                     {
                         <blockquote class="error">
                             Please use the Manage Polls link from the main Timekeeper window to open this window. 
+                            <br /><br />
                             In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
-                            <br />
+                            <br /><br />
                             <a href="/">Go back to the top...</a>
                         </blockquote>
                     }

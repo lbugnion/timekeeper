@@ -123,14 +123,6 @@ namespace Timekeeper.Client.Model
             return await AnnounceNameJson(json);
         }
 
-        internal void SubscribeToClocks()
-        {
-            if (CurrentSession == null)
-            {
-                return;
-            }
-        }
-
         private void ClockSelectionChanged(object sender, bool e)
         {
             _log.LogInformation("-> ClockSelectionChanged");
@@ -384,16 +376,24 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
-            IsBusy = true;
+            IsBusyTEMPO = true;
+            IsInErrorTEMPO = false;
+            IsConnectedTEMPO = false;
 
             IsSendMessageDisabled = true;
             IsModifySessionDisabled = true;
+
+            RaiseUpdateEvent();
 
             var ok = await InitializeSession();
 
             if (!ok)
             {
                 _log.LogWarning("Interrupt after initializing session");
+                IsBusyTEMPO = false;
+                IsConnectedTEMPO = false;
+                IsInErrorTEMPO = false;
+                RaiseUpdateEvent();
                 return;
             }
 
@@ -420,8 +420,6 @@ namespace Timekeeper.Client.Model
             if (ok)
             {
                 _log.LogTrace("CreateConnection and StartConnection OK");
-
-                IsConnected = true;
 
                 foreach (var clock in CurrentSession.Clocks)
                 {
@@ -467,20 +465,22 @@ namespace Timekeeper.Client.Model
 
                 if (!ok)
                 {
-                    IsConnected = false;
+                    IsConnectedTEMPO = false;
+                    IsInErrorTEMPO = true;
+                    IsBusyTEMPO = false;
                     DisplayMessage("Error", true);
+                    return;
                 }
 
                 IsSendMessageDisabled = false;
                 IsModifySessionDisabled = false;
-                IsOffline = false;
                 Status = "Connected, your guests will only see clocks when you start them!";
+                IsConnectedTEMPO = true;
+                IsInErrorTEMPO = false;
             }
             else
             {
                 _log.LogTrace("StartConnection NOT OK");
-
-                IsConnected = false;
 
                 foreach (var clock in CurrentSession.Clocks)
                 {
@@ -491,11 +491,13 @@ namespace Timekeeper.Client.Model
 
                 IsSendMessageDisabled = true;
                 IsModifySessionDisabled = false;
-                IsOffline = true;
                 Status = "Cannot connect";
+                IsConnectedTEMPO = false;
+                IsInErrorTEMPO = true;
             }
 
-            IsBusy = false;
+            IsBusyTEMPO = false;
+            RaiseUpdateEvent();
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
