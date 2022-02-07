@@ -43,6 +43,7 @@ namespace Timekeeper.Client.Model
             IsBusyTEMPO = true;
             IsInErrorTEMPO = false;
             IsConnectedTEMPO = false;
+            RaiseUpdateEvent();
 
             var ok = await InitializeSession(_sessionId)
                 && await InitializePeerInfo()
@@ -93,6 +94,7 @@ namespace Timekeeper.Client.Model
             }
 
             IsBusyTEMPO = false;
+            RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.Connect ->");
         }
 

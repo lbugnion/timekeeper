@@ -62,6 +62,7 @@ namespace Timekeeper.Client.Model
                 IsBusyTEMPO = false;
                 IsAuthorized = false;
                 Status = "Cannot communicate with functions";
+                RaiseUpdateEvent();
                 return;
             }
 
@@ -73,6 +74,7 @@ namespace Timekeeper.Client.Model
                     _log.LogTrace("All ok");
                     IsAuthorized = true;
                     Status = "Ready...";
+                    RaiseUpdateEvent();
                     break;
 
                 case System.Net.HttpStatusCode.Forbidden:
@@ -82,6 +84,7 @@ namespace Timekeeper.Client.Model
                     IsBusyTEMPO = false;
                     IsAuthorized = false;
                     Status = "Unauthorized";
+                    RaiseUpdateEvent();
                     break;
 
                 default:
@@ -92,6 +95,7 @@ namespace Timekeeper.Client.Model
                     IsAuthorized = false;
                     Status = "Cannot communicate with functions";
                     _log.LogError($"Cannot communicate with functions: {response.StatusCode}");
+                    RaiseUpdateEvent();
                     break;
             }
         }

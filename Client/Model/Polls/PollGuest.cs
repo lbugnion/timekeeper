@@ -97,6 +97,8 @@ namespace Timekeeper.Client.Model.Polls
             IsInErrorTEMPO = false;
             IsConnectedTEMPO = false;
 
+            RaiseUpdateEvent();
+
             var ok = await InitializeSession(_sessionId)
                 && await InitializePeerInfo()
                 && await UnregisterFromPreviousGroup(_unregisterFromGroup)

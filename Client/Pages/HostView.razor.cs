@@ -116,11 +116,30 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        [Parameter]
-        public string SessionName
+        public string EditedSessionName
         {
             get;
             set;
+        }
+
+        public string SessionName
+        {
+            get
+            {
+                if (Handler.IsBusyTEMPO)
+                {
+                    return "Loading...";
+                }
+
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return "Unknown session";
+                }
+
+                return Handler.CurrentSession.SessionName;
+            }
         }
 
         public string SessionId => Handler.CurrentSession.SessionId;
@@ -135,7 +154,6 @@ namespace Timekeeper.Client.Pages
         {
             Log.LogInformation("-> HostView.OnInitializedAsync");
             IsEditingSessionName = false;
-            SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
             PeerListLinkText = ShowPeersText;
 
@@ -172,20 +190,22 @@ namespace Timekeeper.Client.Pages
             if (IsEditingSessionName)
             {
                 EditSessionNameLinkText = SaveSessionNameText;
+                EditedSessionName = SessionName;
             }
             else
             {
                 EditSessionNameLinkText = EditSessionNameText;
 
-                if (string.IsNullOrEmpty(SessionName))
+                if (string.IsNullOrEmpty(EditedSessionName))
                 {
                     Handler.CurrentSession.ResetName();
-                    SessionName = Handler.CurrentSession.SessionName;
                 }
                 else
                 {
-                    Handler.CurrentSession.SessionName = SessionName;
+                    Handler.CurrentSession.SessionName = EditedSessionName;
                 }
+
+                StateHasChanged();
 
                 await Handler.SaveSession();
 

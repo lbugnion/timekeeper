@@ -383,6 +383,8 @@ namespace Timekeeper.Client.Model
             IsSendMessageDisabled = true;
             IsModifySessionDisabled = true;
 
+            RaiseUpdateEvent();
+
             var ok = await InitializeSession();
 
             if (!ok)
@@ -391,6 +393,7 @@ namespace Timekeeper.Client.Model
                 IsBusyTEMPO = false;
                 IsConnectedTEMPO = false;
                 IsInErrorTEMPO = false;
+                RaiseUpdateEvent();
                 return;
             }
 
@@ -494,6 +497,7 @@ namespace Timekeeper.Client.Model
             }
 
             IsBusyTEMPO = false;
+            RaiseUpdateEvent();
             _log.LogInformation("SignalRHost.Connect ->");
         }
 

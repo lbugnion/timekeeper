@@ -67,6 +67,7 @@ namespace Timekeeper.Client.Model.Polls
             IsBusyTEMPO = true;
             IsInErrorTEMPO = false;
             IsConnectedTEMPO = false;
+            RaiseUpdateEvent();
 
             var ok = await InitializeSession(_sessionId);
 
@@ -118,6 +119,7 @@ namespace Timekeeper.Client.Model.Polls
             IsBusyTEMPO = false;
             IsInErrorTEMPO = false;
             IsConnectedTEMPO = true;
+            RaiseUpdateEvent();
             _log.LogInformation("PollsHost.Connect ->");
         }
 
