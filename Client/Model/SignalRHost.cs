@@ -376,9 +376,9 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRHost.Connect");
 
-            IsBusyTEMPO = true;
-            IsInErrorTEMPO = false;
-            IsConnectedTEMPO = false;
+            IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
 
             IsSendMessageDisabled = true;
             IsModifySessionDisabled = true;
@@ -390,9 +390,9 @@ namespace Timekeeper.Client.Model
             if (!ok)
             {
                 _log.LogWarning("Interrupt after initializing session");
-                IsBusyTEMPO = false;
-                IsConnectedTEMPO = false;
-                IsInErrorTEMPO = false;
+                IsBusy = false;
+                IsConnected = false;
+                IsInError = false;
                 RaiseUpdateEvent();
                 return;
             }
@@ -465,9 +465,9 @@ namespace Timekeeper.Client.Model
 
                 if (!ok)
                 {
-                    IsConnectedTEMPO = false;
-                    IsInErrorTEMPO = true;
-                    IsBusyTEMPO = false;
+                    IsConnected = false;
+                    IsInError = true;
+                    IsBusy = false;
                     DisplayMessage("Error", true);
                     return;
                 }
@@ -475,8 +475,8 @@ namespace Timekeeper.Client.Model
                 IsSendMessageDisabled = false;
                 IsModifySessionDisabled = false;
                 Status = "Connected, your guests will only see clocks when you start them!";
-                IsConnectedTEMPO = true;
-                IsInErrorTEMPO = false;
+                IsConnected = true;
+                IsInError = false;
             }
             else
             {
@@ -492,11 +492,11 @@ namespace Timekeeper.Client.Model
                 IsSendMessageDisabled = true;
                 IsModifySessionDisabled = false;
                 Status = "Cannot connect";
-                IsConnectedTEMPO = false;
-                IsInErrorTEMPO = true;
+                IsConnected = false;
+                IsInError = true;
             }
 
-            IsBusyTEMPO = false;
+            IsBusy = false;
             RaiseUpdateEvent();
             _log.LogInformation("SignalRHost.Connect ->");
         }

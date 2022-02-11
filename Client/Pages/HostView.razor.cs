@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,14 +11,13 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Pages
 {
-    public partial class HostView : IDisposable
+    public partial class HostView
     {
         private const string EditSessionNameText = "edit session name";
         private const string HidePeersText = "hide";
         private const string SaveSessionNameText = "save session name";
         private const string ShowPeersText = "show";
         public const string SendMessageInputId = "send-message-input";
-        private SignalRHost _handler;
 
         public string EditSessionNameLinkText
         {
@@ -60,27 +58,11 @@ namespace Timekeeper.Client.Pages
         [Parameter]
         public SignalRHost Handler
         {
-            get => _handler;
-            set
-            {
-                if (value == null)
-                {
-                    _handler.UpdateUi -= HandlerUpdateUi;
-                }
-
-                _handler = value;
-
-                if (_handler != null)
-                {
-                    _handler.UpdateUi += HandlerUpdateUi;
-                }
-            }
+            get;
+            set;
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
-        {
-            StateHasChanged();
-        }
+        public string SessionId => Handler.CurrentSession.SessionId;
 
         public bool IsEditingSessionName
         {
@@ -116,33 +98,12 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public string EditedSessionName
+        [Parameter]
+        public string SessionName
         {
             get;
             set;
         }
-
-        public string SessionName
-        {
-            get
-            {
-                if (Handler.IsBusyTEMPO)
-                {
-                    return "Loading...";
-                }
-
-                if (Handler == null
-                    || Handler.CurrentSession == null
-                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
-                {
-                    return "Unknown session";
-                }
-
-                return Handler.CurrentSession.SessionName;
-            }
-        }
-
-        public string SessionId => Handler.CurrentSession.SessionId;
 
         private async Task DoDeleteSession()
         {
@@ -190,22 +151,20 @@ namespace Timekeeper.Client.Pages
             if (IsEditingSessionName)
             {
                 EditSessionNameLinkText = SaveSessionNameText;
-                EditedSessionName = SessionName;
             }
             else
             {
                 EditSessionNameLinkText = EditSessionNameText;
 
-                if (string.IsNullOrEmpty(EditedSessionName))
+                if (string.IsNullOrEmpty(SessionName))
                 {
                     Handler.CurrentSession.ResetName();
+                    SessionName = Handler.CurrentSession.SessionName;
                 }
                 else
                 {
-                    Handler.CurrentSession.SessionName = EditedSessionName;
+                    Handler.CurrentSession.SessionName = SessionName;
                 }
-
-                StateHasChanged();
 
                 await Handler.SaveSession();
 
@@ -246,14 +205,6 @@ namespace Timekeeper.Client.Pages
         {
             IsPeersListExpanded = !IsPeersListExpanded;
             PeerListLinkText = IsPeersListExpanded ? HidePeersText : ShowPeersText;
-        }
-
-        public void Dispose()
-        {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
         }
     }
 }

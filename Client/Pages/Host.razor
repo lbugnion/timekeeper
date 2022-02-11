@@ -18,9 +18,9 @@
                 @if (Handler != null
                  && Handler.IsAuthorized != null
                  && Handler.IsAuthorized.Value
-                 && !Handler.IsBusyTEMPO
-                 && !Handler.IsInErrorTEMPO
-                 && Handler.IsConnectedTEMPO)
+                 && !Handler.IsBusy
+                 && !Handler.IsInError
+                 && Handler.IsConnected)
                 {
                     <div class="connected-peers">
                         @Handler.ConnectedPeers.Count peer(s)
@@ -32,9 +32,9 @@
     else
     {
         @if (Handler != null
-         && !Handler.IsBusyTEMPO
-         && !Handler.IsInErrorTEMPO
-         && Handler.IsConnectedTEMPO)
+         && !Handler.IsBusy
+         && !Handler.IsInError
+         && Handler.IsConnected)
         {
             <div class="connected-peers">
                 @Handler.ConnectedPeers.Count peer(s)
@@ -51,9 +51,9 @@
             <Authorized>
                 @if (Handler.IsAuthorized != null
                  && Handler.IsAuthorized.Value
-                 && !Handler.IsBusyTEMPO
-                 && !Handler.IsInErrorTEMPO
-                 && Handler.IsConnectedTEMPO)
+                 && !Handler.IsBusy
+                 && !Handler.IsInError
+                 && Handler.IsConnected)
                 {
                     <div class="start-all-clocks-area">
                         <button @onclick="(e => Handler.StartAllClocks(true))">
@@ -66,9 +66,9 @@
     }
     else
     {
-        @if (!Handler.IsBusyTEMPO
-         && !Handler.IsInErrorTEMPO
-         && Handler.IsConnectedTEMPO)
+        @if (!Handler.IsBusy
+         && !Handler.IsInError
+         && Handler.IsConnected)
         {
             <div class="start-all-clocks-area">
                 <button @onclick="(e => Handler.StartAllClocks(true))">
@@ -88,7 +88,7 @@
                     </blockquote>
                 </NotAuthorized>
                 <Authorized>
-                    @if (Handler.IsBusyTEMPO)
+                    @if (Handler.IsBusy)
                     {
                         <blockquote>
                             Please wait...
@@ -96,7 +96,7 @@
                     }
                     else
                     {
-                        @if (Handler.IsInErrorTEMPO)
+                        @if (Handler.IsInError)
                         {
                             <blockquote class="error">
                                 Unable to connect to polling service.
@@ -106,7 +106,8 @@
                         }
                         else
                         {
-                            <HostView Handler="@Handler" />
+                            <HostView Handler="@Handler"
+                                      SessionName="@SessionName" />
                         }
                     }
                 </Authorized>
@@ -114,7 +115,7 @@
         }
         else
         {
-            @if (Handler.IsBusyTEMPO)
+            @if (Handler.IsBusy)
             {
                 <blockquote>
                     Please wait...
@@ -122,7 +123,7 @@
             }
             else
             {
-                @if (Handler.IsInErrorTEMPO)
+                @if (Handler.IsInError)
                 {
                     <blockquote class="error">
                         Unable to connect to polling service.
@@ -132,7 +133,8 @@
                 }
                 else
                 {
-                    <HostView Handler="@Handler" />
+                    <HostView Handler="@Handler"
+                              SessionName="@SessionName" />
                 }
             }
         }

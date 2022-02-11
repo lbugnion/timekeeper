@@ -23,8 +23,8 @@ else
 @if (Handler.CurrentSession != null
   && Handler.IsAuthorized != null
   && Handler.IsAuthorized.Value
-  && !Handler.IsInErrorTEMPO
-  && !Handler.IsBusyTEMPO)
+  && !Handler.IsInError
+  && !Handler.IsBusy)
 {
     <h2 class="@Parent.UiVisibility @Branding.ForegroundClass">@SessionName</h2>
 

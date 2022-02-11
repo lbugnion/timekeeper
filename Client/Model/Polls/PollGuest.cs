@@ -93,9 +93,9 @@ namespace Timekeeper.Client.Model.Polls
         {
             _log.LogInformation("-> PollGuest.Connect");
 
-            IsBusyTEMPO = true;
-            IsInErrorTEMPO = false;
-            IsConnectedTEMPO = false;
+            IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
 
             RaiseUpdateEvent();
 
@@ -128,36 +128,36 @@ namespace Timekeeper.Client.Model.Polls
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        IsConnectedTEMPO = false;
-                        IsInErrorTEMPO = true;
+                        IsConnected = false;
+                        IsInError = true;
                         ErrorStatus = "Error";
                         _log.LogError($"Error when asking for existing polls: {response.ReasonPhrase}");
                     }
                     else
                     {
-                        IsConnectedTEMPO = true;
-                        IsInErrorTEMPO = false;
+                        IsConnected = true;
+                        IsInError = false;
                         Status = "Ready";
                         _log.LogTrace("Done asking for existing polls");
                     }
                 }
                 else
                 {
-                    IsConnectedTEMPO = false;
-                    IsInErrorTEMPO = true;
+                    IsConnected = false;
+                    IsInError = true;
                     ErrorStatus = "Error";
                     _log.LogError($"Error when starting connection");
                 }
             }
             else
             {
-                IsConnectedTEMPO = false;
-                IsInErrorTEMPO = true;
+                IsConnected = false;
+                IsInError = true;
                 ErrorStatus = "Error";
                 _log.LogError($"Error when connecting");
             }
 
-            IsBusyTEMPO = false;
+            IsBusy = false;
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.Connect ->");
         }
@@ -206,8 +206,8 @@ namespace Timekeeper.Client.Model.Polls
             catch
             {
                 ErrorStatus = "Error receiving polls";
-                IsInErrorTEMPO = true;
-                IsConnectedTEMPO = false;
+                IsInError = true;
+                IsConnected = false;
             }
 
             RaiseUpdateEvent();

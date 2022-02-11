@@ -57,9 +57,9 @@ namespace Timekeeper.Client.Model
             catch (Exception ex)
             {
                 _log.LogError($"Connection refused: {ex.Message}");
-                IsInErrorTEMPO = true;
-                IsConnectedTEMPO = false;
-                IsBusyTEMPO = false;
+                IsInError = true;
+                IsConnected = false;
+                IsBusy = false;
                 IsAuthorized = false;
                 Status = "Cannot communicate with functions";
                 RaiseUpdateEvent();
@@ -79,9 +79,9 @@ namespace Timekeeper.Client.Model
 
                 case System.Net.HttpStatusCode.Forbidden:
                     _log.LogTrace("Unauthorized");
-                    IsInErrorTEMPO = true;
-                    IsConnectedTEMPO = false;
-                    IsBusyTEMPO = false;
+                    IsInError = true;
+                    IsConnected = false;
+                    IsBusy = false;
                     IsAuthorized = false;
                     Status = "Unauthorized";
                     RaiseUpdateEvent();
@@ -89,9 +89,9 @@ namespace Timekeeper.Client.Model
 
                 default:
                     _log.LogTrace("Other error code");
-                    IsInErrorTEMPO = true;
-                    IsConnectedTEMPO = false;
-                    IsBusyTEMPO = false;
+                    IsInError = true;
+                    IsConnected = false;
+                    IsBusy = false;
                     IsAuthorized = false;
                     Status = "Cannot communicate with functions";
                     _log.LogError($"Cannot communicate with functions: {response.StatusCode}");

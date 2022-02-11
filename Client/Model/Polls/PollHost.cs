@@ -64,9 +64,9 @@ namespace Timekeeper.Client.Model.Polls
         {
             _log.LogInformation("-> PollHost.Connect");
 
-            IsBusyTEMPO = true;
-            IsInErrorTEMPO = false;
-            IsConnectedTEMPO = false;
+            IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
             RaiseUpdateEvent();
 
             var ok = await InitializeSession(_sessionId);
@@ -94,9 +94,9 @@ namespace Timekeeper.Client.Model.Polls
             if (!ok)
             {
                 _log.LogTrace("StartConnection NOT OK");
-                IsConnectedTEMPO = false;
-                IsInErrorTEMPO = true;
-                IsBusyTEMPO = false;
+                IsConnected = false;
+                IsInError = true;
+                IsBusy = false;
                 ErrorStatus = "Error";
                 RaiseUpdateEvent();
                 return;
@@ -107,18 +107,18 @@ namespace Timekeeper.Client.Model.Polls
             if (!ok)
             {
                 _log.LogTrace("Error when sending polls");
-                IsConnectedTEMPO = false;
-                IsInErrorTEMPO = true;
-                IsBusyTEMPO = false;
+                IsConnected = false;
+                IsInError = true;
+                IsBusy = false;
                 ErrorStatus = "Error sending polls";
                 RaiseUpdateEvent();
                 return;
             }
 
             Status = "Connected";
-            IsBusyTEMPO = false;
-            IsInErrorTEMPO = false;
-            IsConnectedTEMPO = true;
+            IsBusy = false;
+            IsInError = false;
+            IsConnected = true;
             RaiseUpdateEvent();
             _log.LogInformation("PollsHost.Connect ->");
         }
@@ -470,9 +470,9 @@ namespace Timekeeper.Client.Model.Polls
             if (CurrentSession == null)
             {
                 _log.LogWarning("Session in storage is Null");
-                IsBusyTEMPO = false;
-                IsInErrorTEMPO = false;
-                IsConnectedTEMPO = false;
+                IsBusy = false;
+                IsInError = false;
+                IsConnected = false;
                 _nav.NavigateTo("/");
                 return false;
             }
@@ -485,9 +485,9 @@ namespace Timekeeper.Client.Model.Polls
                     _log.LogTrace("Session ID mismatch");
                     CurrentSession = null;
                     ErrorStatus = "Session ID mismatch";
-                    IsBusyTEMPO = false;
-                    IsInErrorTEMPO = false;
-                    IsConnectedTEMPO = false;
+                    IsBusy = false;
+                    IsInError = false;
+                    IsConnected = false;
                     IsSessionMismatch = true;
                     RaiseUpdateEvent();
                     _log.LogTrace("Done informing user");

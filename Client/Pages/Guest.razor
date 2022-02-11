@@ -53,7 +53,7 @@
                     <h1 class="@UiVisibility @Branding.ForegroundClass">@GuestName</h1>
                 }
 
-                @if (!Handler.IsBusyTEMPO)
+                @if (!Handler.IsBusy)
                 {
                     <div class="edit-link @UiVisibility"><a href="#" @onclick="EditGuestName" @onclick:preventDefault>(@EditGuestNameLinkText)</a></div>
                 }

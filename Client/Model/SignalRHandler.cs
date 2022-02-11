@@ -82,19 +82,19 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public bool IsBusyTEMPO
+        public bool IsBusy
         {
             get;
             protected set;
         }
 
-        public bool IsConnectedTEMPO
+        public bool IsConnected
         {
             get;
             protected set;
         }
 
-        public bool IsInErrorTEMPO
+        public bool IsInError
         {
             get;
             protected set;
@@ -151,13 +151,12 @@ namespace Timekeeper.Client.Model
 
         private Task ConnectionReconnected(string arg)
         {
-            _log.LogWarning(nameof(ConnectionReconnected));
             var tcs = new TaskCompletionSource<bool>();
             Status = "Reconnected!";
 
-            IsBusyTEMPO = false;
-            IsConnectedTEMPO = true;
-            IsInErrorTEMPO = false;
+            IsBusy = false;
+            IsConnected = true;
+            IsInError = false;
 
             RaiseUpdateEvent();
 
@@ -167,13 +166,12 @@ namespace Timekeeper.Client.Model
 
         private Task ConnectionReconnecting(Exception arg)
         {
-            _log.LogWarning(nameof(ConnectionReconnecting));
             var tcs = new TaskCompletionSource<bool>();
 
             ErrorStatus = "Lost connection, trying to reconnect...";
-            IsBusyTEMPO = true;
-            IsConnectedTEMPO = false;
-            IsInErrorTEMPO = false;
+            IsBusy = true;
+            IsConnected = false;
+            IsInError = false;
 
             RaiseUpdateEvent();
 
@@ -269,11 +267,9 @@ namespace Timekeeper.Client.Model
                 var negotiateUrl = $"{_hostNameFree}/negotiate";
                 _log.LogDebug($"negotiateUrl: {negotiateUrl}");
 
-                _log.LogTrace("Creating the HTTP request");
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, negotiateUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
                 httpRequest.Headers.Add(Constants.UserIdHeaderKey, PeerInfo.Message.PeerId);
-                _log.LogTrace("HTTP request created");
 
                 _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
 
@@ -342,17 +338,17 @@ namespace Timekeeper.Client.Model
             var tcs = new TaskCompletionSource<bool>();
 
             ErrorStatus = "Unable to reconnect, please refresh the page...";
-            IsBusyTEMPO = false;
-            IsConnectedTEMPO = false;
+            IsBusy = false;
+            IsConnected = false;
 
             if (!_isManualDisconnection)
             {
                 _log.LogTrace("HIGHLIGHT--Showing disconnected message");
-                IsInErrorTEMPO = true;
+                IsInError = true;
             }
             else
             {
-                IsInErrorTEMPO = false;
+                IsInError = false;
             }
 
             _isManualDisconnection = false;
@@ -413,7 +409,6 @@ namespace Timekeeper.Client.Model
 
         protected void DisplayReceivedMessage(string message)
         {
-            _log.LogTrace("-> DisplayReceivedMessage");
             DisplayMessage(message, false);
             Status = "Received host message";
         }

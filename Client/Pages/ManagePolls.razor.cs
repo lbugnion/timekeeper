@@ -79,8 +79,8 @@ namespace Timekeeper.Client.Pages
                 Log.LogError("No authorization");
                 return;
             }
-            else if (!Handler.IsConnectedTEMPO
-                && Handler.IsInErrorTEMPO)
+            else if (!Handler.IsConnected
+                && Handler.IsInError)
             {
                 Log.LogError("Offline");
                 return;

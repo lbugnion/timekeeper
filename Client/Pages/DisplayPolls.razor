@@ -30,7 +30,7 @@
             <h2 class="@Branding.ForegroundClass">@Handler.CurrentSession.SessionName</h2>
         }
 
-        @if (Handler.IsBusyTEMPO)
+        @if (Handler.IsBusy)
         {
             <p>Please wait...</p>
         }
@@ -40,7 +40,7 @@
                 Please ask the Host to give you a link with a session ID.
             </blockquote>
         }
-        else if (Handler.IsInErrorTEMPO)
+        else if (Handler.IsInError)
         {
             <blockquote class="error">
                 Unable to connect to polling service.

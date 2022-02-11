@@ -40,9 +40,9 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRGuest.Connect");
 
-            IsBusyTEMPO = true;
-            IsInErrorTEMPO = false;
-            IsConnectedTEMPO = false;
+            IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
             RaiseUpdateEvent();
 
             var ok = await InitializeSession(_sessionId)
@@ -68,32 +68,32 @@ namespace Timekeeper.Client.Model
 
                     if (ok)
                     {
-                        IsConnectedTEMPO = true;
-                        IsInErrorTEMPO = false;
+                        IsConnected = true;
+                        IsInError = false;
                         DisplayMessage("Ready", false);
                     }
                     else
                     {
-                        IsConnectedTEMPO = false;
-                        IsInErrorTEMPO = true;
+                        IsConnected = false;
+                        IsInError = true;
                         DisplayMessage("Error", true);
                     }
                 }
                 else
                 {
-                    IsConnectedTEMPO = false;
-                    IsInErrorTEMPO = true;
+                    IsConnected = false;
+                    IsInError = true;
                     DisplayMessage("Error", true);
                 }
             }
             else
             {
-                IsConnectedTEMPO = false;
-                IsInErrorTEMPO = true;
+                IsConnected = false;
+                IsInError = true;
                 DisplayMessage("Error", true);
             }
 
-            IsBusyTEMPO = false;
+            IsBusy = false;
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.Connect ->");
         }
