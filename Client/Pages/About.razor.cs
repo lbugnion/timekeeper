@@ -29,7 +29,10 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
+            }
         }
 
         protected override void OnInitialized()

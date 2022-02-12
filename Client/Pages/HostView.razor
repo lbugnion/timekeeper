@@ -1,7 +1,7 @@
-﻿@inject IJSRuntime JSRuntime
+﻿@using Timekeeper.DataModel
+@inject IJSRuntime JSRuntime
 @inject NavigationManager Nav
 @inject ILogger<HostView> Log
-@inject IJSRuntime JSRuntime
 
 @if (Handler.CurrentSession != null
   && Handler.IsAuthorized != null
@@ -219,6 +219,7 @@ else
         </div>
 
         <div class="session-information-area">
+
             <h3 class="@Branding.ForegroundClass">Connected guests</h3>
 
             @if (Handler.ConnectedPeers.Count == 0)
@@ -267,6 +268,26 @@ else
                 </ul>
             }
 
+            <h2>Manage polls</h2>
+
+            <h3>For the producer (you)</h3>
+
+            <p><a href="/polls/@SessionId" target="_blank">Open the Polls window (host)</a></p>
+
+            <h3>For the presenters</h3>
+
+            <p>Send this link to the presenters. It will show the answers' count as the votes come in, but it doesn't not show the polls controls.</p>
+
+            <p><a href="/display-polls/@Handler.CurrentSession.SessionId/@Constants.RolePresenter" target="_blank">
+                    Open the Display Polls window (for the presenters)</a></p>
+
+            <h3>For the viewers</h3>
+
+            <p>Send this link in the chats, for all the viewers to vote on the polls.</p>
+
+            <p><a href="/display-polls/@Handler.CurrentSession.SessionId" target="_blank">
+                    Open the Display Polls window (for the viewers)</a></p>
+
         </div>
     }
 
@@ -274,6 +295,8 @@ else
 
         @if (Branding.AllowSessionSelection)
         {
+            <hr />
+
             <button disabled="@Handler.IsModifySessionDisabled"
                     @onclick="@NavigateToSession">
                 Change the session

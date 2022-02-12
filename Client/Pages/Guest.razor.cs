@@ -66,7 +66,10 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            }
         }
 
         protected override async Task OnInitializedAsync()
@@ -162,16 +165,16 @@ namespace Timekeeper.Client.Pages
 
         private void ToggleFocus()
         {
-            Log.LogTrace("HIGHLIGHT---> ToggleFocus");
+            Log.LogTrace("-> ToggleFocus");
 
             if (UiVisibility == VisibilityVisible)
             {
-                Log.LogTrace("HIGHLIGHT--Setting Invisible");
+                Log.LogTrace("Setting Invisible");
                 UiVisibility = VisibilityInvisible;
             }
             else
             {
-                Log.LogTrace("HIGHLIGHT--Setting Visible");
+                Log.LogTrace("Setting Visible");
                 UiVisibility = VisibilityVisible;
             }
         }

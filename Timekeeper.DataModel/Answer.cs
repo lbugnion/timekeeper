@@ -1,4 +1,6 @@
-﻿namespace Timekeeper.DataModel
+﻿using System;
+
+namespace Timekeeper.DataModel
 {
     public class Answer
     {
@@ -11,6 +13,10 @@
         public int Count { get; set; }
         public double Ratio { get; set; }
 
-        public string ExplanationMarkdown { get; set; }
+        public void Reset()
+        {
+            Count = 0;
+            Ratio = 0.0;
+        }
     }
 }

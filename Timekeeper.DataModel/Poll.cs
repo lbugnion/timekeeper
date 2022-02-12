@@ -30,6 +30,8 @@ namespace Timekeeper.DataModel
 
         public bool IsVotingOpen { get; set; }
 
+        public int TotalAnswers => Answers.Select(a => a.Count).Sum();
+
         public bool IsEdited
         {
             get => _isEdited;
@@ -75,6 +77,17 @@ namespace Timekeeper.DataModel
                     }
                 }
             }
+        }
+
+        public void Reset()
+        {
+            foreach (var answer in Answers)
+            {
+                answer.Reset();
+            }
+
+            GivenAnswer = null;
+            AlreadyVotedIds = new List<string>();
         }
 
         public string QuestionHtml { get; set; }
@@ -132,6 +145,40 @@ namespace Timekeeper.DataModel
         {
             get;
             set;
+        }
+
+        public string SessionName { get; set; }
+
+        public string VoterId { get; set; }
+
+        public IList<string> AlreadyVotedIds { get; set; } = new List<string>();
+
+        public Poll GetSafeCopy()
+        {
+            var copy = new Poll
+            {
+                ExplanationMarkdown = ExplanationMarkdown,
+                ExplanationHtml = ExplanationHtml,
+                QuestionHtml = QuestionHtml,
+                QuestionMarkdown = QuestionMarkdown,
+                SessionName = SessionName,
+                Uid = Uid,
+                IsVotingOpen = IsVotingOpen,
+                IsPublished = IsPublished
+            };
+
+            foreach (var answer in Answers)
+            {
+                copy.Answers.Add(new Answer
+                {
+                    Letter = answer.Letter,
+
+                    TitleHtml = answer.TitleHtml,
+                    TitleMarkdown = answer.TitleMarkdown,
+                });
+            }
+
+            return copy;
         }
     }
 }

@@ -254,7 +254,7 @@ namespace Timekeeper.Client.Model
         {
             log.LogInformation("-> SessionHandler.SaveToStorage");
 
-            var json = JsonConvert.SerializeObject(session);
+            var json = JsonConvert.SerializeObject(session, Formatting.Indented);
 
             await _localStorage.SetItemAsync(
                 sessionStorageKey,
