@@ -1,0 +1,128 @@
+﻿@page "/polls/{SessionId}"
+@inject NavigationManager Nav
+@inject ILogger<ManagePolls> Log
+@inject HttpClient Http
+@inject IConfiguration Config
+@inject SessionHandler Session
+@inject ILocalStorageService LocalStorage
+
+<header class="@UiVisibility @Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
+         class="logo-image" />
+</header>
+
+<main class="@UiVisibility">
+    <article>
+        <div class="polls">
+
+        @if (Branding.MustAuthorize)
+        {
+            <AuthorizeView>
+                <NotAuthorized>
+                    <blockquote class="warning">
+                        Please <a href="/login">log in to use this page</a>.
+                    </blockquote>
+                </NotAuthorized>
+                <Authorized>
+                    @if (Handler.IsBusy)
+                    {
+                        <blockquote>
+                            Please wait...
+                        </blockquote>
+                    }
+                    else
+                    {
+                        @if (Handler.IsInError)
+                        {
+                            <blockquote class="error">
+                                Cannot communicate with functions.
+                                <br /><br /><strong>Try refreshing the page.</strong>
+                                <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                            </blockquote>
+                        }
+                        else
+                        {
+                            @if (Handler.IsSessionMismatch)
+                            {
+                                <blockquote class="error">
+                                    Please use the Manage Polls link from the main Timekeeper window to open this window. 
+                                    <br /><br />
+                                    In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                                    <br /><br />
+                                    <a href="/">Go back to the top...</a>
+                                </blockquote>
+                            }
+                            else
+                            {
+                                <ManagePollsView Handler="@Handler"
+                                                 Parent="@this" />
+                            }
+                        }
+                    }
+                </Authorized>
+            </AuthorizeView>
+        }
+        else
+        {
+            @if (Handler.IsBusy)
+            {
+                <blockquote>
+                    Please wait...
+                </blockquote>
+            }
+            else
+            {
+                @if (Handler.IsInError)
+                {
+                    <blockquote class="error">
+                        Cannot communicate with functions.
+                        <br /><br /><strong>Try refreshing the page.</strong>
+                        <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                    </blockquote>
+                }
+                else
+                {
+                    @if (Handler.IsSessionMismatch)
+                    {
+                        <blockquote class="error">
+                            Please use the Manage Polls link from the main Timekeeper window to open this window. 
+                            <br /><br />
+                            In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
+                            <br /><br />
+                            <a href="/">Go back to the top...</a>
+                        </blockquote>
+                    }
+                    else
+                    {
+                        <ManagePollsView Handler="@Handler"
+                                         Parent="@this" />
+                    }
+                }
+            }
+        }
+
+        </div>
+    </article>
+</main>
+
+<footer class="@Branding.FooterClass">
+    @if (Branding.MustAuthorize)
+    {
+        <AuthorizeView>
+            <Authorized>
+                <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="status-message error-message">Please log in</div>
+            </NotAuthorized>
+        </AuthorizeView>
+    }
+    else
+    {
+        <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+    }
+
+    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
+</footer>
+
+

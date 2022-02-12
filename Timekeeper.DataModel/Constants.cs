@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        public const string Version = "0.7.0.9999"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
+        public const string Version = "0.7.1.9999"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
 
         public const string AzureStorageVariableName = "AzureStorage";
         public const string BranchIdKey = "BranchId";
@@ -30,5 +30,6 @@
         public const string RequestPollsMessage = "request-polls";
         public const string RolePresenter = "presenter";
         public const string MovePollMessage = "move-poll";
+        public const string ResetPollMessage = "reset-poll";
     }
 }

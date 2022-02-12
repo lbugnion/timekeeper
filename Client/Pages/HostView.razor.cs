@@ -33,19 +33,25 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        private string _guestUrlQrCode;
+
         public string GuestUrlQrCode
         {
             get
             {
-                var url = HttpUtility.UrlEncode(GuestUrl);
-                var codeUrl = $"{Nav.BaseUri}api/qr?text={url}";
+                if (string.IsNullOrEmpty(_guestUrlQrCode))
+                {
+                    var url = HttpUtility.UrlEncode(GuestUrl);
+                    _guestUrlQrCode = $"{Nav.BaseUri}api/qr?text={url}";
 
 #if DEBUG
-                codeUrl = $"http://localhost:7071/api/qr?text={url}";
+                    _guestUrlQrCode = $"http://localhost:7071/api/qr?text={url}";
 #endif
 
-                Log.LogDebug($"codeUrl: {codeUrl}");
-                return codeUrl;
+                    //Log.LogDebug($"codeUrl: {codeUrl}");
+                }
+
+                return _guestUrlQrCode;
             }
         }
 
@@ -55,6 +61,8 @@ namespace Timekeeper.Client.Pages
             get;
             set;
         }
+
+        public string SessionId => Handler.CurrentSession.SessionId;
 
         public bool IsEditingSessionName
         {
@@ -107,7 +115,6 @@ namespace Timekeeper.Client.Pages
         {
             Log.LogInformation("-> HostView.OnInitializedAsync");
             IsEditingSessionName = false;
-            SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
             PeerListLinkText = ShowPeersText;
 

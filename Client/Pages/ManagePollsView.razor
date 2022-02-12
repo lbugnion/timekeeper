@@ -1,0 +1,81 @@
+﻿@using Timekeeper.DataModel
+@inject ILogger<ManagePollsView> Log
+
+@if (Parent.UiVisibility == ManagePolls.VisibilityVisible)
+{
+    <button @onclick="Parent.ToggleFocus"
+            title="Toggle focus mode"
+            class="focus">
+        <i class="fas fa-expand"></i>
+    </button>
+}
+else
+{
+    <button @onclick="Parent.ToggleFocus"
+            title="Toggle focus mode"
+            class="focus">
+        <i class="fas fa-compress"></i>
+    </button>
+}
+
+<h1 class="@Parent.UiVisibility @Branding.ForegroundClass">@Branding.PollsPageTitle</h1>
+
+@if (Handler.CurrentSession != null
+  && Handler.IsAuthorized != null
+  && Handler.IsAuthorized.Value
+  && !Handler.IsInError
+  && !Handler.IsBusy)
+{
+    <h2 class="@Parent.UiVisibility @Branding.ForegroundClass">@SessionName</h2>
+
+    @if (Handler.CurrentSession.Polls.Count == 0)
+    {
+        <p>No polls found...</p>
+
+        <blockquote>Click below to create a new poll!</blockquote>
+    }
+
+    @foreach (var poll in Handler.CurrentSession.Polls)
+    {
+        <ManagePoll CurrentPoll="@poll"
+                    Parent="@this" />
+    }
+
+    @if (CurrentPoll != null)
+    {
+        <ManagePoll CurrentPoll="@CurrentPoll"
+                    Parent="@this" />
+    }
+
+    @if(!IsAnyPollEdited)
+    {
+        <button @onclick="CreateNewPoll"
+                class="poll-create-save">Create new poll</button>
+    }
+
+    <hr />
+
+    <div id="instructions">
+
+        <h2>Links to send</h2>
+
+        <h3>For the presenters</h3>
+
+        <p>Send this link to the presenters. It will show the answers ratio as the votes come in, but it doesn't not show the polls controls.</p>
+
+        <p><a href="/display-polls/@Handler.CurrentSession.SessionId/@Constants.RolePresenter" target="_blank">
+                Open the Display Polls window (for the presenters)</a></p>
+
+        <h3>For the viewers</h3>
+
+        <p>Send this link in the chats, for all the viewers to vote on the polls.</p>
+
+        <p><a href="/display-polls/@Handler.CurrentSession.SessionId" target="_blank">
+                Open the Display Polls window (for the viewers)</a></p>
+
+    </div>
+}
+else
+{
+    <p>Please wait...</p>
+}

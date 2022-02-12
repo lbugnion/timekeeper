@@ -62,9 +62,12 @@ namespace Timekeeper
                 return new BadRequestObjectResult("Session IDs don't match");
             }
 
+            // Reserialize to ensure that the formatting is correct (easier to read when debugging)
+            var storageJson = JsonConvert.SerializeObject(session, Formatting.Indented);
+
             using (var writer = new StreamWriter(sessionBlob))
             {
-                writer.Write(requestBody);
+                writer.Write(storageJson);
             }
 
             return new OkObjectResult("Saved to storage");
