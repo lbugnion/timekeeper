@@ -191,8 +191,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private async Task ReceiveAllPublishedPolls(string json)
         {
-            _log.LogTrace("-> ReceiveAllPublishedPolls");
-            _log.LogDebug($"JSON: {json}");
+            _log.LogTrace("HIGHLIGHT---> ReceiveAllPublishedPolls");
 
             try
             {
@@ -215,7 +214,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private async Task ReceivePublishUnpublishPoll(Poll poll, bool mustPublish)
         {
-            _log.LogTrace("-> ReceivePublishUnpublishPoll");
+            _log.LogTrace("HIGHLIGHT---> ReceivePublishUnpublishPoll");
             _log.LogDebug($"Received poll: {poll.Uid}");
             _log.LogDebug($"Must publish: {mustPublish}");
 
@@ -287,6 +286,7 @@ namespace Timekeeper.Client.Model.Polls
 
             poll.GivenAnswer = answerLetter;
             poll.IsAnswered = true;
+            poll.VoterId = PeerInfo.Message.PeerId;
 
             var voteUrl = $"{_hostNameFree}/vote-poll";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, voteUrl);
@@ -339,6 +339,11 @@ namespace Timekeeper.Client.Model.Polls
             }
             else
             {
+                foreach (var poll in guestSession.Polls)
+                {
+                    poll.IsPublished = false;
+                }
+
                 CurrentSession = guestSession;
             }
 

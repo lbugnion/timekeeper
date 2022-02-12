@@ -179,14 +179,14 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public async Task MovePollUp(string uid)
-        {
-            await Handler.MovePollUpDown(uid, true);
-        }
+        //public async Task MovePollUp(string uid)
+        //{
+        //    await Handler.MovePollUpDown(uid, true);
+        //}
 
-        public async Task MovePollDown(string uid)
-        {
-            await Handler.MovePollUpDown(uid, false);
-        }
+        //public async Task MovePollDown(string uid)
+        //{
+        //    await Handler.MovePollUpDown(uid, false);
+        //}
     }
 }

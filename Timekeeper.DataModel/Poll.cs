@@ -87,6 +87,7 @@ namespace Timekeeper.DataModel
             }
 
             GivenAnswer = null;
+            AlreadyVotedIds = new List<string>();
         }
 
         public string QuestionHtml { get; set; }
@@ -147,5 +148,37 @@ namespace Timekeeper.DataModel
         }
 
         public string SessionName { get; set; }
+
+        public string VoterId { get; set; }
+
+        public IList<string> AlreadyVotedIds { get; set; } = new List<string>();
+
+        public Poll GetSafeCopy()
+        {
+            var copy = new Poll
+            {
+                ExplanationMarkdown = ExplanationMarkdown,
+                ExplanationHtml = ExplanationHtml,
+                QuestionHtml = QuestionHtml,
+                QuestionMarkdown = QuestionMarkdown,
+                SessionName = SessionName,
+                Uid = Uid,
+                IsVotingOpen = IsVotingOpen,
+                IsPublished = IsPublished
+            };
+
+            foreach (var answer in Answers)
+            {
+                copy.Answers.Add(new Answer
+                {
+                    Letter = answer.Letter,
+
+                    TitleHtml = answer.TitleHtml,
+                    TitleMarkdown = answer.TitleMarkdown,
+                });
+            }
+
+            return copy;
+        }
     }
 }

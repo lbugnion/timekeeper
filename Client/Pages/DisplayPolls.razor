@@ -78,14 +78,14 @@
                                 {
                                     <div class="poll-answer poll-answer-correct-background poll-answer-not-voted-foreground">
                                         @GetMarkup(answer.TitleHtml) 
-                                        <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of @poll.TotalAnswers voters</span>
+                                        <span class="poll-answer-ratio">@answer.Count vote(s) (@answer.Ratio.ToString("P2") of @poll.TotalAnswers voter(s))</span>
                                     </div>
                                 }
                                 else
                                 {
                                     <div class="poll-answer poll-answer-open-background poll-answer-not-voted-foreground">
                                         @GetMarkup(answer.TitleHtml) 
-                                        <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of @poll.TotalAnswers voters</span>
+                                        <span class="poll-answer-ratio">@answer.Count vote(s) (@answer.Ratio.ToString("P2") of @poll.TotalAnswers voter(s))</span>
                                     </div>
                                 }
 
@@ -125,14 +125,14 @@
                                     {
                                         <div class="poll-answer poll-answer-correct-background poll-answer-not-voted-foreground">
                                             @GetMarkup(answer.TitleHtml) 
-                                            <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                            <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of all voters</span>
                                         </div>
                                     }
                                     else
                                     {
                                         <div class="poll-answer poll-answer-open-background poll-answer-not-voted-foreground">
                                             @GetMarkup(answer.TitleHtml) 
-                                            <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                            <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of all voters</span>
                                         </div>
                                     }
                                 }
@@ -144,14 +144,14 @@
                                         {
                                             <div class="poll-answer poll-answer-correct-background poll-answer-correct-correct-foreground">
                                                 @GetMarkup(answer.TitleHtml) 
-                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of all voters</span>
                                             </div>
                                         }
                                         else
                                         {
                                             <div class="poll-answer poll-answer-correct-background poll-answer-not-voted-foreground">
                                                 @GetMarkup(answer.TitleHtml) 
-                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of all voters</span>
                                             </div>
                                         }
                                     }
@@ -161,14 +161,14 @@
                                         {
                                             <div class="poll-answer poll-answer-open-background poll-answer-incorrect-foreground">
                                                 @GetMarkup(answer.TitleHtml) 
-                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of all voters</span>
                                             </div>
                                         }
                                         else
                                         {
                                             <div class="poll-answer poll-answer-open-background poll-answer-not-voted-foreground">
                                                 @GetMarkup(answer.TitleHtml) 
-                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of voters</span>
+                                                <span class="poll-answer-ratio">@answer.Ratio.ToString("P2") of all voters</span>
                                             </div>
                                         }
                                     }

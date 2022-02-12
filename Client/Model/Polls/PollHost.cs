@@ -43,7 +43,7 @@ namespace Timekeeper.Client.Model.Polls
             poll.Reset();
             await SaveSession();
 
-            var json = JsonConvert.SerializeObject(poll);
+            var json = JsonConvert.SerializeObject(poll.GetSafeCopy(), Formatting.Indented);
 
             _log.LogDebug($"json: {json}");
 
@@ -174,7 +174,16 @@ namespace Timekeeper.Client.Model.Polls
             publishedPolls.First().SessionName = CurrentSession.SessionName;
 
             var list = new ListOfPolls();
-            list.Polls.AddRange(publishedPolls);
+            list.Polls.AddRange(publishedPolls
+                .Select(p =>
+                {
+                    if (p.IsVotingOpen)
+                    {
+                        return p.GetSafeCopy();
+                    }
+
+                    return p;
+                }));
 
             var json = JsonConvert.SerializeObject(list);
 
@@ -223,6 +232,14 @@ namespace Timekeeper.Client.Model.Polls
                 return;
             }
 
+            if (poll.AlreadyVotedIds.Contains(receivedPoll.VoterId))
+            {
+                _log.LogDebug($"Voter already voted {receivedPoll.VoterId}");
+                return;
+            }
+
+            poll.AlreadyVotedIds.Add(receivedPoll.VoterId);
+
             var chosenAnswer = poll.Answers
                 .FirstOrDefault(a => a.Letter == receivedPoll.GivenAnswer);
 
@@ -256,56 +273,56 @@ namespace Timekeeper.Client.Model.Polls
             get => CurrentSession.Polls.Any(p => p.IsPublished);
         }
 
-        public async Task MovePollUpDown(string uid, bool up)
-        {
-            _log.LogTrace("-> MovePollUpDown");
-            _log.LogDebug($"{CurrentSession.Polls.Count} polls in collection");
+        //public async Task MovePollUpDown(string uid, bool up)
+        //{
+        //    _log.LogTrace("-> MovePollUpDown");
+        //    _log.LogDebug($"{CurrentSession.Polls.Count} polls in collection");
 
-            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == uid);
+        //    var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == uid);
 
-            if (poll == null)
-            {
-                _log.LogTrace($"Cannot find poll: {poll.Uid}");
-                return;
-            }
+        //    if (poll == null)
+        //    {
+        //        _log.LogTrace($"Cannot find poll: {poll.Uid}");
+        //        return;
+        //    }
 
-            var move = up ? -1 : +1;
-            var newIndex = CurrentSession.Polls.IndexOf(poll) + move;
+        //    var move = up ? -1 : +1;
+        //    var newIndex = CurrentSession.Polls.IndexOf(poll) + move;
 
-            if ((newIndex < 0)
-                || (newIndex >= CurrentSession.Polls.Count))
-            {
-                _log.LogTrace($"Cannot move poll: {poll.Uid}");
-                return;
-            }
+        //    if ((newIndex < 0)
+        //        || (newIndex >= CurrentSession.Polls.Count))
+        //    {
+        //        _log.LogTrace($"Cannot move poll: {poll.Uid}");
+        //        return;
+        //    }
 
-            CurrentSession.Polls.Remove(poll);
-            CurrentSession.Polls.Insert(newIndex, poll);
-            await SaveSession();
-            RaiseUpdateEvent();
+        //    CurrentSession.Polls.Remove(poll);
+        //    CurrentSession.Polls.Insert(newIndex, poll);
+        //    await SaveSession();
+        //    RaiseUpdateEvent();
 
-            var movePollMessage = new MovePollMessage
-            {
-                Uid = poll.Uid,
-                NewIndex = move
-            };
+        //    var movePollMessage = new MovePollMessage
+        //    {
+        //        Uid = poll.Uid,
+        //        NewIndex = move
+        //    };
 
-            var json = JsonConvert.SerializeObject(movePollMessage);
+        //    var json = JsonConvert.SerializeObject(movePollMessage);
 
-            var movePollUrl = $"{_hostName}/move-poll";
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, movePollUrl);
-            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-            httpRequest.Content = new StringContent(json);
+        //    var movePollUrl = $"{_hostName}/move-poll";
+        //    var httpRequest = new HttpRequestMessage(HttpMethod.Post, movePollUrl);
+        //    httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+        //    httpRequest.Content = new StringContent(json);
 
-            var response = await _http.SendAsync(httpRequest);
+        //    var response = await _http.SendAsync(httpRequest);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                // TODO Handle failure
-            }
+        //    if (!response.IsSuccessStatusCode)
+        //    {
+        //        // TODO Handle failure
+        //    }
 
-            _log.LogTrace("MovePollUpDown ->");
-        }
+        //    _log.LogTrace("MovePollUpDown ->");
+        //}
 
         public async Task ReceivePublishUnpublishPoll(string pollJson, bool mustPublish)
         {
@@ -402,7 +419,17 @@ namespace Timekeeper.Client.Model.Polls
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, publishUnpublishUrl);
             httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
 
-            var json = JsonConvert.SerializeObject(poll);
+            string json;
+
+            if (poll.IsVotingOpen)
+            {
+                json = JsonConvert.SerializeObject(poll.GetSafeCopy(), Formatting.Indented);
+            }
+            else
+            {
+                json = JsonConvert.SerializeObject(poll, Formatting.Indented);
+            }
+
             httpRequest.Content = new StringContent(json);
 
             poll.IsBroadcasting = true;

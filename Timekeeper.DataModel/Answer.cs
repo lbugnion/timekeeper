@@ -13,8 +13,6 @@ namespace Timekeeper.DataModel
         public int Count { get; set; }
         public double Ratio { get; set; }
 
-        public string ExplanationMarkdown { get; set; }
-
         public void Reset()
         {
             Count = 0;
