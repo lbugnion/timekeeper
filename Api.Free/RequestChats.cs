@@ -9,22 +9,22 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Timekeeper.DataModel;
 
-namespace Timekeeper
+namespace Timekeeper.Api.Free
 {
-    public static class ReceivePolls
+    public static class RequestChats
     {
-        [FunctionName(nameof(ReceivePolls))]
+        [FunctionName("RequestChats")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous, 
-                "post", 
-                Route = "polls")] 
+                "get", 
+                Route = "chats")] 
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
-            log.LogInformation("-> ReceivePolls");
+            log.LogInformation("-> RequestPolls");
 
             try
             {
@@ -37,17 +37,17 @@ namespace Timekeeper
                     return new BadRequestObjectResult("Invalid request");
                 }
 
-                // TODO Is there a way to optimize this and other functions' calls?
-
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
                 log.LogDebug(requestBody);
 
+                // TODO Is there a way to optimize this and other functions' calls?
+
                 await queue.AddAsync(
                     new SignalRMessage
                     {
-                        Target = Constants.ReceivePollsMessage,
-                        Arguments = new[] { requestBody },
+                        Target = Constants.RequestChatsMessage,
+                        Arguments = new[] { string.Empty },
                         GroupName = groupId.ToString()
                     });
             }

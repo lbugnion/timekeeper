@@ -159,7 +159,7 @@ namespace Timekeeper.Client.Model.Polls
 
             IsBusy = false;
             RaiseUpdateEvent();
-            _log.LogInformation("SignalRGuest.Connect ->");
+            _log.LogInformation("PollGuest.Connect ->");
         }
 
         private async Task ResetPoll(string pollJson)

@@ -59,5 +59,7 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
+
+        public IList<Chat> Chats { get; set; }
     }
 }

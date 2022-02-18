@@ -26,8 +26,11 @@
         public const string PublishPollMessage = "publish-poll";
         public const string UnpublishPollMessage = "unpublish-poll";
         public const string VotePollMessage = "vote-poll";
+        public const string ChatMessage = "chat";
         public const string ReceivePollsMessage = "receive-polls";
+        public const string ReceiveChatsMessage = "receive-chats";
         public const string RequestPollsMessage = "request-polls";
+        public const string RequestChatsMessage = "request-chats";
         public const string RolePresenter = "presenter";
         public const string MovePollMessage = "move-poll";
         public const string ResetPollMessage = "reset-poll";

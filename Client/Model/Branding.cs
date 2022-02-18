@@ -18,6 +18,7 @@
         public const bool CanEditGuestName = true;
         public const string ConfigurePageTitle = "Timekeeper: Configure";
         public const string PollsPageTitle = "Timekeeper Polls";
+        public const string ChatsPageTitle = "Timekeeper Chats";
         public const string GuestPageTitle = "Timekeeper Guest Page";
         public const string LoginPageTitle = "Timekeeper: Login";
         public const string MainPageTitle = "Timekeeper";

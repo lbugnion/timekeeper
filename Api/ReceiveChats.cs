@@ -11,20 +11,20 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper
 {
-    public static class ReceivePolls
+    public static class ReceiveChats
     {
-        [FunctionName(nameof(ReceivePolls))]
+        [FunctionName(nameof(ReceiveChats))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous, 
                 "post", 
-                Route = "polls")] 
+                Route = "chats")] 
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
-            log.LogInformation("-> ReceivePolls");
+            log.LogInformation("-> ReceiveChats");
 
             try
             {
@@ -46,7 +46,7 @@ namespace Timekeeper
                 await queue.AddAsync(
                     new SignalRMessage
                     {
-                        Target = Constants.ReceivePollsMessage,
+                        Target = Constants.ReceiveChatsMessage,
                         Arguments = new[] { requestBody },
                         GroupName = groupId.ToString()
                     });
