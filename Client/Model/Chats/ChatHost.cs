@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model.Polls;
 using Timekeeper.DataModel;
@@ -87,6 +89,29 @@ namespace Timekeeper.Client.Model.Chats
             IsConnected = true;
             RaiseUpdateEvent();
             _log.LogInformation("ChatsHost.Connect ->");
+        }
+
+        private const string _secretKeyCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*():;.,/?{}[]";
+
+        public void RegenerateSecretKey()
+        {
+            var random = new Random();
+            var secretKeyLength = random.Next(10, 15);
+            var secretKey = new StringBuilder();
+
+            for (var index = 0; index < secretKeyLength; index++)
+            {
+                var characterIndex = random.Next(0, _secretKeyCharacters.Length);
+                secretKey.Append(_secretKeyCharacters[characterIndex]);
+            }
+
+            CurrentSession.SecretKey = secretKey.ToString();
+
+            // TODO Save key in session
+            // TODO Broadcast to other hosts.
+            // TODO Warn host to let users know about the change or they will be excluded from the chat
+
+            RaiseUpdateEvent();
         }
 
         public Chat NewChat { get; set; } = new Chat();

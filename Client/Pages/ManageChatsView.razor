@@ -1,7 +1,7 @@
 ﻿@using Timekeeper.DataModel
 @inject ILogger<ManagePollsView> Log
 
-@*@if (Parent.UiVisibility == ManagePolls.VisibilityVisible)
+@if (Parent.UiVisibility == ManagePolls.VisibilityVisible)
 {
     <button @onclick="Parent.ToggleFocus"
             title="Toggle focus mode"
@@ -18,7 +18,7 @@ else
     </button>
 }
 
-<h1 class="@Parent.UiVisibility @Branding.ForegroundClass">@Branding.PollsPageTitle</h1>
+<h2 class="@Parent.UiVisibility @Branding.ForegroundClass">@SessionName</h2>
 
 @if (Handler.CurrentSession != null
   && Handler.IsAuthorized != null
@@ -26,70 +26,73 @@ else
   && !Handler.IsInError
   && !Handler.IsBusy)
 {
-    <h2 class="@Parent.UiVisibility @Branding.ForegroundClass">@SessionName</h2>
+    <div class="chat-controls">
+        <EditForm EditContext="@CurrentEditContext">
+            <DataAnnotationsValidator />
+
+            <blockquote class="@Parent.UiVisibility">
+                <p><strong>Tip: Use [Ctrl-Enter] to send the message!</strong></p>
+                <p><a href="/display-chats/@Handler.CurrentSession.SessionId" target="_blank">Send this link to whomever you want to join the chat.</a></p>
+
+                @if (Handler.SecretKey != null)
+                {
+                    <p>You must also send them this secret key so they can talk to you. Use email, a chat application or any other private communication to send this key.</p>
+
+                    <p><span id="secret-key">@Handler.SecretKey</span></p>
+                }
+            </blockquote>
+
+            <div class="send-message-area">
+                <label for="question">Enter your text (markdown supported)</label>
+
+                <textarea @bind="@Handler.NewChat.MessageMarkdown"
+                          onfocus="this.select();"
+                          onreadystatechange="this.focus();"
+                          id="chat-text"
+                          class="input-text" />
+
+                <br />
+                <button>Send the message</button>
+            </div>
+
+@*            <br />
+            <input type="radio" 
+                   id="useSecretKey" 
+                   name="secretKey"
+                   checked
+                   @onclick="e => UseSecretKey(1)">Use secret key
+
+            <br />
+            <input type="radio" 
+                   id="dontUseSecretKey" 
+                   name="secretKey"
+                   @onclick="e => UseSecretKey(0)">Don't use secret key
+*@
+        </EditForm>        
+    </div>
+
+    <hr />
 
     @if (Handler.CurrentSession.Chats.Count == 0)
     {
         <p>No chats found yet...</p>
     }
 
-    <div class="chat-controls">
-        <EditForm EditContext="@CurrentEditContext">
-            <DataAnnotationsValidator />
-
-            <blockquote><strong>Tip: Use [Ctrl-Enter] to send the message!</strong></blockquote>
-
-            <label for="question">Enter your text (markdown supported)</label>
-
-            <textarea @bind="@Handler.NewChat.MessageMarkdown"
-                      onfocus="this.select();"
-                      onreadystatechange="this.focus();"
-                      id="chat-text"
-                      class="input-text" />
-
-            <button>Send the chat</button>
-
-            <input type="radio" 
-                   id="useSecretKey" 
-                   name="secretKey"
-                   @onclick="e => UseSecretKey(1)">
-            <label for="useSecretKey">Use secret key</label>
-
-            <input type="radio" 
-                   id="dontUseSecretKey" 
-                   name="secretKey"
-                   @onclick="e => UseSecretKey(0)">
-
-            <label for="dontUseSecretKey">Don't use secret key</label>
-
-        </EditForm>        
-    </div>
-
-    @foreach (var chat in Handler.CurrentSession.Chats)
-    {
-    }
-
-    <hr />
-
-    <div id="instructions">
-
-        <h2>Links to send</h2>
-
-        <p>Send this link to whomever you want to join the chat.</p>
-
-        <p><a href="/display-chats/@Handler.CurrentSession.SessionId" target="_blank">
-                Open the Chat window (for the guests)</a></p>
-
-        @if (Handler.SecretKey != null)
+    <div id="chat-display-area">
+        @foreach (var chat in Handler.CurrentSession.Chats)
         {
-            <p>You must also send them this secret key so they can talk to you. Use email, a chat application or any other private communication to send this key.</p>
-
-            <span id="secret-key">@Handler.SecretKey</span>
+            <div class="chat-container @chat.ContainerCssClass">
+                <div class="chat @chat.CssClass" 
+                     style="background-color: @chat.Color">
+                    <div class="chat-name">@chat.SenderName</div>
+                    <div class="chat-message">@GetMarkup(chat.MessageHtml)</div>
+                    <div class="chat-datetime">@chat.MessageDateTime.ToShortTimeString()</div>
+                </div>
+            </div>
         }
-
     </div>
 }
 else
 {
-*@    <p>Please wait...</p>
-@*}*@
+    <p>Please wait...</p>
+}

@@ -61,6 +61,8 @@ namespace Timekeeper.DataModel
                     }
                     else
                     {
+                        // TODO Do we need to pass the HTML in the JSON, can we not
+                        // just generate the HTML whenever ExplanationMarkdown is set?
                         ExplanationHtml = Markdown.ToHtml(ExplanationMarkdown);
                     }
 
