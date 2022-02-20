@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using static Timekeeper.DataModel.Poll;
 
 namespace Timekeeper.DataModel
 {

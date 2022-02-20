@@ -1,7 +1,7 @@
 ﻿@using Timekeeper.DataModel
 @inject ILogger<ManagePollsView> Log
 
-@if (Parent.UiVisibility == ManagePolls.VisibilityVisible)
+@*@if (Parent.UiVisibility == ManagePolls.VisibilityVisible)
 {
     <button @onclick="Parent.ToggleFocus"
             title="Toggle focus mode"
@@ -41,7 +41,7 @@ else
 
             <label for="question">Enter your text (markdown supported)</label>
 
-            <textarea @bind="@NewChat.MessageMarkdown"
+            <textarea @bind="@Handler.NewChat.MessageMarkdown"
                       onfocus="this.select();"
                       onreadystatechange="this.focus();"
                       id="chat-text"
@@ -91,5 +91,5 @@ else
 }
 else
 {
-    <p>Please wait...</p>
-}
+*@    <p>Please wait...</p>
+@*}*@

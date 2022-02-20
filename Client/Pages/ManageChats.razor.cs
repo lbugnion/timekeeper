@@ -56,7 +56,7 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogTrace("HIGHLIGHT---> ManagePolls.OnInitialized");
+            Log.LogTrace("HIGHLIGHT---> ManageChats.OnInitialized");
             Log.LogDebug($"SessionId: {SessionId}");
 
             UiVisibility = VisibilityVisible;

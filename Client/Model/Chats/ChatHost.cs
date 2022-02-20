@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -88,6 +89,8 @@ namespace Timekeeper.Client.Model.Chats
             _log.LogInformation("ChatsHost.Connect ->");
         }
 
+        public Chat NewChat { get; set; } = new Chat();
+
         private async Task<bool> SendChats()
         {
             return await SendChats(string.Empty);
@@ -97,7 +100,17 @@ namespace Timekeeper.Client.Model.Chats
         {
             _log.LogTrace("-> SendChats");
 
-            if (CurrentSession.Chats.Count() == 0)
+            _log.LogDebug($"HIGHLIGHT--CurrentSession is null: {CurrentSession == null}");
+            _log.LogDebug($"HIGHLIGHT--Chats is null: {CurrentSession.Chats == null}");
+
+            if (CurrentSession.Chats == null)
+            {
+                CurrentSession.Chats = new List<Chat>();
+            }
+
+            _log.LogDebug($"HIGHLIGHT--Chats count is zero: {CurrentSession.Chats.Count == 0}");
+
+            if (CurrentSession.Chats.Count == 0)
             {
                 return true;
             }
@@ -107,7 +120,7 @@ namespace Timekeeper.Client.Model.Chats
                 chat.SessionName = null;
             }
 
-            CurrentSession.Chats.First().SessionName = CurrentSession.SessionName;
+            NewChat.SessionName = CurrentSession.SessionName;
 
             var list = new ListOfChats();
             list.Chats.AddRange(CurrentSession.Chats);
@@ -158,7 +171,7 @@ namespace Timekeeper.Client.Model.Chats
                 return;
             }
 
-            CurrentSession.Chats.Add(receivedChat);
+            CurrentSession.Chats.Insert(0, receivedChat);
 
             await SaveSessionToStorage();
             RaiseUpdateEvent();
@@ -260,7 +273,7 @@ namespace Timekeeper.Client.Model.Chats
 
         public async Task<bool> InitializeSession(string sessionId)
         {
-            _log.LogInformation("-> PollHost.InitializeSession");
+            _log.LogInformation("-> ChatHost.InitializeSession");
 
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
@@ -302,7 +315,7 @@ namespace Timekeeper.Client.Model.Chats
 
             RaiseUpdateEvent();
 
-            _log.LogInformation("PollHost.InitializeSession ->");
+            _log.LogInformation("ChatHost.InitializeSession ->");
             return true;
         }
 

@@ -51,8 +51,6 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public Chat NewChat { get; set; }
-
         public EditContext CurrentEditContext { get; set; }
 
         public void Dispose()
@@ -69,8 +67,7 @@ namespace Timekeeper.Client.Pages
 
         protected override void OnAfterRender(bool firstRender)
         {
-            NewChat = new Chat();
-            CurrentEditContext = new EditContext(NewChat);
+            CurrentEditContext = new EditContext(Handler.NewChat);
         }
     }
 }
