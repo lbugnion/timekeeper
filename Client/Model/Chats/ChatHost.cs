@@ -10,14 +10,24 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Timekeeper.Client.Model.Polls;
 using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model.Chats
 {
     public class ChatHost : SignalRHostBase
     {
+#if OFFLINE
+        public const bool IsDebugOffline = true;
+#else
+        public const bool IsDebugOffline = false;
+#endif
+
         private string _sessionId;
+
+        public string OwnColorToOthers
+        {
+            get;
+        }
 
         public ChatHost(
             IConfiguration config,
@@ -29,6 +39,9 @@ namespace Timekeeper.Client.Model.Chats
             string sessionId) : base(config, localStorage, log, http, nav, session)
         {
             _sessionId = sessionId;
+
+            var random = new Random();
+            OwnColorToOthers = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
         }
 
         public override async Task Connect()
@@ -51,6 +64,7 @@ namespace Timekeeper.Client.Model.Chats
             ok = await InitializePeerInfo()
                 && await CreateConnection();
 
+#if !OFFLINE
             if (ok)
             {
                 _connection.On<string>(Constants.ChatMessage, c => ReceiveChat(c));
@@ -82,6 +96,7 @@ namespace Timekeeper.Client.Model.Chats
                 RaiseUpdateEvent();
                 return;
             }
+#endif
 
             Status = "Connected";
             IsBusy = false;
@@ -194,6 +209,18 @@ namespace Timekeeper.Client.Model.Chats
             {
                 _log.LogError("Received chat with invalid key");
                 return;
+            }
+
+            if (receivedChat.UserId == PeerInfo.Message.PeerId)
+            {
+                receivedChat.Color = Constants.OwnColor;
+                receivedChat.CssClass = Constants.OwnChatCss;
+                receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
+            }
+            else
+            {
+                receivedChat.CssClass = Constants.OtherChatCss;
+                receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
             }
 
             CurrentSession.Chats.Insert(0, receivedChat);
@@ -329,6 +356,7 @@ namespace Timekeeper.Client.Model.Chats
                     return false;
                 }
 
+#if !OFFLINE
                 // Refresh session
                 var sessions = await _session.GetSessions(_log);
                 var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
@@ -336,6 +364,7 @@ namespace Timekeeper.Client.Model.Chats
                 _log.LogDebug($"outSession == null: {outSession == null}");
 
                 CurrentSession = outSession;
+#endif
             }
 
             RaiseUpdateEvent();
@@ -348,6 +377,30 @@ namespace Timekeeper.Client.Model.Chats
         {
             get;
             private set;
+        }
+
+#if OFFLINE
+        private int _chatCounter;
+        private readonly string _otherUserId = Guid.NewGuid().ToString();
+#endif
+
+        public async Task AddDebugChat()
+        {
+#if OFFLINE
+            var chat = new Chat
+            {
+                Color = OwnColorToOthers,
+                MessageDateTime = DateTime.Now,
+                SenderName = _chatCounter % 2 == 0 ? "Laurent" : "Vanch",
+                MessageMarkdown = "This is a *test message*",
+                UserId = _chatCounter % 2 == 0 ? PeerInfo.Message.PeerId : _otherUserId,
+            };
+
+            var json = JsonConvert.SerializeObject(chat);
+
+            await ReceiveChat(json);
+            _chatCounter++;
+#endif
         }
     }
 }

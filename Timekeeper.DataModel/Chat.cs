@@ -31,7 +31,6 @@ namespace Timekeeper.DataModel
 
         public string UserId { get; set; }
 
-        [JsonIgnore]
         public string Color { get; set; }
 
         [JsonIgnore]

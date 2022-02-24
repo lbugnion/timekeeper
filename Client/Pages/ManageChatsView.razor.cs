@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using Timekeeper.Client.Model.Chats;
@@ -78,12 +80,16 @@ namespace Timekeeper.Client.Pages
 
         protected override void OnInitialized()
         {
+            Log.LogTrace("OnInitialized");
+
+            if (Handler.CurrentSession.Chats == null)
+            {
+                Handler.CurrentSession.Chats = new List<Chat>();
+            }
+
             CurrentEditContext = new EditContext(Handler.NewChat);
 
-            var random = new Random();
-
-            var myColor = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
-            var otherColor = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
+            Handler.CurrentSession.Chats.Clear();
 
             for (var index = 0; index < 25; index++)
             {
@@ -95,16 +101,16 @@ namespace Timekeeper.Client.Pages
 
                 if (index % 2 == 0)
                 {
-                    chat.Color = myColor;
-                    chat.CssClass = "own-chat";
-                    chat.ContainerCssClass = "own-chat-container";
+                    chat.Color = Constants.OwnColor;
+                    chat.CssClass = Constants.OwnChatCss;
+                    chat.ContainerCssClass = Constants.OwnChatContainerCss;
                     chat.SenderName = "Laurent";
                 }
                 else
                 {
-                    chat.Color = otherColor;
-                    chat.CssClass = "other-chat";
-                    chat.ContainerCssClass = "other-chat-container";
+                    chat.Color = Handler.OwnColorToOthers;
+                    chat.CssClass = Constants.OtherChatCss;
+                    chat.ContainerCssClass = Constants.OtherChatContainerCss;
                     chat.SenderName = "Jason";
                 }
 

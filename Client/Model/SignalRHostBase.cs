@@ -44,6 +44,11 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> CheckAuthorize");
 
+#if OFFLINE
+            IsAuthorized = true;
+            Status = "Ready...";
+            RaiseUpdateEvent();
+#else
             var versionUrl = $"{_hostName}/version";
             _log.LogDebug($"versionUrl: {versionUrl}");
 
@@ -98,6 +103,7 @@ namespace Timekeeper.Client.Model
                     RaiseUpdateEvent();
                     break;
             }
+#endif
         }
     }
 }

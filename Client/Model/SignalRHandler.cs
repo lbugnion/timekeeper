@@ -261,6 +261,7 @@ namespace Timekeeper.Client.Model
 
             try
             {
+#if !OFFLINE
                 var functionKey = _config.GetValue<string>(NegotiateKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
 
@@ -311,6 +312,8 @@ namespace Timekeeper.Client.Model
                 _connection.Reconnecting += ConnectionReconnecting;
                 _connection.Reconnected += ConnectionReconnected;
                 _connection.Closed += ConnectionClosed;
+
+#endif
             }
             catch (Exception ex)
             {
@@ -319,12 +322,14 @@ namespace Timekeeper.Client.Model
                 return false;
             }
 
+#if !OFFLINE
             var ok = await RegisterToGroup();
 
             if (!ok)
             {
                 return false;
             }
+#endif
 
             Status = "Ready...";
             _log.LogInformation("SignalRHandler.CreateConnection ->");

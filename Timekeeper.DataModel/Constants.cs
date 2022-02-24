@@ -34,5 +34,11 @@
         public const string RolePresenter = "presenter";
         public const string MovePollMessage = "move-poll";
         public const string ResetPollMessage = "reset-poll";
+
+        public const string OwnColor = "#7FC9FF";
+        public const string OwnChatCss = "own-chat";
+        public const string OwnChatContainerCss = "own-chat-container";
+        public const string OtherChatCss = "other-chat";
+        public const string OtherChatContainerCss = "other-chat-container";
     }
 }

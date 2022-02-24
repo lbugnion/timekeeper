@@ -1,5 +1,10 @@
 ﻿@using Timekeeper.DataModel
-@inject ILogger<ManagePollsView> Log
+@inject ILogger<ManageChatsView> Log
+
+@if (Model.Chats.ChatHost.IsDebugOffline)
+{
+    <button class="focus" @onclick="(async e => await Handler.AddDebugChat())">+</button>
+}
 
 @if (Parent.UiVisibility == ManagePolls.VisibilityVisible)
 {
@@ -18,7 +23,7 @@ else
     </button>
 }
 
-<h2 class="@Parent.UiVisibility @Branding.ForegroundClass">@SessionName</h2>
+<h2 class="@Branding.ForegroundClass">@SessionName</h2>
 
 @if (Handler.CurrentSession != null
   && Handler.IsAuthorized != null
@@ -54,20 +59,6 @@ else
                 <br />
                 <button>Send the message</button>
             </div>
-
-@*            <br />
-            <input type="radio" 
-                   id="useSecretKey" 
-                   name="secretKey"
-                   checked
-                   @onclick="e => UseSecretKey(1)">Use secret key
-
-            <br />
-            <input type="radio" 
-                   id="dontUseSecretKey" 
-                   name="secretKey"
-                   @onclick="e => UseSecretKey(0)">Don't use secret key
-*@
         </EditForm>        
     </div>
 
