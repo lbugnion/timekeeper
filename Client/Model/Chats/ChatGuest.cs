@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -12,6 +14,8 @@ namespace Timekeeper.Client.Model.Chats
     public class ChatGuest : SignalRGuestBase
     {
         protected override string SessionKey => "ChatGuestSession";
+
+        public Chat NewChat { get; set; } = new Chat();
 
         public string SecretKey { get; set; }
 
@@ -60,10 +64,12 @@ namespace Timekeeper.Client.Model.Chats
 
             if (ok)
             {
+#if !OFFLINE
                 _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveAllChats);
                 _connection.On<string>(Constants.ChatMessage, ReceiveChat);
 
                 ok = await StartConnection();
+#endif
 
                 if (ok)
                 {
@@ -71,18 +77,24 @@ namespace Timekeeper.Client.Model.Chats
 
                     _log.LogTrace("Asking for existing chats");
 
+                    string reasonPhrase = null;
+
+#if !OFFLINE
                     var chatsUrl = $"{_hostNameFree}/chats";
                     var httpRequest = new HttpRequestMessage(HttpMethod.Get, chatsUrl);
                     httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
 
                     var response = await _http.SendAsync(httpRequest);
 
-                    if (!response.IsSuccessStatusCode)
+                    ok = response.IsSuccessStatusCode;
+#endif
+
+                    if (!ok)
                     {
                         IsConnected = false;
                         IsInError = true;
                         ErrorStatus = "Error";
-                        _log.LogError($"Error when asking for existing chats: {response.ReasonPhrase}");
+                        _log.LogError($"Error when asking for existing chats: {reasonPhrase}");
                     }
                     else
                     {
@@ -144,7 +156,24 @@ namespace Timekeeper.Client.Model.Chats
                 return;
             }
 
-            CurrentSession.Chats.Add(receivedChat);
+            if (CurrentSession.Chats == null)
+            {
+                CurrentSession.Chats = new List<Chat>();
+            }
+
+            if (receivedChat.UserId == PeerInfo.Message.PeerId)
+            {
+                receivedChat.Color = Constants.OwnColor;
+                receivedChat.CssClass = Constants.OwnChatCss;
+                receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
+            }
+            else
+            {
+                receivedChat.CssClass = Constants.OtherChatCss;
+                receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
+            }
+
+            CurrentSession.Chats.Insert(0, receivedChat);
 
             await SaveSessionToStorage();
             RaiseUpdateEvent();
@@ -186,6 +215,30 @@ namespace Timekeeper.Client.Model.Chats
         public async Task SaveSessionToStorage()
         {
             await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+        }
+
+#if OFFLINE
+        private int _chatCounter;
+        private readonly string _otherUserId = Guid.NewGuid().ToString();
+#endif
+
+        public async Task AddDebugChat()
+        {
+#if OFFLINE
+            var chat = new Chat
+            {
+                Color = ChatColorToOthers,
+                MessageDateTime = DateTime.Now,
+                SenderName = _chatCounter % 2 == 0 ? "Laurent" : "Vanch",
+                MessageMarkdown = "This is a *test message*",
+                UserId = _chatCounter % 2 == 0 ? PeerInfo.Message.PeerId : _otherUserId,
+            };
+
+            var json = JsonConvert.SerializeObject(chat);
+
+            await ReceiveChat(json);
+            _chatCounter++;
+#endif
         }
     }
 }

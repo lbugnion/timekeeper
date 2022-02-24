@@ -1,0 +1,141 @@
+﻿@page "/display-chats"
+@page "/display-chats/{SessionId}"
+@using Timekeeper.DataModel
+@inject HttpClient Http
+@inject ILogger<DisplayChats> Log
+@inject IConfiguration Config
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime
+@inject SessionHandler Session
+
+<header class="@UiVisibility @Branding.HeaderClass">
+    <img src="@Branding.ImagePath"
+         class="logo-image" />
+</header>
+
+<main class="@UiVisibility">
+    <article>
+
+        @if (Model.Chats.ChatHost.IsDebugOffline)
+        {
+            <button class="focus" @onclick="(async e => await Handler.AddDebugChat())">+</button>
+        }
+
+        @if (UiVisibility == ManagePolls.VisibilityVisible)
+        {
+            <button @onclick="ToggleFocus"
+                    title="Toggle focus mode"
+                    class="focus">
+                <i class="fas fa-expand"></i>
+            </button>
+        }
+        else
+        {
+            <button @onclick="ToggleFocus"
+                    title="Toggle focus mode"
+                    class="focus">
+                <i class="fas fa-compress"></i>
+            </button>
+        }
+
+        @if (Handler == null
+            || Handler.CurrentSession == null
+            || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+        {
+            <h2 class="@Branding.ForegroundClass">@Branding.ChatsPageTitle</h2>
+        }
+        else
+        {
+            <h2 class="@Branding.ForegroundClass">@Handler.CurrentSession.SessionName</h2>
+        }
+
+        @if (Handler.IsBusy)
+        {
+            <p>Please wait...</p>
+        }
+        else if (ShowNoSessionMessage)
+        {
+            <blockquote class="warning">
+                Please ask the Host to give you a link with a session ID.
+            </blockquote>
+        }
+        else if (Handler.IsInError)
+        {
+            <blockquote class="error">
+                Unable to connect to chat service.
+                <br /><br /><strong>Try refreshing the page.</strong>
+                <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+            </blockquote>
+        }
+        else
+        {
+            @if (Program.IsExperimental)
+            {
+                <blockquote class="warning"><strong>WARNING:</strong> This is an experimental version of Timekeeper currently in development. This can be unstable and cause issues. Use only for test purposes.</blockquote>
+            }
+
+            <div class="chat-controls">
+                <EditForm EditContext="@CurrentEditContext">
+                    <DataAnnotationsValidator />
+
+                    <blockquote class="@UiVisibility">
+                        <p><strong>Tip: Use [Ctrl-Enter] to send the message!</strong></p>
+                        <p><a href="/display-chats/@Handler.CurrentSession.SessionId" target="_blank">Send this link to whomever you want to join the chat.</a></p>
+                    </blockquote>
+
+                    <div class="send-message-area">
+                        <label for="question">Enter your text (markdown supported)</label>
+
+                        <textarea @bind="@Handler.NewChat.MessageMarkdown"
+                                    onfocus="this.select();"
+                                    onreadystatechange="this.focus();"
+                                    id="chat-text"
+                                    class="input-text" />
+
+                        <br />
+                        <button>Send the message</button>
+                    </div>
+                </EditForm>        
+            </div>
+
+            <hr />
+
+            @if (Handler.CurrentSession == null
+                || Handler.CurrentSession.Chats == null
+                || Handler.CurrentSession.Chats.Count == 0)
+            {
+                <p>No chats found yet...</p>
+            }
+            else
+            {
+                <div id="chat-display-area">
+                    @foreach (var chat in Handler.CurrentSession.Chats)
+                    {
+                        <div class="chat-container @chat.ContainerCssClass">
+                            <div class="chat @chat.CssClass" 
+                                 style="background-color: @chat.Color">
+                                <div class="chat-name">@chat.SenderName</div>
+                                <div class="chat-message">@GetMarkup(chat.MessageHtml)</div>
+                                <div class="chat-datetime">@chat.MessageDateTime.ToShortTimeString()</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+
+    </article>
+</main>
+
+<footer class="@Branding.FooterClass">
+    @if (!ShowNoSessionMessage)
+    {
+        <div class="status-message"><span class="error-message">@Handler.ErrorStatus</span><span>@Handler.Status</span></div>
+    }
+    else
+    {
+        <div class="status-message"><span class="error-message">No session ID found</span></div>
+    }
+
+    <div class="status-message about-link">| <a href="/about">About Timekeeper</a></div>
+</footer>

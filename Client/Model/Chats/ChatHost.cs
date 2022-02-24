@@ -24,11 +24,6 @@ namespace Timekeeper.Client.Model.Chats
 
         private string _sessionId;
 
-        public string OwnColorToOthers
-        {
-            get;
-        }
-
         public ChatHost(
             IConfiguration config,
             ILocalStorageService localStorage,
@@ -39,9 +34,6 @@ namespace Timekeeper.Client.Model.Chats
             string sessionId) : base(config, localStorage, log, http, nav, session)
         {
             _sessionId = sessionId;
-
-            var random = new Random();
-            OwnColorToOthers = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
         }
 
         public override async Task Connect()
@@ -389,7 +381,7 @@ namespace Timekeeper.Client.Model.Chats
 #if OFFLINE
             var chat = new Chat
             {
-                Color = OwnColorToOthers,
+                Color = ChatColorToOthers,
                 MessageDateTime = DateTime.Now,
                 SenderName = _chatCounter % 2 == 0 ? "Laurent" : "Vanch",
                 MessageMarkdown = "This is a *test message*",

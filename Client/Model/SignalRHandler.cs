@@ -38,6 +38,11 @@ namespace Timekeeper.Client.Model
         protected string _hostNameFree;
         private bool _isManualDisconnection;
 
+        public string ChatColorToOthers
+        {
+            get;
+        }
+
         protected abstract string SessionKey
         {
             get;
@@ -147,6 +152,9 @@ namespace Timekeeper.Client.Model
             _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
             _log.LogDebug($"_hostName: {_hostName}");
             _log.LogDebug($"_hostNameFree: {_hostNameFree}");
+
+            var random = new Random();
+            ChatColorToOthers = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
         }
 
         private Task ConnectionReconnected(string arg)
@@ -703,6 +711,7 @@ namespace Timekeeper.Client.Model
 
             try
             {
+#if !OFFLINE
                 var unregisterUrl = $"{_hostNameFree}/unregister";
                 _log.LogDebug($"unregisterUrl: {unregisterUrl}");
 
@@ -732,6 +741,7 @@ namespace Timekeeper.Client.Model
                     _log.LogError($"Error unregistering from group: {response.ReasonPhrase}");
                     _log.LogInformation("SignalRHandler.UnregisterFromPreviousGroup ->");
                 }
+#endif
             }
             catch (Exception ex)
             {

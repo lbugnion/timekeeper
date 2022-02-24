@@ -89,6 +89,7 @@ namespace Timekeeper.Client.Pages
 
             CurrentEditContext = new EditContext(Handler.NewChat);
 
+#if OFFLINE
             Handler.CurrentSession.Chats.Clear();
 
             for (var index = 0; index < 25; index++)
@@ -108,7 +109,7 @@ namespace Timekeeper.Client.Pages
                 }
                 else
                 {
-                    chat.Color = Handler.OwnColorToOthers;
+                    chat.Color = Handler.ChatColorToOthers;
                     chat.CssClass = Constants.OtherChatCss;
                     chat.ContainerCssClass = Constants.OtherChatContainerCss;
                     chat.SenderName = "Jason";
@@ -116,6 +117,7 @@ namespace Timekeeper.Client.Pages
 
                 Handler.CurrentSession.Chats.Add(chat);
             }
+#endif
         }
 
         public MarkupString GetMarkup(string html)
