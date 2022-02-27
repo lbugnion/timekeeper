@@ -54,7 +54,6 @@ namespace Timekeeper.Client.Model.Chats
             IsBusy = true;
             IsInError = false;
             IsConnected = false;
-
             RaiseUpdateEvent();
 
             var ok = await InitializeSession(_sessionId)

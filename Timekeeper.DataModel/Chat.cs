@@ -38,5 +38,7 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         public string ContainerCssClass { get; set; }
+
+        public string UniqueId { get; set; }
     }
 }
