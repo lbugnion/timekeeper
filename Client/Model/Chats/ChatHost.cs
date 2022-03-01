@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Markdig;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
@@ -121,45 +122,92 @@ namespace Timekeeper.Client.Model.Chats
             RaiseUpdateEvent();
         }
 
-        public Chat NewChat { get; set; } = new Chat();
+        public Chat NewChat { get; set; }
 
         private async Task<bool> SendChats()
         {
             return await SendChats(string.Empty);
         }
 
+        public void SetNewChat()
+        {
+            NewChat = new Chat()
+            {
+                UniqueId = Guid.NewGuid().ToString(),
+                CssClass = Constants.OwnChatCss,
+                ContainerCssClass = Constants.OwnChatContainerCss
+            };
+        }
+
+        public bool IsSendingChat { get; set; }
+
+        public async Task<bool> SendCurrentChat()
+        {
+            _log.LogTrace("-> SendCurrentChat");
+
+            IsSendingChat = true;
+            RaiseUpdateEvent();
+
+            NewChat.UserId = PeerInfo?.Message?.PeerId;
+            NewChat.SenderName = PeerInfo?.Message?.DisplayName;
+            NewChat.MessageDateTime = DateTime.Now;
+            NewChat.Color = PeerInfo.Message.ChatColor;
+
+            var ok = await SendChats(new List<Chat>
+            {
+                NewChat
+            });
+
+            SetNewChat();
+
+            IsSendingChat = false;
+            RaiseUpdateEvent();
+
+            return ok;
+        }
+
         private async Task<bool> SendChats(string _)
         {
-            _log.LogTrace("-> SendChats");
+            // TODO Think about adding paging here for the chats. For instance,
+            // send the ones from the last 30 minutes and add a "load more" link on top.
 
-            _log.LogDebug($"HIGHLIGHT--CurrentSession is null: {CurrentSession == null}");
-            _log.LogDebug($"HIGHLIGHT--Chats is null: {CurrentSession.Chats == null}");
+            _log.LogTrace("HIGHLIGHT-> SendChats(string)");
 
             if (CurrentSession.Chats == null)
             {
                 CurrentSession.Chats = new List<Chat>();
             }
 
-            _log.LogDebug($"HIGHLIGHT--Chats count is zero: {CurrentSession.Chats.Count == 0}");
-
             if (CurrentSession.Chats.Count == 0)
             {
                 return true;
             }
 
-            foreach (var chat in CurrentSession.Chats)
+            return await SendChats(CurrentSession.Chats);
+        }
+
+        private async Task<bool> SendChats(IList<Chat> chats)
+        {
+            _log.LogTrace("-> SendChats(IList)");
+
+            if (chats.Count == 0)
+            {
+                return true;
+            }
+
+            foreach (var chat in chats)
             {
                 chat.SessionName = null;
             }
 
-            NewChat.SessionName = CurrentSession.SessionName;
+            chats.First().SessionName = CurrentSession.SessionName;
 
             var list = new ListOfChats();
-            list.Chats.AddRange(CurrentSession.Chats);
+            list.Chats.AddRange(chats);
 
             var json = JsonConvert.SerializeObject(list);
 
-            _log.LogDebug($"json: {json}");
+            //_log.LogDebug($"json: {json}");
 
             var chatsUrl = $"{_hostName}/chats";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, chatsUrl);
@@ -170,14 +218,20 @@ namespace Timekeeper.Client.Model.Chats
 
             if (!response.IsSuccessStatusCode)
             {
+                IsInError = true;
+                ErrorStatus = "Error connecting to Chat service, try to refresh the page and send again";
                 return false;
             }
 
+            IsInError = false;
+            Status = "Chat sent";
             return true;
         }
 
         private async Task ReceiveChat(string chatJson)
         {
+            _log.LogTrace("HIGHLIGHT-> ChatHost.ReceiveChat(string)");
+
             Chat receivedChat;
 
             try
@@ -197,6 +251,8 @@ namespace Timekeeper.Client.Model.Chats
 
         private async Task ReceiveChat(Chat receivedChat)
         {
+            _log.LogTrace("-> ChatHost.ReceiveChat(Chat)");
+
             if (receivedChat.Key != SecretKey)
             {
                 _log.LogError("Received chat with invalid key");

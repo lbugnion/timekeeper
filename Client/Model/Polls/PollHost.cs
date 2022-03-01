@@ -45,7 +45,7 @@ namespace Timekeeper.Client.Model.Polls
 
             var json = JsonConvert.SerializeObject(poll.GetSafeCopy(), Formatting.Indented);
 
-            _log.LogDebug($"json: {json}");
+            //_log.LogDebug($"json: {json}");
 
             var pollsUrl = $"{_hostName}/reset-poll";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, pollsUrl);
@@ -187,7 +187,7 @@ namespace Timekeeper.Client.Model.Polls
 
             var json = JsonConvert.SerializeObject(list);
 
-            _log.LogDebug($"json: {json}");
+            //_log.LogDebug($"json: {json}");
 
             var pollsUrl = $"{_hostName}/polls";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, pollsUrl);

@@ -56,7 +56,7 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogTrace("HIGHLIGHT---> ManageChats.OnInitialized");
+            Log.LogTrace("HIGHLIGHT---> ManageChats.OnInitializedAsync");
             Log.LogDebug($"SessionId: {SessionId}");
 
             UiVisibility = VisibilityVisible;
@@ -69,6 +69,10 @@ namespace Timekeeper.Client.Pages
                 Nav,
                 Session,
                 SessionId);
+
+            Log.LogTrace("CALLING SETTING NEW CHAT");
+            Handler.SetNewChat();
+            Log.LogTrace("DONE CALLING SETTING NEW CHAT");
 
             Log.LogTrace("Check authorization");
             await Handler.CheckAuthorize();

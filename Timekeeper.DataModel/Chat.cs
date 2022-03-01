@@ -6,24 +6,13 @@ namespace Timekeeper.DataModel
 {
     public class Chat
     {
-        private string _messageMarkdown;
-
         public string Key { get; set; }
         public string SenderName { get; set; }
 
-        public string MessageMarkdown
-        {
-            get => _messageMarkdown; 
-            
-            set
-            {
-                _messageMarkdown = value;
-                MessageHtml = Markdown.ToHtml(_messageMarkdown);
-            }
-        }
+        public string MessageMarkdown { get; set; }
 
         [JsonIgnore]
-        public string MessageHtml { get; set; }
+        public string MessageHtml => Markdown.ToHtml(MessageMarkdown);
 
         public string SessionName { get; set; }
 

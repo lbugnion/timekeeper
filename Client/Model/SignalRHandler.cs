@@ -38,11 +38,6 @@ namespace Timekeeper.Client.Model
         protected string _hostNameFree;
         private bool _isManualDisconnection;
 
-        public string ChatColorToOthers
-        {
-            get;
-        }
-
         protected abstract string SessionKey
         {
             get;
@@ -152,9 +147,6 @@ namespace Timekeeper.Client.Model
             _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
             _log.LogDebug($"_hostName: {_hostName}");
             _log.LogDebug($"_hostNameFree: {_hostNameFree}");
-
-            var random = new Random();
-            ChatColorToOthers = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
         }
 
         private Task ConnectionReconnected(string arg)
@@ -189,7 +181,7 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> RegisterToGroup()
         {
-            _log.LogInformation("-> RegisterToGroup");
+            _log.LogInformation("HIGHLIGHT-> RegisterToGroup");
 
             try
             {
@@ -444,6 +436,16 @@ namespace Timekeeper.Client.Model
                 {
                     Message = message
                 };
+            }
+
+            _log.LogDebug($"HIGHLIGHT--PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
+
+            if (string.IsNullOrEmpty(PeerInfo.Message.ChatColor))
+            {
+                var random = new Random();
+                PeerInfo.Message.ChatColor = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
+                _log.LogDebug($"PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
+                await PeerInfo.Save(PeerKey);
             }
 
             _log.LogDebug($"guest ID: {PeerInfo.Message.PeerId}");

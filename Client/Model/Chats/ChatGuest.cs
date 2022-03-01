@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -74,7 +75,7 @@ namespace Timekeeper.Client.Model.Chats
                 {
                     // Ask for existing chats
 
-                    _log.LogTrace("Asking for existing chats");
+                    _log.LogTrace("HIGHLIGHT--Asking for existing chats");
 
                     string reasonPhrase = null;
 
@@ -158,6 +159,11 @@ namespace Timekeeper.Client.Model.Chats
             if (CurrentSession.Chats == null)
             {
                 CurrentSession.Chats = new List<Chat>();
+            }
+
+            if (CurrentSession.Chats.Any(c => c.UniqueId == receivedChat.UniqueId))
+            {
+                return;
             }
 
             if (receivedChat.UserId == PeerInfo.Message.PeerId)

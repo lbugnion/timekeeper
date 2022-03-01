@@ -31,7 +31,7 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
 
             var json = JsonConvert.SerializeObject(PeerInfo.Message);
-            _log.LogDebug($"json: {json}");
+            //_log.LogDebug($"json: {json}");
 
             return await AnnounceNameJson(json);
         }
@@ -123,11 +123,6 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("InitializeSession ->");
             return true;
-        }
-
-        public async Task SavePeerInfo()
-        {
-            await PeerInfo.Save(PeerKey);
         }
     }
 }

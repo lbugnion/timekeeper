@@ -118,7 +118,7 @@ namespace Timekeeper.Client.Model
             };
 
             var json = JsonConvert.SerializeObject(message);
-            _log.LogDebug($"json: {json}");
+            //_log.LogDebug($"json: {json}");
 
             return await AnnounceNameJson(json);
         }
@@ -700,7 +700,7 @@ namespace Timekeeper.Client.Model
         public async Task ReceiveGuestMessage(string json)
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
-            _log.LogDebug(json);
+            //_log.LogDebug(json);
 
             var messagePeer = JsonConvert.DeserializeObject<PeerMessage>(json);
 
@@ -945,7 +945,7 @@ namespace Timekeeper.Client.Model
 
                 var content = new StringContent(json);
 
-                _log.LogDebug($"json: {json}");
+                //_log.LogDebug($"json: {json}");
 
                 var startClockUrl = $"{_hostName}/start";
                 _log.LogDebug($"startClockUrl: {startClockUrl}");

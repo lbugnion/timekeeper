@@ -54,10 +54,12 @@ else
                           onfocus="this.select();"
                           onreadystatechange="this.focus();"
                           id="chat-text"
-                          class="input-text" />
+                          class="input-text"
+                          disabled="@Handler.IsSendingChat" />
 
                 <br />
-                <button>Send the message</button>
+                <button @onclick="async e => await Handler.SendCurrentChat()"
+                        disabled="@Handler.IsSendingChat">Send the message</button>
             </div>
         </EditForm>        
     </div>

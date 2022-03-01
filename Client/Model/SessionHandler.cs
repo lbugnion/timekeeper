@@ -135,7 +135,7 @@ namespace Timekeeper.Client.Model
             var json = await _localStorage.GetItemAsStringAsync(
                 storageKey);
 
-            log.LogDebug($"json: {json}");
+            //log.LogDebug($"json: {json}");
 
             if (string.IsNullOrEmpty(json))
             {
