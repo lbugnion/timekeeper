@@ -12,14 +12,14 @@ using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 
 namespace Timekeeper.Api.Free
 {
-    public static class SendChat
+    public static class PostChats
     {
-        [FunctionName(nameof(SendChat))]
+        [FunctionName(nameof(PostChats))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous, 
                 "post", 
-                Route = "chat")]
+                Route = "chats")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
@@ -36,26 +36,29 @@ namespace Timekeeper.Api.Free
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             log.LogDebug(requestBody);
-            var chat = JsonConvert.DeserializeObject<Chat>(requestBody);
+            var chats = JsonConvert.DeserializeObject<ListOfChats>(requestBody);
 
-            if (chat.Key == null
-                || chat.Key.Length != 10)
+            foreach (var chat in chats.Chats)
             {
-                log.LogError("Invalid key");
-                return new UnauthorizedObjectResult("Invalid request");
-            }
+                //if (chat.Key == null
+                //    || chat.Key.Length != 10)
+                //{
+                //    log.LogError("Invalid key");
+                //    return new UnauthorizedObjectResult("Invalid request");
+                //}
 
-            if (string.IsNullOrEmpty(chat.SenderName)
-                || string.IsNullOrEmpty(chat.MessageMarkdown))
-            {
-                log.LogError("Empty name or message");
-                return new BadRequestObjectResult("Empty name or message");
+                if (string.IsNullOrEmpty(chat.SenderName)
+                    || string.IsNullOrEmpty(chat.MessageMarkdown))
+                {
+                    log.LogError("Empty name or message");
+                    return new BadRequestObjectResult("Empty name or message");
+                }
             }
 
             await queue.AddAsync(
                 new SignalRMessage
                 {
-                    Target = Constants.ChatMessage,
+                    Target = Constants.ReceiveChatsMessage,
                     Arguments = new[] { requestBody },
                     GroupName = groupId.ToString()
                 });

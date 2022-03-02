@@ -66,7 +66,6 @@ namespace Timekeeper.Client.Model.Chats
             {
 #if !OFFLINE
                 _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveAllChats);
-                _connection.On<string>(Constants.ChatMessage, ReceiveChat);
 
                 ok = await StartConnection();
 #endif

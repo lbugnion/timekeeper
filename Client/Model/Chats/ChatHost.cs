@@ -60,7 +60,7 @@ namespace Timekeeper.Client.Model.Chats
 #if !OFFLINE
             if (ok)
             {
-                _connection.On<string>(Constants.ChatMessage, c => ReceiveChat(c));
+                _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveChats);
                 _connection.On<string>(Constants.RequestChatsMessage, SendChats);
 
                 ok = await StartConnection();
@@ -209,7 +209,7 @@ namespace Timekeeper.Client.Model.Chats
 
             //_log.LogDebug($"json: {json}");
 
-            var chatsUrl = $"{_hostName}/chats";
+            var chatsUrl = $"{_hostNameFree}/chats";
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, chatsUrl);
             httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
             httpRequest.Content = new StringContent(json);
@@ -219,6 +219,7 @@ namespace Timekeeper.Client.Model.Chats
             if (!response.IsSuccessStatusCode)
             {
                 IsInError = true;
+                _log.LogError($"Issue sending chat: {response.StatusCode} / {response.ReasonPhrase}");
                 ErrorStatus = "Error connecting to Chat service, try to refresh the page and send again";
                 return false;
             }
@@ -228,15 +229,15 @@ namespace Timekeeper.Client.Model.Chats
             return true;
         }
 
-        private async Task ReceiveChat(string chatJson)
+        private async Task ReceiveChats(string chatsJson)
         {
             _log.LogTrace("HIGHLIGHT-> ChatHost.ReceiveChat(string)");
 
-            Chat receivedChat;
+            ListOfChats receivedChats;
 
             try
             {
-                receivedChat = JsonConvert.DeserializeObject<Chat>(chatJson);
+                receivedChats = JsonConvert.DeserializeObject<ListOfChats>(chatsJson);
             }
             catch
             {
@@ -244,34 +245,53 @@ namespace Timekeeper.Client.Model.Chats
                 return;
             }
 
-            await ReceiveChat(receivedChat);
+            await ReceiveChats(receivedChats);
         }
 
         public string SecretKey { get; set; }
 
-        private async Task ReceiveChat(Chat receivedChat)
+        private async Task ReceiveChats(ListOfChats receivedChats)
         {
             _log.LogTrace("-> ChatHost.ReceiveChat(Chat)");
 
-            if (receivedChat.Key != SecretKey)
+            foreach (var receivedChat in receivedChats.Chats)
             {
-                _log.LogError("Received chat with invalid key");
-                return;
-            }
+                if (receivedChat.Key != SecretKey)
+                {
+                    _log.LogError("Received chat with invalid key");
+                    return;
+                }
 
-            if (receivedChat.UserId == PeerInfo.Message.PeerId)
-            {
-                receivedChat.Color = Constants.OwnColor;
-                receivedChat.CssClass = Constants.OwnChatCss;
-                receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
-            }
-            else
-            {
-                receivedChat.CssClass = Constants.OtherChatCss;
-                receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
-            }
+                if (receivedChat.UserId == PeerInfo.Message.PeerId)
+                {
+                    receivedChat.Color = Constants.OwnColor;
+                    receivedChat.CssClass = Constants.OwnChatCss;
+                    receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
+                }
+                else
+                {
+                    receivedChat.CssClass = Constants.OtherChatCss;
+                    receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
+                }
 
-            CurrentSession.Chats.Insert(0, receivedChat);
+                if (!CurrentSession.Chats.Any(c => c.UniqueId == receivedChat.UniqueId))
+                {
+                    // Assume that chats are already sorted chronologically
+
+                    var nextChat = CurrentSession.Chats
+                        .FirstOrDefault(c => c.MessageDateTime > receivedChat.MessageDateTime);
+
+                    if (nextChat == null)
+                    {
+                        CurrentSession.Chats.Insert(0, receivedChat);
+                    }
+                    else
+                    {
+                        var index = CurrentSession.Chats.IndexOf(nextChat);
+                        CurrentSession.Chats.Insert(index, receivedChat);
+                    }
+                }
+            }
 
             await SaveSessionToStorage();
             RaiseUpdateEvent();

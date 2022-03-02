@@ -11,9 +11,9 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Api.Free
 {
-    public static class RequestChats
+    public static class GetChats
     {
-        [FunctionName("RequestChats")]
+        [FunctionName(nameof(GetChats))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous, 
@@ -24,7 +24,7 @@ namespace Timekeeper.Api.Free
             IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
-            log.LogInformation("-> RequestPolls");
+            log.LogInformation("-> GetChats");
 
             try
             {

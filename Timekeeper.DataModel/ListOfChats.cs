@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Timekeeper.DataModel;
 
-namespace Timekeeper.Client.Model.Chats
+namespace Timekeeper.DataModel
 {
     public class ListOfChats
     {
