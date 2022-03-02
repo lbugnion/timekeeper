@@ -60,6 +60,23 @@ namespace Timekeeper.Client.Model.Chats
 #if !OFFLINE
             if (ok)
             {
+                if (CurrentSession.Chats != null)
+                {
+                    foreach (var chat in CurrentSession.Chats)
+                    {
+                        if (chat.UserId == PeerInfo.Message.PeerId)
+                        {
+                            chat.CssClass = Constants.OwnChatCss;
+                            chat.ContainerCssClass = Constants.OwnChatContainerCss;
+                        }
+                        else
+                        {
+                            chat.CssClass = Constants.OtherChatCss;
+                            chat.ContainerCssClass = Constants.OtherChatContainerCss;
+                        }
+                    }
+                }
+
                 _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveChats);
                 _connection.On<string>(Constants.RequestChatsMessage, SendChats);
 
@@ -293,7 +310,7 @@ namespace Timekeeper.Client.Model.Chats
                 }
             }
 
-            await SaveSessionToStorage();
+            await SaveSession();
             RaiseUpdateEvent();
         }
 
@@ -426,10 +443,10 @@ namespace Timekeeper.Client.Model.Chats
 
 #if !OFFLINE
                 // Refresh session
+                _log.LogTrace("HIGHLIGHT--Refreshing session");
+
                 var sessions = await _session.GetSessions(_log);
                 var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
-
-                _log.LogDebug($"outSession == null: {outSession == null}");
 
                 CurrentSession = outSession;
 #endif

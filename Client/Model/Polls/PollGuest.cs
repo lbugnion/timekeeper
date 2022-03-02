@@ -191,7 +191,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private async Task ReceiveAllPublishedPolls(string json)
         {
-            _log.LogTrace("HIGHLIGHT---> ReceiveAllPublishedPolls");
+            _log.LogTrace("-> ReceiveAllPublishedPolls");
 
             try
             {
@@ -214,7 +214,7 @@ namespace Timekeeper.Client.Model.Polls
 
         private async Task ReceivePublishUnpublishPoll(Poll poll, bool mustPublish)
         {
-            _log.LogTrace("HIGHLIGHT---> ReceivePublishUnpublishPoll");
+            _log.LogTrace("-> ReceivePublishUnpublishPoll");
             _log.LogDebug($"Received poll: {poll.Uid}");
             _log.LogDebug($"Must publish: {mustPublish}");
 

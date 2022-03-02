@@ -348,7 +348,7 @@ namespace Timekeeper.Client.Model
 
             if (!_isManualDisconnection)
             {
-                _log.LogTrace("HIGHLIGHT--Showing disconnected message");
+                _log.LogTrace("Showing disconnected message");
                 IsInError = true;
             }
             else
@@ -438,7 +438,7 @@ namespace Timekeeper.Client.Model
                 };
             }
 
-            _log.LogDebug($"HIGHLIGHT--PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
+            _log.LogDebug($"PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
 
             if (string.IsNullOrEmpty(PeerInfo.Message.ChatColor))
             {

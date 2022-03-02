@@ -74,7 +74,7 @@ namespace Timekeeper.Client.Model.Chats
                 {
                     // Ask for existing chats
 
-                    _log.LogTrace("HIGHLIGHT--Asking for existing chats");
+                    _log.LogTrace("Asking for existing chats");
 
                     string reasonPhrase = null;
 
@@ -126,7 +126,7 @@ namespace Timekeeper.Client.Model.Chats
 
         private async Task ReceiveAllChats(string json)
         {
-            _log.LogTrace("HIGHLIGHT---> ReceiveAllChats");
+            _log.LogTrace("-> ReceiveAllChats");
 
             try
             {

@@ -80,7 +80,7 @@ namespace Timekeeper.Client.Pages
 
         protected override void OnInitialized()
         {
-            Log.LogTrace("HIGHLIGHT---> OnInitialized");
+            Log.LogTrace("-> OnInitialized");
 
             Log.LogTrace("SETTING EDITCONTEXT");
             CurrentEditContext = new EditContext(Handler.NewChat);
