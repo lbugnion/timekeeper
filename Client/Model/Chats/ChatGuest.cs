@@ -34,7 +34,7 @@ namespace Timekeeper.Client.Model.Chats
                 return;
             }
 
-            await ReceiveChat(receivedChat);
+            //await ReceiveChat(receivedChat);
         }
 
         public ChatGuest(
@@ -65,7 +65,7 @@ namespace Timekeeper.Client.Model.Chats
             if (ok)
             {
 #if !OFFLINE
-                _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveAllChats);
+                //_connection.On<string>(Constants.ReceiveChatsMessage, ReceiveAllChats);
 
                 ok = await StartConnection();
 #endif
@@ -122,65 +122,6 @@ namespace Timekeeper.Client.Model.Chats
             IsBusy = false;
             RaiseUpdateEvent();
             _log.LogInformation("ChatGuest.Connect ->");
-        }
-
-        private async Task ReceiveAllChats(string json)
-        {
-            _log.LogTrace("-> ReceiveAllChats");
-
-            try
-            {
-                var list = JsonConvert.DeserializeObject<ListOfChats>(json);
-
-                foreach (var chat in list.Chats)
-                {
-                    await ReceiveChat(chat);
-                }
-            }
-            catch
-            {
-                ErrorStatus = "Error receiving chats";
-                IsInError = true;
-                IsConnected = false;
-            }
-
-            RaiseUpdateEvent();
-        }
-
-        private async Task ReceiveChat(Chat receivedChat)
-        {
-            if (receivedChat.Key != SecretKey)
-            {
-                _log.LogError("Received chat with invalid key");
-                return;
-            }
-
-            if (CurrentSession.Chats == null)
-            {
-                CurrentSession.Chats = new List<Chat>();
-            }
-
-            if (CurrentSession.Chats.Any(c => c.UniqueId == receivedChat.UniqueId))
-            {
-                return;
-            }
-
-            if (receivedChat.UserId == PeerInfo.Message.PeerId)
-            {
-                receivedChat.Color = Constants.OwnColor;
-                receivedChat.CssClass = Constants.OwnChatCss;
-                receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
-            }
-            else
-            {
-                receivedChat.CssClass = Constants.OtherChatCss;
-                receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
-            }
-
-            CurrentSession.Chats.Insert(0, receivedChat);
-
-            await SaveSessionToStorage();
-            RaiseUpdateEvent();
         }
 
         public async Task<bool> InitializeSession(string sessionId)

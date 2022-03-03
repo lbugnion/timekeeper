@@ -68,11 +68,13 @@ namespace Timekeeper.Client.Model.Chats
                         {
                             chat.CssClass = Constants.OwnChatCss;
                             chat.ContainerCssClass = Constants.OwnChatContainerCss;
+                            chat.DisplayColor = Constants.OwnColor;
                         }
                         else
                         {
                             chat.CssClass = Constants.OtherChatCss;
                             chat.ContainerCssClass = Constants.OtherChatContainerCss;
+                            chat.DisplayColor = chat.CustomColor;
                         }
                     }
                 }
@@ -168,7 +170,7 @@ namespace Timekeeper.Client.Model.Chats
             NewChat.UserId = PeerInfo?.Message?.PeerId;
             NewChat.SenderName = PeerInfo?.Message?.DisplayName;
             NewChat.MessageDateTime = DateTime.Now;
-            NewChat.Color = PeerInfo.Message.ChatColor;
+            NewChat.CustomColor = PeerInfo?.Message?.ChatColor;
 
             var ok = await SendChats(new List<Chat>
             {
@@ -281,12 +283,13 @@ namespace Timekeeper.Client.Model.Chats
 
                 if (receivedChat.UserId == PeerInfo.Message.PeerId)
                 {
-                    receivedChat.Color = Constants.OwnColor;
+                    receivedChat.DisplayColor = Constants.OwnColor;
                     receivedChat.CssClass = Constants.OwnChatCss;
                     receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
                 }
                 else
                 {
+                    receivedChat.DisplayColor = receivedChat.CustomColor;
                     receivedChat.CssClass = Constants.OtherChatCss;
                     receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
                 }
@@ -443,7 +446,7 @@ namespace Timekeeper.Client.Model.Chats
 
 #if !OFFLINE
                 // Refresh session
-                _log.LogTrace("HIGHLIGHT--Refreshing session");
+                _log.LogTrace("Refreshing session");
 
                 var sessions = await _session.GetSessions(_log);
                 var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
@@ -451,6 +454,12 @@ namespace Timekeeper.Client.Model.Chats
                 CurrentSession = outSession;
 #endif
             }
+
+            // TODO REMOVE
+            //if (CurrentSession?.Chats != null)
+            //{
+            //    CurrentSession.Chats.Clear();
+            //}
 
             RaiseUpdateEvent();
 

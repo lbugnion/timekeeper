@@ -20,7 +20,10 @@ namespace Timekeeper.DataModel
 
         public string UserId { get; set; }
 
-        public string Color { get; set; }
+        [JsonIgnore]
+        public string DisplayColor { get; set; }
+
+        public string CustomColor { get; set; }
 
         [JsonIgnore]
         public string CssClass { get; set; }
