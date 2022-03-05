@@ -71,7 +71,7 @@ namespace Timekeeper.Client.Pages
                 SessionId);
 
             Log.LogTrace("CALLING SETTING NEW CHAT");
-            Handler.SetNewChat();
+            Handler.ChatProxy.SetNewChat();
             Log.LogTrace("DONE CALLING SETTING NEW CHAT");
 
             Log.LogTrace("Check authorization");

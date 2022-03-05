@@ -63,6 +63,11 @@ namespace Timekeeper.Client.Pages
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
             }
+
+            if (Handler.ChatProxy != null)
+            {
+                Handler.ChatProxy.NewChatCreated -= ChatProxyNewChatCreated;
+            }
         }
 
         public void UseSecretKey(int use)
@@ -82,9 +87,12 @@ namespace Timekeeper.Client.Pages
         {
             Log.LogTrace("-> OnInitialized");
 
-            Log.LogTrace("SETTING EDITCONTEXT");
-            CurrentEditContext = new EditContext(Handler.NewChat);
-            Log.LogTrace("DONE SETTING EDITCONTEXT");
+            Handler.ChatProxy.NewChatCreated += ChatProxyNewChatCreated;
+
+            if (Handler.ChatProxy.NewChat != null)
+            {
+                CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
+            }
 
 #if OFFLINE
             Handler.CurrentSession.Chats.Clear();
@@ -115,6 +123,17 @@ namespace Timekeeper.Client.Pages
                 Handler.CurrentSession.Chats.Add(chat);
             }
 #endif
+        }
+
+        private void ChatProxyNewChatCreated(object sender, EventArgs e)
+        {
+            if (Handler.ChatProxy.NewChat == null)
+            {
+                CurrentEditContext = null;
+                return;
+            }
+
+            CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
         }
 
         public MarkupString GetMarkup(string html)
