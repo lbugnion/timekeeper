@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using Markdig;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
@@ -102,6 +101,17 @@ namespace Timekeeper.Client.Model.Chats
             _log.LogInformation("ChatsHost.Connect ->");
         }
 
+        private async Task ReceiveChats(string receivedJson)
+        {
+            await ChatProxy.ReceiveChats(
+                RaiseUpdateEvent,
+                SaveSession,
+                receivedJson,
+                CurrentSession.Chats,
+                PeerInfo.Message.PeerId,
+                _log);
+        }
+
         private const string _secretKeyCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*():;.,/?{}[]";
 
         public void RegenerateSecretKey()
@@ -165,75 +175,6 @@ namespace Timekeeper.Client.Model.Chats
                 CurrentSession.SessionName,
                 CurrentSession.SessionId,
                 _log);
-        }
-
-        private async Task ReceiveChats(string chatsJson)
-        {
-            _log.LogTrace("HIGHLIGHT-> ChatHost.ReceiveChat(string)");
-
-            ListOfChats receivedChats;
-
-            try
-            {
-                receivedChats = JsonConvert.DeserializeObject<ListOfChats>(chatsJson);
-            }
-            catch
-            {
-                _log.LogTrace("Error with received chat");
-                return;
-            }
-
-            await ReceiveChats(receivedChats);
-        }
-
-        public string SecretKey { get; set; }
-
-        private async Task ReceiveChats(ListOfChats receivedChats)
-        {
-            _log.LogTrace("-> ChatHost.ReceiveChat(Chat)");
-
-            foreach (var receivedChat in receivedChats.Chats)
-            {
-                if (receivedChat.Key != SecretKey)
-                {
-                    _log.LogError("Received chat with invalid key");
-                    return;
-                }
-
-                if (receivedChat.UserId == PeerInfo.Message.PeerId)
-                {
-                    receivedChat.DisplayColor = Constants.OwnColor;
-                    receivedChat.CssClass = Constants.OwnChatCss;
-                    receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
-                }
-                else
-                {
-                    receivedChat.DisplayColor = receivedChat.CustomColor;
-                    receivedChat.CssClass = Constants.OtherChatCss;
-                    receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
-                }
-
-                if (!CurrentSession.Chats.Any(c => c.UniqueId == receivedChat.UniqueId))
-                {
-                    // Assume that chats are already sorted chronologically
-
-                    var nextChat = CurrentSession.Chats
-                        .FirstOrDefault(c => c.MessageDateTime > receivedChat.MessageDateTime);
-
-                    if (nextChat == null)
-                    {
-                        CurrentSession.Chats.Insert(0, receivedChat);
-                    }
-                    else
-                    {
-                        var index = CurrentSession.Chats.IndexOf(nextChat);
-                        CurrentSession.Chats.Insert(index, receivedChat);
-                    }
-                }
-            }
-
-            await SaveSession();
-            RaiseUpdateEvent();
         }
 
         public async Task SaveSessionToStorage()

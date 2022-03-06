@@ -16,6 +16,8 @@ namespace Timekeeper.Client.Model.Chats
         private string _hostNameFree;
         private HttpClient _http;
 
+        public string SecretKey { get; set; }
+
         public ChatProxy(
             HttpClient http,
             string hostNameFree)
@@ -143,6 +145,91 @@ namespace Timekeeper.Client.Model.Chats
             ErrorStatus = null;
             Status = "Chat sent";
             return true;
+        }
+
+        public async Task ReceiveChats(
+            Action raiseUpdateEvent,
+            Func<Task> saveChats,
+            string receivedChatJson,
+            IList<Chat> allChats,
+            string peerId,
+            ILogger log)
+        {
+            log.LogTrace("HIGHLIGHT-> ChatHost.ReceiveChat(string)");
+
+            ListOfChats receivedChats;
+
+            try
+            {
+                receivedChats = JsonConvert.DeserializeObject<ListOfChats>(receivedChatJson);
+            }
+            catch
+            {
+                log.LogTrace("Error with received chat");
+                return;
+            }
+
+            await ReceiveChats(
+                raiseUpdateEvent,
+                saveChats,
+                receivedChats,
+                allChats,
+                peerId,
+                log);
+        }
+
+        public async Task ReceiveChats(
+            Action raiseUpdateEvent,
+            Func<Task> saveChats,
+            ListOfChats receivedChats,
+            IList<Chat> allChats,
+            string peerId,
+            ILogger log)
+        {
+            log.LogTrace("-> ChatHost.ReceiveChat(Chat)");
+
+            foreach (var receivedChat in receivedChats.Chats)
+            {
+                if (receivedChat.Key != SecretKey)
+                {
+                    log.LogError("Received chat with invalid key");
+                    return;
+                }
+
+                if (receivedChat.UserId == peerId)
+                {
+                    receivedChat.DisplayColor = Constants.OwnColor;
+                    receivedChat.CssClass = Constants.OwnChatCss;
+                    receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
+                }
+                else
+                {
+                    receivedChat.DisplayColor = receivedChat.CustomColor;
+                    receivedChat.CssClass = Constants.OtherChatCss;
+                    receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
+                }
+
+                if (!allChats.Any(c => c.UniqueId == receivedChat.UniqueId))
+                {
+                    // Assume that chats are already sorted chronologically
+
+                    var nextChat = allChats
+                        .FirstOrDefault(c => c.MessageDateTime > receivedChat.MessageDateTime);
+
+                    if (nextChat == null)
+                    {
+                        allChats.Insert(0, receivedChat);
+                    }
+                    else
+                    {
+                        var index = allChats.IndexOf(nextChat);
+                        allChats.Insert(index, receivedChat);
+                    }
+                }
+            }
+
+            await saveChats();
+            raiseUpdateEvent();
         }
     }
 }
