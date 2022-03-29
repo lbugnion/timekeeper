@@ -177,11 +177,6 @@ namespace Timekeeper.Client.Model.Chats
                 _log);
         }
 
-        public async Task SaveSessionToStorage()
-        {
-            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-        }
-
         private async Task<bool> DoPublishUnpublishPoll(Poll poll, bool mustPublish, bool? mustOpen = null)
         {
             Status = "Attempting to publish poll";

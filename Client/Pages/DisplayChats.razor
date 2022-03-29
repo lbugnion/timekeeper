@@ -87,14 +87,16 @@
                         <div class="send-message-area">
                             <label for="question">Enter your text (markdown supported)</label>
 
-                            <textarea @bind="@Handler.NewChat.MessageMarkdown"
+                            <textarea @bind="@Handler.ChatProxy.NewChat.MessageMarkdown"
                                         onfocus="this.select();"
                                         onreadystatechange="this.focus();"
                                         id="chat-text"
-                                        class="input-text" />
+                                        class="input-text"                                        
+                                        disabled="@Handler.ChatProxy.IsSendingChat"/>
 
                             <br />
-                            <button>Send the message</button>
+                            <button @onclick="async e => await Handler.SendCurrentChat()"
+                                    disabled="@Handler.ChatProxy.IsSendingChat">Send the message</button>
                         </div>
                     </EditForm>        
                 </div>

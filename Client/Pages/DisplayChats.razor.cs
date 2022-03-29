@@ -7,7 +7,7 @@ using Timekeeper.Client.Model.Chats;
 
 namespace Timekeeper.Client.Pages
 {
-    public partial class DisplayChats
+    public partial class DisplayChats : IDisposable
     {
         public const string VisibilityVisible = "visible";
         public const string VisibilityInvisible = "invisible";
@@ -87,7 +87,12 @@ namespace Timekeeper.Client.Pages
                         SessionId,
                         Session);
 
-                    CurrentEditContext = new EditContext(Handler.NewChat);
+                    Handler.ChatProxy.NewChatCreated += ChatProxyNewChatCreated;
+
+                    if (Handler.ChatProxy.NewChat != null)
+                    {
+                        CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
+                    }
 
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
@@ -102,6 +107,17 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("OnInitializedAsync ->");
         }
 
+        private void ChatProxyNewChatCreated(object sender, EventArgs e)
+        {
+            if (Handler.ChatProxy.NewChat == null)
+            {
+                CurrentEditContext = null;
+                return;
+            }
+
+            CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
+        }
+
         private void HandlerUpdateUi(object sender, EventArgs e)
         {
             StateHasChanged();
@@ -114,6 +130,11 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+            }
+
+            if (Handler.ChatProxy != null)
+            {
+                Handler.ChatProxy.NewChatCreated -= ChatProxyNewChatCreated;
             }
 
             await Task.Run(async () =>

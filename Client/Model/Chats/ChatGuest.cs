@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -12,26 +13,7 @@ namespace Timekeeper.Client.Model.Chats
     {
         protected override string SessionKey => "ChatGuestSession";
 
-        public Chat NewChat { get; set; } = new Chat();
-
         public string SecretKey { get; set; }
-
-        private async Task ReceiveChat(string chatJson)
-        {
-            Chat receivedChat;
-
-            try
-            {
-                receivedChat = JsonConvert.DeserializeObject<Chat>(chatJson);
-            }
-            catch
-            {
-                _log.LogTrace("Error with received chat");
-                return;
-            }
-
-            //await ReceiveChat(receivedChat);
-        }
 
         public ChatGuest(
             IConfiguration config,
@@ -41,6 +23,7 @@ namespace Timekeeper.Client.Model.Chats
             string sessionId,
             SessionHandler session) : base(config, localStorage, log, http, sessionId, session)
         {
+            ChatProxy = new ChatProxy(_http, _hostNameFree);
             _log.LogInformation("-> ChatGuest()");
         }
 
@@ -61,7 +44,7 @@ namespace Timekeeper.Client.Model.Chats
             if (ok)
             {
 #if !OFFLINE
-                //_connection.On<string>(Constants.ReceiveChatsMessage, ReceiveAllChats);
+                _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveChats);
 
                 ok = await StartConnection();
 #endif
@@ -180,6 +163,30 @@ namespace Timekeeper.Client.Model.Chats
             await ReceiveChat(json);
             _chatCounter++;
 #endif
+        }
+
+        private async Task ReceiveChats(string receivedJson)
+        {
+            await ChatProxy.ReceiveChats(
+                RaiseUpdateEvent,
+                SaveSessionToStorage,
+                receivedJson,
+                CurrentSession.Chats,
+                PeerInfo.Message.PeerId,
+                _log);
+        }
+
+        public ChatProxy ChatProxy { get; set; }
+
+        public async Task<bool> SendCurrentChat()
+        {
+            _log.LogTrace("-> SendCurrentChat");
+            return await ChatProxy.SendCurrentChat(
+                RaiseUpdateEvent,
+                PeerInfo.Message,
+                CurrentSession.SessionName,
+                CurrentSession.SessionId,
+                _log);
         }
     }
 }
