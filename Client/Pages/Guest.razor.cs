@@ -108,6 +108,8 @@ namespace Timekeeper.Client.Pages
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
 
+                    await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+
                     GuestName = Handler.PeerInfo.Message.DisplayName;
                     Mobile = await new MobileHandler().Initialize(JSRuntime);
 
@@ -174,6 +176,21 @@ namespace Timekeeper.Client.Pages
             {
                 Log.LogTrace("Setting Visible");
                 UiVisibility = VisibilityVisible;
+            }
+        }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.GuestPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.GuestPageTitle}";
             }
         }
     }

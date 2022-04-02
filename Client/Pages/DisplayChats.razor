@@ -79,6 +79,14 @@
                     <EditForm EditContext="@CurrentEditContext">
                         <DataAnnotationsValidator />
 
+                        <blockquote class="warning @UiVisibility">
+                            <p><strong>WARNING:</strong> This feature is available in beta only.</p>
+
+                            <p>Enter your username below to make it easier to identify you in the chat.</p>
+
+                            <p>Use the "focus" button on the top-right to maximize the workapce.</p>
+                        </blockquote>
+    
                         <blockquote class="@UiVisibility">
                             <p><strong>Tip: Use [Ctrl-Enter] to send the message!</strong></p>
                             <p><a href="/display-chats/@Handler.CurrentSession.SessionId" target="_blank">Send this link to whomever you want to join the chat.</a></p>

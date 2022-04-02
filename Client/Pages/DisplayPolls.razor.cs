@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
@@ -101,11 +102,29 @@ namespace Timekeeper.Client.Pages
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
 
+                    await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+
                     Mobile = await new MobileHandler().Initialize(JSRuntime);
                 }
             }
 
             Log.LogInformation("OnInitializedAsync ->");
+        }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName)
+                    || Handler.CurrentSession.SessionName == Branding.PollsPageTitle)
+                {
+                    return Branding.PollsPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.PollsPageTitle}";
+            }
         }
 
         private void HandlerUpdateUi(object sender, EventArgs e)

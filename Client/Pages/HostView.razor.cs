@@ -111,12 +111,29 @@ namespace Timekeeper.Client.Pages
             Nav.NavigateTo("/host", forceLoad: true);
         }
 
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.MainPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.MainPageTitle}";
+            }
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> HostView.OnInitializedAsync");
             IsEditingSessionName = false;
             EditSessionNameLinkText = EditSessionNameText;
             PeerListLinkText = ShowPeersText;
+
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
             Log.LogInformation("HostView.OnInitializedAsync ->");
@@ -165,6 +182,8 @@ namespace Timekeeper.Client.Pages
                 {
                     Handler.CurrentSession.SessionName = SessionName;
                 }
+
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
                 await Handler.SaveSession();
 

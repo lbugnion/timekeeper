@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.Polls;
 
 namespace Timekeeper.Client.Pages
@@ -10,6 +12,21 @@ namespace Timekeeper.Client.Pages
     {
         public const string VisibilityVisible = "visible";
         public const string VisibilityInvisible = "invisible";
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.PollsPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.PollsPageTitle}";
+            }
+        }
 
         public string UiVisibility
         {
@@ -90,8 +107,9 @@ namespace Timekeeper.Client.Pages
             await Handler.Connect();
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        private async void HandlerUpdateUi(object sender, EventArgs e)
         {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
         }
     }

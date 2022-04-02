@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
+using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.Chats;
 
 namespace Timekeeper.Client.Pages
@@ -37,8 +39,9 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        private async void HandlerUpdateUi(object sender, EventArgs e)
         {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
         }
 
@@ -83,9 +86,9 @@ namespace Timekeeper.Client.Pages
             //}
         }
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
-            Log.LogTrace("-> OnInitialized");
+            Log.LogTrace("-> OnInitializedAsync");
 
             Handler.ChatProxy.NewChatCreated += ChatProxyNewChatCreated;
 
@@ -93,6 +96,8 @@ namespace Timekeeper.Client.Pages
             {
                 CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
             }
+
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
 #if OFFLINE
             Handler.CurrentSession.Chats.Clear();
@@ -167,5 +172,21 @@ namespace Timekeeper.Client.Pages
                 Handler.SetCustomUserName(value).Wait();
             }
         }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.ChatsPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.ChatsPageTitle}";
+            }
+        }
+
     }
 }

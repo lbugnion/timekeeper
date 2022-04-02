@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.Polls;
 using Timekeeper.DataModel;
 
@@ -32,6 +34,21 @@ namespace Timekeeper.Client.Pages
                 {
                     _handler.UpdateUi += HandlerUpdateUi;
                 }
+            }
+        }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.PollsPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.PollsPageTitle}";
             }
         }
 
@@ -128,6 +145,11 @@ namespace Timekeeper.Client.Pages
         {
             get;
             set;
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
         }
 
         public async Task CreateNewPoll()

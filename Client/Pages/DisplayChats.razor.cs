@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.Chats;
 
 namespace Timekeeper.Client.Pages
@@ -14,6 +15,22 @@ namespace Timekeeper.Client.Pages
         public const string VisibilityVisible = "visible";
         public const string VisibilityInvisible = "invisible";
         public const string SendMessageInputId = "chat-text";
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName)
+                    || Handler.CurrentSession.SessionName == Branding.ChatsPageTitle)
+                {
+                    return Branding.ChatsPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.ChatsPageTitle}";
+            }
+        }
 
         public string UiVisibility
         {
@@ -112,6 +129,8 @@ namespace Timekeeper.Client.Pages
                         CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
                     }
 
+                    //await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
 
@@ -136,8 +155,9 @@ namespace Timekeeper.Client.Pages
             CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        private async void HandlerUpdateUi(object sender, EventArgs e)
         {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
         }
 
