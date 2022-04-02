@@ -188,7 +188,7 @@ namespace Timekeeper.Client.Model.Chats
         {
             log.LogTrace("HIGHLIGHT---> ChatProxy.ReceiveChat(ListOfChats)");
 
-            foreach (var receivedChat in receivedChats.Chats)
+            foreach (var receivedChat in receivedChats.Chats.OrderBy(c => c.MessageDateTime))
             {
                 log.LogDebug($"Received chat with MessageMarkdown '{receivedChat.MessageMarkdown}'");
 
@@ -213,10 +213,8 @@ namespace Timekeeper.Client.Model.Chats
 
                 if (!allChats.Any(c => c.UniqueId == receivedChat.UniqueId))
                 {
-                    // Assume that chats are already sorted chronologically
-
                     var nextChat = allChats
-                        .FirstOrDefault(c => c.MessageDateTime > receivedChat.MessageDateTime);
+                        .FirstOrDefault(c => receivedChat.MessageDateTime > c.MessageDateTime);
 
                     if (nextChat == null)
                     {
@@ -230,8 +228,15 @@ namespace Timekeeper.Client.Model.Chats
                 }
             }
 
-            await saveChats();
-            raiseUpdateEvent();
+            if (saveChats != null)
+            {
+                await saveChats();
+            }
+
+            if (raiseUpdateEvent != null)
+            {
+                raiseUpdateEvent();
+            }
         }
     }
 }

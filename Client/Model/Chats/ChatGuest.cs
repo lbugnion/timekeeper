@@ -177,7 +177,7 @@ namespace Timekeeper.Client.Model.Chats
 
             await ChatProxy.ReceiveChats(
                 RaiseUpdateEvent,
-                SaveSessionToStorage,
+                null, // Do not save messages in the guest, they always need a Host to be online.
                 receivedJson,
                 CurrentSession.Chats,
                 PeerInfo.Message.PeerId,

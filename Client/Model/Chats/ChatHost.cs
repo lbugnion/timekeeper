@@ -103,6 +103,8 @@ namespace Timekeeper.Client.Model.Chats
 
         private async Task ReceiveChats(string receivedJson)
         {
+            _log.LogTrace("-> ChatHost.ReceiveChats(string)");
+
             await ChatProxy.ReceiveChats(
                 RaiseUpdateEvent,
                 SaveSession,
