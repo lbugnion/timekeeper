@@ -37,6 +37,19 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        public string UserName
+        {
+            get
+            {
+                return Handler.PeerInfo.Message.DisplayName;
+            }
+
+            set
+            {
+                Handler.SetCustomUserName(value).Wait();
+            }
+        }
+
         public EditContext CurrentEditContext { get; set; }
 
         public ChatGuest Handler

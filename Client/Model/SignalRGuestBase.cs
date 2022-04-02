@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -23,11 +24,6 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("> SignalRGuestBase()");
             _sessionId = sessionId;
-        }
-
-        public async Task SavePeerInfo()
-        {
-            await PeerInfo.Save(PeerKey);
         }
     }
 }

@@ -40,6 +40,14 @@ else
                 <p><strong>Tip: Use [Ctrl-Enter] to send the message!</strong></p>
                 <p><a href="/display-chats/@Handler.CurrentSession.SessionId" target="_blank">Send this link to whomever you want to join the chat.</a></p>
 
+                <p>
+                    <label for="user-name">Enter your username</label>
+                    <input type="text"
+                            id="user-name"
+                            onfocus="this.select()"
+                            @bind="@UserName" />
+                </p>
+
                 @if (Handler.ChatProxy.SecretKey != null)
                 {
                     <p>You must also send them this secret key so they can talk to you. Use email, a chat application or any other private communication to send this key.</p>

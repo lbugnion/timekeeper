@@ -229,6 +229,14 @@ namespace Timekeeper.Client.Model.Chats
                     receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
                 }
 
+                if (!string.IsNullOrEmpty(receivedChat.SessionName))
+                {
+                    foreach (var chat in allChats.Where(c => c.SessionName != null))
+                    {
+                        chat.SessionName = null;
+                    }
+                }
+
                 if (!allChats.Any(c => c.UniqueId == receivedChat.UniqueId))
                 {
                     var nextChat = allChats
@@ -244,16 +252,25 @@ namespace Timekeeper.Client.Model.Chats
                         allChats.Insert(index, receivedChat);
                     }
                 }
-            }
 
-            if (saveChats != null)
-            {
-                await saveChats();
+                if (!string.IsNullOrEmpty(receivedChat.SessionName))
+                {
+                    var firstChat = allChats.FirstOrDefault();
+                    if (firstChat != null)
+                    {
+                        firstChat.SessionName = receivedChat.SessionName;
+                    }
+                }
             }
 
             if (raiseUpdateEvent != null)
             {
                 raiseUpdateEvent();
+            }
+
+            if (saveChats != null)
+            {
+                await saveChats();
             }
         }
     }

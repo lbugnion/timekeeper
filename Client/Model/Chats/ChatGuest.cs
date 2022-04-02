@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -182,6 +183,15 @@ namespace Timekeeper.Client.Model.Chats
                 CurrentSession.Chats,
                 PeerInfo.Message.PeerId,
                 _log);
+
+            var firstChat = CurrentSession.Chats
+                .FirstOrDefault(c => c.SessionName != null);
+
+            if (firstChat != null)
+            {
+                CurrentSession.SessionName = firstChat.SessionName;
+                RaiseUpdateEvent();
+            }
 
             _log.LogTrace("ChatGuest.ReceiveChats(string) ->");
         }

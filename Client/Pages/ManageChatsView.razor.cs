@@ -154,5 +154,18 @@ namespace Timekeeper.Client.Pages
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
         }
+
+        public string UserName
+        {
+            get
+            {
+                return Handler.PeerInfo.Message.DisplayName;
+            }
+
+            set
+            {
+                Handler.SetCustomUserName(value).Wait();
+            }
+        }
     }
 }

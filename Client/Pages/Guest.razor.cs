@@ -144,10 +144,8 @@ namespace Timekeeper.Client.Pages
             else
             {
                 EditGuestNameLinkText = EditGuestNameText;
-                Handler.PeerInfo.Message.CustomName = GuestName;
+                await Handler.SetCustomUserName(GuestName);
                 GuestName = Handler.PeerInfo.Message.DisplayName;
-                await Handler.SavePeerInfo();
-                await Handler.AnnounceName();
             }
         }
 

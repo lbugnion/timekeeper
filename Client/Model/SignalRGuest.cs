@@ -25,17 +25,6 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> SignalRGuest()");
         }
 
-        public async Task<bool> AnnounceName()
-        {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
-
-            var json = JsonConvert.SerializeObject(PeerInfo.Message);
-            //_log.LogDebug($"json: {json}");
-
-            return await AnnounceNameJson(json);
-        }
-
         public override async Task Connect()
         {
             _log.LogInformation("-> SignalRGuest.Connect");
