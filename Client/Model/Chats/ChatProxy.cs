@@ -84,6 +84,19 @@ namespace Timekeeper.Client.Model.Chats
             NewChat.MessageDateTime = DateTime.Now;
             NewChat.CustomColor = peerInfoMessage.ChatColor;
 
+            var words = NewChat.MessageMarkdown.Split(' ');
+
+            for (var index = 0; index < words.Length; index++)
+            {
+                if (words[index].StartsWith("http://")
+                    || words[index].StartsWith("https://"))
+                {
+                    words[index] = $"[{words[index]}]({words[index]})";
+                }
+            }
+
+            NewChat.MessageMarkdown = string.Join(' ', words);
+
             var ok = await SendChats(
                 new List<Chat>
                 {
