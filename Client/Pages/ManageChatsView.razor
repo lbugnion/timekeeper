@@ -1,5 +1,6 @@
 ﻿@using Timekeeper.DataModel
 @inject ILogger<ManageChatsView> Log
+@inject IJSRuntime JSRuntime
 
 @if (Model.Chats.ChatHost.IsDebugOffline)
 {
@@ -51,9 +52,11 @@ else
                 <label for="question">Enter your text (markdown supported)</label>
 
                 <textarea @bind="@Handler.ChatProxy.NewChat.MessageMarkdown"
-                          onfocus="this.select();"
+                          @bind:event="oninput"
+                          @onkeypress="@HandleKeyPress"
+                          @onfocus="@HandleFocus"
                           onreadystatechange="this.focus();"
-                          id="chat-text"
+                          id="@SendMessageInputId"
                           class="input-text"
                           disabled="@Handler.ChatProxy.IsSendingChat" />
 

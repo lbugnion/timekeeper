@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
 using Timekeeper.Client.Model.Chats;
-using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Pages
 {
     public partial class ManageChatsView : IDisposable
     {
+        public const string SendMessageInputId = "chat-text";
+
         private ChatHost _handler;
 
         [Parameter]
@@ -139,6 +139,20 @@ namespace Timekeeper.Client.Pages
         public MarkupString GetMarkup(string html)
         {
             return new MarkupString(html);
+        }
+
+        public async void HandleFocus()
+        {
+            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+        }
+
+        public async void HandleKeyPress(KeyboardEventArgs args)
+        {
+            if (args.CtrlKey)
+            {
+                await Handler.SendCurrentChat();
+                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+            }
         }
     }
 }

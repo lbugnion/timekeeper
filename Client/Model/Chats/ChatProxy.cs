@@ -76,6 +76,11 @@ namespace Timekeeper.Client.Model.Chats
             string sessionId,
             ILogger log)
         {
+            if (string.IsNullOrEmpty(NewChat.MessageMarkdown))
+            {
+                return true;
+            }
+
             IsSendingChat = true;
             raiseUpdateEvent();
 

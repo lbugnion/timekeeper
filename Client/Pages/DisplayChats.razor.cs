@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model.Chats;
@@ -11,6 +13,7 @@ namespace Timekeeper.Client.Pages
     {
         public const string VisibilityVisible = "visible";
         public const string VisibilityInvisible = "invisible";
+        public const string SendMessageInputId = "chat-text";
 
         public string UiVisibility
         {
@@ -143,6 +146,20 @@ namespace Timekeeper.Client.Pages
             {
                 await Handler.Disconnect();
             });
+        }
+
+        public async void HandleFocus()
+        {
+            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+        }
+
+        public async void HandleKeyPress(KeyboardEventArgs args)
+        {
+            if (args.CtrlKey)
+            {
+                await Handler.SendCurrentChat();
+                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+            }
         }
     }
 }
