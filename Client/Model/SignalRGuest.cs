@@ -96,7 +96,10 @@ namespace Timekeeper.Client.Model
 
             if (guestSession == null)
             {
-                guestSession = new SessionBase();
+                guestSession = new SessionBase()
+                {
+                    SessionName = Branding.GuestPageTitle
+                };
             }
             else
             {

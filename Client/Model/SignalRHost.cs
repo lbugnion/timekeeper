@@ -939,6 +939,7 @@ namespace Timekeeper.Client.Model
                     .Select(c =>
                     {
                         c.Message.SenderId = PeerInfo.Message.PeerId;
+                        c.Message.SessionName = CurrentSession.SessionName;
                         return c.Message;
                     })
                     .ToList());

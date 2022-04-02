@@ -562,6 +562,14 @@ namespace Timekeeper.Client.Model
                 RunClock(clock);
             }
 
+            var sessionNameClock = clockMessages
+                .FirstOrDefault(c => !string.IsNullOrEmpty(c.SessionName));
+
+            if (sessionNameClock != null)
+            {
+                CurrentSession.SessionName = sessionNameClock.SessionName;
+            }
+
             RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.ReceiveStartClock ->");
         }

@@ -164,6 +164,8 @@ namespace Timekeeper.DataModel
             }
         }
 
+        public string SessionName { get; set; }
+
         public string Label
         {
             get;
