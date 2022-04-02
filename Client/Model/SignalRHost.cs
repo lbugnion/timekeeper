@@ -199,7 +199,7 @@ namespace Timekeeper.Client.Model
 
         private async Task UpdateLocalHost(string json)
         {
-            _log.LogInformation("HIGHLIGHT-> SignalRHost.UpdateLocalHost");
+            _log.LogInformation("-> SignalRHost.UpdateLocalHost");
 
             try
             {

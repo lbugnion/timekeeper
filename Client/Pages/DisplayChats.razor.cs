@@ -87,6 +87,8 @@ namespace Timekeeper.Client.Pages
                         SessionId,
                         Session);
 
+                    Handler.ChatProxy.SetNewChat();
+
                     Handler.ChatProxy.NewChatCreated += ChatProxyNewChatCreated;
 
                     if (Handler.ChatProxy.NewChat != null)

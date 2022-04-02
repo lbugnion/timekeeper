@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -167,6 +168,13 @@ namespace Timekeeper.Client.Model.Chats
 
         private async Task ReceiveChats(string receivedJson)
         {
+            _log.LogTrace("-> ChatGuest.ReceiveChats(string)");
+
+            if (CurrentSession.Chats == null)
+            {
+                CurrentSession.Chats = new List<Chat>();
+            }
+
             await ChatProxy.ReceiveChats(
                 RaiseUpdateEvent,
                 SaveSessionToStorage,
@@ -174,6 +182,8 @@ namespace Timekeeper.Client.Model.Chats
                 CurrentSession.Chats,
                 PeerInfo.Message.PeerId,
                 _log);
+
+            _log.LogTrace("ChatGuest.ReceiveChats(string) ->");
         }
 
         public ChatProxy ChatProxy { get; set; }

@@ -155,7 +155,7 @@ namespace Timekeeper.Client.Model.Chats
             string peerId,
             ILogger log)
         {
-            log.LogTrace("HIGHLIGHT-> ChatHost.ReceiveChat(string)");
+            log.LogTrace("HIGHLIGHT---> ChatProxy.ReceiveChat(string)");
 
             ListOfChats receivedChats;
 
@@ -186,10 +186,12 @@ namespace Timekeeper.Client.Model.Chats
             string peerId,
             ILogger log)
         {
-            log.LogTrace("-> ChatHost.ReceiveChat(Chat)");
+            log.LogTrace("HIGHLIGHT---> ChatProxy.ReceiveChat(ListOfChats)");
 
             foreach (var receivedChat in receivedChats.Chats)
             {
+                log.LogDebug($"Received chat with MessageMarkdown '{receivedChat.MessageMarkdown}'");
+
                 if (receivedChat.Key != SecretKey)
                 {
                     log.LogError("Received chat with invalid key");

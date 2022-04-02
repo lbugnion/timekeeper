@@ -181,7 +181,7 @@ namespace Timekeeper.Client.Model
 
         private async Task<bool> RegisterToGroup()
         {
-            _log.LogInformation("HIGHLIGHT-> RegisterToGroup");
+            _log.LogInformation("-> RegisterToGroup");
 
             try
             {
