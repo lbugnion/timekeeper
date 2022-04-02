@@ -174,7 +174,8 @@ namespace Timekeeper.DataModel
                 copy.Answers.Add(new Answer
                 {
                     Letter = answer.Letter,
-
+                    Count = answer.Count,
+                    Ratio = answer.Ratio,
                     TitleHtml = answer.TitleHtml,
                     TitleMarkdown = answer.TitleMarkdown,
                 });
