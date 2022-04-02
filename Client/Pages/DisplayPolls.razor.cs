@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
@@ -14,43 +13,7 @@ namespace Timekeeper.Client.Pages
     {
         private string _role;
 
-        [Parameter]
-        public string Role
-        {
-            get => _role;
-            set
-            {
-                _role = value;
-                
-                if (Handler != null)
-                {
-                    Handler.Role = value;
-                }
-            }
-        }
-
         public PollGuest Handler
-        {
-            get;
-            private set;
-        }
-
-        public string GetPollClass(Poll poll)
-        {
-            if (poll.IsVotingOpen)
-            {
-                return "poll-published";
-            }
-
-            return "poll-closed";
-        }
-
-        public MarkupString GetMarkup(string html)
-        {
-            return new MarkupString(html);
-        }
-
-        public bool ShowNoSessionMessage
         {
             get;
             private set;
@@ -63,10 +26,52 @@ namespace Timekeeper.Client.Pages
         }
 
         [Parameter]
+        public string Role
+        {
+            get => _role;
+            set
+            {
+                _role = value;
+
+                if (Handler != null)
+                {
+                    Handler.Role = value;
+                }
+            }
+        }
+
+        [Parameter]
         public string SessionId
         {
             get;
             set;
+        }
+
+        public bool ShowNoSessionMessage
+        {
+            get;
+            private set;
+        }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName)
+                    || Handler.CurrentSession.SessionName == Branding.PollsPageTitle)
+                {
+                    return Branding.PollsPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.PollsPageTitle}";
+            }
+        }
+
+        private void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            StateHasChanged();
         }
 
         protected override async Task OnInitializedAsync()
@@ -111,27 +116,6 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("OnInitializedAsync ->");
         }
 
-        public string WindowTitle
-        {
-            get
-            {
-                if (Handler == null
-                    || Handler.CurrentSession == null
-                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName)
-                    || Handler.CurrentSession.SessionName == Branding.PollsPageTitle)
-                {
-                    return Branding.PollsPageTitle;
-                }
-
-                return $"{Handler.CurrentSession.SessionName} {Branding.PollsPageTitle}";
-            }
-        }
-
-        private void HandlerUpdateUi(object sender, EventArgs e)
-        {
-            StateHasChanged();
-        }
-
         public async void Dispose()
         {
             Log.LogTrace("Dispose");
@@ -145,6 +129,21 @@ namespace Timekeeper.Client.Pages
             {
                 await Handler.Disconnect();
             });
+        }
+
+        public MarkupString GetMarkup(string html)
+        {
+            return new MarkupString(html);
+        }
+
+        public string GetPollClass(Poll poll)
+        {
+            if (poll.IsVotingOpen)
+            {
+                return "poll-published";
+            }
+
+            return "poll-closed";
         }
     }
 }

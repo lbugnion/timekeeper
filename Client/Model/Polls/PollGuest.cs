@@ -15,68 +15,13 @@ namespace Timekeeper.Client.Model.Polls
     {
         protected override string SessionKey => "PollGuestSession";
 
-        public string Role { get; set; }
-
-        private async Task ReceiveVote(string pollJson)
+        public IList<Poll> PublishedPolls
         {
-            if (Role != Constants.RolePresenter)
-            {
-                return; // We will display the votes when the poll is closed
-            }
-
-            Poll receivedPoll;
-
-            try
-            {
-                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
-            }
-            catch
-            {
-                _log.LogTrace("Error with received poll");
-                return;
-            }
-
-            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
-
-            if (poll == null)
-            {
-                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
-                return;
-            }
-
-            if (!poll.IsVotingOpen)
-            {
-                _log.LogDebug($"Voting is closed for poll {receivedPoll.Uid}");
-                return;
-            }
-
-            var chosenAnswer = poll.Answers
-                .FirstOrDefault(a => a.Letter == receivedPoll.GivenAnswer);
-
-            if (chosenAnswer == null)
-            {
-                _log.LogDebug($"No such question {receivedPoll.Uid} / receivedPoll.GivenAnswer");
-                return;
-            }
-
-            chosenAnswer.Count++;
-
-            double totalCount = 0;
-
-            foreach (var answer in poll.Answers)
-            {
-                totalCount += answer.Count;
-            }
-
-            foreach (var answer in poll.Answers)
-            {
-                answer.Ratio = (answer.Count / totalCount);
-            }
-
-            poll.GivenAnswer = null;
-            await SaveSessionToStorage();
-            RaiseUpdateEvent();
+            get;
+            private set;
         }
+
+        public string Role { get; set; }
 
         public PollGuest(
             IConfiguration config,
@@ -87,106 +32,6 @@ namespace Timekeeper.Client.Model.Polls
             SessionHandler session) : base(config, localStorage, log, http, sessionId, session)
         {
             _log.LogInformation("-> PollGuest()");
-        }
-
-        public override async Task Connect()
-        {
-            _log.LogInformation("-> PollGuest.Connect");
-
-            IsBusy = true;
-            IsInError = false;
-            IsConnected = false;
-
-            RaiseUpdateEvent();
-
-            var ok = await InitializeSession(_sessionId)
-                && await InitializePeerInfo()
-                && await UnregisterFromPreviousGroup(_unregisterFromGroup)
-                && await CreateConnection();
-
-            if (ok)
-            {
-                _connection.On<string>(Constants.PublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, true));
-                _connection.On<string>(Constants.UnpublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, false));
-                _connection.On<string>(Constants.ReceivePollsMessage, ReceiveAllPublishedPolls);
-                _connection.On<string>(Constants.VotePollMessage, async p => await ReceiveVote(p));
-                _connection.On<string>(Constants.ResetPollMessage, async p => await ResetPoll(p));
-
-                ok = await StartConnection();
-
-                if (ok)
-                {
-                    // Ask for existing polls
-
-                    _log.LogTrace("Asking for existing polls");
-
-                    var pollsUrl = $"{_hostNameFree}/polls";
-                    var httpRequest = new HttpRequestMessage(HttpMethod.Get, pollsUrl);
-                    httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-
-                    var response = await _http.SendAsync(httpRequest);
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        IsConnected = false;
-                        IsInError = true;
-                        ErrorStatus = "Error";
-                        _log.LogError($"Error when asking for existing polls: {response.ReasonPhrase}");
-                    }
-                    else
-                    {
-                        IsConnected = true;
-                        IsInError = false;
-                        Status = "Ready";
-                        _log.LogTrace("Done asking for existing polls");
-                    }
-                }
-                else
-                {
-                    IsConnected = false;
-                    IsInError = true;
-                    ErrorStatus = "Error";
-                    _log.LogError($"Error when starting connection");
-                }
-            }
-            else
-            {
-                IsConnected = false;
-                IsInError = true;
-                ErrorStatus = "Error";
-                _log.LogError($"Error when connecting");
-            }
-
-            IsBusy = false;
-            RaiseUpdateEvent();
-            _log.LogInformation("PollGuest.Connect ->");
-        }
-
-        private async Task ResetPoll(string pollJson)
-        {
-            Poll receivedPoll;
-
-            try
-            {
-                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
-            }
-            catch
-            {
-                _log.LogTrace("Error with received poll");
-                return;
-            }
-
-            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
-
-            if (poll == null)
-            {
-                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
-                return;
-            }
-
-            poll.GivenAnswer = null;
-            await SaveSessionToStorage();
-            RaiseUpdateEvent();
         }
 
         private async Task ReceiveAllPublishedPolls(string json)
@@ -272,46 +117,165 @@ namespace Timekeeper.Client.Model.Polls
             await ReceivePublishUnpublishPoll(receivedPoll, mustPublish);
         }
 
-        public async Task SelectAnswer(string pollId, string answerLetter)
+        private async Task ReceiveVote(string pollJson)
         {
-            _log.LogTrace("-> SelectAnswer");
-
-            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == pollId);
-
-            if (poll == null)
+            if (Role != Constants.RolePresenter)
             {
-                _log.LogWarning($"Poll not found: {pollId}");
+                return; // We will display the votes when the poll is closed
+            }
+
+            Poll receivedPoll;
+
+            try
+            {
+                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
+            }
+            catch
+            {
+                _log.LogTrace("Error with received poll");
                 return;
             }
 
-            poll.GivenAnswer = answerLetter;
-            poll.IsAnswered = true;
-            poll.VoterId = PeerInfo.Message.PeerId;
+            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
 
-            var voteUrl = $"{_hostNameFree}/vote-poll";
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, voteUrl);
-            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-
-            var json = JsonConvert.SerializeObject(poll);
-            httpRequest.Content = new StringContent(json);
-
-            var response = await _http.SendAsync(httpRequest);
-
-            if (response.IsSuccessStatusCode)
+            if (poll == null)
             {
-                _log.LogTrace("Saving to local storage");
-                await SaveSessionToStorage();
+                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
+                return;
+            }
+
+            if (!poll.IsVotingOpen)
+            {
+                _log.LogDebug($"Voting is closed for poll {receivedPoll.Uid}");
+                return;
+            }
+
+            var chosenAnswer = poll.Answers
+                .FirstOrDefault(a => a.Letter == receivedPoll.GivenAnswer);
+
+            if (chosenAnswer == null)
+            {
+                _log.LogDebug($"No such question {receivedPoll.Uid} / receivedPoll.GivenAnswer");
+                return;
+            }
+
+            chosenAnswer.Count++;
+
+            double totalCount = 0;
+
+            foreach (var answer in poll.Answers)
+            {
+                totalCount += answer.Count;
+            }
+
+            foreach (var answer in poll.Answers)
+            {
+                answer.Ratio = (answer.Count / totalCount);
+            }
+
+            poll.GivenAnswer = null;
+            await SaveSessionToStorage();
+            RaiseUpdateEvent();
+        }
+
+        private async Task ResetPoll(string pollJson)
+        {
+            Poll receivedPoll;
+
+            try
+            {
+                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
+            }
+            catch
+            {
+                _log.LogTrace("Error with received poll");
+                return;
+            }
+
+            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
+
+            if (poll == null)
+            {
+                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
+                return;
+            }
+
+            poll.GivenAnswer = null;
+            await SaveSessionToStorage();
+            RaiseUpdateEvent();
+        }
+
+        public override async Task Connect()
+        {
+            _log.LogInformation("-> PollGuest.Connect");
+
+            IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
+
+            RaiseUpdateEvent();
+
+            var ok = await InitializeSession(_sessionId)
+                && await InitializePeerInfo()
+                && await UnregisterFromPreviousGroup(_unregisterFromGroup)
+                && await CreateConnection();
+
+            if (ok)
+            {
+                _connection.On<string>(Constants.PublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, true));
+                _connection.On<string>(Constants.UnpublishPollMessage, async p => await ReceivePublishUnpublishPoll(p, false));
+                _connection.On<string>(Constants.ReceivePollsMessage, ReceiveAllPublishedPolls);
+                _connection.On<string>(Constants.VotePollMessage, async p => await ReceiveVote(p));
+                _connection.On<string>(Constants.ResetPollMessage, async p => await ResetPoll(p));
+
+                ok = await StartConnection();
+
+                if (ok)
+                {
+                    // Ask for existing polls
+
+                    _log.LogTrace("Asking for existing polls");
+
+                    var pollsUrl = $"{_hostNameFree}/polls";
+                    var httpRequest = new HttpRequestMessage(HttpMethod.Get, pollsUrl);
+                    httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+
+                    var response = await _http.SendAsync(httpRequest);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        IsConnected = false;
+                        IsInError = true;
+                        ErrorStatus = "Error";
+                        _log.LogError($"Error when asking for existing polls: {response.ReasonPhrase}");
+                    }
+                    else
+                    {
+                        IsConnected = true;
+                        IsInError = false;
+                        Status = "Ready";
+                        _log.LogTrace("Done asking for existing polls");
+                    }
+                }
+                else
+                {
+                    IsConnected = false;
+                    IsInError = true;
+                    ErrorStatus = "Error";
+                    _log.LogError($"Error when starting connection");
+                }
             }
             else
             {
-                poll.IsAnswered = false;
-                poll.GivenAnswer = null;
-                ErrorStatus = "Error when voting, try again";
-                _log.LogError($"Error when voting: {pollId} / {answerLetter}");
+                IsConnected = false;
+                IsInError = true;
+                ErrorStatus = "Error";
+                _log.LogError($"Error when connecting");
             }
 
+            IsBusy = false;
             RaiseUpdateEvent();
-            _log.LogTrace("SelectAnswer ->");
+            _log.LogInformation("PollGuest.Connect ->");
         }
 
         public async Task<bool> InitializeSession(string sessionId)
@@ -352,15 +316,51 @@ namespace Timekeeper.Client.Model.Polls
             return true;
         }
 
-        public IList<Poll> PublishedPolls
-        {
-            get;
-            private set;
-        }
-
         public async Task SaveSessionToStorage()
         {
             await _session.SaveToStorage(CurrentSession, SessionKey, _log);
+        }
+
+        public async Task SelectAnswer(string pollId, string answerLetter)
+        {
+            _log.LogTrace("-> SelectAnswer");
+
+            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == pollId);
+
+            if (poll == null)
+            {
+                _log.LogWarning($"Poll not found: {pollId}");
+                return;
+            }
+
+            poll.GivenAnswer = answerLetter;
+            poll.IsAnswered = true;
+            poll.VoterId = PeerInfo.Message.PeerId;
+
+            var voteUrl = $"{_hostNameFree}/vote-poll";
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, voteUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
+
+            var json = JsonConvert.SerializeObject(poll);
+            httpRequest.Content = new StringContent(json);
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _log.LogTrace("Saving to local storage");
+                await SaveSessionToStorage();
+            }
+            else
+            {
+                poll.IsAnswered = false;
+                poll.GivenAnswer = null;
+                ErrorStatus = "Error when voting, try again";
+                _log.LogError($"Error when voting: {pollId} / {answerLetter}");
+            }
+
+            RaiseUpdateEvent();
+            _log.LogTrace("SelectAnswer ->");
         }
     }
 }

@@ -372,6 +372,12 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        public async Task ClearInputMessage()
+        {
+            InputMessage = "";
+            await SendMessage(" ");
+        }
+
         public override async Task Connect()
         {
             _log.LogInformation("-> SignalRHost.Connect");
@@ -766,12 +772,6 @@ namespace Timekeeper.Client.Model
         public async Task SendInputMessage()
         {
             await SendMessage(InputMessage.Trim());
-        }
-
-        public async Task ClearInputMessage()
-        {
-            InputMessage = "";
-            await SendMessage(" ");
         }
 
         public async Task SendMessage(string message)

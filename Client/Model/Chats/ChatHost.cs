@@ -16,16 +16,19 @@ namespace Timekeeper.Client.Model.Chats
 {
     public class ChatHost : SignalRHostBase
     {
-#if OFFLINE
-        public const bool IsDebugOffline = true;
-#else
-        public const bool IsDebugOffline = false;
-#endif
-
+        private const string _secretKeyCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*():;.,/?{}[]";
         private string _sessionId;
 
+        public ChatProxy ChatProxy { get; set; }
+
+        public bool IsSessionMismatch
+        {
+            get;
+            private set;
+        }
+
         public ChatHost(
-            IConfiguration config,
+                            IConfiguration config,
             ILocalStorageService localStorage,
             ILogger log,
             HttpClient http,
@@ -35,148 +38,6 @@ namespace Timekeeper.Client.Model.Chats
         {
             _sessionId = sessionId;
             ChatProxy = new ChatProxy(_http, _hostNameFree);
-        }
-
-        public override async Task Connect()
-        {
-            _log.LogInformation("-> ChatHost.Connect");
-
-            IsBusy = true;
-            IsInError = false;
-            IsConnected = false;
-            RaiseUpdateEvent();
-
-            var ok = await InitializeSession(_sessionId);
-
-            if (!ok)
-            {
-                // Error cases are handled in InitializeSession
-                return;
-            }
-
-            ok = await InitializePeerInfo()
-                && await CreateConnection();
-
-#if !OFFLINE
-            if (ok)
-            {
-                ChatProxy.UpdateChats(CurrentSession, PeerInfo.Message.PeerId);
-
-                _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveChats);
-                _connection.On<string>(Constants.RequestChatsMessage, SendChats);
-
-                ok = await StartConnection();
-            }
-
-            if (!ok)
-            {
-                _log.LogTrace("StartConnection NOT OK");
-                IsConnected = false;
-                IsInError = true;
-                IsBusy = false;
-                ErrorStatus = "Error";
-                RaiseUpdateEvent();
-                return;
-            }
-
-            ok = await SendChats();
-
-            if (!ok)
-            {
-                _log.LogTrace("Error when sending chats");
-                IsConnected = false;
-                IsInError = true;
-                IsBusy = false;
-                ErrorStatus = "Error sending chats";
-                RaiseUpdateEvent();
-                return;
-            }
-#endif
-
-            Status = "Connected";
-            IsBusy = false;
-            IsInError = false;
-            IsConnected = true;
-            RaiseUpdateEvent();
-            _log.LogInformation("ChatsHost.Connect ->");
-        }
-
-        private async Task ReceiveChats(string receivedJson)
-        {
-            _log.LogTrace("-> ChatHost.ReceiveChats(string)");
-
-            await ChatProxy.ReceiveChats(
-                RaiseUpdateEvent,
-                SaveSession,
-                receivedJson,
-                CurrentSession.Chats,
-                PeerInfo.Message.PeerId,
-                _log);
-        }
-
-        private const string _secretKeyCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*():;.,/?{}[]";
-
-        public void RegenerateSecretKey()
-        {
-            var random = new Random();
-            var secretKeyLength = random.Next(10, 15);
-            var secretKey = new StringBuilder();
-
-            for (var index = 0; index < secretKeyLength; index++)
-            {
-                var characterIndex = random.Next(0, _secretKeyCharacters.Length);
-                secretKey.Append(_secretKeyCharacters[characterIndex]);
-            }
-
-            CurrentSession.SecretKey = secretKey.ToString();
-
-            // TODO Save key in session
-            // TODO Broadcast to other hosts.
-            // TODO Warn host to let users know about the change or they will be excluded from the chat
-
-            RaiseUpdateEvent();
-        }
-
-        private async Task<bool> SendChats()
-        {
-            return await SendChats(string.Empty);
-        }
-
-        public ChatProxy ChatProxy { get; set; }
-
-        public async Task<bool> SendCurrentChat()
-        {
-            _log.LogTrace("-> SendCurrentChat");
-            return await ChatProxy.SendCurrentChat(
-                RaiseUpdateEvent, 
-                PeerInfo.Message,
-                CurrentSession.SessionName,
-                CurrentSession.SessionId,
-                _log);
-        }
-
-        private async Task<bool> SendChats(string _)
-        {
-            // TODO Think about adding paging here for the chats. For instance,
-            // send the ones from the last 30 minutes and add a "load more" link on top.
-
-            _log.LogTrace("HIGHLIGHT---> SendChats(string)");
-
-            if (CurrentSession.Chats == null)
-            {
-                CurrentSession.Chats = new List<Chat>();
-            }
-
-            if (CurrentSession.Chats.Count == 0)
-            {
-                return true;
-            }
-
-            return await ChatProxy.SendChats(
-                CurrentSession.Chats,
-                CurrentSession.SessionName,
-                CurrentSession.SessionId,
-                _log);
         }
 
         private async Task<bool> DoPublishUnpublishPoll(Poll poll, bool mustPublish, bool? mustOpen = null)
@@ -247,25 +108,108 @@ namespace Timekeeper.Client.Model.Chats
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> PublishUnpublishPoll(Poll poll, bool mustPublish)
+        private async Task ReceiveChats(string receivedJson)
         {
-            _log.LogTrace($"-> {nameof(PublishUnpublishPoll)} {mustPublish}");
+            _log.LogTrace("-> ChatHost.ReceiveChats(string)");
 
-            if (poll == null
-                || poll.IsPublished && mustPublish
-                || !poll.IsPublished && !mustPublish)
+            await ChatProxy.ReceiveChats(
+                RaiseUpdateEvent,
+                SaveSession,
+                receivedJson,
+                CurrentSession.Chats,
+                PeerInfo.Message.PeerId,
+                _log);
+        }
+
+        private async Task<bool> SendChats()
+        {
+            return await SendChats(string.Empty);
+        }
+
+        private async Task<bool> SendChats(string _)
+        {
+            // TODO Think about adding paging here for the chats. For instance,
+            // send the ones from the last 30 minutes and add a "load more" link on top.
+
+            _log.LogTrace("HIGHLIGHT---> SendChats(string)");
+
+            if (CurrentSession.Chats == null)
             {
-                _log.LogTrace($"Poll is already in the correct state");
-                return false;
+                CurrentSession.Chats = new List<Chat>();
             }
 
-            poll.IsVotingOpen = mustPublish;
-            poll.SessionName = CurrentSession.SessionName;
+            if (CurrentSession.Chats.Count == 0)
+            {
+                return true;
+            }
 
-            var success = await DoPublishUnpublishPoll(poll, mustPublish);
+            return await ChatProxy.SendChats(
+                CurrentSession.Chats,
+                CurrentSession.SessionName,
+                CurrentSession.SessionId,
+                _log);
+        }
 
-            _log.LogTrace($"{nameof(PublishUnpublishPoll)} ->");
-            return success;
+        public override async Task Connect()
+        {
+            _log.LogInformation("-> ChatHost.Connect");
+
+            IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
+            RaiseUpdateEvent();
+
+            var ok = await InitializeSession(_sessionId);
+
+            if (!ok)
+            {
+                // Error cases are handled in InitializeSession
+                return;
+            }
+
+            ok = await InitializePeerInfo()
+                && await CreateConnection();
+
+            if (ok)
+            {
+                ChatProxy.UpdateChats(CurrentSession, PeerInfo.Message.PeerId);
+
+                _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveChats);
+                _connection.On<string>(Constants.RequestChatsMessage, SendChats);
+
+                ok = await StartConnection();
+            }
+
+            if (!ok)
+            {
+                _log.LogTrace("StartConnection NOT OK");
+                IsConnected = false;
+                IsInError = true;
+                IsBusy = false;
+                ErrorStatus = "Error";
+                RaiseUpdateEvent();
+                return;
+            }
+
+            ok = await SendChats();
+
+            if (!ok)
+            {
+                _log.LogTrace("Error when sending chats");
+                IsConnected = false;
+                IsInError = true;
+                IsBusy = false;
+                ErrorStatus = "Error sending chats";
+                RaiseUpdateEvent();
+                return;
+            }
+
+            Status = "Connected";
+            IsBusy = false;
+            IsInError = false;
+            IsConnected = true;
+            RaiseUpdateEvent();
+            _log.LogInformation("ChatsHost.Connect ->");
         }
 
         public async Task<bool> InitializeSession(string sessionId)
@@ -301,7 +245,6 @@ namespace Timekeeper.Client.Model.Chats
                     return false;
                 }
 
-#if !OFFLINE
                 // Refresh session
                 _log.LogTrace("Refreshing session");
 
@@ -309,7 +252,6 @@ namespace Timekeeper.Client.Model.Chats
                 var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
 
                 CurrentSession = outSession;
-#endif
             }
 
             // TODO REMOVE
@@ -324,34 +266,57 @@ namespace Timekeeper.Client.Model.Chats
             return true;
         }
 
-        public bool IsSessionMismatch
+        public async Task<bool> PublishUnpublishPoll(Poll poll, bool mustPublish)
         {
-            get;
-            private set;
+            _log.LogTrace($"-> {nameof(PublishUnpublishPoll)} {mustPublish}");
+
+            if (poll == null
+                || poll.IsPublished && mustPublish
+                || !poll.IsPublished && !mustPublish)
+            {
+                _log.LogTrace($"Poll is already in the correct state");
+                return false;
+            }
+
+            poll.IsVotingOpen = mustPublish;
+            poll.SessionName = CurrentSession.SessionName;
+
+            var success = await DoPublishUnpublishPoll(poll, mustPublish);
+
+            _log.LogTrace($"{nameof(PublishUnpublishPoll)} ->");
+            return success;
         }
 
-#if OFFLINE
-        private int _chatCounter;
-        private readonly string _otherUserId = Guid.NewGuid().ToString();
-#endif
-
-        public async Task AddDebugChat()
+        public void RegenerateSecretKey()
         {
-#if OFFLINE
-            var chat = new Chat
+            var random = new Random();
+            var secretKeyLength = random.Next(10, 15);
+            var secretKey = new StringBuilder();
+
+            for (var index = 0; index < secretKeyLength; index++)
             {
-                Color = ChatColorToOthers,
-                MessageDateTime = DateTime.Now,
-                SenderName = _chatCounter % 2 == 0 ? "Laurent" : "Vanch",
-                MessageMarkdown = "This is a *test message*",
-                UserId = _chatCounter % 2 == 0 ? PeerInfo.Message.PeerId : _otherUserId,
-            };
+                var characterIndex = random.Next(0, _secretKeyCharacters.Length);
+                secretKey.Append(_secretKeyCharacters[characterIndex]);
+            }
 
-            var json = JsonConvert.SerializeObject(chat);
+            CurrentSession.SecretKey = secretKey.ToString();
 
-            await ReceiveChat(json);
-            _chatCounter++;
-#endif
+            // TODO Save key in session
+            // TODO Broadcast to other hosts.
+            // TODO Warn host to let users know about the change or they will be excluded from the chat
+
+            RaiseUpdateEvent();
+        }
+
+        public async Task<bool> SendCurrentChat()
+        {
+            _log.LogTrace("-> SendCurrentChat");
+            return await ChatProxy.SendCurrentChat(
+                RaiseUpdateEvent,
+                PeerInfo.Message,
+                CurrentSession.SessionName,
+                CurrentSession.SessionId,
+                _log);
         }
     }
 }

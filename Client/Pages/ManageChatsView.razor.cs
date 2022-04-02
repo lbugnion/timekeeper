@@ -12,12 +12,10 @@ namespace Timekeeper.Client.Pages
 {
     public partial class ManageChatsView : IDisposable
     {
+        private ChatHost _handler;
         public const string SendMessageInputId = "chat-text";
 
-        private ChatHost _handler;
-
-        [Parameter]
-        public ManageChats Parent { get; set; }
+        public EditContext CurrentEditContext { get; set; }
 
         [Parameter]
         public ChatHost Handler
@@ -39,11 +37,8 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        private async void HandlerUpdateUi(object sender, EventArgs e)
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
-            StateHasChanged();
-        }
+        [Parameter]
+        public ManageChats Parent { get; set; }
 
         public string SessionName
         {
@@ -55,108 +50,6 @@ namespace Timekeeper.Client.Pages
                 }
 
                 return Handler.CurrentSession.SessionName;
-            }
-        }
-
-        public EditContext CurrentEditContext { get; set; }
-
-        public void Dispose()
-        {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
-
-            if (Handler.ChatProxy != null)
-            {
-                Handler.ChatProxy.NewChatCreated -= ChatProxyNewChatCreated;
-            }
-        }
-
-        public void UseSecretKey(int use)
-        {
-            // TODO Restore for V0.8.1
-            //if (use == 0)
-            //{
-            //    Handler.SecretKey = null;
-            //}
-            //else
-            //{
-            //    Handler.RegenerateSecretKey();
-            //}
-        }
-
-        protected override async Task OnInitializedAsync()
-        {
-            Log.LogTrace("-> OnInitializedAsync");
-
-            Handler.ChatProxy.NewChatCreated += ChatProxyNewChatCreated;
-
-            if (Handler.ChatProxy.NewChat != null)
-            {
-                CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
-            }
-
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
-
-#if OFFLINE
-            Handler.CurrentSession.Chats.Clear();
-
-            for (var index = 0; index < 25; index++)
-            {
-                var chat = new Chat
-                {
-                    MessageMarkdown = "This is a test message. This is a test message. This is a test message. This is a test message",
-                    SessionName = Handler.CurrentSession.SessionName
-                };
-
-                if (index % 2 == 0)
-                {
-                    chat.Color = Constants.OwnColor;
-                    chat.CssClass = Constants.OwnChatCss;
-                    chat.ContainerCssClass = Constants.OwnChatContainerCss;
-                    chat.SenderName = "Laurent";
-                }
-                else
-                {
-                    chat.Color = Handler.ChatColorToOthers;
-                    chat.CssClass = Constants.OtherChatCss;
-                    chat.ContainerCssClass = Constants.OtherChatContainerCss;
-                    chat.SenderName = "Jason";
-                }
-
-                Handler.CurrentSession.Chats.Add(chat);
-            }
-#endif
-        }
-
-        private void ChatProxyNewChatCreated(object sender, EventArgs e)
-        {
-            if (Handler.ChatProxy.NewChat == null)
-            {
-                CurrentEditContext = null;
-                return;
-            }
-
-            CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
-        }
-
-        public MarkupString GetMarkup(string html)
-        {
-            return new MarkupString(html);
-        }
-
-        public async void HandleFocus()
-        {
-            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
-        }
-
-        public async void HandleKeyPress(KeyboardEventArgs args)
-        {
-            if (args.CtrlKey)
-            {
-                await Handler.SendCurrentChat();
-                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
             }
         }
 
@@ -188,5 +81,80 @@ namespace Timekeeper.Client.Pages
             }
         }
 
+        private void ChatProxyNewChatCreated(object sender, EventArgs e)
+        {
+            if (Handler.ChatProxy.NewChat == null)
+            {
+                CurrentEditContext = null;
+                return;
+            }
+
+            CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
+        }
+
+        private async void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+            StateHasChanged();
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            Log.LogTrace("-> OnInitializedAsync");
+
+            Handler.ChatProxy.NewChatCreated += ChatProxyNewChatCreated;
+
+            if (Handler.ChatProxy.NewChat != null)
+            {
+                CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
+            }
+
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+        }
+
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
+
+            if (Handler.ChatProxy != null)
+            {
+                Handler.ChatProxy.NewChatCreated -= ChatProxyNewChatCreated;
+            }
+        }
+
+        public MarkupString GetMarkup(string html)
+        {
+            return new MarkupString(html);
+        }
+
+        public async void HandleFocus()
+        {
+            await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+        }
+
+        public async void HandleKeyPress(KeyboardEventArgs args)
+        {
+            if (args.CtrlKey)
+            {
+                await Handler.SendCurrentChat();
+                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+            }
+        }
+
+        public void UseSecretKey(int use)
+        {
+            // TODO Restore for V0.8.1
+            //if (use == 0)
+            //{
+            //    Handler.SecretKey = null;
+            //}
+            //else
+            //{
+            //    Handler.RegenerateSecretKey();
+            //}
+        }
     }
 }

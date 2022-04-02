@@ -1,9 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Timekeeper.Client.Model
 {
@@ -11,7 +9,7 @@ namespace Timekeeper.Client.Model
     {
         protected string _sessionId;
         protected string _unregisterFromGroup = null;
-     
+
         protected override string PeerKey => "GuestPeer";
 
         public SignalRGuestBase(

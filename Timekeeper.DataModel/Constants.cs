@@ -16,28 +16,27 @@
         public const string HostToPeerMessageName = "host-to-peer";
         public const string HostToPeerRequestAnnounceMessageName = "host-to-peer-request-announce";
         public const string HubName = "timekeeper";
+        public const string MovePollMessage = "move-poll";
+        public const string NotifyDeleteSessionMessageName = "notify-delete-session";
+        public const string OtherChatContainerCss = "other-chat-container";
+        public const string OtherChatCss = "other-chat";
+        public const string OwnChatContainerCss = "own-chat-container";
+        public const string OwnChatCss = "own-chat";
+        public const string OwnColor = "#7FC9FF";
         public const string PeerToHostMessageName = "peer-to-host";
+        public const string PublishPollMessage = "publish-poll";
+        public const string ReceiveChatsMessage = "receive-chats";
+        public const string ReceivePollsMessage = "receive-polls";
+        public const string RequestChatsMessage = "request-chats";
+        public const string RequestPollsMessage = "request-polls";
+        public const string ResetPollMessage = "reset-poll";
+        public const string RolePresenter = "presenter";
         public const string StartClockMessageName = "start-clock";
         public const string StopClockMessage = "stop-clock";
         public const string TokenHeaderKey = "x-timekeeper-token";
+        public const string UnpublishPollMessage = "unpublish-poll";
         public const string UpdateHostMessageName = "update-host";
         public const string UserIdHeaderKey = "x-timekeeper-userid";
-        public const string NotifyDeleteSessionMessageName = "notify-delete-session";
-        public const string PublishPollMessage = "publish-poll";
-        public const string UnpublishPollMessage = "unpublish-poll";
         public const string VotePollMessage = "vote-poll";
-        public const string ReceivePollsMessage = "receive-polls";
-        public const string ReceiveChatsMessage = "receive-chats";
-        public const string RequestPollsMessage = "request-polls";
-        public const string RequestChatsMessage = "request-chats";
-        public const string RolePresenter = "presenter";
-        public const string MovePollMessage = "move-poll";
-        public const string ResetPollMessage = "reset-poll";
-
-        public const string OwnColor = "#7FC9FF";
-        public const string OwnChatCss = "own-chat";
-        public const string OwnChatContainerCss = "own-chat-container";
-        public const string OtherChatCss = "other-chat";
-        public const string OtherChatContainerCss = "other-chat-container";
     }
 }

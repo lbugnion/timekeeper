@@ -17,11 +17,6 @@
     <article>
         <div class="chats">
 
-            @if (Model.Chats.ChatHost.IsDebugOffline)
-            {
-                <button class="focus" @onclick="(async e => await Handler.AddDebugChat())">+</button>
-            }
-
             @if (UiVisibility == ManagePolls.VisibilityVisible)
             {
                 <button @onclick="ToggleFocus"

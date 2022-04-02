@@ -16,33 +16,24 @@ namespace Timekeeper.Client.Model.Chats
         private string _hostNameFree;
         private HttpClient _http;
 
+        public string ErrorStatus { get; private set; }
+
+        public bool IsInError { get; private set; }
+
+        public bool IsSendingChat { get; set; }
+
+        public Chat NewChat { get; set; }
+
         public string SecretKey { get; set; }
 
+        public string Status { get; private set; }
+
         public ChatProxy(
-            HttpClient http,
+                    HttpClient http,
             string hostNameFree)
         {
             _http = http;
             _hostNameFree = hostNameFree;
-        }
-
-        public Chat NewChat { get; set; }
-
-        public bool IsSendingChat { get; set; }
-        public bool IsInError { get; private set; }
-        public string Status { get; private set; }
-        public string ErrorStatus { get; private set; }
-
-        public void SetNewChat()
-        {
-            NewChat = new Chat()
-            {
-                UniqueId = Guid.NewGuid().ToString(),
-                CssClass = Constants.OwnChatCss,
-                ContainerCssClass = Constants.OwnChatContainerCss
-            };
-
-            NewChatCreated?.Invoke(this, EventArgs.Empty);
         }
 
         public static void UpdateChats(
@@ -67,102 +58,6 @@ namespace Timekeeper.Client.Model.Chats
                     }
                 }
             }
-        }
-
-        public async Task<bool> SendCurrentChat(
-            Action raiseUpdateEvent,
-            PeerMessage peerInfoMessage,
-            string sessionName,
-            string sessionId,
-            ILogger log)
-        {
-            if (string.IsNullOrEmpty(NewChat.MessageMarkdown))
-            {
-                return true;
-            }
-
-            IsSendingChat = true;
-            raiseUpdateEvent();
-
-            NewChat.UserId = peerInfoMessage.PeerId;
-            NewChat.SenderName = peerInfoMessage.DisplayName;
-            NewChat.MessageDateTime = DateTime.Now;
-            NewChat.CustomColor = peerInfoMessage.ChatColor;
-
-            var words = NewChat.MessageMarkdown.Split(' ');
-
-            for (var index = 0; index < words.Length; index++)
-            {
-                if (words[index].StartsWith("http://")
-                    || words[index].StartsWith("https://"))
-                {
-                    words[index] = $"[{words[index]}]({words[index]})";
-                }
-            }
-
-            NewChat.MessageMarkdown = string.Join(' ', words);
-
-            var ok = await SendChats(
-                new List<Chat>
-                {
-                    NewChat
-                },
-                sessionName,
-                sessionId,
-                log);
-
-            SetNewChat();
-
-            IsSendingChat = false;
-            raiseUpdateEvent();
-
-            return ok;
-        }
-
-        public async Task<bool> SendChats(
-            IList<Chat> chats,
-            string sessionName,
-            string sessionId,
-            ILogger log)
-        {
-            if (chats.Count == 0)
-            {
-                return true;
-            }
-
-            foreach (var chat in chats)
-            {
-                chat.SessionName = null;
-            }
-
-            chats.First().SessionName = sessionName;
-
-            var list = new ListOfChats();
-            list.Chats.AddRange(chats);
-
-            var json = JsonConvert.SerializeObject(list);
-
-            //_log.LogDebug($"json: {json}");
-
-            var chatsUrl = $"{_hostNameFree}/chats";
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, chatsUrl);
-            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, sessionId);
-            httpRequest.Content = new StringContent(json);
-
-            var response = await _http.SendAsync(httpRequest);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                IsInError = true;
-                log.LogError($"Issue sending chat: {response.StatusCode} / {response.ReasonPhrase}");
-                ErrorStatus = "Error connecting to Chat service, try to refresh the page and send again";
-                return false;
-            }
-
-            IsInError = false;
-            ErrorStatus = null;
-            Status = "Chat sent";
-            return true;
         }
 
         public async Task ReceiveChats(
@@ -272,6 +167,114 @@ namespace Timekeeper.Client.Model.Chats
             {
                 await saveChats();
             }
+        }
+
+        public async Task<bool> SendChats(
+            IList<Chat> chats,
+            string sessionName,
+            string sessionId,
+            ILogger log)
+        {
+            if (chats.Count == 0)
+            {
+                return true;
+            }
+
+            foreach (var chat in chats)
+            {
+                chat.SessionName = null;
+            }
+
+            chats.First().SessionName = sessionName;
+
+            var list = new ListOfChats();
+            list.Chats.AddRange(chats);
+
+            var json = JsonConvert.SerializeObject(list);
+
+            //_log.LogDebug($"json: {json}");
+
+            var chatsUrl = $"{_hostNameFree}/chats";
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, chatsUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, sessionId);
+            httpRequest.Content = new StringContent(json);
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                IsInError = true;
+                log.LogError($"Issue sending chat: {response.StatusCode} / {response.ReasonPhrase}");
+                ErrorStatus = "Error connecting to Chat service, try to refresh the page and send again";
+                return false;
+            }
+
+            IsInError = false;
+            ErrorStatus = null;
+            Status = "Chat sent";
+            return true;
+        }
+
+        public async Task<bool> SendCurrentChat(
+            Action raiseUpdateEvent,
+            PeerMessage peerInfoMessage,
+            string sessionName,
+            string sessionId,
+            ILogger log)
+        {
+            if (string.IsNullOrEmpty(NewChat.MessageMarkdown))
+            {
+                return true;
+            }
+
+            IsSendingChat = true;
+            raiseUpdateEvent();
+
+            NewChat.UserId = peerInfoMessage.PeerId;
+            NewChat.SenderName = peerInfoMessage.DisplayName;
+            NewChat.MessageDateTime = DateTime.Now;
+            NewChat.CustomColor = peerInfoMessage.ChatColor;
+
+            var words = NewChat.MessageMarkdown.Split(' ');
+
+            for (var index = 0; index < words.Length; index++)
+            {
+                if (words[index].StartsWith("http://")
+                    || words[index].StartsWith("https://"))
+                {
+                    words[index] = $"[{words[index]}]({words[index]})";
+                }
+            }
+
+            NewChat.MessageMarkdown = string.Join(' ', words);
+
+            var ok = await SendChats(
+                new List<Chat>
+                {
+                    NewChat
+                },
+                sessionName,
+                sessionId,
+                log);
+
+            SetNewChat();
+
+            IsSendingChat = false;
+            raiseUpdateEvent();
+
+            return ok;
+        }
+
+        public void SetNewChat()
+        {
+            NewChat = new Chat()
+            {
+                UniqueId = Guid.NewGuid().ToString(),
+                CssClass = Constants.OwnChatCss,
+                ContainerCssClass = Constants.OwnChatContainerCss
+            };
+
+            NewChatCreated?.Invoke(this, EventArgs.Empty);
         }
     }
 }

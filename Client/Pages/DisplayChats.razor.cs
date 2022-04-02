@@ -12,9 +12,49 @@ namespace Timekeeper.Client.Pages
 {
     public partial class DisplayChats : IDisposable
     {
-        public const string VisibilityVisible = "visible";
-        public const string VisibilityInvisible = "invisible";
         public const string SendMessageInputId = "chat-text";
+        public const string VisibilityInvisible = "invisible";
+        public const string VisibilityVisible = "visible";
+
+        public EditContext CurrentEditContext { get; set; }
+
+        public ChatGuest Handler
+        {
+            get;
+            private set;
+        }
+
+        [Parameter]
+        public string SessionId
+        {
+            get;
+            set;
+        }
+
+        public bool ShowNoSessionMessage
+        {
+            get;
+            private set;
+        }
+
+        public string UiVisibility
+        {
+            get;
+            set;
+        }
+
+        public string UserName
+        {
+            get
+            {
+                return Handler.PeerInfo.Message.DisplayName;
+            }
+
+            set
+            {
+                Handler.SetCustomUserName(value).Wait();
+            }
+        }
 
         public string WindowTitle
         {
@@ -32,65 +72,21 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public string UiVisibility
+        private void ChatProxyNewChatCreated(object sender, EventArgs e)
         {
-            get;
-            set;
-        }
-
-        public void ToggleFocus()
-        {
-            Log.LogTrace("-> ToggleFocus");
-
-            if (UiVisibility == VisibilityVisible)
+            if (Handler.ChatProxy.NewChat == null)
             {
-                Log.LogTrace("Setting Invisible");
-                UiVisibility = VisibilityInvisible;
-            }
-            else
-            {
-                Log.LogTrace("Setting Visible");
-                UiVisibility = VisibilityVisible;
-            }
-        }
-
-        public string UserName
-        {
-            get
-            {
-                return Handler.PeerInfo.Message.DisplayName;
+                CurrentEditContext = null;
+                return;
             }
 
-            set
-            {
-                Handler.SetCustomUserName(value).Wait();
-            }
+            CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
         }
 
-        public EditContext CurrentEditContext { get; set; }
-
-        public ChatGuest Handler
+        private async void HandlerUpdateUi(object sender, EventArgs e)
         {
-            get;
-            private set;
-        }
-
-        public MarkupString GetMarkup(string html)
-        {
-            return new MarkupString(html);
-        }
-
-        public bool ShowNoSessionMessage
-        {
-            get;
-            private set;
-        }
-
-        [Parameter]
-        public string SessionId
-        {
-            get;
-            set;
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+            StateHasChanged();
         }
 
         protected override async Task OnInitializedAsync()
@@ -133,32 +129,11 @@ namespace Timekeeper.Client.Pages
 
                     Handler.UpdateUi += HandlerUpdateUi;
                     await Handler.Connect();
-
-#if OFFLINE
-                    Handler.CurrentSession?.Chats?.Clear();
-#endif
                 }
             }
 
             UiVisibility = VisibilityVisible;
             Log.LogInformation("OnInitializedAsync ->");
-        }
-
-        private void ChatProxyNewChatCreated(object sender, EventArgs e)
-        {
-            if (Handler.ChatProxy.NewChat == null)
-            {
-                CurrentEditContext = null;
-                return;
-            }
-
-            CurrentEditContext = new EditContext(Handler.ChatProxy.NewChat);
-        }
-
-        private async void HandlerUpdateUi(object sender, EventArgs e)
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
-            StateHasChanged();
         }
 
         public async void Dispose()
@@ -181,6 +156,11 @@ namespace Timekeeper.Client.Pages
             });
         }
 
+        public MarkupString GetMarkup(string html)
+        {
+            return new MarkupString(html);
+        }
+
         public async void HandleFocus()
         {
             await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
@@ -192,6 +172,22 @@ namespace Timekeeper.Client.Pages
             {
                 await Handler.SendCurrentChat();
                 await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+            }
+        }
+
+        public void ToggleFocus()
+        {
+            Log.LogTrace("-> ToggleFocus");
+
+            if (UiVisibility == VisibilityVisible)
+            {
+                Log.LogTrace("Setting Invisible");
+                UiVisibility = VisibilityInvisible;
+            }
+            else
+            {
+                Log.LogTrace("Setting Visible");
+                UiVisibility = VisibilityVisible;
             }
         }
     }

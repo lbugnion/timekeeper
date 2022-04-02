@@ -8,35 +8,13 @@ namespace Timekeeper.Client.Pages
 {
     public partial class ManageChats : IDisposable
     {
-        public const string VisibilityVisible = "visible";
         public const string VisibilityInvisible = "invisible";
-
-        public string UiVisibility
-        {
-            get;
-            set;
-        }
+        public const string VisibilityVisible = "visible";
 
         public ChatHost Handler
         {
             get;
             set;
-        }
-
-        public void ToggleFocus()
-        {
-            Log.LogTrace("-> ToggleFocus");
-
-            if (UiVisibility == VisibilityVisible)
-            {
-                Log.LogTrace("Setting Invisible");
-                UiVisibility = VisibilityInvisible;
-            }
-            else
-            {
-                Log.LogTrace("Setting Visible");
-                UiVisibility = VisibilityVisible;
-            }
         }
 
         [Parameter]
@@ -46,12 +24,15 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public void Dispose()
+        public string UiVisibility
         {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
+            get;
+            set;
+        }
+
+        private void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            StateHasChanged();
         }
 
         protected override async Task OnInitializedAsync()
@@ -92,9 +73,28 @@ namespace Timekeeper.Client.Pages
             await Handler.Connect();
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        public void Dispose()
         {
-            StateHasChanged();
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
+        }
+
+        public void ToggleFocus()
+        {
+            Log.LogTrace("-> ToggleFocus");
+
+            if (UiVisibility == VisibilityVisible)
+            {
+                Log.LogTrace("Setting Invisible");
+                UiVisibility = VisibilityInvisible;
+            }
+            else
+            {
+                Log.LogTrace("Setting Visible");
+                UiVisibility = VisibilityVisible;
+            }
         }
     }
 }

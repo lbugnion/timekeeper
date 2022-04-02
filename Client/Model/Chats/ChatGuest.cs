@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -14,6 +13,8 @@ namespace Timekeeper.Client.Model.Chats
     public class ChatGuest : SignalRGuestBase
     {
         protected override string SessionKey => "ChatGuestSession";
+
+        public ChatProxy ChatProxy { get; set; }
 
         public string SecretKey { get; set; }
 
@@ -27,6 +28,35 @@ namespace Timekeeper.Client.Model.Chats
         {
             ChatProxy = new ChatProxy(_http, _hostNameFree);
             _log.LogInformation("-> ChatGuest()");
+        }
+
+        private async Task ReceiveChats(string receivedJson)
+        {
+            _log.LogTrace("-> ChatGuest.ReceiveChats(string)");
+
+            if (CurrentSession.Chats == null)
+            {
+                CurrentSession.Chats = new List<Chat>();
+            }
+
+            await ChatProxy.ReceiveChats(
+                RaiseUpdateEvent,
+                null, // Do not save messages in the guest, they always need a Host to be online.
+                receivedJson,
+                CurrentSession.Chats,
+                PeerInfo.Message.PeerId,
+                _log);
+
+            var firstChat = CurrentSession.Chats
+                .FirstOrDefault(c => c.SessionName != null);
+
+            if (firstChat != null)
+            {
+                CurrentSession.SessionName = firstChat.SessionName;
+                RaiseUpdateEvent();
+            }
+
+            _log.LogTrace("ChatGuest.ReceiveChats(string) ->");
         }
 
         public override async Task Connect()
@@ -45,11 +75,9 @@ namespace Timekeeper.Client.Model.Chats
 
             if (ok)
             {
-#if !OFFLINE
                 _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveChats);
 
                 ok = await StartConnection();
-#endif
 
                 if (ok)
                 {
@@ -59,7 +87,6 @@ namespace Timekeeper.Client.Model.Chats
 
                     string reasonPhrase = null;
 
-#if !OFFLINE
                     var chatsUrl = $"{_hostNameFree}/chats";
                     var httpRequest = new HttpRequestMessage(HttpMethod.Get, chatsUrl);
                     httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
@@ -67,7 +94,6 @@ namespace Timekeeper.Client.Model.Chats
                     var response = await _http.SendAsync(httpRequest);
 
                     ok = response.IsSuccessStatusCode;
-#endif
 
                     if (!ok)
                     {
@@ -142,61 +168,6 @@ namespace Timekeeper.Client.Model.Chats
         {
             await _session.SaveToStorage(CurrentSession, SessionKey, _log);
         }
-
-#if OFFLINE
-        private int _chatCounter;
-        private readonly string _otherUserId = Guid.NewGuid().ToString();
-#endif
-
-        public async Task AddDebugChat()
-        {
-#if OFFLINE
-            var chat = new Chat
-            {
-                Color = ChatColorToOthers,
-                MessageDateTime = DateTime.Now,
-                SenderName = _chatCounter % 2 == 0 ? "Laurent" : "Vanch",
-                MessageMarkdown = "This is a *test message*",
-                UserId = _chatCounter % 2 == 0 ? PeerInfo.Message.PeerId : _otherUserId,
-            };
-
-            var json = JsonConvert.SerializeObject(chat);
-
-            await ReceiveChat(json);
-            _chatCounter++;
-#endif
-        }
-
-        private async Task ReceiveChats(string receivedJson)
-        {
-            _log.LogTrace("-> ChatGuest.ReceiveChats(string)");
-
-            if (CurrentSession.Chats == null)
-            {
-                CurrentSession.Chats = new List<Chat>();
-            }
-
-            await ChatProxy.ReceiveChats(
-                RaiseUpdateEvent,
-                null, // Do not save messages in the guest, they always need a Host to be online.
-                receivedJson,
-                CurrentSession.Chats,
-                PeerInfo.Message.PeerId,
-                _log);
-
-            var firstChat = CurrentSession.Chats
-                .FirstOrDefault(c => c.SessionName != null);
-
-            if (firstChat != null)
-            {
-                CurrentSession.SessionName = firstChat.SessionName;
-                RaiseUpdateEvent();
-            }
-
-            _log.LogTrace("ChatGuest.ReceiveChats(string) ->");
-        }
-
-        public ChatProxy ChatProxy { get; set; }
 
         public async Task<bool> SendCurrentChat()
         {

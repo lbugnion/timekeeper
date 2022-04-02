@@ -14,8 +14,11 @@ namespace Timekeeper.Client.Pages
     {
         private PollHost _handler;
 
-        [Parameter]
-        public ManagePolls Parent { get; set; }
+        public Poll CurrentPoll
+        {
+            get;
+            set;
+        }
 
         [Parameter]
         public PollHost Handler
@@ -34,6 +37,33 @@ namespace Timekeeper.Client.Pages
                 {
                     _handler.UpdateUi += HandlerUpdateUi;
                 }
+            }
+        }
+
+        public bool IsAnyPollEdited
+        {
+            get;
+            private set;
+        }
+
+        public bool IsAnyPollPublished
+        {
+            get => Handler.IsAnyPollPublished;
+        }
+
+        [Parameter]
+        public ManagePolls Parent { get; set; }
+
+        public string SessionName
+        {
+            get
+            {
+                if (Handler.CurrentSession == null)
+                {
+                    return "No session";
+                }
+
+                return Handler.CurrentSession.SessionName;
             }
         }
 
@@ -57,28 +87,40 @@ namespace Timekeeper.Client.Pages
             StateHasChanged();
         }
 
-        public string SessionName
+        protected override async Task OnInitializedAsync()
         {
-            get
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+        }
+
+        public async Task CreateNewPoll()
+        {
+            if (IsAnyPollEdited)
             {
-                if (Handler.CurrentSession == null)
-                {
-                    return "No session";
-                }
-
-                return Handler.CurrentSession.SessionName;
+                return;
             }
-        }
 
-        public bool IsAnyPollEdited
-        {
-            get;
-            private set;
-        }
+            if (Handler.CurrentSession == null)
+            {
+                return;
+            }
 
-        public bool IsAnyPollPublished
-        {
-            get => Handler.IsAnyPollPublished;
+            foreach (var poll in Handler.CurrentSession.Polls)
+            {
+                poll.IsEdited = false;
+            }
+
+            CurrentPoll = new Poll
+            {
+                Uid = Guid.NewGuid().ToString(),
+            };
+
+            await ToggleEditPoll(CurrentPoll);
+
+            IsAnyPollEdited = Handler.CurrentSession.Polls.Any(p => p.IsEdited)
+                || (CurrentPoll != null
+                    && CurrentPoll.IsEdited);
+
+            StateHasChanged();
         }
 
         public async Task DeletePoll(Poll poll)
@@ -94,6 +136,24 @@ namespace Timekeeper.Client.Pages
                 await Handler.SaveSession();
                 StateHasChanged();
             }
+        }
+
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
+        }
+
+        public async Task OpenClosePoll(Poll poll, bool mustOpen)
+        {
+            await Handler.OpenClosePoll(poll, mustOpen);
+        }
+
+        public async Task PublishPoll(Poll poll, bool mustPublish)
+        {
+            await Handler.PublishUnpublishPoll(poll, mustPublish);
         }
 
         public async Task ToggleEditPoll(Poll poll)
@@ -139,66 +199,6 @@ namespace Timekeeper.Client.Pages
                     && CurrentPoll.IsEdited);
 
             StateHasChanged();
-        }
-
-        public Poll CurrentPoll
-        {
-            get;
-            set;
-        }
-
-        protected override async Task OnInitializedAsync()
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
-        }
-
-        public async Task CreateNewPoll()
-        {
-            if (IsAnyPollEdited)
-            {
-                return;
-            }
-
-            if (Handler.CurrentSession == null)
-            {
-                return;
-            }
-
-            foreach (var poll in Handler.CurrentSession.Polls)
-            {
-                poll.IsEdited = false;
-            }
-
-            CurrentPoll = new Poll
-            {
-                Uid = Guid.NewGuid().ToString(),
-            };
-
-            await ToggleEditPoll(CurrentPoll);
-
-            IsAnyPollEdited = Handler.CurrentSession.Polls.Any(p => p.IsEdited)
-                || (CurrentPoll != null
-                    && CurrentPoll.IsEdited);
-
-            StateHasChanged();
-        }
-
-        public async Task PublishPoll(Poll poll, bool mustPublish)
-        {
-            await Handler.PublishUnpublishPoll(poll, mustPublish);
-        }
-
-        public async Task OpenClosePoll(Poll poll, bool mustOpen)
-        {
-            await Handler.OpenClosePoll(poll, mustOpen);
-        }
-
-        public void Dispose()
-        {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
         }
 
         //public async Task MovePollUp(string uid)

@@ -17,6 +17,7 @@ namespace Timekeeper.Client.Pages
         private const string HidePeersText = "hide";
         private const string SaveSessionNameText = "save session name";
         private const string ShowPeersText = "show";
+        private string _guestUrlQrCode;
         public const string SendMessageInputId = "send-message-input";
 
         public string EditSessionNameLinkText
@@ -32,8 +33,6 @@ namespace Timekeeper.Client.Pages
                 return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
             }
         }
-
-        private string _guestUrlQrCode;
 
         public string GuestUrlQrCode
         {
@@ -61,8 +60,6 @@ namespace Timekeeper.Client.Pages
             get;
             set;
         }
-
-        public string SessionId => Handler.CurrentSession.SessionId;
 
         public bool IsEditingSessionName
         {
@@ -98,17 +95,13 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string SessionId => Handler.CurrentSession.SessionId;
+
         [Parameter]
         public string SessionName
         {
             get;
             set;
-        }
-
-        private async Task DoDeleteSession()
-        {
-            await Handler.DoDeleteSession();
-            Nav.NavigateTo("/host", forceLoad: true);
         }
 
         public string WindowTitle
@@ -124,6 +117,12 @@ namespace Timekeeper.Client.Pages
 
                 return $"{Handler.CurrentSession.SessionName} {Branding.MainPageTitle}";
             }
+        }
+
+        private async Task DoDeleteSession()
+        {
+            await Handler.DoDeleteSession();
+            Nav.NavigateTo("/host", forceLoad: true);
         }
 
         protected override async Task OnInitializedAsync()

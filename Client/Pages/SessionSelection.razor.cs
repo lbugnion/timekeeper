@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Timekeeper.Client.Model;
 
 namespace Timekeeper.Client.Pages
 {

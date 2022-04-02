@@ -13,8 +13,8 @@ namespace Timekeeper.Client.Pages
 
         private const string SaveGuestNameText = "save your name";
 
-        private const string VisibilityVisible = "visible";
         private const string VisibilityInvisible = "invisible";
+        private const string VisibilityVisible = "visible";
 
         public string EditGuestNameLinkText
         {
@@ -59,10 +59,54 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string ToggleButtonClass
+        {
+            get;
+            set;
+        }
+
+        public string UiVisibility
+        {
+            get;
+            set;
+        }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName)
+                    || Handler.CurrentSession.SessionName == Branding.GuestPageTitle)
+                {
+                    return Branding.GuestPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.GuestPageTitle}";
+            }
+        }
+
         private async void HandlerUpdateUi(object sender, EventArgs e)
         {
             await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
+        }
+
+        private void ToggleFocus()
+        {
+            Log.LogTrace("-> ToggleFocus");
+
+            if (UiVisibility == VisibilityVisible)
+            {
+                Log.LogTrace("Setting Invisible");
+                UiVisibility = VisibilityInvisible;
+            }
+            else
+            {
+                Log.LogTrace("Setting Visible");
+                UiVisibility = VisibilityVisible;
+            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -149,50 +193,6 @@ namespace Timekeeper.Client.Pages
                 EditGuestNameLinkText = EditGuestNameText;
                 await Handler.SetCustomUserName(GuestName);
                 GuestName = Handler.PeerInfo.Message.DisplayName;
-            }
-        }
-
-        public string UiVisibility
-        {
-            get;
-            set;
-        }
-
-        public string ToggleButtonClass
-        {
-            get;
-            set;
-        }
-
-        private void ToggleFocus()
-        {
-            Log.LogTrace("-> ToggleFocus");
-
-            if (UiVisibility == VisibilityVisible)
-            {
-                Log.LogTrace("Setting Invisible");
-                UiVisibility = VisibilityInvisible;
-            }
-            else
-            {
-                Log.LogTrace("Setting Visible");
-                UiVisibility = VisibilityVisible;
-            }
-        }
-
-        public string WindowTitle
-        {
-            get
-            {
-                if (Handler == null
-                    || Handler.CurrentSession == null
-                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName)
-                    || Handler.CurrentSession.SessionName == Branding.GuestPageTitle)
-                {
-                    return Branding.GuestPageTitle;
-                }
-
-                return $"{Handler.CurrentSession.SessionName} {Branding.GuestPageTitle}";
             }
         }
     }

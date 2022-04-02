@@ -9,6 +9,12 @@ namespace Timekeeper.Client.Pages
 {
     public partial class About
     {
+        public string Beta
+        {
+            get;
+            private set;
+        }
+
         public string ClientVersion
         {
             get;
@@ -16,12 +22,6 @@ namespace Timekeeper.Client.Pages
         }
 
         public string Environment
-        {
-            get;
-            private set;
-        }
-
-        public string Beta
         {
             get;
             private set;

@@ -10,8 +10,27 @@ namespace Timekeeper.Client.Pages
 {
     public partial class ManagePolls : IDisposable
     {
-        public const string VisibilityVisible = "visible";
         public const string VisibilityInvisible = "invisible";
+        public const string VisibilityVisible = "visible";
+
+        public PollHost Handler
+        {
+            get;
+            set;
+        }
+
+        [Parameter]
+        public string SessionId
+        {
+            get;
+            set;
+        }
+
+        public string UiVisibility
+        {
+            get;
+            set;
+        }
 
         public string WindowTitle
         {
@@ -28,47 +47,10 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public string UiVisibility
+        private async void HandlerUpdateUi(object sender, EventArgs e)
         {
-            get;
-            set;
-        }
-
-        public void ToggleFocus()
-        {
-            Log.LogTrace("-> ToggleFocus");
-
-            if (UiVisibility == VisibilityVisible)
-            {
-                Log.LogTrace("Setting Invisible");
-                UiVisibility = VisibilityInvisible;
-            }
-            else
-            {
-                Log.LogTrace("Setting Visible");
-                UiVisibility = VisibilityVisible;
-            }
-        }
-
-        [Parameter]
-        public string SessionId
-        {
-            get;
-            set;
-        }
-
-        public PollHost Handler
-        {
-            get;
-            set;
-        }
-
-        public void Dispose()
-        {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+            StateHasChanged();
         }
 
         protected override async Task OnInitializedAsync()
@@ -107,10 +89,28 @@ namespace Timekeeper.Client.Pages
             await Handler.Connect();
         }
 
-        private async void HandlerUpdateUi(object sender, EventArgs e)
+        public void Dispose()
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
-            StateHasChanged();
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
+        }
+
+        public void ToggleFocus()
+        {
+            Log.LogTrace("-> ToggleFocus");
+
+            if (UiVisibility == VisibilityVisible)
+            {
+                Log.LogTrace("Setting Invisible");
+                UiVisibility = VisibilityInvisible;
+            }
+            else
+            {
+                Log.LogTrace("Setting Visible");
+                UiVisibility = VisibilityVisible;
+            }
         }
     }
 }

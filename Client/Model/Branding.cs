@@ -16,23 +16,22 @@
         public const string AboutPageTitle = "Timekeeper: About";
         public const bool AllowSessionSelection = true;
         public const bool CanEditGuestName = true;
-        public const string ConfigurePageTitle = "Timekeeper: Configure";
-        public const string PollsPageTitle = "Timekeeper Polls";
         public const string ChatsPageTitle = "Timekeeper Chats";
+        public const string ConfigurePageTitle = "Timekeeper: Configure";
         public const string GuestPageTitle = "Timekeeper Guest Page";
         public const string LoginPageTitle = "Timekeeper: Login";
         public const string MainPageTitle = "Timekeeper";
+        public const bool MustAuthorize = false;
+        public const string PollsPageTitle = "Timekeeper Polls";
         public const string SessionPageTitle = "Timekeeper: Sessions";
         public const string WindowTitle = "Timekeeper";
-        
-        public const bool MustAuthorize = false;
+
+        public static string FooterClass => "footer";
+
+        public static string ForegroundClass => "foreground";
 
         public static string HeaderClass => "header";
 
         public static string ImagePath => "images/header-logo.png";
-
-        public static string ForegroundClass => "foreground";
-
-        public static string FooterClass => "footer";
     }
 }

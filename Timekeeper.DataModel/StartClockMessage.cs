@@ -34,7 +34,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
-
         public int AlmostDoneHours
         {
             get
@@ -54,7 +53,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 minutes")]
-
         public int AlmostDoneMinutes
         {
             get
@@ -74,7 +72,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 seconds")]
-
         public int AlmostDoneSeconds
         {
             get
@@ -106,7 +103,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
-
         public int CountDownHours
         {
             get
@@ -126,7 +122,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 minutes")]
-
         public int CountDownMinutes
         {
             get
@@ -146,7 +141,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 seconds")]
-
         public int CountDownSeconds
         {
             get
@@ -163,8 +157,6 @@ namespace Timekeeper.DataModel
                 }
             }
         }
-
-        public string SessionName { get; set; }
 
         public string Label
         {
@@ -208,7 +200,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 23, ErrorMessage = "Please select a value between 0 and 23 hours")]
-
         public int PayAttentionHours
         {
             get
@@ -228,7 +219,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 minutes")]
-
         public int PayAttentionMinutes
         {
             get
@@ -248,7 +238,6 @@ namespace Timekeeper.DataModel
 
         [JsonIgnore]
         [Range(0, 59, ErrorMessage = "Please select a value between 0 and 59 seconds")]
-
         public int PayAttentionSeconds
         {
             get
@@ -299,6 +288,8 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
+
+        public string SessionName { get; set; }
 
         [JsonIgnore]
         public bool WasDeleted

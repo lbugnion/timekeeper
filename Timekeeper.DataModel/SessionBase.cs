@@ -14,6 +14,8 @@ namespace Timekeeper.DataModel
             set;
         }
 
+        public IList<Chat> Chats { get; set; }
+
         public IList<Clock> Clocks
         {
             get;
@@ -25,6 +27,14 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
+
+        public IList<Poll> Polls
+        {
+            get;
+            set;
+        }
+
+        public string SecretKey { get; set; }
 
         [Required]
         public string SessionId
@@ -52,15 +62,5 @@ namespace Timekeeper.DataModel
         {
             SessionName = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         }
-
-        public IList<Poll> Polls
-        {
-            get;
-            set;
-        }
-
-        public IList<Chat> Chats { get; set; }
-
-        public string SecretKey { get; set; }
     }
 }

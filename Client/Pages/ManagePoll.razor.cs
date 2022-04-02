@@ -14,44 +14,6 @@ namespace Timekeeper.Client.Pages
     {
         private Poll _currentPoll;
 
-        [Parameter]
-        public ManagePollsView Parent
-        {
-            get;
-            set;
-        }
-
-        public MarkupString TitleMarkup { get; set; }
-
-        public string PollClass => CurrentPoll.IsPublished ? (CurrentPoll.IsVotingOpen ? "poll-published" : "poll-closed") : "poll-unpublished";
-
-        public EditContext CurrentEditContext
-        {
-            get;
-            set;
-        }
-
-        public MarkupString GetMarkup(string html)
-        {
-            return new MarkupString(html);
-        }
-
-        [Parameter]
-        public Poll CurrentPoll
-        {
-            get => _currentPoll;
-            set
-            {
-                CurrentEditContext = null;
-                _currentPoll = value;
-
-                if (_currentPoll != null)
-                {
-                    CurrentEditContext = new EditContext(_currentPoll);
-                }
-            }
-        }
-
         public string CorrectAnswer
         {
             get
@@ -101,20 +63,44 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public async Task SaveCurrentPoll()
+        public EditContext CurrentEditContext
         {
-            if (CurrentPoll.IsEdited)
+            get;
+            set;
+        }
+
+        [Parameter]
+        public Poll CurrentPoll
+        {
+            get => _currentPoll;
+            set
             {
-                if (CurrentEditContext != null)
+                CurrentEditContext = null;
+                _currentPoll = value;
+
+                if (_currentPoll != null)
                 {
-                    var isValid = CurrentEditContext.Validate();
-                    if (isValid)
-                    {
-                        CurrentPoll.MustSave = true;
-                        await Parent.ToggleEditPoll(CurrentPoll);
-                    }
+                    CurrentEditContext = new EditContext(_currentPoll);
                 }
             }
+        }
+
+        [Parameter]
+        public ManagePollsView Parent
+        {
+            get;
+            set;
+        }
+
+        public string PollClass => CurrentPoll.IsPublished ? (CurrentPoll.IsVotingOpen ? "poll-published" : "poll-closed") : "poll-unpublished";
+
+        public MarkupString TitleMarkup { get; set; }
+
+        private async void CurrentPollOnEdit(object sender, EventArgs e)
+        {
+            Log.LogTrace("-> CurrentPollOnEdit");
+            await JSRuntime.InvokeVoidAsync("host.observeFocusAndSelect", "question");
+            Log.LogTrace("CurrentPollOnEdit ->");
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -130,18 +116,32 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        private async void CurrentPollOnEdit(object sender, EventArgs e)
-        {
-            Log.LogTrace("-> CurrentPollOnEdit");
-            await JSRuntime.InvokeVoidAsync("host.observeFocusAndSelect", "question");
-            Log.LogTrace("CurrentPollOnEdit ->");
-        }
-
         public void Dispose()
         {
             if (CurrentPoll != null)
             {
                 CurrentPoll.OnEdit -= CurrentPollOnEdit;
+            }
+        }
+
+        public MarkupString GetMarkup(string html)
+        {
+            return new MarkupString(html);
+        }
+
+        public async Task SaveCurrentPoll()
+        {
+            if (CurrentPoll.IsEdited)
+            {
+                if (CurrentEditContext != null)
+                {
+                    var isValid = CurrentEditContext.Validate();
+                    if (isValid)
+                    {
+                        CurrentPoll.MustSave = true;
+                        await Parent.ToggleEditPoll(CurrentPoll);
+                    }
+                }
             }
         }
     }

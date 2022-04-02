@@ -2,11 +2,6 @@
 @inject ILogger<ManageChatsView> Log
 @inject IJSRuntime JSRuntime
 
-@if (Model.Chats.ChatHost.IsDebugOffline)
-{
-    <button class="focus" @onclick="(async e => await Handler.AddDebugChat())">+</button>
-}
-
 @if (Parent.UiVisibility == ManagePolls.VisibilityVisible)
 {
     <button @onclick="Parent.ToggleFocus"
