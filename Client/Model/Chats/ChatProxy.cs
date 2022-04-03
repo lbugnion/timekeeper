@@ -49,6 +49,7 @@ namespace Timekeeper.Client.Model.Chats
                         chat.CssClass = Constants.OwnChatCss;
                         chat.ContainerCssClass = Constants.OwnChatContainerCss;
                         chat.DisplayColor = Constants.OwnColor;
+                        chat.SenderName += " (you)";
                     }
                     else
                     {
@@ -116,6 +117,7 @@ namespace Timekeeper.Client.Model.Chats
                     receivedChat.DisplayColor = Constants.OwnColor;
                     receivedChat.CssClass = Constants.OwnChatCss;
                     receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
+                    receivedChat.SenderName += " (you)";
                 }
                 else
                 {
