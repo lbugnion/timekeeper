@@ -1,11 +1,10 @@
-﻿@page "/polls/{SessionId}"
+﻿@page "/chats/{SessionId}"
 @inject NavigationManager Nav
-@inject ILogger<ManagePolls> Log
+@inject ILogger<ManageChats> Log
 @inject HttpClient Http
 @inject IConfiguration Config
 @inject SessionHandler Session
 @inject ILocalStorageService LocalStorage
-@inject IJSRuntime JSRuntime
 
 <header class="@UiVisibility @Branding.HeaderClass">
     <img src="@Branding.ImagePath"
@@ -14,7 +13,7 @@
 
 <main class="@UiVisibility">
     <article>
-        <div class="polls">
+        <div class="chats">
 
         @if (Branding.MustAuthorize)
         {
@@ -46,7 +45,7 @@
                             @if (Handler.IsSessionMismatch)
                             {
                                 <blockquote class="error">
-                                    Please use the Manage Polls link from the main Timekeeper window to open this window. 
+                                    Please use the Manage Chats link from the main Timekeeper window to open this window. 
                                     <br /><br />
                                     In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
                                     <br /><br />
@@ -55,7 +54,7 @@
                             }
                             else
                             {
-                                <ManagePollsView Handler="@Handler"
+                                <ManageChatsView Handler="@Handler"
                                                  Parent="@this" />
                             }
                         }
@@ -86,7 +85,7 @@
                     @if (Handler.IsSessionMismatch)
                     {
                         <blockquote class="error">
-                            Please use the Manage Polls link from the main Timekeeper window to open this window. 
+                            Please use the Manage Chats link from the main Timekeeper window to open this window. 
                             <br /><br />
                             In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
                             <br /><br />
@@ -95,7 +94,7 @@
                     }
                     else
                     {
-                        <ManagePollsView Handler="@Handler"
+                        <ManageChatsView Handler="@Handler"
                                          Parent="@this" />
                     }
                 }

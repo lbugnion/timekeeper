@@ -15,27 +15,23 @@
     {
         public const string AboutPageTitle = "Timekeeper: About";
         public const bool AllowSessionSelection = true;
-        public const bool CanEditGuestName = false;
-        public const string ConfigurePageTitle = "Learn Live: Configure";
-        public const string PollsPageTitle = "Learn Live Polls";
-        public const string GuestPageTitle = "Learn Live Guest Page";
-        public const string LoginPageTitle = "Learn Live: Login";
-        public const string MainPageTitle = "Learn Live Timekeeper";
-        public const string SessionPageTitle = "Learn Live: Sessions";
-        public const string WindowTitle = "Learn Live";
-
-#if DEBUG
+        public const bool CanEditGuestName = true;
+        public const string ChatsPageTitle = "Timekeeper Chats";
+        public const string ConfigurePageTitle = "Timekeeper: Configure";
+        public const string GuestPageTitle = "Timekeeper Guest Page";
+        public const string LoginPageTitle = "Timekeeper: Login";
+        public const string MainPageTitle = "Timekeeper";
         public const bool MustAuthorize = false;
-#else
-        public const bool MustAuthorize = true;
-#endif
+        public const string PollsPageTitle = "Timekeeper Polls";
+        public const string SessionPageTitle = "Timekeeper: Sessions";
+        public const string WindowTitle = "Timekeeper";
+
+        public static string FooterClass => "footer";
+
+        public static string ForegroundClass => "foreground";
 
         public static string HeaderClass => "header";
 
         public static string ImagePath => "images/header-logo.png";
-
-        public static string ForegroundClass => "foreground";
-
-        public static string FooterClass => "footer";
     }
 }

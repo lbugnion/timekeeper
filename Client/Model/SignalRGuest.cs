@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -23,17 +22,6 @@ namespace Timekeeper.Client.Model
             SessionHandler session) : base(config, localStorage, log, http, sessionId, session)
         {
             _log.LogInformation("-> SignalRGuest()");
-        }
-
-        public async Task<bool> AnnounceName()
-        {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
-
-            var json = JsonConvert.SerializeObject(PeerInfo.Message);
-            _log.LogDebug($"json: {json}");
-
-            return await AnnounceNameJson(json);
         }
 
         public override async Task Connect()
@@ -107,7 +95,10 @@ namespace Timekeeper.Client.Model
 
             if (guestSession == null)
             {
-                guestSession = new SessionBase();
+                guestSession = new SessionBase()
+                {
+                    SessionName = Branding.GuestPageTitle
+                };
             }
             else
             {
@@ -123,11 +114,6 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("InitializeSession ->");
             return true;
-        }
-
-        public async Task SavePeerInfo()
-        {
-            await PeerInfo.Save(PeerKey);
         }
     }
 }

@@ -11,6 +11,31 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Configure : IDisposable
     {
+        public Clock Clock
+        {
+            get;
+            private set;
+        }
+
+        public string CurrentClockLabel
+        {
+            get
+            {
+                return CurrentClockMessage.Label;
+            }
+            set
+            {
+                CurrentClockMessage.Label = value;
+                Clock.CurrentLabel = value;
+            }
+        }
+
+        public StartClockMessage CurrentClockMessage
+        {
+            get;
+            private set;
+        }
+
         public EditContext CurrentEditContext
         {
             get;
@@ -81,31 +106,6 @@ namespace Timekeeper.Client.Pages
         public void Dispose()
         {
             Host.UpdateUi -= HandlerUpdateUi;
-        }
-
-        public Clock Clock
-        {
-            get;
-            private set;
-        }
-
-        public StartClockMessage CurrentClockMessage
-        {
-            get;
-            private set;
-        }
-
-        public string CurrentClockLabel
-        {
-            get
-            {
-                return CurrentClockMessage.Label;
-            }
-            set
-            {
-                CurrentClockMessage.Label = value;
-                Clock.CurrentLabel = value;
-            }
         }
     }
 }

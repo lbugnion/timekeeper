@@ -19,6 +19,7 @@ namespace Timekeeper.Client.Model
         public event EventHandler UpdateUi;
 
         private string _errorStatus;
+        private bool _isManualDisconnection;
         private string _status;
         protected const string AnnounceGuestKeyKey = "AnnounceGuestKey";
         protected const string FunctionCodeHeaderKey = "x-functions-key";
@@ -36,14 +37,13 @@ namespace Timekeeper.Client.Model
 
         protected string _hostName;
         protected string _hostNameFree;
-        private bool _isManualDisconnection;
 
-        protected abstract string SessionKey
+        protected abstract string PeerKey
         {
             get;
         }
 
-        protected abstract string PeerKey
+        protected abstract string SessionKey
         {
             get;
         }
@@ -147,6 +147,34 @@ namespace Timekeeper.Client.Model
             _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
             _log.LogDebug($"_hostName: {_hostName}");
             _log.LogDebug($"_hostNameFree: {_hostNameFree}");
+        }
+
+        private Task ConnectionClosed(Exception arg)
+        {
+            _log.LogWarning(nameof(ConnectionClosed));
+            _log.LogDebug($"_isManualDisconnection: {_isManualDisconnection}");
+            var tcs = new TaskCompletionSource<bool>();
+
+            ErrorStatus = "Unable to reconnect, please refresh the page...";
+            IsBusy = false;
+            IsConnected = false;
+
+            if (!_isManualDisconnection)
+            {
+                _log.LogTrace("Showing disconnected message");
+                IsInError = true;
+            }
+            else
+            {
+                IsInError = false;
+            }
+
+            _isManualDisconnection = false;
+
+            RaiseUpdateEvent();
+
+            tcs.SetResult(true);
+            return tcs.Task;
         }
 
         private Task ConnectionReconnected(string arg)
@@ -331,34 +359,6 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
-        private Task ConnectionClosed(Exception arg)
-        {
-            _log.LogWarning(nameof(ConnectionClosed));
-            _log.LogDebug($"_isManualDisconnection: {_isManualDisconnection}");
-            var tcs = new TaskCompletionSource<bool>();
-
-            ErrorStatus = "Unable to reconnect, please refresh the page...";
-            IsBusy = false;
-            IsConnected = false;
-
-            if (!_isManualDisconnection)
-            {
-                _log.LogTrace("HIGHLIGHT--Showing disconnected message");
-                IsInError = true;
-            }
-            else
-            {
-                IsInError = false;
-            }
-
-            _isManualDisconnection = false;
-
-            RaiseUpdateEvent();
-
-            tcs.SetResult(true);
-            return tcs.Task;
-        }
-
         protected virtual async Task DeleteLocalClock(string clockId)
         {
             _log.LogInformation("-> DeleteLocalClock");
@@ -431,6 +431,16 @@ namespace Timekeeper.Client.Model
                 {
                     Message = message
                 };
+            }
+
+            _log.LogDebug($"PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
+
+            if (string.IsNullOrEmpty(PeerInfo.Message.ChatColor))
+            {
+                var random = new Random();
+                PeerInfo.Message.ChatColor = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
+                _log.LogDebug($"PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
+                await PeerInfo.Save(PeerKey);
             }
 
             _log.LogDebug($"guest ID: {PeerInfo.Message.PeerId}");
@@ -527,6 +537,14 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogDebug($"isClockRunning: {clock.Message.Label} : {clock.IsClockRunning}");
                 RunClock(clock);
+            }
+
+            var sessionNameClock = clockMessages
+                .FirstOrDefault(c => !string.IsNullOrEmpty(c.SessionName));
+
+            if (sessionNameClock != null)
+            {
+                CurrentSession.SessionName = sessionNameClock.SessionName;
             }
 
             RaiseUpdateEvent();
@@ -737,6 +755,17 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
+        public async Task<bool> AnnounceName()
+        {
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
+            _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
+
+            var json = JsonConvert.SerializeObject(PeerInfo.Message);
+            //_log.LogDebug($"json: {json}");
+
+            return await AnnounceNameJson(json);
+        }
+
         public abstract Task Connect();
 
         public async Task Disconnect()
@@ -749,6 +778,13 @@ namespace Timekeeper.Client.Model
                 _connection = null;
                 _log.LogTrace("Connection is stopped and disposed");
             }
+        }
+
+        public async Task SetCustomUserName(string userName)
+        {
+            PeerInfo.Message.CustomName = userName;
+            await PeerInfo.Save(PeerKey);
+            await AnnounceName();
         }
     }
 }

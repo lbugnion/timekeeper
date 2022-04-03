@@ -6,6 +6,8 @@ namespace Timekeeper.DataModel
     {
         public const string AnonymousName = "Anonymous";
 
+        public string ChatColor { get; set; }
+
         public string CustomName
         {
             get;

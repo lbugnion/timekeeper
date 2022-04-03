@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.Polls;
 using Timekeeper.DataModel;
 
@@ -12,8 +14,11 @@ namespace Timekeeper.Client.Pages
     {
         private PollHost _handler;
 
-        [Parameter]
-        public ManagePolls Parent { get; set; }
+        public Poll CurrentPoll
+        {
+            get;
+            set;
+        }
 
         [Parameter]
         public PollHost Handler
@@ -35,10 +40,19 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        public bool IsAnyPollEdited
         {
-            StateHasChanged();
+            get;
+            private set;
         }
+
+        public bool IsAnyPollPublished
+        {
+            get => Handler.IsAnyPollPublished;
+        }
+
+        [Parameter]
+        public ManagePolls Parent { get; set; }
 
         public string SessionName
         {
@@ -53,15 +67,60 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        public bool IsAnyPollEdited
+        public string WindowTitle
         {
-            get;
-            private set;
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.PollsPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.PollsPageTitle}";
+            }
         }
 
-        public bool IsAnyPollPublished
+        private void HandlerUpdateUi(object sender, EventArgs e)
         {
-            get => Handler.IsAnyPollPublished;
+            StateHasChanged();
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+        }
+
+        public async Task CreateNewPoll()
+        {
+            if (IsAnyPollEdited)
+            {
+                return;
+            }
+
+            if (Handler.CurrentSession == null)
+            {
+                return;
+            }
+
+            foreach (var poll in Handler.CurrentSession.Polls)
+            {
+                poll.IsEdited = false;
+            }
+
+            CurrentPoll = new Poll
+            {
+                Uid = Guid.NewGuid().ToString(),
+            };
+
+            await ToggleEditPoll(CurrentPoll);
+
+            IsAnyPollEdited = Handler.CurrentSession.Polls.Any(p => p.IsEdited)
+                || (CurrentPoll != null
+                    && CurrentPoll.IsEdited);
+
+            StateHasChanged();
         }
 
         public async Task DeletePoll(Poll poll)
@@ -77,6 +136,24 @@ namespace Timekeeper.Client.Pages
                 await Handler.SaveSession();
                 StateHasChanged();
             }
+        }
+
+        public void Dispose()
+        {
+            if (Handler != null)
+            {
+                Handler.UpdateUi -= HandlerUpdateUi;
+            }
+        }
+
+        public async Task OpenClosePoll(Poll poll, bool mustOpen)
+        {
+            await Handler.OpenClosePoll(poll, mustOpen);
+        }
+
+        public async Task PublishPoll(Poll poll, bool mustPublish)
+        {
+            await Handler.PublishUnpublishPoll(poll, mustPublish);
         }
 
         public async Task ToggleEditPoll(Poll poll)
@@ -122,61 +199,6 @@ namespace Timekeeper.Client.Pages
                     && CurrentPoll.IsEdited);
 
             StateHasChanged();
-        }
-
-        public Poll CurrentPoll
-        {
-            get;
-            set;
-        }
-
-        public async Task CreateNewPoll()
-        {
-            if (IsAnyPollEdited)
-            {
-                return;
-            }
-
-            if (Handler.CurrentSession == null)
-            {
-                return;
-            }
-
-            foreach (var poll in Handler.CurrentSession.Polls)
-            {
-                poll.IsEdited = false;
-            }
-
-            CurrentPoll = new Poll
-            {
-                Uid = Guid.NewGuid().ToString(),
-            };
-
-            await ToggleEditPoll(CurrentPoll);
-
-            IsAnyPollEdited = Handler.CurrentSession.Polls.Any(p => p.IsEdited)
-                || (CurrentPoll != null
-                    && CurrentPoll.IsEdited);
-
-            StateHasChanged();
-        }
-
-        public async Task PublishPoll(Poll poll, bool mustPublish)
-        {
-            await Handler.PublishUnpublishPoll(poll, mustPublish);
-        }
-
-        public async Task OpenClosePoll(Poll poll, bool mustOpen)
-        {
-            await Handler.OpenClosePoll(poll, mustOpen);
-        }
-
-        public void Dispose()
-        {
-            if (Handler != null)
-            {
-                Handler.UpdateUi -= HandlerUpdateUi;
-            }
         }
 
         //public async Task MovePollUp(string uid)

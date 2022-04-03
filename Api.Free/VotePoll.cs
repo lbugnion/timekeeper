@@ -1,12 +1,12 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
+using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 namespace Timekeeper.Api.Free
@@ -16,9 +16,9 @@ namespace Timekeeper.Api.Free
         [FunctionName(nameof(VotePoll))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous, 
-                "post", 
-                Route = "vote-poll")] 
+                AuthorizationLevel.Anonymous,
+                "post",
+                Route = "vote-poll")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,

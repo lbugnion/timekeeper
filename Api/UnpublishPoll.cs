@@ -1,12 +1,12 @@
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Microsoft.Extensions.Logging;
 using System;
-using Microsoft.Azure.WebJobs.Extensions.SignalRService;
+using System.IO;
+using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
 namespace Timekeeper
@@ -16,9 +16,9 @@ namespace Timekeeper
         [FunctionName(nameof(UnpublishPoll))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous, 
-                "post", 
-                Route = "unpublish-poll")] 
+                AuthorizationLevel.Anonymous,
+                "post",
+                Route = "unpublish-poll")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,

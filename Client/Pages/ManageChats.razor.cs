@@ -1,19 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using System;
 using System.Threading.Tasks;
-using Timekeeper.Client.Model;
-using Timekeeper.Client.Model.Polls;
+using Timekeeper.Client.Model.Chats;
 
 namespace Timekeeper.Client.Pages
 {
-    public partial class ManagePolls : IDisposable
+    public partial class ManageChats : IDisposable
     {
         public const string VisibilityInvisible = "invisible";
         public const string VisibilityVisible = "visible";
 
-        public PollHost Handler
+        public ChatHost Handler
         {
             get;
             set;
@@ -32,35 +30,19 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
-        public string WindowTitle
+        private void HandlerUpdateUi(object sender, EventArgs e)
         {
-            get
-            {
-                if (Handler == null
-                    || Handler.CurrentSession == null
-                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
-                {
-                    return Branding.PollsPageTitle;
-                }
-
-                return $"{Handler.CurrentSession.SessionName} {Branding.PollsPageTitle}";
-            }
-        }
-
-        private async void HandlerUpdateUi(object sender, EventArgs e)
-        {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
         }
 
         protected override async Task OnInitializedAsync()
         {
-            Log.LogTrace("-> ManagePolls.OnInitialized");
+            Log.LogTrace("-> ManageChats.OnInitializedAsync");
             Log.LogDebug($"SessionId: {SessionId}");
 
             UiVisibility = VisibilityVisible;
 
-            Handler = new PollHost(
+            Handler = new ChatHost(
                 Config,
                 LocalStorage,
                 Log,
@@ -68,6 +50,8 @@ namespace Timekeeper.Client.Pages
                 Nav,
                 Session,
                 SessionId);
+
+            Handler.ChatProxy.SetNewChat();
 
             Log.LogTrace("Check authorization");
             await Handler.CheckAuthorize();

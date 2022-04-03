@@ -15,7 +15,107 @@ namespace Timekeeper.Client.Model.Polls
     {
         protected override string SessionKey => "PollGuestSession";
 
+        public IList<Poll> PublishedPolls
+        {
+            get;
+            private set;
+        }
+
         public string Role { get; set; }
+
+        public PollGuest(
+            IConfiguration config,
+            ILocalStorageService localStorage,
+            ILogger log,
+            HttpClient http,
+            string sessionId,
+            SessionHandler session) : base(config, localStorage, log, http, sessionId, session)
+        {
+            _log.LogInformation("-> PollGuest()");
+        }
+
+        private async Task ReceiveAllPublishedPolls(string json)
+        {
+            _log.LogTrace("-> ReceiveAllPublishedPolls");
+
+            try
+            {
+                var list = JsonConvert.DeserializeObject<ListOfPolls>(json);
+
+                foreach (var poll in list.Polls)
+                {
+                    await ReceivePublishUnpublishPoll(poll, poll.IsPublished);
+                }
+            }
+            catch
+            {
+                ErrorStatus = "Error receiving polls";
+                IsInError = true;
+                IsConnected = false;
+            }
+
+            RaiseUpdateEvent();
+        }
+
+        private async Task ReceivePublishUnpublishPoll(Poll poll, bool mustPublish)
+        {
+            _log.LogTrace("-> ReceivePublishUnpublishPoll");
+            _log.LogDebug($"Received poll: {poll.Uid}");
+            _log.LogDebug($"Must publish: {mustPublish}");
+
+            poll.IsPublished = mustPublish;
+
+            if (!string.IsNullOrEmpty(poll.SessionName))
+            {
+                CurrentSession.SessionName = poll.SessionName;
+            }
+
+            var existingPoll = CurrentSession.Polls
+                .FirstOrDefault(p => p.Uid == poll.Uid);
+
+            if (existingPoll != null)
+            {
+                _log.LogDebug($"Found poll: {existingPoll.Uid}");
+                _log.LogTrace("Updating existing poll");
+                existingPoll.Update(poll);
+
+                if (!mustPublish)
+                {
+                    _log.LogTrace("Removing existing poll");
+                    CurrentSession.Polls.Remove(existingPoll);
+                    await SaveSessionToStorage();
+                }
+
+                RaiseUpdateEvent();
+                return;
+            }
+
+            if (mustPublish)
+            {
+                _log.LogTrace("Add new poll");
+                CurrentSession.Polls.Insert(0, poll);
+                RaiseUpdateEvent();
+            }
+        }
+
+        private async Task ReceivePublishUnpublishPoll(string pollJson, bool mustPublish)
+        {
+            _log.LogTrace("-> ReceivePublishUnpublishPoll");
+
+            Poll receivedPoll;
+
+            try
+            {
+                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
+            }
+            catch
+            {
+                _log.LogError($"Cannot deserialize Poll: {pollJson}");
+                return;
+            }
+
+            await ReceivePublishUnpublishPoll(receivedPoll, mustPublish);
+        }
 
         private async Task ReceiveVote(string pollJson)
         {
@@ -78,15 +178,31 @@ namespace Timekeeper.Client.Model.Polls
             RaiseUpdateEvent();
         }
 
-        public PollGuest(
-            IConfiguration config,
-            ILocalStorageService localStorage,
-            ILogger log,
-            HttpClient http,
-            string sessionId,
-            SessionHandler session) : base(config, localStorage, log, http, sessionId, session)
+        private async Task ResetPoll(string pollJson)
         {
-            _log.LogInformation("-> PollGuest()");
+            Poll receivedPoll;
+
+            try
+            {
+                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
+            }
+            catch
+            {
+                _log.LogTrace("Error with received poll");
+                return;
+            }
+
+            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
+
+            if (poll == null)
+            {
+                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
+                return;
+            }
+
+            poll.GivenAnswer = null;
+            await SaveSessionToStorage();
+            RaiseUpdateEvent();
         }
 
         public override async Task Connect()
@@ -159,117 +275,50 @@ namespace Timekeeper.Client.Model.Polls
 
             IsBusy = false;
             RaiseUpdateEvent();
-            _log.LogInformation("SignalRGuest.Connect ->");
+            _log.LogInformation("PollGuest.Connect ->");
         }
 
-        private async Task ResetPoll(string pollJson)
+        public async Task<bool> InitializeSession(string sessionId)
         {
-            Poll receivedPoll;
+            _log.LogInformation("-> InitializeSession");
+            _log.LogDebug($"sessionId: {sessionId}");
 
-            try
+            var guestSession = await _session.GetFromStorage(SessionKey, _log);
+
+            if (guestSession != null)
             {
-                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
-            }
-            catch
-            {
-                _log.LogTrace("Error with received poll");
-                return;
+                _unregisterFromGroup = guestSession.SessionId;
             }
 
-            var poll = CurrentSession.Polls.FirstOrDefault(p => p.Uid == receivedPoll.Uid);
-
-            if (poll == null)
+            if (guestSession == null
+                || guestSession.SessionId != sessionId)
             {
-                _log.LogDebug($"Poll doesn't exist: {receivedPoll.Uid}");
-                return;
-            }
-
-            poll.GivenAnswer = null;
-            await SaveSessionToStorage();
-            RaiseUpdateEvent();
-        }
-
-        private async Task ReceiveAllPublishedPolls(string json)
-        {
-            _log.LogTrace("HIGHLIGHT---> ReceiveAllPublishedPolls");
-
-            try
-            {
-                var list = JsonConvert.DeserializeObject<ListOfPolls>(json);
-
-                foreach (var poll in list.Polls)
+                CurrentSession = new SessionBase
                 {
-                    await ReceivePublishUnpublishPoll(poll, poll.IsPublished);
-                }
+                    SessionId = sessionId,
+                    SessionName = Branding.PollsPageTitle
+                };
+
+                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
             }
-            catch
+            else
             {
-                ErrorStatus = "Error receiving polls";
-                IsInError = true;
-                IsConnected = false;
-            }
-
-            RaiseUpdateEvent();
-        }
-
-        private async Task ReceivePublishUnpublishPoll(Poll poll, bool mustPublish)
-        {
-            _log.LogTrace("HIGHLIGHT---> ReceivePublishUnpublishPoll");
-            _log.LogDebug($"Received poll: {poll.Uid}");
-            _log.LogDebug($"Must publish: {mustPublish}");
-
-            poll.IsPublished = mustPublish;
-
-            if (!string.IsNullOrEmpty(poll.SessionName))
-            {
-                CurrentSession.SessionName = poll.SessionName;
-            }
-
-            var existingPoll = CurrentSession.Polls
-                .FirstOrDefault(p => p.Uid == poll.Uid);
-
-            if (existingPoll != null)
-            {
-                _log.LogDebug($"Found poll: {existingPoll.Uid}");
-                _log.LogTrace("Updating existing poll");
-                existingPoll.Update(poll);
-
-                if (!mustPublish)
+                foreach (var poll in guestSession.Polls)
                 {
-                    _log.LogTrace("Removing existing poll");
-                    CurrentSession.Polls.Remove(existingPoll);
-                    await SaveSessionToStorage();
+                    poll.IsPublished = false;
                 }
 
-                RaiseUpdateEvent();
-                return;
+                CurrentSession = guestSession;
             }
 
-            if (mustPublish)
-            {
-                _log.LogTrace("Add new poll");
-                CurrentSession.Polls.Insert(0, poll);
-                RaiseUpdateEvent();
-            }
+            _log.LogTrace("Session saved to storage");
+            _log.LogInformation("InitializeSession ->");
+            return true;
         }
 
-        private async Task ReceivePublishUnpublishPoll(string pollJson, bool mustPublish)
+        public async Task SaveSessionToStorage()
         {
-            _log.LogTrace("-> ReceivePublishUnpublishPoll");
-
-            Poll receivedPoll;
-
-            try
-            {
-                receivedPoll = JsonConvert.DeserializeObject<Poll>(pollJson);
-            }
-            catch
-            {
-                _log.LogError($"Cannot deserialize Poll: {pollJson}");
-                return;
-            }
-
-            await ReceivePublishUnpublishPoll(receivedPoll, mustPublish);
+            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
         }
 
         public async Task SelectAnswer(string pollId, string answerLetter)
@@ -312,55 +361,6 @@ namespace Timekeeper.Client.Model.Polls
 
             RaiseUpdateEvent();
             _log.LogTrace("SelectAnswer ->");
-        }
-
-        public async Task<bool> InitializeSession(string sessionId)
-        {
-            _log.LogInformation("-> InitializeSession");
-            _log.LogDebug($"sessionId: {sessionId}");
-
-            var guestSession = await _session.GetFromStorage(SessionKey, _log);
-
-            if (guestSession != null)
-            {
-                _unregisterFromGroup = guestSession.SessionId;
-            }
-
-            if (guestSession == null
-                || guestSession.SessionId != sessionId)
-            {
-                CurrentSession = new SessionBase
-                {
-                    SessionId = sessionId,
-                    SessionName = Branding.PollsPageTitle
-                };
-
-                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-            }
-            else
-            {
-                foreach (var poll in guestSession.Polls)
-                {
-                    poll.IsPublished = false;
-                }
-
-                CurrentSession = guestSession;
-            }
-
-            _log.LogTrace("Session saved to storage");
-            _log.LogInformation("InitializeSession ->");
-            return true;
-        }
-
-        public IList<Poll> PublishedPolls
-        {
-            get;
-            private set;
-        }
-
-        public async Task SaveSessionToStorage()
-        {
-            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
         }
     }
 }

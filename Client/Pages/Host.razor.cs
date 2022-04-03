@@ -37,8 +37,24 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        public string WindowTitle
         {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.MainPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.MainPageTitle}";
+            }
+        }
+
+        private async void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
         }
 

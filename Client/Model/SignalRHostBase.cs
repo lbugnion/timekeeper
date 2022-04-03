@@ -10,13 +10,12 @@ namespace Timekeeper.Client.Model
 {
     public abstract class SignalRHostBase : SignalRHandler
     {
+        protected NavigationManager _nav;
         public const string HostSessionKey = "HostSessionKey";
 
-        protected NavigationManager _nav;
+        protected override string PeerKey => "HostPeer";
 
         protected override string SessionKey => HostSessionKey;
-
-        protected override string PeerKey => "HostPeer";
 
         public bool? IsAuthorized
         {
@@ -33,11 +32,6 @@ namespace Timekeeper.Client.Model
             SessionHandler session) : base(config, localStorage, log, http, session)
         {
             _nav = nav;
-        }
-
-        public async Task<bool> SaveSession()
-        {
-            return await _session.Save(CurrentSession, SessionKey, _log);
         }
 
         public async Task CheckAuthorize()
@@ -98,6 +92,11 @@ namespace Timekeeper.Client.Model
                     RaiseUpdateEvent();
                     break;
             }
+        }
+
+        public async Task<bool> SaveSession()
+        {
+            return await _session.Save(CurrentSession, SessionKey, _log);
         }
     }
 }

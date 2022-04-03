@@ -17,6 +17,7 @@ namespace Timekeeper.Client.Pages
         private const string HidePeersText = "hide";
         private const string SaveSessionNameText = "save session name";
         private const string ShowPeersText = "show";
+        private string _guestUrlQrCode;
         public const string SendMessageInputId = "send-message-input";
 
         public string EditSessionNameLinkText
@@ -32,8 +33,6 @@ namespace Timekeeper.Client.Pages
                 return $"{Nav.BaseUri}guest/{Handler.CurrentSession.SessionId}";
             }
         }
-
-        private string _guestUrlQrCode;
 
         public string GuestUrlQrCode
         {
@@ -61,8 +60,6 @@ namespace Timekeeper.Client.Pages
             get;
             set;
         }
-
-        public string SessionId => Handler.CurrentSession.SessionId;
 
         public bool IsEditingSessionName
         {
@@ -98,11 +95,28 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string SessionId => Handler.CurrentSession.SessionId;
+
         [Parameter]
         public string SessionName
         {
             get;
             set;
+        }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.MainPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.MainPageTitle}";
+            }
         }
 
         private async Task DoDeleteSession()
@@ -117,6 +131,8 @@ namespace Timekeeper.Client.Pages
             IsEditingSessionName = false;
             EditSessionNameLinkText = EditSessionNameText;
             PeerListLinkText = ShowPeersText;
+
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
             Log.LogInformation("HostView.OnInitializedAsync ->");
@@ -165,6 +181,8 @@ namespace Timekeeper.Client.Pages
                 {
                     Handler.CurrentSession.SessionName = SessionName;
                 }
+
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
                 await Handler.SaveSession();
 

@@ -10,14 +10,15 @@ h1, h2 {
     color: darkblue;
 }
 
-    h1.visible {
+    h1.visible, h2.visible {
         height: auto;
         visibility: visible;
     }
 
-    h1.invisible {
+    h1.invisible, h2.invisible {
         height: 0px;
         visibility: collapse;
+        margin: 0;
     }
 
 strong {
@@ -289,6 +290,18 @@ blockquote {
     padding: 10px;
     max-width: 480px;
 }
+
+    blockquote.visible {
+        height: auto;
+        visibility: visible;
+    }
+
+    blockquote.invisible {
+        height: 0px;
+        visibility: collapse;
+        margin: 0;
+        padding: 0;
+    }
 
     blockquote.warning {
         background-color: bisque;
@@ -618,4 +631,81 @@ li.validation-message {
 .poll-explanation {
     font-style: italic;
     font-size: 1.1em;
+}
+
+/* Chat */
+
+.chats {
+    margin-top: -20px;
+}
+
+.chats blockquote {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.chat-controls {
+    height: auto;
+}
+
+    .chat-controls button {
+        width: 300px;
+    }
+
+    .chat-controls textarea {
+        height: 60px;
+        width: 100%;
+        max-width: 400px;
+        min-height: 40px;
+    }
+
+    .chat-controls label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+#chat-display-area {
+    width: 500px;
+    max-width: 100%;
+}
+
+.chats #instructions {
+}
+
+.chat {
+    width: 400px;
+    padding: 10px;
+}
+
+.chat .chat-name {
+    font-size: 1.2em;
+    font-weight: lighter;
+    margin-bottom: 5px;
+}
+
+.chat .chat-message {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.chat .chat-datetime {
+}
+
+.own-chat-container {
+
+}
+
+.own-chat {
+    margin: 0 0 20px 70px;
+}
+
+.other-chat {
+    margin: 0 100px 20px 0;
+}
+
+.other-chat-container {
+}
+
+.chats #user-name {
+    font-size: 1.3em;
 }

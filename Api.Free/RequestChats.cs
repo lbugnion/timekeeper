@@ -9,22 +9,22 @@ using System.IO;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
-namespace Timekeeper
+namespace Timekeeper.Api.Free
 {
-    public static class PublishPoll
+    public static class GetChats
     {
-        [FunctionName(nameof(PublishPoll))]
+        [FunctionName(nameof(GetChats))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
-                "post",
-                Route = "publish-poll")]
+                "get",
+                Route = "chats")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
-            log.LogInformation("-> PublishPoll");
+            log.LogInformation("-> GetChats");
 
             try
             {
@@ -41,11 +41,13 @@ namespace Timekeeper
 
                 log.LogDebug(requestBody);
 
+                // TODO Is there a way to optimize this and other functions' calls?
+
                 await queue.AddAsync(
                     new SignalRMessage
                     {
-                        Target = Constants.PublishPollMessage,
-                        Arguments = new[] { requestBody },
+                        Target = Constants.RequestChatsMessage,
+                        Arguments = new[] { string.Empty },
                         GroupName = groupId.ToString()
                     });
             }

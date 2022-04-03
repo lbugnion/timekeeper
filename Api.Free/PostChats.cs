@@ -10,23 +10,21 @@ using System.IO;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 
-namespace Timekeeper
+namespace Timekeeper.Api.Free
 {
-    public static class UpdateHost
+    public static class PostChats
     {
-        [FunctionName(nameof(UpdateHost))]
+        [FunctionName(nameof(PostChats))]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "post",
-                Route = "update")]
+                Route = "chats")]
             HttpRequest req,
             [SignalR(HubName = Constants.HubName)]
             IAsyncCollector<SignalRMessage> queue,
             ILogger log)
         {
-            log.LogInformation("-> UpdateHost");
-
             var groupId = req.GetGroupId();
             log.LogDebug($"groupId: {groupId}");
 
@@ -36,35 +34,36 @@ namespace Timekeeper
                 return new BadRequestObjectResult("Invalid request");
             }
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             log.LogDebug(requestBody);
+            var chats = JsonConvert.DeserializeObject<ListOfChats>(requestBody);
 
-            try
+            foreach (var chat in chats.Chats)
             {
-                var info = JsonConvert.DeserializeObject<UpdateHostInfo>(requestBody);
+                //if (chat.Key == null
+                //    || chat.Key.Length != 10)
+                //{
+                //    log.LogError("Invalid key");
+                //    return new UnauthorizedObjectResult("Invalid request");
+                //}
 
-                if (info.Clock == null
-                    && string.IsNullOrEmpty(info.SessionName))
+                if (string.IsNullOrEmpty(chat.SenderName)
+                    || string.IsNullOrEmpty(chat.MessageMarkdown))
                 {
-                    log.LogError($"No information found in UpdateHostInfo");
-                    return new UnprocessableEntityObjectResult("No information found");
+                    log.LogError("Empty name or message");
+                    return new BadRequestObjectResult("Empty name or message");
                 }
-            }
-            catch (Exception ex)
-            {
-                log.LogError($"Issue deserializing: {ex.Message}");
-                return new UnprocessableEntityObjectResult("Unable to process");
             }
 
             await queue.AddAsync(
                 new SignalRMessage
                 {
-                    Target = Constants.UpdateHostMessageName,
+                    Target = Constants.ReceiveChatsMessage,
                     Arguments = new[] { requestBody },
                     GroupName = groupId.ToString()
                 });
 
-            log.LogTrace("Sent");
+            log.LogTrace("Chat sent");
             return new OkObjectResult("OK");
         }
     }

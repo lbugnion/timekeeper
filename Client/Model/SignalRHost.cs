@@ -106,23 +106,6 @@ namespace Timekeeper.Client.Model
             StartClocksButtonText = StartAllClocksText;
         }
 
-        private async Task<bool> AnnounceName()
-        {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
-
-            var message = new PeerMessage
-            {
-                PeerId = PeerInfo.Message.PeerId,
-                IsHost = true
-            };
-
-            var json = JsonConvert.SerializeObject(message);
-            _log.LogDebug($"json: {json}");
-
-            return await AnnounceNameJson(json);
-        }
-
         private void ClockSelectionChanged(object sender, bool e)
         {
             _log.LogInformation("-> ClockSelectionChanged");
@@ -199,7 +182,7 @@ namespace Timekeeper.Client.Model
 
         private async Task UpdateLocalHost(string json)
         {
-            _log.LogInformation("HIGHLIGHT-> SignalRHost.UpdateLocalHost");
+            _log.LogInformation("-> SignalRHost.UpdateLocalHost");
 
             try
             {
@@ -372,6 +355,12 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        public async Task ClearInputMessage()
+        {
+            InputMessage = "";
+            await SendMessage(" ");
+        }
+
         public override async Task Connect()
         {
             _log.LogInformation("-> SignalRHost.Connect");
@@ -389,11 +378,15 @@ namespace Timekeeper.Client.Model
 
             if (!ok)
             {
-                _log.LogWarning("Interrupt after initializing session");
-                IsBusy = false;
-                IsConnected = false;
-                IsInError = false;
-                RaiseUpdateEvent();
+                if (!IsInError)
+                {
+                    _log.LogWarning("Interrupt after initializing session");
+                    IsBusy = false;
+                    IsConnected = false;
+                    IsInError = false;
+                    RaiseUpdateEvent();
+                }
+
                 return;
             }
 
@@ -593,10 +586,22 @@ namespace Timekeeper.Client.Model
             }
             else
             {
-                // Refresh session
-                var sessions = await _session.GetSessions(_log);
-                var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
-                CurrentSession = outSession;
+                try
+                {
+                    // Refresh session
+                    var sessions = await _session.GetSessions(_log);
+                    var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+                    CurrentSession = outSession;
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
 
             foreach (var clock in CurrentSession.Clocks)
@@ -700,7 +705,7 @@ namespace Timekeeper.Client.Model
         public async Task ReceiveGuestMessage(string json)
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
-            _log.LogDebug(json);
+            //_log.LogDebug(json);
 
             var messagePeer = JsonConvert.DeserializeObject<PeerMessage>(json);
 
@@ -766,12 +771,6 @@ namespace Timekeeper.Client.Model
         public async Task SendInputMessage()
         {
             await SendMessage(InputMessage.Trim());
-        }
-
-        public async Task ClearInputMessage()
-        {
-            InputMessage = "";
-            await SendMessage(" ");
         }
 
         public async Task SendMessage(string message)
@@ -939,13 +938,14 @@ namespace Timekeeper.Client.Model
                     .Select(c =>
                     {
                         c.Message.SenderId = PeerInfo.Message.PeerId;
+                        c.Message.SessionName = CurrentSession.SessionName;
                         return c.Message;
                     })
                     .ToList());
 
                 var content = new StringContent(json);
 
-                _log.LogDebug($"json: {json}");
+                //_log.LogDebug($"json: {json}");
 
                 var startClockUrl = $"{_hostName}/start";
                 _log.LogDebug($"startClockUrl: {startClockUrl}");
