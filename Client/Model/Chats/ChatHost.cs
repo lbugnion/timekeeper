@@ -248,17 +248,22 @@ namespace Timekeeper.Client.Model.Chats
                 // Refresh session
                 _log.LogTrace("Refreshing session");
 
-                var sessions = await _session.GetSessions(_log);
-                var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
-
-                CurrentSession = outSession;
+                try
+                {
+                    var sessions = await _session.GetSessions(_log);
+                    var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+                    CurrentSession = outSession;
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
-
-            // TODO REMOVE
-            //if (CurrentSession?.Chats != null)
-            //{
-            //    CurrentSession.Chats.Clear();
-            //}
 
             RaiseUpdateEvent();
 

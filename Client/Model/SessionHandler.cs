@@ -210,13 +210,15 @@ namespace Timekeeper.Client.Model
                     return null;
                 }
 
+                log.LogDebug(json);
+
                 CloudSessions = JsonConvert.DeserializeObject<IList<SessionBase>>(json);
                 return CloudSessions;
             }
             catch (Exception ex)
             {
-                log.LogError($"Cannot get sessions: {ex.Message}");
-                return null;
+                ErrorStatus = "Unable to load sessions";
+                throw ex;
             }
         }
 

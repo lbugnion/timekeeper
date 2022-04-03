@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -348,12 +349,22 @@ namespace Timekeeper.Client.Model.Polls
                 }
 
                 // Refresh session
-                var sessions = await _session.GetSessions(_log);
-                var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
 
-                _log.LogDebug($"outSession == null: {outSession == null}");
-
-                CurrentSession = outSession;
+                try
+                {
+                    var sessions = await _session.GetSessions(_log);
+                    var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+                    CurrentSession = outSession;
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
 
             RaiseUpdateEvent();

@@ -106,23 +106,6 @@ namespace Timekeeper.Client.Model
             StartClocksButtonText = StartAllClocksText;
         }
 
-        private async Task<bool> AnnounceName()
-        {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
-
-            var message = new PeerMessage
-            {
-                PeerId = PeerInfo.Message.PeerId,
-                IsHost = true
-            };
-
-            var json = JsonConvert.SerializeObject(message);
-            //_log.LogDebug($"json: {json}");
-
-            return await AnnounceNameJson(json);
-        }
-
         private void ClockSelectionChanged(object sender, bool e)
         {
             _log.LogInformation("-> ClockSelectionChanged");
@@ -395,11 +378,15 @@ namespace Timekeeper.Client.Model
 
             if (!ok)
             {
-                _log.LogWarning("Interrupt after initializing session");
-                IsBusy = false;
-                IsConnected = false;
-                IsInError = false;
-                RaiseUpdateEvent();
+                if (!IsInError)
+                {
+                    _log.LogWarning("Interrupt after initializing session");
+                    IsBusy = false;
+                    IsConnected = false;
+                    IsInError = false;
+                    RaiseUpdateEvent();
+                }
+
                 return;
             }
 
@@ -599,10 +586,22 @@ namespace Timekeeper.Client.Model
             }
             else
             {
-                // Refresh session
-                var sessions = await _session.GetSessions(_log);
-                var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
-                CurrentSession = outSession;
+                try
+                {
+                    // Refresh session
+                    var sessions = await _session.GetSessions(_log);
+                    var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+                    CurrentSession = outSession;
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
 
             foreach (var clock in CurrentSession.Clocks)

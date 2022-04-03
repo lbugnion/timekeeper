@@ -98,7 +98,17 @@ namespace Timekeeper.Client.Pages
 #endif
 
             Session.InitializeContext(Log);
-            await Session.GetSessions(Log);
+
+            try
+            {
+                await Session.GetSessions(Log);
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"Cannot get sessions: {ex.Message}");
+                ErrorMessage = "Error getting sessions";
+            }
+
             Log.LogInformation("OnInitializedAsync ->");
         }
     }
