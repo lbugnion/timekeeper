@@ -4,6 +4,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
+#if !DEBUG
+using Timekeeper.Client.Model;
+#endif
+
 namespace Timekeeper.Client.Pages
 {
     public partial class SessionSelection

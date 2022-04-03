@@ -798,9 +798,9 @@ namespace Timekeeper.Client.Model
 
                     if (index > -1)
                     {
-                        htmlMessage = htmlMessage.Substring(0, index)
+                        htmlMessage = htmlMessage[..index]
                             + (opening ? "<span style='color: red'>" : "</span>")
-                            + htmlMessage.Substring(index + 1);
+                            + htmlMessage[(index + 1)..];
 
                         opening = !opening;
                     }
