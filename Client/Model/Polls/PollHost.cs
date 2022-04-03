@@ -14,7 +14,7 @@ namespace Timekeeper.Client.Model.Polls
 {
     public class PollHost : SignalRHostBase
     {
-        private string _sessionId;
+        private readonly string _sessionId;
 
         public bool IsAnyPollPublished
         {

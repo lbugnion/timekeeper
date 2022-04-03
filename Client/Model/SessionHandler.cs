@@ -249,8 +249,10 @@ namespace Timekeeper.Client.Model
             var saveSessionUrl = $"{_hostName}/session/{session.BranchId}/{session.SessionId}";
             log.LogDebug($"saveSessionUrl: {saveSessionUrl}");
 
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, saveSessionUrl);
-            httpRequest.Content = content;
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, saveSessionUrl)
+            {
+                Content = content
+            };
 
             try
             {

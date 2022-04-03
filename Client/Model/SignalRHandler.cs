@@ -438,7 +438,7 @@ namespace Timekeeper.Client.Model
             if (string.IsNullOrEmpty(PeerInfo.Message.ChatColor))
             {
                 var random = new Random();
-                PeerInfo.Message.ChatColor = $"#{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}{random.Next(128, 255).ToString("X2")}";
+                PeerInfo.Message.ChatColor = $"#{random.Next(128, 255):X2}{random.Next(128, 255):X2}{random.Next(128, 255):X2}";
                 _log.LogDebug($"PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
                 await PeerInfo.Save(PeerKey);
             }

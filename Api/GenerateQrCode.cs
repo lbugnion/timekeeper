@@ -19,7 +19,7 @@ namespace Timekeeper
         }
 
         [FunctionName("GenerateQrCode")]
-        public static async Task<IActionResult> Run(
+        public static IActionResult Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
