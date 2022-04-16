@@ -703,6 +703,21 @@ li.validation-message {
     margin: 0 100px 20px 0;
 }
 
+button.chat-like {
+    float: right;
+    height: 25px;
+    width: 80px;
+    margin: -20px -5px 0 0;
+}
+
+.own-like {
+    visibility: collapse;
+}
+
+.other-like {
+    visibility: visible;
+}
+
 .other-chat-container {
 }
 

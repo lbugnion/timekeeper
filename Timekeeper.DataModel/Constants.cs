@@ -20,8 +20,10 @@
         public const string NotifyDeleteSessionMessageName = "notify-delete-session";
         public const string OtherChatContainerCss = "other-chat-container";
         public const string OtherChatCss = "other-chat";
+        public const string OtherLikeCss = "other-like";
         public const string OwnChatContainerCss = "own-chat-container";
         public const string OwnChatCss = "own-chat";
+        public const string OwnLikeCss = "own-like";
         public const string OwnColor = "#7FC9FF";
         public const string PeerToHostMessageName = "peer-to-host";
         public const string PublishPollMessage = "publish-poll";
@@ -38,5 +40,6 @@
         public const string UpdateHostMessageName = "update-host";
         public const string UserIdHeaderKey = "x-timekeeper-userid";
         public const string VotePollMessage = "vote-poll";
+        public const string You = " (you)";
     }
 }

@@ -12,6 +12,9 @@ namespace Timekeeper.DataModel
         [JsonIgnore]
         public string CssClass { get; set; }
 
+        [JsonIgnore]
+        public string LikeCssClass { get; set; }
+
         public string CustomColor { get; set; }
 
         [JsonIgnore]

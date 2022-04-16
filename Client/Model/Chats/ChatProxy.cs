@@ -47,13 +47,19 @@ namespace Timekeeper.Client.Model.Chats
                     if (chat.UserId == ownPeerId)
                     {
                         chat.CssClass = Constants.OwnChatCss;
+                        chat.LikeCssClass = Constants.OwnLikeCss;
                         chat.ContainerCssClass = Constants.OwnChatContainerCss;
                         chat.DisplayColor = Constants.OwnColor;
-                        chat.SenderName += " (you)";
+                        
+                        if (!chat.SenderName.EndsWith(Constants.You))
+                        {
+                            chat.SenderName += Constants.You;
+                        }
                     }
                     else
                     {
                         chat.CssClass = Constants.OtherChatCss;
+                        chat.LikeCssClass = Constants.OtherLikeCss;
                         chat.ContainerCssClass = Constants.OtherChatContainerCss;
                         chat.DisplayColor = chat.CustomColor;
                     }
@@ -117,7 +123,11 @@ namespace Timekeeper.Client.Model.Chats
                     receivedChat.DisplayColor = Constants.OwnColor;
                     receivedChat.CssClass = Constants.OwnChatCss;
                     receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
-                    receivedChat.SenderName += " (you)";
+                    
+                    if (!receivedChat.SenderName.EndsWith(Constants.You))
+                    {
+                        receivedChat.SenderName += Constants.You;
+                    }
                 }
                 else
                 {
