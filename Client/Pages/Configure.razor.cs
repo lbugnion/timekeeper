@@ -95,6 +95,7 @@ namespace Timekeeper.Client.Pages
             Host = Program.ClockToConfigure.Host;
             Clock = Program.ClockToConfigure.CurrentClock;
             Host.UpdateUi += HandlerUpdateUi;
+            Host.RequestRefresh += HandlerRequestRefresh;
 
             CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
             CurrentEditContext = new EditContext(CurrentClockMessage);
@@ -103,9 +104,15 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("OnInitialized ->");
         }
 
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
+        }
+
         public void Dispose()
         {
             Host.UpdateUi -= HandlerUpdateUi;
+            Host.RequestRefresh -= HandlerRequestRefresh;
         }
     }
 }

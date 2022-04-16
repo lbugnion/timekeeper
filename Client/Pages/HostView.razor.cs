@@ -215,6 +215,7 @@ namespace Timekeeper.Client.Pages
 
         public async Task NavigateToSession()
         {
+            await Handler.DeleteSessionFromStorage();            
             await Handler.ResetState();
             Nav.NavigateTo("/session");
         }

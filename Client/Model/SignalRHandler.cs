@@ -149,6 +149,8 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"_hostNameFree: {_hostNameFree}");
         }
 
+        public event EventHandler RequestRefresh;
+
         private Task ConnectionClosed(Exception arg)
         {
             _log.LogWarning(nameof(ConnectionClosed));
@@ -161,8 +163,16 @@ namespace Timekeeper.Client.Model
 
             if (!_isManualDisconnection)
             {
-                _log.LogTrace("Showing disconnected message");
-                IsInError = true;
+                // Attempt to refresh the page via JavaScript
+
+                if (RequestRefresh != null)
+                {
+                    RequestRefresh(this, EventArgs.Empty);
+                }
+                else
+                {
+                    IsInError = true;
+                }
             }
             else
             {

@@ -105,6 +105,7 @@ namespace Timekeeper.Client.Pages
                     };
 
                     Handler.UpdateUi += HandlerUpdateUi;
+                    Handler.RequestRefresh += HandlerRequestRefresh;
                     await Handler.Connect();
 
                     await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
@@ -116,6 +117,11 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("OnInitializedAsync ->");
         }
 
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
+        }
+
         public async void Dispose()
         {
             Log.LogTrace("Dispose");
@@ -123,6 +129,7 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                Handler.RequestRefresh -= HandlerRequestRefresh;
             }
 
             await Task.Run(async () =>

@@ -29,6 +29,7 @@ namespace Timekeeper.Client.Pages
                 if (value == null)
                 {
                     _handler.UpdateUi -= HandlerUpdateUi;
+                    _handler.RequestRefresh -= HandlerRequestRefresh;
                 }
 
                 _handler = value;
@@ -36,8 +37,14 @@ namespace Timekeeper.Client.Pages
                 if (_handler != null)
                 {
                     _handler.UpdateUi += HandlerUpdateUi;
+                    _handler.RequestRefresh += HandlerRequestRefresh;
                 }
             }
+        }
+
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
         }
 
         public bool IsAnyPollEdited
@@ -143,6 +150,7 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                Handler.RequestRefresh -= HandlerRequestRefresh;
             }
         }
 
