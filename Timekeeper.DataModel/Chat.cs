@@ -55,6 +55,9 @@ namespace Timekeeper.DataModel
         [JsonIgnore]
         public string DisplayColor { get; set; }
 
+        [JsonIgnore]
+        public string Suffix { get; set; }
+
         public string Key { get; set; }
 
         public DateTime MessageDateTime { get; set; }

@@ -58,9 +58,9 @@ namespace Timekeeper.Client.Model.Chats
                 chat.SpanLikeCssClass = Constants.ShowLikeCss;
                 chat.DisplayColor = Constants.OwnColor;
 
-                if (!chat.SenderName.EndsWith(Constants.You))
+                if (chat.Suffix != Constants.You)
                 {
-                    chat.SenderName += Constants.You;
+                    chat.Suffix = Constants.You;
                 }
             }
             else
@@ -69,6 +69,7 @@ namespace Timekeeper.Client.Model.Chats
                 chat.ButtonLikeCssClass = Constants.ShowLikeCss;
                 chat.SpanLikeCssClass = Constants.HideLikeCss;
                 chat.DisplayColor = chat.CustomColor;
+                chat.Suffix = string.Empty;
             }
 
             if (chat.Likes.Count == 0)
