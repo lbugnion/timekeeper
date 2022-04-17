@@ -88,18 +88,24 @@ else
     <div id="chat-display-area">
         @foreach (var chat in Handler.CurrentSession.Chats)
         {
-            <div class="chat-container @chat.ContainerCssClass">
+            <div>
                 <div class="chat @chat.CssClass" 
                      style="background-color: @chat.DisplayColor">
                     <div class="chat-name">@chat.SenderName</div>
                     <div class="chat-message">@GetMarkup(chat.MessageHtml)</div>
                     <div class="chat-datetime">@chat.MessageDateTime.ToShortTimeString()</div>
 
-                    <button class="chat-like @chat.LikeCssClass"
-                            title="Laurent, Vanch like this">
-                        <i class="fas fa-thumbs-up" style="color: red;"></i>
-                        <span>(1)</span>
+                    <button class="chat-like-button @chat.ButtonLikeCssClass @chat.BackgroundLikeCssClass"
+                            title="@chat.LikeButtonTitle">
+                        <i class="fas fa-thumbs-up @chat.LikeThumbCssClass"></i>
+                        <span>&nbsp;(@chat.Likes.Count)</span>
                     </button>
+
+                    <div class="chat-like-div @chat.SpanLikeCssClass @chat.BackgroundLikeCssClass"
+                         title="@chat.LikeButtonTitle">
+                        <i class="fas fa-thumbs-up @chat.LikeThumbCssClass"></i>
+                        <span>&nbsp;(@chat.Likes.Count)</span>
+                    </div>
                 </div>
             </div>
         }

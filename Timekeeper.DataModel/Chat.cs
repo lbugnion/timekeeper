@@ -1,19 +1,54 @@
 ﻿using Markdig;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Timekeeper.DataModel
 {
     public class Chat
     {
         [JsonIgnore]
-        public string ContainerCssClass { get; set; }
-
-        [JsonIgnore]
         public string CssClass { get; set; }
 
         [JsonIgnore]
-        public string LikeCssClass { get; set; }
+        public string ButtonLikeCssClass { get; set; }
+
+        [JsonIgnore]
+        public string BackgroundLikeCssClass { get; set; }
+
+        [JsonIgnore]
+        public string SpanLikeCssClass { get; set; }
+
+        [JsonIgnore]
+        public string LikeThumbCssClass { get; set; }
+
+        public string LikeButtonTitle
+        { 
+            get
+            {
+                if (Likes.Count == 0)
+                {
+                    return "Noone likes this yet";
+                }
+
+                var allNames = Likes
+                    .Select(l => l.DisplayName)
+                    .OrderBy(m => m == Constants.YouName ? -1 : 0)
+                    .Aggregate((l1, l2) => $"{l1}, {l2}");
+
+                var likes = "like";
+
+                if (Likes.Count == 1
+                    && Likes[0].CustomName != Constants.YouName)
+                {
+                    likes = "likes";
+                }
+
+                return $"{allNames} {likes} this";
+            }
+        }
 
         public string CustomColor { get; set; }
 
@@ -36,5 +71,7 @@ namespace Timekeeper.DataModel
         public string UniqueId { get; set; }
 
         public string UserId { get; set; }
+
+        public IList<PeerMessage> Likes { get; set; } = new List<PeerMessage>();
     }
 }

@@ -127,7 +127,7 @@
                     <div id="chat-display-area">
                         @foreach (var chat in Handler.CurrentSession.Chats)
                         {
-                            <div class="chat-container @chat.ContainerCssClass">
+                            <div>
                                 <div class="chat @chat.CssClass" 
                                      style="background-color: @chat.DisplayColor">
                                     <div class="chat-name">@chat.SenderName</div>

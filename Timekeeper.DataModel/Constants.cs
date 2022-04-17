@@ -18,12 +18,6 @@
         public const string HubName = "timekeeper";
         public const string MovePollMessage = "move-poll";
         public const string NotifyDeleteSessionMessageName = "notify-delete-session";
-        public const string OtherChatContainerCss = "other-chat-container";
-        public const string OtherChatCss = "other-chat";
-        public const string OtherLikeCss = "other-like";
-        public const string OwnChatContainerCss = "own-chat-container";
-        public const string OwnChatCss = "own-chat";
-        public const string OwnLikeCss = "own-like";
         public const string OwnColor = "#7FC9FF";
         public const string PeerToHostMessageName = "peer-to-host";
         public const string PublishPollMessage = "publish-poll";
@@ -41,5 +35,17 @@
         public const string UserIdHeaderKey = "x-timekeeper-userid";
         public const string VotePollMessage = "vote-poll";
         public const string You = " (you)";
+        public const string YouName = "You";
+        public const string LikeChatMessage = "like-chat";
+
+        public const string OwnChatCss = "own-chat";
+        public const string OthersChatCss = "others-chat";
+        public const string HideLikeCss = "hide-like";
+        public const string ActiveOthersThumbCssClass = "chat-thumb-active-others";
+        public const string ActiveOwnThumbCssClass = "chat-thumb-active-own";
+        public const string InactiveThumbCssClass = "chat-thumb-inactive";
+        public const string ShowLikeCss = "show-like";
+        public const string ActiveLikeContainer = "active-like-container";
+        public const string NeutralLikeContainer = "neutral-like-container-like-container";
     }
 }
