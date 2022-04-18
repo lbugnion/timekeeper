@@ -1,11 +1,14 @@
-﻿<div class="chat @Chat.CssClass" 
+﻿@inject ILogger<ChatView> Log
+
+<div class="chat @Chat.CssClass" 
         style="background-color: @Chat.DisplayColor">
     <div class="chat-name">@Chat.SenderName @Chat.Suffix</div>
     <div class="chat-message">@GetMarkup(Chat.MessageHtml)</div>
     <div class="chat-datetime">@Chat.MessageDateTime.ToShortTimeString()</div>
 
     <button class="chat-like-button @Chat.ButtonLikeCssClass @Chat.BackgroundLikeCssClass"
-            title="@Chat.LikeButtonTitle">
+            title="@Chat.LikeButtonTitle"
+            @onclick="ToggleLikeChat">
         <i class="fas fa-thumbs-up @Chat.LikeThumbCssClass"></i>
         <span>&nbsp;(@Chat.Likes.Count)</span>
     </button>

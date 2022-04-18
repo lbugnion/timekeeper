@@ -89,7 +89,7 @@ namespace Timekeeper.Client.Model.Chats
             }
         }
 
-        public async Task LikeChat(
+        public async Task ReceiveLikeChat(
             Action raiseUpdateEvent,
             Func<Task> saveChats,
             string receivedJson,
@@ -111,7 +111,7 @@ namespace Timekeeper.Client.Model.Chats
                 return;
             }
 
-            await LikeChat(
+            await ReceiveLikeChat(
                 raiseUpdateEvent,
                 saveChats,
                 receivedMessage,
@@ -120,7 +120,7 @@ namespace Timekeeper.Client.Model.Chats
                 log);
         }
 
-        public async Task LikeChat(
+        public async Task ReceiveLikeChat(
             Action raiseUpdateEvent,
             Func<Task> saveChats,
             LikeChatMessage receivedMessage,
@@ -181,6 +181,72 @@ namespace Timekeeper.Client.Model.Chats
             {
                 await saveChats();
             }
+        }
+
+        public async Task SendLike(
+            bool isLiked,
+            string messageId,
+            PeerMessage peer,
+            string sessionId,
+            ILogger log)
+        {
+            var message = new LikeChatMessage
+            {
+                IsLiked = isLiked,
+                MessageId = messageId,
+                Peer = peer
+            };
+
+            var json = JsonConvert.SerializeObject(message);
+
+            var likeUrl = $"{_hostNameFree}/like-chat";
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, likeUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, sessionId);
+            httpRequest.Content = new StringContent(json);
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                IsInError = true;
+                log.LogError($"Issue sending chat: {response.StatusCode} / {response.ReasonPhrase}");
+                ErrorStatus = "Error connecting to Chat service, try to refresh the page and send again";
+                return;
+            }
+
+            IsInError = false;
+            ErrorStatus = null;
+            log.LogDebug($"Like sent {messageId} / {isLiked}");
+            Status = "Like sent";
+        }
+
+        public async Task ToggleLikeChat(
+            Chat chat,
+            PeerMessage peer,
+            string sessionId,
+            ILogger log)
+        {
+            log.LogDebug("-> ChatProxy.ToggleLikeChat");
+
+            bool isLiked;
+
+            if (chat.Likes.Any(l => l.PeerId == peer.PeerId))
+            {
+                // Chat is already liked => Send unlike
+                isLiked = false;
+            }
+            else
+            {
+                // Chat is not already liked => Send like
+                isLiked = true;
+            }
+
+            await SendLike(
+                isLiked,
+                chat.UniqueId,
+                peer,
+                sessionId,
+                log);
         }
 
         public async Task ReceiveChats(

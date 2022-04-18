@@ -59,6 +59,19 @@ namespace Timekeeper.Client.Model.Chats
             _log.LogTrace("ChatGuest.ReceiveChats(string) ->");
         }
 
+        private async Task LikeChat(string receivedJson)
+        {
+            _log.LogTrace("-> ChatGuest.LikeChat(string)");
+
+            await ChatProxy.ReceiveLikeChat(
+                RaiseUpdateEvent,
+                null,
+                receivedJson,
+                CurrentSession.Chats,
+                PeerInfo.Message.PeerId,
+                _log);
+        }
+
         public override async Task Connect()
         {
             _log.LogInformation("-> ChatGuest.Connect");
@@ -76,6 +89,7 @@ namespace Timekeeper.Client.Model.Chats
             if (ok)
             {
                 _connection.On<string>(Constants.ReceiveChatsMessage, ReceiveChats);
+                _connection.On<string>(Constants.LikeChatMessage, LikeChat);
 
                 ok = await StartConnection();
 
@@ -176,6 +190,17 @@ namespace Timekeeper.Client.Model.Chats
                 RaiseUpdateEvent,
                 PeerInfo.Message,
                 CurrentSession.SessionName,
+                CurrentSession.SessionId,
+                _log);
+        }
+
+        public async Task ToggleLikeChat(Chat chat)
+        {
+            _log.LogDebug("HIGHLIGHT---> ChatGuest.ToggleLikeChat");
+
+            await ChatProxy.ToggleLikeChat(
+                chat,
+                PeerInfo.Message,
                 CurrentSession.SessionId,
                 _log);
         }

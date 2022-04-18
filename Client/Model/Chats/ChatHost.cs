@@ -125,7 +125,7 @@ namespace Timekeeper.Client.Model.Chats
         {
             _log.LogTrace("-> ChatHost.LikeChat(string)");
 
-            await ChatProxy.LikeChat(
+            await ChatProxy.ReceiveLikeChat(
                 RaiseUpdateEvent,
                 SaveSession,
                 receivedJson,
@@ -334,6 +334,17 @@ namespace Timekeeper.Client.Model.Chats
                 RaiseUpdateEvent,
                 PeerInfo.Message,
                 CurrentSession.SessionName,
+                CurrentSession.SessionId,
+                _log);
+        }
+
+        public async Task ToggleLikeChat(Chat chat)
+        {
+            _log.LogDebug("HIGHLIGHT---> ChatHost.ToggleLikeChat");
+
+            await ChatProxy.ToggleLikeChat(
+                chat,
+                PeerInfo.Message,
                 CurrentSession.SessionId,
                 _log);
         }

@@ -127,7 +127,8 @@
                     <div id="chat-display-area">
                         @foreach (var chat in Handler.CurrentSession.Chats)
                         {
-                            <ChatView Chat="@chat" />
+                            <ChatView Chat="@chat"
+                                      Guest="@Handler" />
                         }
                     </div>
                 }
