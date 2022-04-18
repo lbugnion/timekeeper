@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        public const string Version = "0.8.0.9999"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
+        public const string Version = "0.8.1.9999"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
 
         public const string AzureStorageVariableName = "AzureStorage";
         public const string BranchIdKey = "BranchId";
