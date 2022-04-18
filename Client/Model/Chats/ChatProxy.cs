@@ -128,7 +128,7 @@ namespace Timekeeper.Client.Model.Chats
             string peerId,
             ILogger log)
         {
-            log.LogTrace("HIGHLIGHT---> ChatProxy.ReceiveChat(ListOfChats)");
+            log.LogTrace("-> ChatProxy.ReceiveChat(ListOfChats)");
 
             if (receivedMessage.Key != SecretKey)
             {
@@ -288,7 +288,7 @@ namespace Timekeeper.Client.Model.Chats
             string peerId,
             ILogger log)
         {
-            log.LogTrace("HIGHLIGHT---> ChatProxy.ReceiveChat(ListOfChats)");
+            log.LogTrace("-> ChatProxy.ReceiveChat(ListOfChats)");
 
             foreach (var receivedChat in receivedChats.Chats.OrderBy(c => c.MessageDateTime))
             {

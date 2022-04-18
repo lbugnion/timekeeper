@@ -23,7 +23,7 @@ namespace Timekeeper.Client.Pages
 
         public async void ToggleLikeChat()
         {
-            Log.LogTrace("HIGHLIGHT---> ChatView.ToggleLikeChat");
+            Log.LogTrace("-> ChatView.ToggleLikeChat");
 
             Log.LogDebug($"Chat ID: {Chat.UniqueId} / Count: {Chat.Likes.Count}");
 

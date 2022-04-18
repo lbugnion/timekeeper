@@ -144,7 +144,7 @@ namespace Timekeeper.Client.Model.Chats
             // TODO Think about adding paging here for the chats. For instance,
             // send the ones from the last 30 minutes and add a "load more" link on top.
 
-            _log.LogTrace("HIGHLIGHT---> SendChats(string)");
+            _log.LogTrace("-> SendChats(string)");
 
             if (CurrentSession.Chats == null)
             {
@@ -340,7 +340,7 @@ namespace Timekeeper.Client.Model.Chats
 
         public async Task ToggleLikeChat(Chat chat)
         {
-            _log.LogDebug("HIGHLIGHT---> ChatHost.ToggleLikeChat");
+            _log.LogDebug("-> ChatHost.ToggleLikeChat");
 
             await ChatProxy.ToggleLikeChat(
                 chat,
