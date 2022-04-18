@@ -44,21 +44,209 @@ namespace Timekeeper.Client.Model.Chats
             {
                 foreach (var chat in currentSession.Chats)
                 {
-                    if (chat.UserId == ownPeerId)
+                    UpdateChatStyles(chat, ownPeerId);
+                }
+            }
+        }
+
+        private static void UpdateChatStyles(Chat chat, string ownPeerId)
+        {
+            if (chat.UserId == ownPeerId)
+            {
+                chat.CssClass = Constants.OwnChatCss;
+                chat.ButtonLikeCssClass = Constants.HideLikeCss;
+                chat.SpanLikeCssClass = Constants.ShowLikeCss;
+                chat.DisplayColor = Constants.OwnColor;
+
+                if (chat.Suffix != Constants.You)
+                {
+                    chat.Suffix = Constants.You;
+                }
+            }
+            else
+            {
+                chat.CssClass = Constants.OthersChatCss;
+                chat.ButtonLikeCssClass = Constants.ShowLikeCss;
+                chat.SpanLikeCssClass = Constants.HideLikeCss;
+                chat.DisplayColor = chat.CustomColor;
+                chat.Suffix = string.Empty;
+            }
+
+            if (chat.Likes.Count == 0)
+            {
+                chat.LikeThumbCssClass = Constants.InactiveThumbCssClass;
+                chat.BackgroundLikeCssClass = Constants.NeutralLikeContainer;
+            }
+            else if (chat.Likes.Any(l => l.PeerId == ownPeerId))
+            {
+                chat.LikeThumbCssClass = Constants.ActiveOwnThumbCssClass;
+                chat.BackgroundLikeCssClass = Constants.ActiveLikeContainer;
+            }
+            else
+            {
+                chat.LikeThumbCssClass = Constants.ActiveOthersThumbCssClass;
+                chat.BackgroundLikeCssClass = Constants.NeutralLikeContainer;
+            }
+        }
+
+        public async Task ReceiveLikeChat(
+            Action raiseUpdateEvent,
+            Func<Task> saveChats,
+            string receivedJson,
+            IList<Chat> allChats,
+            string peerId,
+            ILogger log)
+        {
+            log.LogTrace("-> ChatProxy.LikeChat(string)");
+
+            LikeChatMessage receivedMessage;
+
+            try
+            {
+                receivedMessage = JsonConvert.DeserializeObject<LikeChatMessage>(receivedJson);
+            }
+            catch
+            {
+                log.LogTrace("Error with received like message");
+                return;
+            }
+
+            await ReceiveLikeChat(
+                raiseUpdateEvent,
+                saveChats,
+                receivedMessage,
+                allChats,
+                peerId,
+                log);
+        }
+
+        public async Task ReceiveLikeChat(
+            Action raiseUpdateEvent,
+            Func<Task> saveChats,
+            LikeChatMessage receivedMessage,
+            IList<Chat> allChats,
+            string peerId,
+            ILogger log)
+        {
+            log.LogTrace("HIGHLIGHT---> ChatProxy.ReceiveChat(ListOfChats)");
+
+            if (receivedMessage.Key != SecretKey)
+            {
+                log.LogError("Received message with invalid key");
+                return;
+            }
+
+            var likedChat = allChats.FirstOrDefault(c => c.UniqueId == receivedMessage.MessageId);
+
+            if (likedChat != null)
+            {
+                var like = likedChat.Likes
+                    .FirstOrDefault(l => l.PeerId == receivedMessage.Peer.PeerId);
+
+                if (receivedMessage.IsLiked)
+                {
+                    if (like == null)
                     {
-                        chat.CssClass = Constants.OwnChatCss;
-                        chat.ContainerCssClass = Constants.OwnChatContainerCss;
-                        chat.DisplayColor = Constants.OwnColor;
-                        chat.SenderName += " (you)";
+                        var customName = receivedMessage.Peer.CustomName;
+
+                        if (receivedMessage.Peer.PeerId == peerId)
+                        {
+                            customName = Constants.YouName;
+                        }
+
+                        likedChat.Likes.Add(new PeerMessage
+                        {
+                            CustomName = customName,
+                            PeerId = receivedMessage.Peer.PeerId
+                        });
                     }
-                    else
+                }
+                else
+                {
+                    if (like != null)
                     {
-                        chat.CssClass = Constants.OtherChatCss;
-                        chat.ContainerCssClass = Constants.OtherChatContainerCss;
-                        chat.DisplayColor = chat.CustomColor;
+                        likedChat.Likes.Remove(like);
                     }
                 }
             }
+
+            UpdateChatStyles(likedChat, peerId);
+
+            if (raiseUpdateEvent != null)
+            {
+                raiseUpdateEvent();
+            }
+
+            if (saveChats != null)
+            {
+                await saveChats();
+            }
+        }
+
+        public async Task SendLike(
+            bool isLiked,
+            string messageId,
+            PeerMessage peer,
+            string sessionId,
+            ILogger log)
+        {
+            var message = new LikeChatMessage
+            {
+                IsLiked = isLiked,
+                MessageId = messageId,
+                Peer = peer
+            };
+
+            var json = JsonConvert.SerializeObject(message);
+
+            var likeUrl = $"{_hostNameFree}/like-chat";
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, likeUrl);
+            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, sessionId);
+            httpRequest.Content = new StringContent(json);
+
+            var response = await _http.SendAsync(httpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                IsInError = true;
+                log.LogError($"Issue sending chat: {response.StatusCode} / {response.ReasonPhrase}");
+                ErrorStatus = "Error connecting to Chat service, try to refresh the page and send again";
+                return;
+            }
+
+            IsInError = false;
+            ErrorStatus = null;
+            log.LogDebug($"Like sent {messageId} / {isLiked}");
+            Status = "Like sent";
+        }
+
+        public async Task ToggleLikeChat(
+            Chat chat,
+            PeerMessage peer,
+            string sessionId,
+            ILogger log)
+        {
+            log.LogDebug("-> ChatProxy.ToggleLikeChat");
+
+            bool isLiked;
+
+            if (chat.Likes.Any(l => l.PeerId == peer.PeerId))
+            {
+                // Chat is already liked => Send unlike
+                isLiked = false;
+            }
+            else
+            {
+                // Chat is not already liked => Send like
+                isLiked = true;
+            }
+
+            await SendLike(
+                isLiked,
+                chat.UniqueId,
+                peer,
+                sessionId,
+                log);
         }
 
         public async Task ReceiveChats(
@@ -69,7 +257,7 @@ namespace Timekeeper.Client.Model.Chats
             string peerId,
             ILogger log)
         {
-            log.LogTrace("HIGHLIGHT---> ChatProxy.ReceiveChat(string)");
+            log.LogTrace("-> ChatProxy.ReceiveChat(string)");
 
             ListOfChats receivedChats;
 
@@ -104,7 +292,7 @@ namespace Timekeeper.Client.Model.Chats
 
             foreach (var receivedChat in receivedChats.Chats.OrderBy(c => c.MessageDateTime))
             {
-                log.LogDebug($"Received chat with MessageMarkdown '{receivedChat.MessageMarkdown}'");
+                log.LogDebug($"Received chat with MessageMarkdown '{receivedChat.MessageMarkdown}' and ID {receivedChat.UniqueId}");
 
                 if (receivedChat.Key != SecretKey)
                 {
@@ -112,19 +300,7 @@ namespace Timekeeper.Client.Model.Chats
                     return;
                 }
 
-                if (receivedChat.UserId == peerId)
-                {
-                    receivedChat.DisplayColor = Constants.OwnColor;
-                    receivedChat.CssClass = Constants.OwnChatCss;
-                    receivedChat.ContainerCssClass = Constants.OwnChatContainerCss;
-                    receivedChat.SenderName += " (you)";
-                }
-                else
-                {
-                    receivedChat.DisplayColor = receivedChat.CustomColor;
-                    receivedChat.CssClass = Constants.OtherChatCss;
-                    receivedChat.ContainerCssClass = Constants.OtherChatContainerCss;
-                }
+                UpdateChatStyles(receivedChat, peerId);
 
                 if (!string.IsNullOrEmpty(receivedChat.SessionName))
                 {
@@ -272,8 +448,6 @@ namespace Timekeeper.Client.Model.Chats
             NewChat = new Chat()
             {
                 UniqueId = Guid.NewGuid().ToString(),
-                CssClass = Constants.OwnChatCss,
-                ContainerCssClass = Constants.OwnChatContainerCss
             };
 
             NewChatCreated?.Invoke(this, EventArgs.Empty);
