@@ -89,6 +89,11 @@ namespace Timekeeper.Client.Pages
             StateHasChanged();
         }
 
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
+        }
+
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> OnInitializedAsync");
@@ -128,6 +133,7 @@ namespace Timekeeper.Client.Pages
                     //await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
                     Handler.UpdateUi += HandlerUpdateUi;
+                    Handler.RequestRefresh += HandlerRequestRefresh;
                     await Handler.Connect();
                 }
             }
@@ -143,6 +149,7 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                Handler.RequestRefresh -= HandlerRequestRefresh;
             }
 
             if (Handler.ChatProxy != null)
@@ -168,10 +175,13 @@ namespace Timekeeper.Client.Pages
 
         public async void HandleKeyPress(KeyboardEventArgs args)
         {
-            if (args.CtrlKey)
+            if (args.Key == "Enter")
             {
-                await Handler.SendCurrentChat();
-                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+                if (!args.ShiftKey)
+                {
+                    await Handler.SendCurrentChat();
+                    await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+                }
             }
         }
 

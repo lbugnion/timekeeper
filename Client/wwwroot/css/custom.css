@@ -691,19 +691,56 @@ li.validation-message {
 .chat .chat-datetime {
 }
 
-.own-chat-container {
-
-}
-
 .own-chat {
     margin: 0 0 20px 70px;
 }
 
-.other-chat {
+.others-chat {
     margin: 0 100px 20px 0;
 }
 
-.other-chat-container {
+.chat-like-button {
+    float: right;
+    height: 25px;
+    width: 80px;
+    margin: -20px -5px 0 0;
+}
+
+.chat-like-div {
+    float: right;
+    height: 20px;
+    width: 80px;
+    margin: -20px -80px 0 0;
+    text-align: center;
+    padding-top: 3px;
+}
+
+.show-like {
+    visibility: visible;
+}
+
+.hide-like {
+    visibility: collapse;
+}
+
+.active-like-container {
+    background-color: lightblue;
+}
+
+.neutral-like-container {
+    background-color: lightgray;
+}
+
+.chat-thumb-inactive {
+    color: darkgrey;
+}
+
+.chat-thumb-active-others {
+    color: black;
+}
+
+.chat-thumb-active-own {
+    color: blue;
 }
 
 .chats #user-name {

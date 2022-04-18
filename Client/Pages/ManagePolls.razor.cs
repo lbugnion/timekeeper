@@ -86,7 +86,13 @@ namespace Timekeeper.Client.Pages
             }
 
             Handler.UpdateUi += HandlerUpdateUi;
+            Handler.RequestRefresh += HandlerRequestRefresh;
             await Handler.Connect();
+        }
+
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
         }
 
         public void Dispose()
@@ -94,6 +100,7 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                Handler.RequestRefresh -= HandlerRequestRefresh;
             }
         }
 

@@ -36,11 +36,12 @@ else
 
                 <p>Enter your username below to make it easier to identify you in the chat.</p>
 
-                <p>Use the "focus" button on the top-right to maximize the workapce.</p>
+                <p>Use the "Toggle focus mode" button on the top-right to maximize the workapce.</p>
             </blockquote>
 
             <blockquote class="@Parent.UiVisibility">
-                <p><strong>Tip: Use [Ctrl-Enter] to send the message!</strong></p>
+                <p><strong>Tip: Use [Enter] to send the message!</strong></p>
+                <p><strong>Tip: Use [Shift]-[Enter] to enter a new line!</strong></p>
                 <p><a href="/display-chats/@Handler.CurrentSession.SessionId" target="_blank">Send this link to whomever you want to join the chat.</a></p>
 
                 <p>
@@ -88,14 +89,8 @@ else
     <div id="chat-display-area">
         @foreach (var chat in Handler.CurrentSession.Chats)
         {
-            <div class="chat-container @chat.ContainerCssClass">
-                <div class="chat @chat.CssClass" 
-                     style="background-color: @chat.DisplayColor">
-                    <div class="chat-name">@chat.SenderName</div>
-                    <div class="chat-message">@GetMarkup(chat.MessageHtml)</div>
-                    <div class="chat-datetime">@chat.MessageDateTime.ToShortTimeString()</div>
-                </div>
-            </div>
+            <ChatView Chat="@chat"
+                      Host="@Handler" />
         }
     </div>
 }

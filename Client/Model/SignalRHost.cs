@@ -348,9 +348,9 @@ namespace Timekeeper.Client.Model
                     await UnregisterFromPreviousGroup(session.SessionId);
                 }
 
-                await _session.DeleteFromStorage(SessionKey, _log);
+                //await _session.DeleteFromStorage(SessionKey, _log);
                 _session.State = 1;
-                _log.LogTrace("Deleted session and set state to 1");
+                _log.LogTrace("HIGHLIGHT--Deleted session and set state to 1");
                 return;
             }
         }
@@ -518,6 +518,11 @@ namespace Timekeeper.Client.Model
 
         }
 
+        public async Task DeleteSessionFromStorage()
+        {
+            await _session.DeleteFromStorage(SessionKey, _log);
+        }
+
         public void DeleteSession()
         {
             _log.LogInformation("-> DeleteSession");
@@ -553,6 +558,8 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRHost.InitializeSession");
 
+            _log.LogDebug($"HIGHLIGHT--{SessionKey}");
+            
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
             if (CurrentSession == null)

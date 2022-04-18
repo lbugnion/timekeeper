@@ -26,6 +26,7 @@ namespace Timekeeper.Client.Pages
                 if (value == null)
                 {
                     _handler.UpdateUi -= HandlerUpdateUi;
+                    _handler.RequestRefresh -= HandlerRequestRefresh;
                 }
 
                 _handler = value;
@@ -33,8 +34,14 @@ namespace Timekeeper.Client.Pages
                 if (_handler != null)
                 {
                     _handler.UpdateUi += HandlerUpdateUi;
+                    _handler.RequestRefresh += HandlerRequestRefresh;
                 }
             }
+        }
+
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
         }
 
         [Parameter]
@@ -117,6 +124,7 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                Handler.RequestRefresh -= HandlerRequestRefresh;
             }
 
             if (Handler.ChatProxy != null)
@@ -137,10 +145,13 @@ namespace Timekeeper.Client.Pages
 
         public async void HandleKeyPress(KeyboardEventArgs args)
         {
-            if (args.CtrlKey)
+            if (args.Key == "Enter")
             {
-                await Handler.SendCurrentChat();
-                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+                if (!args.ShiftKey)
+                {
+                    await Handler.SendCurrentChat();
+                    await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+                }
             }
         }
 

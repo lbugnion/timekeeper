@@ -38,6 +38,10 @@ window.host = {
         });
 
         observer.observe(document, { attributes: false, childList: true, characterData: false, subtree: true });
+    },
+
+    refreshPage: () => {
+        location.reload();
     }
 }
 
