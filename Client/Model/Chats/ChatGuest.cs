@@ -196,7 +196,7 @@ namespace Timekeeper.Client.Model.Chats
 
         public async Task ToggleLikeChat(Chat chat)
         {
-            _log.LogDebug("HIGHLIGHT---> ChatGuest.ToggleLikeChat");
+            _log.LogDebug("-> ChatGuest.ToggleLikeChat");
 
             await ChatProxy.ToggleLikeChat(
                 chat,

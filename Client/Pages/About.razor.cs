@@ -9,6 +9,8 @@ namespace Timekeeper.Client.Pages
 {
     public partial class About
     {
+        public string BranchId => Config.GetValue<string>("BranchId");
+
         public string Beta
         {
             get;

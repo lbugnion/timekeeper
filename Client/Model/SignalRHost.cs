@@ -350,7 +350,7 @@ namespace Timekeeper.Client.Model
 
                 //await _session.DeleteFromStorage(SessionKey, _log);
                 _session.State = 1;
-                _log.LogTrace("HIGHLIGHT--Deleted session and set state to 1");
+                _log.LogTrace("Deleted session and set state to 1");
                 return;
             }
         }
@@ -558,7 +558,7 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRHost.InitializeSession");
 
-            _log.LogDebug($"HIGHLIGHT--{SessionKey}");
+            _log.LogDebug($"{SessionKey}");
             
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
@@ -598,6 +598,13 @@ namespace Timekeeper.Client.Model
                     // Refresh session
                     var sessions = await _session.GetSessions(_log);
                     var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+
+                    if (outSession == null)
+                    {
+                        _nav.NavigateTo("/session");
+                        return false;
+                    }
+
                     CurrentSession = outSession;
                 }
                 catch (Exception ex)
