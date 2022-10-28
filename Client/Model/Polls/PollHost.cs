@@ -28,7 +28,7 @@ namespace Timekeeper.Client.Model.Polls
         }
 
         public PollHost(
-                            IConfiguration config,
+            IConfiguration config,
             ILocalStorageService localStorage,
             ILogger log,
             HttpClient http,
@@ -321,33 +321,39 @@ namespace Timekeeper.Client.Model.Polls
 
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
-            if (CurrentSession == null)
+            _log.LogDebug($"CurrentSession is null: {CurrentSession == null}");
+
+            if (CurrentSession == null
+                || CurrentSession.SessionId != sessionId)
             {
-                _log.LogWarning("Session in storage is Null");
-                IsBusy = false;
-                IsInError = false;
-                IsConnected = false;
-                _nav.NavigateTo("/");
-                return false;
+                var allSessions = await _session.GetSessions(_log);
+
+                try
+                {
+                    CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
+
+                    if (CurrentSession == null)
+                    {
+                        _log.LogWarning($"Cannot find a session for {sessionId}");
+                        IsBusy = false;
+                        IsInError = false;
+                        IsConnected = false;
+                        _nav.NavigateTo("/");
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
             else
             {
-                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
-
-                if (CurrentSession.SessionId != sessionId)
-                {
-                    _log.LogTrace("Session ID mismatch");
-                    CurrentSession = null;
-                    ErrorStatus = "Session ID mismatch";
-                    IsBusy = false;
-                    IsInError = false;
-                    IsConnected = false;
-                    IsSessionMismatch = true;
-                    RaiseUpdateEvent();
-                    _log.LogTrace("Done informing user");
-                    return false;
-                }
-
                 // Refresh session
 
                 try
