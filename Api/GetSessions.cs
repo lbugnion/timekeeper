@@ -35,21 +35,21 @@ namespace Timekeeper
                 return verificationResult;
             }
 
-            branchId = branchId.ToLower();
-
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(
-                    Constants.AzureStorageVariableName));
-
-            var blobClient = account.CreateCloudBlobClient();
-            var blobHelper = new BlobHelper(blobClient, null);
-
-            var container = blobHelper.GetContainerFromName("sessions");
-
             var result = new List<SessionBase>();
 
             try
             {
+                branchId = branchId.ToLower();
+
+                var account = CloudStorageAccount.Parse(
+                    Environment.GetEnvironmentVariable(
+                        Constants.AzureStorageVariableName));
+
+                var blobClient = account.CreateCloudBlobClient();
+                var blobHelper = new BlobHelper(blobClient, null);
+
+                var container = blobHelper.GetContainerFromName("sessions");
+
                 BlobContinuationToken continuationToken = null;
 
                 do
@@ -72,6 +72,7 @@ namespace Timekeeper
             catch (Exception ex)
             {
                 log.LogWarning($"Error when loading sessions {ex.Message}");
+                return new UnprocessableEntityObjectResult(ex.Message);
             }
 
             return new OkObjectResult(result);
