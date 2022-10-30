@@ -25,7 +25,6 @@
         <ul>
             @foreach (var provider in providers)
             {
-
                 <li>
                     <a href="/.auth/login/@provider.Key?post_login_redirect_uri=/@Redirect/@SessionId">
                         Sign in with @provider.Value
