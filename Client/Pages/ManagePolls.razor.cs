@@ -12,7 +12,6 @@ namespace Timekeeper.Client.Pages
     {
         public const string VisibilityInvisible = "invisible";
         public const string VisibilityVisible = "visible";
-        public static readonly string ManagePollsSessionId = nameof(ManagePolls) + "SessionId";
 
         public PollHost Handler
         {

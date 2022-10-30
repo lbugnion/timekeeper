@@ -43,21 +43,8 @@
                         }
                         else
                         {
-                            @if (Handler.IsSessionMismatch)
-                            {
-                                <blockquote class="error">
-                                    Please use the Manage Polls link from the main Timekeeper window to open this window. 
-                                    <br /><br />
-                                    In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
-                                    <br /><br />
-                                    <a href="/">Go back to the top...</a>
-                                </blockquote>
-                            }
-                            else
-                            {
-                                <ManagePollsView Handler="@Handler"
-                                                 Parent="@this" />
-                            }
+                            <ManagePollsView Handler="@Handler"
+                                                Parent="@this" />
                         }
                     }
                 </Authorized>
@@ -83,21 +70,8 @@
                 }
                 else
                 {
-                    @if (Handler.IsSessionMismatch)
-                    {
-                        <blockquote class="error">
-                            Please use the Manage Polls link from the main Timekeeper window to open this window. 
-                            <br /><br />
-                            In case of doubt, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>.
-                            <br /><br />
-                            <a href="/">Go back to the top...</a>
-                        </blockquote>
-                    }
-                    else
-                    {
-                        <ManagePollsView Handler="@Handler"
-                                         Parent="@this" />
-                    }
+                    <ManagePollsView Handler="@Handler"
+                                        Parent="@this" />
                 }
             }
         }

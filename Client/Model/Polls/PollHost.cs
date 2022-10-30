@@ -21,12 +21,6 @@ namespace Timekeeper.Client.Model.Polls
             get => CurrentSession.Polls.Any(p => p.IsPublished);
         }
 
-        public bool IsSessionMismatch
-        {
-            get;
-            private set;
-        }
-
         public PollHost(
             IConfiguration config,
             ILocalStorageService localStorage,
