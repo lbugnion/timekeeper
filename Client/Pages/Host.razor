@@ -1,4 +1,5 @@
 ﻿@page "/host"
+@page "/host/{SessionId}"
 @inject HttpClient Http
 @inject ILogger<Host> Log
 @inject IConfiguration Config
@@ -84,7 +85,7 @@
             <AuthorizeView>
                 <NotAuthorized>
                     <blockquote class="warning">
-                        Please <a href="/login">log in to use this page</a>.
+                        Please <a href="/login/host/@SessionId">log in to use this page</a>.
                     </blockquote>
                 </NotAuthorized>
                 <Authorized>

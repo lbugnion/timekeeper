@@ -163,10 +163,9 @@ namespace Timekeeper.Client.Model.Chats
             if (CurrentSession == null
                 || CurrentSession.SessionId != sessionId)
             {
-                var allSessions = await _session.GetSessions(_log);
-
                 try
                 {
+                    var allSessions = await _session.GetSessions(_log);
                     CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
 
                     if (CurrentSession == null)
@@ -175,7 +174,7 @@ namespace Timekeeper.Client.Model.Chats
                         IsBusy = false;
                         IsInError = false;
                         IsConnected = false;
-                        _nav.NavigateTo("/");
+                        _nav.NavigateTo("/session");
                         return false;
                     }
                 }
@@ -197,6 +196,13 @@ namespace Timekeeper.Client.Model.Chats
                 {
                     var sessions = await _session.GetSessions(_log);
                     var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+
+                    if (outSession == null)
+                    {
+                        _nav.NavigateTo("/session");
+                        return false;
+                    }
+
                     CurrentSession = outSession;
                 }
                 catch (Exception ex)

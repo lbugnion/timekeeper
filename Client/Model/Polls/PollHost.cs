@@ -320,10 +320,9 @@ namespace Timekeeper.Client.Model.Polls
             if (CurrentSession == null
                 || CurrentSession.SessionId != sessionId)
             {
-                var allSessions = await _session.GetSessions(_log);
-
                 try
                 {
+                    var allSessions = await _session.GetSessions(_log);
                     CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
 
                     if (CurrentSession == null)
@@ -332,7 +331,7 @@ namespace Timekeeper.Client.Model.Polls
                         IsBusy = false;
                         IsInError = false;
                         IsConnected = false;
-                        _nav.NavigateTo("/");
+                        _nav.NavigateTo("/session");
                         return false;
                     }
                 }

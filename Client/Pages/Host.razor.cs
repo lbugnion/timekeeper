@@ -23,6 +23,9 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        [Parameter]
+        public string SessionId { get; set; }
+
         public string SessionName
         {
             get
@@ -94,7 +97,8 @@ namespace Timekeeper.Client.Pages
                     Log,
                     Http,
                     Nav,
-                    Session);
+                    Session,
+                    SessionId);
             }
             else
             {
