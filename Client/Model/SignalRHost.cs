@@ -569,10 +569,20 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"CurrentSession is null: {CurrentSession == null}");
 
             if (CurrentSession == null
-                || CurrentSession.SessionId != sessionId)
+                || (!string.IsNullOrEmpty(sessionId)
+                    && CurrentSession.SessionId != sessionId))
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(sessionId))
+                    {
+                        IsBusy = false;
+                        IsInError = false;
+                        IsConnected = false;
+                        _nav.NavigateTo("/session");
+                        return false;
+                    }
+
                     var allSessions = await _session.GetSessions(_log);
                     CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
 
