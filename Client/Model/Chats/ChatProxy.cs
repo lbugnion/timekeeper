@@ -249,7 +249,7 @@ namespace Timekeeper.Client.Model.Chats
                 log);
         }
 
-        public async Task ReceiveChats(
+        public async Task<bool> ReceiveChats(
             Action raiseUpdateEvent,
             Func<Task> saveChats,
             string receivedChatJson,
@@ -268,10 +268,10 @@ namespace Timekeeper.Client.Model.Chats
             catch
             {
                 log.LogTrace("Error with received chat");
-                return;
+                return false;
             }
 
-            await ReceiveChats(
+            return await ReceiveChats(
                 raiseUpdateEvent,
                 saveChats,
                 receivedChats,
@@ -280,7 +280,7 @@ namespace Timekeeper.Client.Model.Chats
                 log);
         }
 
-        public async Task ReceiveChats(
+        public async Task<bool> ReceiveChats(
             Action raiseUpdateEvent,
             Func<Task> saveChats,
             ListOfChats receivedChats,
@@ -288,6 +288,8 @@ namespace Timekeeper.Client.Model.Chats
             string peerId,
             ILogger log)
         {
+            var chatAdded = false;
+
             log.LogTrace("-> ChatProxy.ReceiveChat(ListOfChats)");
 
             foreach (var receivedChat in receivedChats.Chats.OrderBy(c => c.MessageDateTime))
@@ -297,7 +299,7 @@ namespace Timekeeper.Client.Model.Chats
                 if (receivedChat.Key != SecretKey)
                 {
                     log.LogError("Received chat with invalid key");
-                    return;
+                    return false;
                 }
 
                 UpdateChatStyles(receivedChat, peerId);
@@ -324,6 +326,8 @@ namespace Timekeeper.Client.Model.Chats
                         var index = allChats.IndexOf(nextChat);
                         allChats.Insert(index, receivedChat);
                     }
+
+                    chatAdded = true;
                 }
 
                 if (!string.IsNullOrEmpty(receivedChat.SessionName))
@@ -345,6 +349,8 @@ namespace Timekeeper.Client.Model.Chats
             {
                 await saveChats();
             }
+
+            return chatAdded;
         }
 
         public async Task<bool> SendChats(

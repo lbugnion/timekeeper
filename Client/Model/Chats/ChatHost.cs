@@ -19,6 +19,8 @@ namespace Timekeeper.Client.Model.Chats
         private const string _secretKeyCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*():;.,/?{}[]";
         private string _sessionId;
 
+        public event EventHandler Ding;
+
         public ChatProxy ChatProxy { get; set; }
 
         public ChatHost(
@@ -38,13 +40,18 @@ namespace Timekeeper.Client.Model.Chats
         {
             _log.LogTrace("-> ChatHost.ReceiveChats(string)");
 
-            await ChatProxy.ReceiveChats(
+            var chatAdded = await ChatProxy.ReceiveChats(
                 RaiseUpdateEvent,
                 SaveSession,
                 receivedJson,
                 CurrentSession.Chats,
                 PeerInfo.Message.PeerId,
                 _log);
+
+            if (chatAdded)
+            {
+                Ding?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private async Task LikeChat(string receivedJson)
