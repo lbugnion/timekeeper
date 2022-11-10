@@ -29,7 +29,7 @@ namespace Timekeeper.Client.Model.Chats
         public string Status { get; private set; }
 
         public ChatProxy(
-                    HttpClient http,
+            HttpClient http,
             string hostNameFree)
         {
             _http = http;

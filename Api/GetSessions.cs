@@ -26,13 +26,15 @@ namespace Timekeeper
             string branchId,
             ILogger log)
         {
+            // TODO Investigate why this function is called twice
             log.LogInformation($"-> {nameof(GetSessions)}");
 
-            var verificationResult = Verification.Verify(branchId, null, log);
+            var verificationResult = Verification.Verify(branchId, null);
 
             if (verificationResult != null)
             {
-                return verificationResult;
+                log.LogError(verificationResult);
+                return new BadRequestObjectResult(verificationResult);
             }
 
             var result = new List<SessionBase>();
@@ -63,7 +65,11 @@ namespace Timekeeper
                         {
                             var content = await blob.DownloadTextAsync();
                             var session = JsonConvert.DeserializeObject<SessionBase>(content);
-                            result.Add(session);
+
+                            if (session != null)
+                            {
+                                result.Add(session);
+                            }
                         }
                     }
                 }

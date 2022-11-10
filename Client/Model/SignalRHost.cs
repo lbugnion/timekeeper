@@ -562,8 +562,18 @@ namespace Timekeeper.Client.Model
         {
             _log.LogInformation("-> SignalRHost.InitializeSession");
 
-            _log.LogDebug($"{SessionKey}");
-            
+            _log.LogDebug($"SessionKey: {SessionKey}");
+            _log.LogDebug($"sessionId: {sessionId}");
+
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                IsBusy = false;
+                IsInError = false;
+                IsConnected = false;
+                _nav.NavigateTo("/session");
+                return false;
+            }
+
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
             _log.LogDebug($"CurrentSession is null: {CurrentSession == null}");
@@ -574,15 +584,6 @@ namespace Timekeeper.Client.Model
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(sessionId))
-                    {
-                        IsBusy = false;
-                        IsInError = false;
-                        IsConnected = false;
-                        _nav.NavigateTo("/session");
-                        return false;
-                    }
-
                     var allSessions = await _session.GetSessions(_log);
                     CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
 
@@ -612,11 +613,13 @@ namespace Timekeeper.Client.Model
 
                 try
                 {
+                    _log.LogDebug("Refreshing session");
                     var sessions = await _session.GetSessions(_log);
                     var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
 
                     if (outSession == null)
                     {
+                        _log.LogDebug("outSession is null, navigating");
                         _nav.NavigateTo("/session");
                         return false;
                     }
