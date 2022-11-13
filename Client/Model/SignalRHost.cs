@@ -570,6 +570,7 @@ namespace Timekeeper.Client.Model
                 IsBusy = false;
                 IsInError = false;
                 IsConnected = false;
+                IsSessionUnknown = false;
                 _nav.NavigateTo("/session");
                 return false;
             }
@@ -591,9 +592,9 @@ namespace Timekeeper.Client.Model
                     {
                         _log.LogWarning($"Cannot find a session for {sessionId}");
                         IsBusy = false;
-                        IsInError = false;
+                        IsInError = true;
                         IsConnected = false;
-                        _nav.NavigateTo("/session");
+                        IsSessionUnknown = true;
                         return false;
                     }
                 }
@@ -602,6 +603,7 @@ namespace Timekeeper.Client.Model
                     _log.LogError($"Cannot get sessions: {ex.Message}");
                     IsConnected = false;
                     IsInError = true;
+                    IsSessionUnknown = false;
                     ErrorStatus = "Error getting sessions";
                     RaiseUpdateEvent();
                     return false;
@@ -631,6 +633,7 @@ namespace Timekeeper.Client.Model
                     _log.LogError($"Cannot get sessions: {ex.Message}");
                     IsConnected = false;
                     IsInError = true;
+                    IsSessionUnknown = false;
                     ErrorStatus = "Error getting sessions";
                     RaiseUpdateEvent();
                     return false;

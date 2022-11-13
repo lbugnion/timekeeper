@@ -70,17 +70,17 @@ namespace Timekeeper.Client.Model
             _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
         }
 
-        public async Task<bool> CheckSetNewSession(ILogger log)
+        public async Task<string> CheckSetNewSession(ILogger log)
         {
             var isValid = NewSessionEditContext.Validate();
             if (isValid)
             {
                 NewSession.Clocks.Add(new Clock());
                 await Save(NewSession, SignalRHost.HostSessionKey, log);
-                return true;
+                return NewSession.SessionId;
             }
 
-            return false;
+            return null;
         }
 
         public async Task DeleteFromStorage(
@@ -119,7 +119,7 @@ namespace Timekeeper.Client.Model
             State = 2;
         }
 
-        public async Task<bool> Duplicate(string sessionId, ILogger log)
+        public async Task<string> Duplicate(string sessionId, ILogger log)
         {
             log.LogInformation("-> Duplicate");
 
@@ -151,9 +151,10 @@ namespace Timekeeper.Client.Model
             if (success)
             {
                 CloudSessions.Add(newSession);
+                return newSession.SessionId;
             }
 
-            return success;
+            return null;
         }
 
         public async Task<SessionBase> GetFromStorage(

@@ -102,6 +102,11 @@ namespace Timekeeper
                 existingSession = session;
             }
 
+            if (existingSession.Clocks.Count == 0)
+            {
+                existingSession.Clocks.Add(new Clock());
+            }
+
             // Reserialize to ensure that the formatting is correct (easier to read when debugging)
             var storageJson = JsonConvert.SerializeObject(existingSession, Formatting.Indented);
 
