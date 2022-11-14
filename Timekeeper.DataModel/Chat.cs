@@ -71,6 +71,8 @@ namespace Timekeeper.DataModel
 
         public string SessionName { get; set; }
 
+        public string SessionId { get; set; }
+
         public string UniqueId { get; set; }
 
         public string UserId { get; set; }

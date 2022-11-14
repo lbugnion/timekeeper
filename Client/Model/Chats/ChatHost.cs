@@ -45,6 +45,7 @@ namespace Timekeeper.Client.Model.Chats
                 SaveSession,
                 receivedJson,
                 CurrentSession.Chats,
+                CurrentSession.SessionId,
                 PeerInfo.Message.PeerId,
                 _log);
 

@@ -47,6 +47,7 @@ namespace Timekeeper.Client.Model.Chats
                 null, // Do not save messages in the guest, they always need a Host to be online.
                 receivedJson,
                 CurrentSession.Chats,
+                CurrentSession.SessionId,
                 PeerInfo.Message.PeerId,
                 _log);
 

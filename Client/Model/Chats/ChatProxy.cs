@@ -254,6 +254,7 @@ namespace Timekeeper.Client.Model.Chats
             Func<Task> saveChats,
             string receivedChatJson,
             IList<Chat> allChats,
+            string sessionId,
             string peerId,
             ILogger log)
         {
@@ -276,6 +277,7 @@ namespace Timekeeper.Client.Model.Chats
                 saveChats,
                 receivedChats,
                 allChats,
+                sessionId,
                 peerId,
                 log);
         }
@@ -285,6 +287,7 @@ namespace Timekeeper.Client.Model.Chats
             Func<Task> saveChats,
             ListOfChats receivedChats,
             IList<Chat> allChats,
+            string sessionId,
             string peerId,
             ILogger log)
         {
@@ -295,6 +298,15 @@ namespace Timekeeper.Client.Model.Chats
             foreach (var receivedChat in receivedChats.Chats.OrderBy(c => c.MessageDateTime))
             {
                 log.LogDebug($"Received chat with MessageMarkdown '{receivedChat.MessageMarkdown}' and ID {receivedChat.UniqueId}");
+
+                if (receivedChat.SessionId != sessionId)
+                {
+                    // This should never happen except if this user didn't
+                    // unregister properly from a previous session with
+                    // a different session ID.
+                    log.LogError("Received chat with invalid session ID");
+                    continue;
+                }
 
                 if (receivedChat.Key != SecretKey)
                 {
@@ -367,6 +379,7 @@ namespace Timekeeper.Client.Model.Chats
             foreach (var chat in chats)
             {
                 chat.SessionName = null;
+                chat.SessionId = sessionId;
             }
 
             chats.First().SessionName = sessionName;

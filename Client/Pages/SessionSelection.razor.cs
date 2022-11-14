@@ -109,7 +109,6 @@ namespace Timekeeper.Client.Pages
 
             try
             {
-                Log.LogDebug("001");
                 await Session.GetSessions(Log);
             }
             catch (Exception ex)
