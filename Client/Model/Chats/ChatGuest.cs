@@ -92,7 +92,7 @@ namespace Timekeeper.Client.Model.Chats
 
             var ok = await InitializeSession(_sessionId)
                 && await InitializePeerInfo()
-                && await UnregisterFromPreviousGroup(_unregisterFromGroup)
+                //&& await UnregisterFromPreviousGroup(_unregisterFromGroup)
                 && await CreateConnection();
 
             if (ok)
