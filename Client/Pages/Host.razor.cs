@@ -146,6 +146,9 @@ namespace Timekeeper.Client.Pages
                 Handler.UpdateUi -= HandlerUpdateUi;
                 Handler.RequestRefresh -= HandlerRequestRefresh;
 
+                await Handler.DeleteSessionFromStorage();
+                await Handler.ResetState();
+
                 if (Program.ClockToConfigure == null)
                 {
                     Log.LogTrace("Disconnecting");
