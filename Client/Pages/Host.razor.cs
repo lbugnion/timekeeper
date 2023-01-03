@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
@@ -146,8 +148,7 @@ namespace Timekeeper.Client.Pages
                 Handler.UpdateUi -= HandlerUpdateUi;
                 Handler.RequestRefresh -= HandlerRequestRefresh;
 
-                await Handler.DeleteSessionFromStorage();
-                await Handler.ResetState();
+                Session.State = 1;
 
                 if (Program.ClockToConfigure == null)
                 {
