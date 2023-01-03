@@ -1,9 +1,25 @@
 ### Create new session
-POST http://localhost:7072/api/session/BCE4F196-D690-4E01-9AA4-09C829A37C59/FFA28184-F3F4-4B62-9BD6-8D39FCAAEE03
-x-timekeeper-token: {F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2}
+POST {{function-url}}/session/BCE4F196-D690-4E01-9AA4-09C829A37C59/FFA28184-F3F4-4B62-9BD6-8D39FCAAEE05
+x-timekeeper-token: F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2
 
 {
     "BranchId" : "BCE4F196-D690-4E01-9AA4-09C829A37C59",
-    "SessionId" : "FFA28184-F3F4-4B62-9BD6-8D39FCAAEE03",
-    "SessionName" : "Creating from REST",
+    "SessionId" : "FFA28184-F3F4-4B62-9BD6-8D39FCAAEE05",
+    "SessionName" : "Creating from REST with clocks",
+    "Clocks" : [
+
+        {
+            "Message" : {
+
+                "AlmostDone":"00:02:00",
+                "AlmostDoneColor":"#FF6B77",
+                "CountDown":"01:30:00",
+                "Label":"Session",
+                "PayAttention":"00:10:00",
+                "PayAttentionColor":"#FFFB91",
+                "RunningColor":"#3AFFA9"
+            }
+        }
+
+    ]
 }

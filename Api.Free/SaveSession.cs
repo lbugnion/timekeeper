@@ -107,6 +107,11 @@ namespace Timekeeper
                 existingSession.Clocks.Add(new Clock());
             }
 
+            foreach (var clock in existingSession.Clocks)
+            {
+                clock.ResetDisplay();
+            }
+
             // Reserialize to ensure that the formatting is correct (easier to read when debugging)
             var storageJson = JsonConvert.SerializeObject(existingSession, Formatting.Indented);
 

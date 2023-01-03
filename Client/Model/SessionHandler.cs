@@ -345,7 +345,7 @@ namespace Timekeeper.Client.Model
                 clock.ResetDisplay();
             }
 
-            await SaveToStorage(selectedSession, SignalRHost.HostSessionKey, log);
+            await SaveToStorage(selectedSession, SignalRHostBase.HostSessionKey, log);
             State = 2;
         }
     }
