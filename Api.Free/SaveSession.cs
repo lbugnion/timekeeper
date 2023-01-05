@@ -16,7 +16,7 @@ namespace Timekeeper
         [FunctionName("SaveSession")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Function,
+                AuthorizationLevel.Anonymous,
                 "post",
                 Route = "session/{branchId}/{sessionId}")]
             HttpRequest req,

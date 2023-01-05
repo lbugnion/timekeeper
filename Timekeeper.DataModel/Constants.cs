@@ -37,7 +37,6 @@
         public const string You = " (you)";
         public const string YouName = "You";
         public const string LikeChatMessage = "like-chat";
-        public const string TokenVariableName = "x-timekeeper-token";
 
         public const string OwnChatCss = "own-chat";
         public const string OthersChatCss = "others-chat";
