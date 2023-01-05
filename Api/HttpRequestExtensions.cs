@@ -29,7 +29,7 @@ namespace Timekeeper
                 return false;
             }
 
-            var correctToken = Environment.GetEnvironmentVariable(Constants.TokenHeaderKey);
+            var correctToken = Environment.GetEnvironmentVariable(Constants.TimekeeperTokenVariableName);
 
             return correctToken == token;
         }
