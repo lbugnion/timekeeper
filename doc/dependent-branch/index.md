@@ -1,8 +1,8 @@
 # Deploying Timekeeper to a dependent branch
 
-A _dependent branch_ is a branch of Timekeeper using own branding (colors, logos etc) and living in its own Static Web App instance, but using the common Azure Functions and Azure SignalR service instances.
+A _dependent branch_ is a branch of Timekeeper using own branding (colors, logos etc) and living in its own Static Web App instance, but using the common Storage, Azure Functions and Azure SignalR service instances.
 
-If you are looking to deploy a completely independent version of Timekeeper (using its own instance of Azure Functions and Azure SignalR service), [please check this page](../independent-branch/index.md).
+If you are looking to deploy a completely independent version of Timekeeper (using its own instance of Storage, Azure Functions and Azure SignalR service), [please check this page](../independent-branch/index.md).
 
 ## Preparing the new branch
 
@@ -135,3 +135,12 @@ Optionally you can change the following settings:
 
 - Change the name of the GitHub action that was generated for your Static Web App instance to follow the conventions of the other actions.
 - Change the name of the GitHub token used by this action.
+  - Go to the Azure Static Web App in the portal.
+  - Select `Manage deployment token`.
+  - Copy the token.
+  - Go to [GitHub action secrets](https://github.com/lbugnion/timekeeper/settings/secrets/actions)
+  - Create a `New repository secret` named `SWA_TOKEN_[YOUR_BRANCH]`.
+  - Paste the token you copied.
+  - Click `Add secret`.
+  - Update the token name in the GitHub action (in 2 locations).
+  - Remove the old token from the secrets.

@@ -13,8 +13,8 @@ namespace Timekeeper.Client.Pages
 
         private const string SaveGuestNameText = "save your name";
 
-        private const string VisibilityVisible = "visible";
         private const string VisibilityInvisible = "invisible";
+        private const string VisibilityVisible = "visible";
 
         public string EditGuestNameLinkText
         {
@@ -59,14 +59,62 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        public string ToggleButtonClass
         {
+            get;
+            set;
+        }
+
+        public string UiVisibility
+        {
+            get;
+            set;
+        }
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName)
+                    || Handler.CurrentSession.SessionName == Branding.GuestPageTitle)
+                {
+                    return Branding.GuestPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.GuestPageTitle}";
+            }
+        }
+
+        private async void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
+        }
+
+        private void ToggleFocus()
+        {
+            Log.LogTrace("-> ToggleFocus");
+
+            if (UiVisibility == VisibilityVisible)
+            {
+                Log.LogTrace("Setting Invisible");
+                UiVisibility = VisibilityInvisible;
+            }
+            else
+            {
+                Log.LogTrace("Setting Visible");
+                UiVisibility = VisibilityVisible;
+            }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+            }
         }
 
         protected override async Task OnInitializedAsync()
@@ -103,7 +151,10 @@ namespace Timekeeper.Client.Pages
                         Session);
 
                     Handler.UpdateUi += HandlerUpdateUi;
+                    Handler.RequestRefresh += HandlerRequestRefresh;
                     await Handler.Connect();
+
+                    await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
                     GuestName = Handler.PeerInfo.Message.DisplayName;
                     Mobile = await new MobileHandler().Initialize(JSRuntime);
@@ -115,6 +166,11 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("OnInitializedAsync ->");
         }
 
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
+        }
+
         public async void Dispose()
         {
             Log.LogTrace("Dispose");
@@ -122,6 +178,7 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                Handler.RequestRefresh -= HandlerRequestRefresh;
             }
 
             await Task.Run(async () =>
@@ -141,38 +198,8 @@ namespace Timekeeper.Client.Pages
             else
             {
                 EditGuestNameLinkText = EditGuestNameText;
-                Handler.PeerInfo.Message.CustomName = GuestName;
+                await Handler.SetCustomUserName(GuestName);
                 GuestName = Handler.PeerInfo.Message.DisplayName;
-                await Handler.SavePeerInfo();
-                await Handler.AnnounceName();
-            }
-        }
-
-        public string UiVisibility
-        {
-            get;
-            set;
-        }
-
-        public string ToggleButtonClass
-        {
-            get;
-            set;
-        }
-
-        private void ToggleFocus()
-        {
-            Log.LogTrace("HIGHLIGHT---> ToggleFocus");
-
-            if (UiVisibility == VisibilityVisible)
-            {
-                Log.LogTrace("HIGHLIGHT--Setting Invisible");
-                UiVisibility = VisibilityInvisible;
-            }
-            else
-            {
-                Log.LogTrace("HIGHLIGHT--Setting Visible");
-                UiVisibility = VisibilityVisible;
             }
         }
     }

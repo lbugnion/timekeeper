@@ -11,6 +11,31 @@ namespace Timekeeper.Client.Pages
 {
     public partial class Configure : IDisposable
     {
+        public Clock Clock
+        {
+            get;
+            private set;
+        }
+
+        public string CurrentClockLabel
+        {
+            get
+            {
+                return CurrentClockMessage.Label;
+            }
+            set
+            {
+                CurrentClockMessage.Label = value;
+                Clock.CurrentLabel = value;
+            }
+        }
+
+        public StartClockMessage CurrentClockMessage
+        {
+            get;
+            private set;
+        }
+
         public EditContext CurrentEditContext
         {
             get;
@@ -51,7 +76,10 @@ namespace Timekeeper.Client.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            }
         }
 
         protected override void OnInitialized()
@@ -67,6 +95,7 @@ namespace Timekeeper.Client.Pages
             Host = Program.ClockToConfigure.Host;
             Clock = Program.ClockToConfigure.CurrentClock;
             Host.UpdateUi += HandlerUpdateUi;
+            Host.RequestRefresh += HandlerRequestRefresh;
 
             CurrentClockMessage = Program.ClockToConfigure.CurrentClock.Message;
             CurrentEditContext = new EditContext(CurrentClockMessage);
@@ -75,34 +104,15 @@ namespace Timekeeper.Client.Pages
             Log.LogInformation("OnInitialized ->");
         }
 
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
+        }
+
         public void Dispose()
         {
             Host.UpdateUi -= HandlerUpdateUi;
-        }
-
-        public Clock Clock
-        {
-            get;
-            private set;
-        }
-
-        public StartClockMessage CurrentClockMessage
-        {
-            get;
-            private set;
-        }
-
-        public string CurrentClockLabel
-        {
-            get
-            {
-                return CurrentClockMessage.Label;
-            }
-            set
-            {
-                CurrentClockMessage.Label = value;
-                Clock.CurrentLabel = value;
-            }
+            Host.RequestRefresh -= HandlerRequestRefresh;
         }
     }
 }

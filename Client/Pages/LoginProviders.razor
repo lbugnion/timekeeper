@@ -1,4 +1,6 @@
 ﻿@page "/login"
+@page "/login/{Redirect}"
+@page "/login/{Redirect}/{SessionId}"
 @inject ILogger<LoginProviders> Log
 
 @{
@@ -7,6 +9,9 @@
         { "github", "GitHub" },
         { "twitter", "Twitter" }
     };
+
+    Log.LogDebug($"Redirect: {Redirect}");
+    Log.LogDebug($"SessionId: {SessionId}");
 }
 
 <header class="@Branding.HeaderClass">
@@ -22,7 +27,7 @@
             @foreach (var provider in providers)
             {
                 <li>
-                    <a href="/.auth/login/@provider.Key?post_login_redirect_uri=/host">
+                    <a href="/.auth/login/@provider.Key?post_login_redirect_uri=/@Redirect/@SessionId">
                         Sign in with @provider.Value
                     </a>
                 </li>

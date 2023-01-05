@@ -1,0 +1,45 @@
+﻿@page "/helloworld-backstage"
+@page "/helloworld-backstage/{Level1}"
+@page "/helloworld-backstage/{Level1}/{Level2}"
+@inject NavigationManager Nav 
+
+@code {
+
+    [Parameter]
+    public string Level1
+    {
+        get;
+        set;
+    }
+
+    [Parameter]
+    public string Level2
+    {
+        get;
+        set;
+    }
+
+    protected override void OnInitialized()
+    {
+        const string TargetUrlBase = "https://helloworld.timekeeper.cloud/";
+
+        if (string.IsNullOrEmpty(Level1))
+        {
+            Nav.NavigateTo(TargetUrlBase);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Level2))
+        {
+            Nav.NavigateTo(TargetUrlBase + Level1);
+            return;
+        }
+
+        if (!Level1.EndsWith("/"))
+        {
+            Level1 += "/";
+        }
+
+        Nav.NavigateTo(TargetUrlBase + Level1 + Level2);
+    }
+}

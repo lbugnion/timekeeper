@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,14 +9,9 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {
-    public class SignalRGuest : SignalRHandler
+    public class SignalRGuest : SignalRGuestBase
     {
-        private string _sessionId;
-
-        private string _unregisterFromGroup = null;
-
         protected override string SessionKey => "GuestSession";
-        protected override string PeerKey => "GuestPeer";
 
         public SignalRGuest(
             IConfiguration config,
@@ -25,21 +19,9 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http,
             string sessionId,
-            SessionHandler session) : base(config, localStorage, log, http, session)
+            SessionHandler session) : base(config, localStorage, log, http, sessionId, session)
         {
-            _log.LogInformation("> SignalRGuest()");
-            _sessionId = sessionId;
-        }
-
-        public async Task<bool> AnnounceName()
-        {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
-
-            var json = JsonConvert.SerializeObject(PeerInfo.Message);
-            _log.LogDebug($"json: {json}");
-
-            return await AnnounceNameJson(json);
+            _log.LogInformation("-> SignalRGuest()");
         }
 
         public override async Task Connect()
@@ -47,6 +29,9 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> SignalRGuest.Connect");
 
             IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
+            RaiseUpdateEvent();
 
             var ok = await InitializeSession(_sessionId)
                 && await InitializePeerInfo()
@@ -64,33 +49,40 @@ namespace Timekeeper.Client.Model
 
                 if (ok)
                 {
-                    IsConnected = true;
-                    DisplayMessage("Ready", false);
-
                     _log.LogTrace($"Name is {PeerInfo.Message.DisplayName}");
                     _log.LogTrace($"Sending name {PeerInfo.Message.CustomName}");
 
                     ok = await AnnounceName();
 
-                    if (!ok)
+                    if (ok)
+                    {
+                        IsConnected = true;
+                        IsInError = false;
+                        DisplayMessage("Ready", false);
+                    }
+                    else
                     {
                         IsConnected = false;
+                        IsInError = true;
                         DisplayMessage("Error", true);
                     }
                 }
                 else
                 {
                     IsConnected = false;
+                    IsInError = true;
                     DisplayMessage("Error", true);
                 }
             }
             else
             {
                 IsConnected = false;
+                IsInError = true;
                 DisplayMessage("Error", true);
             }
 
             IsBusy = false;
+            RaiseUpdateEvent();
             _log.LogInformation("SignalRGuest.Connect ->");
         }
 
@@ -103,7 +95,10 @@ namespace Timekeeper.Client.Model
 
             if (guestSession == null)
             {
-                guestSession = new SessionBase();
+                guestSession = new SessionBase()
+                {
+                    SessionName = Branding.GuestPageTitle
+                };
             }
             else
             {
@@ -119,11 +114,6 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("InitializeSession ->");
             return true;
-        }
-
-        public async Task SavePeerInfo()
-        {
-            await PeerInfo.Save(PeerKey);
         }
     }
 }

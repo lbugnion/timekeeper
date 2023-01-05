@@ -4,7 +4,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
@@ -29,14 +28,17 @@ namespace Timekeeper
         {
             log.LogInformation("-> SaveSession");
 
-            var verificationResult = Verification.Verify(branchId, sessionId, log);
+            var verificationResult = Verification.Verify(branchId, sessionId);
 
             if (verificationResult != null)
             {
-                return verificationResult;
+                log.LogError(verificationResult);
+                return new BadRequestObjectResult(verificationResult);
             }
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+
+            log.LogDebug(requestBody);
 
             if (string.IsNullOrEmpty(requestBody))
             {
@@ -60,9 +62,12 @@ namespace Timekeeper
                 return new BadRequestObjectResult("Session IDs don't match");
             }
 
+            // Reserialize to ensure that the formatting is correct (easier to read when debugging)
+            var storageJson = JsonConvert.SerializeObject(session, Formatting.Indented);
+
             using (var writer = new StreamWriter(sessionBlob))
             {
-                writer.Write(requestBody);
+                writer.Write(storageJson);
             }
 
             return new OkObjectResult("Saved to storage");

@@ -16,64 +16,74 @@
     <article>
         <h1 class="@Branding.ForegroundClass">@Branding.SessionPageTitle</h1>
 
-        @if (Session.CloudSessions == null)
+        @if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            <blockquote>Loading...</blockquote>
+            <blockquote class="error">
+                Unable to connect to timekeeper service.
+                <br /><br /><strong>Try refreshing the page.</strong>
+                <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+            </blockquote>
         }
         else
         {
-            @if (Session.CloudSessions.Count == 0)
+            @if (Session.CloudSessions == null)
             {
-                <blockquote class="warning">No sessions found in cloud storage. Create a new one below.</blockquote>
+                <blockquote>Loading...</blockquote>
             }
             else
             {
-                <h2 class="@Branding.ForegroundClass">Select a session</h2>
+                @if (Session.CloudSessions.Count == 0)
+                {
+                    <blockquote class="warning">No sessions found in cloud storage. Create a new one below.</blockquote>
+                }
+                else
+                {
+                    <h2 class="@Branding.ForegroundClass">Select a session</h2>
 
-                <ul>
-                    @foreach (var session in Session.CloudSessions.OrderBy(s => s.SessionName))
-                    {
-                        <li>
-                            @*<button class="session-button"
-                                    title="Delete this session"><i class="fas fa-trash"></i></button>*@
-                            <button class="session-button"
-                                    title="Duplicate this session"
-                                    
-                                    @onclick="@(e => Duplicate(session.SessionId))"><i class="far fa-clone"></i></button>
+                    <ul>
+                        @foreach (var session in Session.CloudSessions.OrderBy(s => s.SessionName))
+                        {
+                            <li>
+                                @*<button class="session-button"
+                                        title="Delete this session"><i class="fas fa-trash"></i></button>*@
+                                <button class="session-button"
+                                        title="Duplicate this session"                                    
+                                        @onclick="@(e => Duplicate(session.SessionId))"><i class="far fa-clone"></i></button>
 
-                            <a href="#"
-                               title="Select this session"
-                               @onclick="(e => SelectSession(session.SessionId))"
-                               @onclick:preventDefault>@session.SessionName</a>
-                        </li>
-                    }
-                </ul>
+                                <a href="/host/@session.SessionId"
+                                   title="Select this session"
+                                   @onclick="(e => SelectSession(session.SessionId))"
+                                   @onclick:preventDefault>@session.SessionName</a>
+                            </li>
+                        }
+                    </ul>
+                }
             }
-        }
 
-        @if (Session.State >= 1)
-        {
-            <h2 class="@Branding.ForegroundClass">Create a new session</h2>
-
-            @if (!string.IsNullOrEmpty(ErrorMessage))
+            @if (Session.State >= 1)
             {
-                <blockquote class="error">@ErrorMessage</blockquote>
+                <h2 class="@Branding.ForegroundClass">Create a new session</h2>
+
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <blockquote class="error">@ErrorMessage</blockquote>
+                }
+
+                <div class="session-edit-area">
+                    <EditForm EditContext="@Session.NewSessionEditContext">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <p class="form-label">Session name</p>
+
+                        <InputText @bind-Value="Session.NewSession.SessionName"
+                                   class="session-edit" />
+                        <br />
+                        <button @onclick="@CheckSetNewSession">Create</button>
+
+                    </EditForm>
+                </div>
             }
-
-            <div class="session-edit-area">
-                <EditForm EditContext="@Session.NewSessionEditContext">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-
-                    <p class="form-label">Session name</p>
-
-                    <InputText @bind-Value="Session.NewSession.SessionName"
-                               class="session-edit" />
-                    <br />
-                    <button @onclick="@CheckSetNewSession">Create</button>
-
-                </EditForm>
-            </div>
         }
 
     </article>

@@ -17,6 +17,7 @@ namespace Timekeeper.Client.Pages
         private const string HidePeersText = "hide";
         private const string SaveSessionNameText = "save session name";
         private const string ShowPeersText = "show";
+        private string _guestUrlQrCode;
         public const string SendMessageInputId = "send-message-input";
 
         public string EditSessionNameLinkText
@@ -37,15 +38,19 @@ namespace Timekeeper.Client.Pages
         {
             get
             {
-                var url = HttpUtility.UrlEncode(GuestUrl);
-                var codeUrl = $"{Nav.BaseUri}api/qr?text={url}";
+                if (string.IsNullOrEmpty(_guestUrlQrCode))
+                {
+                    var url = HttpUtility.UrlEncode(GuestUrl);
+                    _guestUrlQrCode = $"{Nav.BaseUri}api/qr?text={url}";
 
 #if DEBUG
-                codeUrl = $"http://localhost:7071/api/qr?text={url}";
+                    _guestUrlQrCode = $"http://localhost:7071/api/qr?text={url}";
 #endif
 
-                Log.LogDebug($"codeUrl: {codeUrl}");
-                return codeUrl;
+                    //Log.LogDebug($"codeUrl: {codeUrl}");
+                }
+
+                return _guestUrlQrCode;
             }
         }
 
@@ -90,6 +95,8 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        public string SessionId => Handler.CurrentSession.SessionId;
+
         [Parameter]
         public string SessionName
         {
@@ -97,19 +104,35 @@ namespace Timekeeper.Client.Pages
             set;
         }
 
+        public string WindowTitle
+        {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.MainPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.MainPageTitle}";
+            }
+        }
+
         private async Task DoDeleteSession()
         {
             await Handler.DoDeleteSession();
-            Nav.NavigateTo("/host", forceLoad: true);
+            Nav.NavigateTo("/session", forceLoad: true);
         }
 
         protected override async Task OnInitializedAsync()
         {
             Log.LogInformation("-> HostView.OnInitializedAsync");
             IsEditingSessionName = false;
-            SessionName = "Loading...";
             EditSessionNameLinkText = EditSessionNameText;
             PeerListLinkText = ShowPeersText;
+
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
 
             Mobile = await new MobileHandler().Initialize(JSRuntime);
             Log.LogInformation("HostView.OnInitializedAsync ->");
@@ -132,7 +155,7 @@ namespace Timekeeper.Client.Pages
 
         public void CreateNewSession()
         {
-            Nav.NavigateTo("/host", forceLoad: true);
+            Nav.NavigateTo("/session", forceLoad: true);
         }
 
         public async Task EditSessionName()
@@ -159,6 +182,8 @@ namespace Timekeeper.Client.Pages
                     Handler.CurrentSession.SessionName = SessionName;
                 }
 
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
+
                 await Handler.SaveSession();
 
                 await Handler.UpdateRemoteHosts(
@@ -176,10 +201,13 @@ namespace Timekeeper.Client.Pages
 
         public async void HandleKeyPress(KeyboardEventArgs args)
         {
-            if (args.CtrlKey)
+            if (args.Key == "Enter")
             {
-                await Handler.SendInputMessage();
-                await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+                if (!args.ShiftKey)
+                {
+                    await Handler.SendInputMessage();
+                    await JSRuntime.InvokeVoidAsync("host.focusAndSelect", SendMessageInputId);
+                }
             }
         }
 
@@ -190,6 +218,7 @@ namespace Timekeeper.Client.Pages
 
         public async Task NavigateToSession()
         {
+            await Handler.DeleteSessionFromStorage();            
             await Handler.ResetState();
             Nav.NavigateTo("/session");
         }

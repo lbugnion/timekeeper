@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32002.185
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timekeeper.DataModel", "Timekeeper.DataModel\Timekeeper.DataModel.csproj", "{9435D534-B2A3-41F0-898F-7A95E86C2E82}"
 EndProject

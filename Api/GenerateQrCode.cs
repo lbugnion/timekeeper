@@ -1,20 +1,25 @@
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using QRCoder;
-using Microsoft.Net.Http.Headers;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace Timekeeper
 {
     public static class GenerateQrCode
     {
+        private static byte[] ImageToByteArray(Image image)
+        {
+            ImageConverter converter = new ImageConverter();
+            return (byte[])converter.ConvertTo(image, typeof(byte[]));
+        }
+
         [FunctionName("GenerateQrCode")]
-        public static async Task<IActionResult> Run(
+        public static IActionResult Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
@@ -44,12 +49,6 @@ namespace Timekeeper
             Bitmap qrCodeImage = qrCode.GetGraphic(20);
 
             return new FileContentResult(ImageToByteArray(qrCodeImage), "image/png");
-        }
-
-        private static byte[] ImageToByteArray(Image image)
-        {
-            ImageConverter converter = new ImageConverter();
-            return (byte[])converter.ConvertTo(image, typeof(byte[]));
         }
     }
 }

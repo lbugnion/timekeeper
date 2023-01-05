@@ -19,6 +19,7 @@ namespace Timekeeper.Client.Model
         public event EventHandler UpdateUi;
 
         private string _errorStatus;
+        private bool _isManualDisconnection;
         private string _status;
         protected const string AnnounceGuestKeyKey = "AnnounceGuestKey";
         protected const string FunctionCodeHeaderKey = "x-functions-key";
@@ -37,12 +38,12 @@ namespace Timekeeper.Client.Model
         protected string _hostName;
         protected string _hostNameFree;
 
-        protected abstract string SessionKey
+        protected abstract string PeerKey
         {
             get;
         }
 
-        protected abstract string PeerKey
+        protected abstract string SessionKey
         {
             get;
         }
@@ -99,6 +100,12 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
+        public bool IsSessionUnknown
+        {
+            get;
+            protected set;
+        }
+
         public bool IsTaskRunning
         {
             get;
@@ -148,10 +155,55 @@ namespace Timekeeper.Client.Model
             _log.LogDebug($"_hostNameFree: {_hostNameFree}");
         }
 
+        public event EventHandler RequestRefresh;
+
+        private Task ConnectionClosed(Exception arg)
+        {
+            _log.LogWarning(nameof(ConnectionClosed));
+            _log.LogDebug($"_isManualDisconnection: {_isManualDisconnection}");
+            var tcs = new TaskCompletionSource<bool>();
+
+            ErrorStatus = "Unable to reconnect, please refresh the page...";
+            IsBusy = false;
+            IsConnected = false;
+
+            if (!_isManualDisconnection)
+            {
+                // Attempt to refresh the page via JavaScript
+
+                if (RequestRefresh != null)
+                {
+                    RequestRefresh(this, EventArgs.Empty);
+                }
+                else
+                {
+                    IsInError = true;
+                }
+            }
+            else
+            {
+                IsInError = false;
+            }
+
+            _isManualDisconnection = false;
+
+            RaiseUpdateEvent();
+
+            tcs.SetResult(true);
+            return tcs.Task;
+        }
+
         private Task ConnectionReconnected(string arg)
         {
             var tcs = new TaskCompletionSource<bool>();
             Status = "Reconnected!";
+
+            IsBusy = false;
+            IsConnected = true;
+            IsInError = false;
+
+            RaiseUpdateEvent();
+
             tcs.SetResult(true);
             return tcs.Task;
         }
@@ -163,7 +215,9 @@ namespace Timekeeper.Client.Model
             ErrorStatus = "Lost connection, trying to reconnect...";
             IsBusy = true;
             IsConnected = false;
-            IsInError = true;
+            IsInError = false;
+
+            RaiseUpdateEvent();
 
             tcs.SetResult(true);
             return tcs.Task;
@@ -180,8 +234,6 @@ namespace Timekeeper.Client.Model
 
                 var functionKey = _config.GetValue<string>(RegisterKeyKey);
                 _log.LogDebug($"functionKey: {functionKey}");
-
-                _log.LogDebug($"SessionId: {CurrentSession.SessionId}");
 
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, registerUrl);
                 httpRequest.Headers.Add(FunctionCodeHeaderKey, functionKey);
@@ -201,7 +253,6 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogError($"Error registering for group: {response.ReasonPhrase}");
                     ErrorStatus = "Error with the backend, please contact support";
-                    IsInError = true;
                     _log.LogInformation("SignalRHandler.RegisterToGroup ->");
                     return false;
                 }
@@ -210,7 +261,6 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogError($"Error reaching the function: {ex.Message}");
                 ErrorStatus = "Error with the backend, please contact support";
-                IsInError = true;
                 _log.LogInformation("SignalRHandler.RegisterToGroup ->");
                 return false;
             }
@@ -278,7 +328,6 @@ namespace Timekeeper.Client.Model
                 {
                     _log.LogError($"Error reaching the function: {response.ReasonPhrase}");
                     ErrorStatus = "Error with the backend, please contact support";
-                    IsInError = true;
                     _log.LogInformation("SignalRHandler.CreateConnection ->");
                     return false;
                 }
@@ -287,7 +336,6 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogError($"Error reaching the function: {ex.Message}");
                 ErrorStatus = "Error with the backend, please contact support";
-                IsInError = true;
                 _log.LogInformation("SignalRHandler.CreateConnection ->");
                 return false;
             }
@@ -306,6 +354,7 @@ namespace Timekeeper.Client.Model
 
                 _connection.Reconnecting += ConnectionReconnecting;
                 _connection.Reconnected += ConnectionReconnected;
+                _connection.Closed += ConnectionClosed;
             }
             catch (Exception ex)
             {
@@ -314,7 +363,7 @@ namespace Timekeeper.Client.Model
                 return false;
             }
 
-            var ok = await RegisterToGroup(); // TODO handle failure
+            var ok = await RegisterToGroup();
 
             if (!ok)
             {
@@ -398,6 +447,16 @@ namespace Timekeeper.Client.Model
                 {
                     Message = message
                 };
+            }
+
+            _log.LogDebug($"PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
+
+            if (string.IsNullOrEmpty(PeerInfo.Message.ChatColor))
+            {
+                var random = new Random();
+                PeerInfo.Message.ChatColor = $"#{random.Next(128, 255):X2}{random.Next(128, 255):X2}{random.Next(128, 255):X2}";
+                _log.LogDebug($"PeerInfo.Message.ChatColor: {PeerInfo.Message.ChatColor}");
+                await PeerInfo.Save(PeerKey);
             }
 
             _log.LogDebug($"guest ID: {PeerInfo.Message.PeerId}");
@@ -494,6 +553,14 @@ namespace Timekeeper.Client.Model
             {
                 _log.LogDebug($"isClockRunning: {clock.Message.Label} : {clock.IsClockRunning}");
                 RunClock(clock);
+            }
+
+            var sessionNameClock = clockMessages
+                .FirstOrDefault(c => !string.IsNullOrEmpty(c.SessionName));
+
+            if (sessionNameClock != null)
+            {
+                CurrentSession.SessionName = sessionNameClock.SessionName;
             }
 
             RaiseUpdateEvent();
@@ -704,12 +771,24 @@ namespace Timekeeper.Client.Model
             return true;
         }
 
+        public async Task<bool> AnnounceName()
+        {
+            _log.LogInformation($"-> {nameof(AnnounceName)}");
+            _log.LogDebug($"GuestId: {PeerInfo.Message.PeerId}");
+
+            var json = JsonConvert.SerializeObject(PeerInfo.Message);
+            //_log.LogDebug($"json: {json}");
+
+            return await AnnounceNameJson(json);
+        }
+
         public abstract Task Connect();
 
         public async Task Disconnect()
         {
             if (_connection != null)
             {
+                _isManualDisconnection = true;
                 await _connection.StopAsync();
                 await _connection.DisposeAsync();
                 _connection = null;
@@ -717,9 +796,11 @@ namespace Timekeeper.Client.Model
             }
         }
 
-        public async Task<bool> SaveSession()
+        public async Task SetCustomUserName(string userName)
         {
-            return await _session.Save(CurrentSession, SessionKey, _log);
+            PeerInfo.Message.CustomName = userName;
+            await PeerInfo.Save(PeerKey);
+            await AnnounceName();
         }
     }
 }

@@ -83,7 +83,7 @@ public class TimekeeperLogger : ILogger
 
         var timestamp = DateTime.Now.ToString("yyyy:MM:dd HH:mm:ss:fff");
 
-        Console.WriteLine($"{ConsoleCodes.BgCyan}{_name} @ {timestamp} {color}{prefix}: {message}\x1b[0m");
+        Console.WriteLine($"{_name} @ {timestamp} {color}{prefix}: {message}\x1b[0m");
     }
 
     private static class ConsoleCodes

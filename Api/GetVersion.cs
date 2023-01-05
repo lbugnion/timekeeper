@@ -11,13 +11,12 @@ namespace Timekeeper
     public static class GetVersion
     {
         [FunctionName("GetVersion")]
-        public static async Task<IActionResult> Run(
+        public static IActionResult Run(
             [HttpTrigger(
                 AuthorizationLevel.Anonymous,
                 "get",
                 Route = "version")]
-            HttpRequest req,
-            ILogger log)
+            HttpRequest req)
         {
             return new OkObjectResult(Constants.Version);
         }

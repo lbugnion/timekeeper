@@ -9,6 +9,14 @@ namespace Timekeeper.Client.Pages
 {
     public partial class About
     {
+        public string BranchId => Config.GetValue<string>("BranchId");
+
+        public string Beta
+        {
+            get;
+            private set;
+        }
+
         public string ClientVersion
         {
             get;
@@ -21,15 +29,12 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
-        public string Beta
-        {
-            get;
-            private set;
-        }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", $"{Branding.WindowTitle} : About");
+            }
         }
 
         protected override void OnInitialized()

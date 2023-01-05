@@ -15,63 +15,7 @@
     <link rel="icon" href="/favicon.ico" type="image/icon type">
 
     <script src="script/nosleep.min.js"></script>
-
-    <script>
-
-        window.onunload = () => {
-
-            if (noSleep) {
-                noSleep.disable();
-            }
-        }
-
-        window.branding = {
-
-            setTitle: (title) => { document.title = title; },
-        }
-
-        window.host = {
-
-            focusAndSelect: (elementId) => {
-                const element = document.getElementById(elementId);
-                element.focus();
-
-                if (element.type == "textarea") {
-                    element.select();
-                }
-            }
-        }
-
-        var noSleep;
-
-        window.nosleep = {
-
-            isMobile: () => {
-                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                    // true for mobile device
-                    noSleep = new NoSleep();
-                    return true;
-                } else {
-                    // false for not mobile device
-                    noSleep = null;
-                    return false;
-                }
-            },
-
-            enableDisableNoSleep: (enable) => {
-
-                if (enable) {
-                    noSleep = new NoSleep();
-                    noSleep.enable();
-                }
-                else {
-                    noSleep.disable();
-                    noSleep = null;
-                }
-            }
-        }
-
-    </script>
+    <script src="script/timekeeper.js"></script>
 </head>
 
 <body>
