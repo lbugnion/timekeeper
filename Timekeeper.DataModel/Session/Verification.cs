@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 
 namespace Timekeeper.Model
 {
     public static class Verification
     {
-        public static ObjectResult Verify(
+        public static string Verify(
             string branchId,
-            string sessionId,
-            ILogger log)
+            string sessionId)
         {
             if (!string.IsNullOrEmpty(branchId))
             {
@@ -18,8 +15,7 @@ namespace Timekeeper.Model
                 if (!success
                     || testGuid == Guid.Empty)
                 {
-                    log.LogError("Invalid branch ID");
-                    return new BadRequestObjectResult("Invalid branch ID");
+                    return "Invalid branch ID";
                 }
             }
 
@@ -30,8 +26,7 @@ namespace Timekeeper.Model
                 if (!success
                     || testGuid == Guid.Empty)
                 {
-                    log.LogError("Invalid session ID");
-                    return new BadRequestObjectResult("Invalid session ID");
+                    return "Invalid session ID";
                 }
             }
 

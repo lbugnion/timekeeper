@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
@@ -23,6 +25,9 @@ namespace Timekeeper.Client.Pages
             private set;
         }
 
+        [Parameter]
+        public string SessionId { get; set; }
+
         public string SessionName
         {
             get
@@ -37,14 +42,33 @@ namespace Timekeeper.Client.Pages
             }
         }
 
-        private void HandlerUpdateUi(object sender, EventArgs e)
+        public string WindowTitle
         {
+            get
+            {
+                if (Handler == null
+                    || Handler.CurrentSession == null
+                    || string.IsNullOrEmpty(Handler.CurrentSession.SessionName))
+                {
+                    return Branding.MainPageTitle;
+                }
+
+                return $"{Handler.CurrentSession.SessionName} {Branding.MainPageTitle}";
+            }
+        }
+
+        private async void HandlerUpdateUi(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("branding.setTitle", WindowTitle);
             StateHasChanged();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("branding.setTitle", Branding.WindowTitle);
+            }
         }
 
         protected override async Task OnInitializedAsync()
@@ -75,7 +99,8 @@ namespace Timekeeper.Client.Pages
                     Log,
                     Http,
                     Nav,
-                    Session);
+                    Session,
+                    SessionId);
             }
             else
             {
@@ -92,17 +117,26 @@ namespace Timekeeper.Client.Pages
                 Log.LogError("No authorization");
                 return;
             }
-            else if (Handler.IsOffline != null
-                && Handler.IsOffline.Value)
+            else if (!Handler.IsConnected
+                && Handler.IsInError)
             {
                 Log.LogError("Offline");
                 return;
             }
 
-            await Handler.CheckState();
+            if (Branding.AllowSessionSelection)
+            {
+                await Handler.CheckState();
+            }
+
             Handler.UpdateUi += HandlerUpdateUi;
+            Handler.RequestRefresh += HandlerRequestRefresh;
             await Handler.Connect();
-            Handler.SubscribeToClocks();
+        }
+
+        private async void HandlerRequestRefresh(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("host.refreshPage");
         }
 
         public async void Dispose()
@@ -112,6 +146,9 @@ namespace Timekeeper.Client.Pages
             if (Handler != null)
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
+                Handler.RequestRefresh -= HandlerRequestRefresh;
+
+                Session.State = 1;
 
                 if (Program.ClockToConfigure == null)
                 {

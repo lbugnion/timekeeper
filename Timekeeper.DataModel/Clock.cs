@@ -35,7 +35,7 @@ namespace Timekeeper.DataModel
             get;
             set;
         }
-        
+
         public string CurrentLabel
         {
             get;

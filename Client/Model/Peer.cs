@@ -57,7 +57,7 @@ namespace Timekeeper.Client.Model
 
         public async Task Save(string key)
         {
-            var json = JsonConvert.SerializeObject(Message);
+            var json = JsonConvert.SerializeObject(Message, Formatting.Indented);
 
             _log.LogDebug($"Saving: {json}");
 

@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+
+#if !DEBUG
 using Timekeeper.Client.Model;
+#endif
 
 namespace Timekeeper.Client.Pages
 {
@@ -24,9 +27,11 @@ namespace Timekeeper.Client.Pages
 
         private async Task CheckSetNewSession()
         {
-            if (await Session.CheckSetNewSession(Log))
+            var newSessionId = await Session.CheckSetNewSession(Log);
+
+            if (!string.IsNullOrEmpty(newSessionId))
             {
-                Nav.NavigateTo("/host");
+                Nav.NavigateTo($"/host/{newSessionId}");
             }
         }
 
@@ -34,9 +39,11 @@ namespace Timekeeper.Client.Pages
         {
             try
             {
-                if (await Session.Duplicate(sessionId, Log))
+                var newSessionId = await Session.Duplicate(sessionId, Log);
+
+                if (!string.IsNullOrEmpty(newSessionId))
                 {
-                    Nav.NavigateTo("/host");
+                    Nav.NavigateTo($"/host/{newSessionId}");
                 }
             }
             catch (Exception ex)
@@ -62,7 +69,7 @@ namespace Timekeeper.Client.Pages
             try
             {
                 await Session.SelectSession(sessionId, Log);
-                Nav.NavigateTo("/host");
+                Nav.NavigateTo($"/host/{sessionId}");
             }
             catch (Exception ex)
             {
@@ -99,7 +106,17 @@ namespace Timekeeper.Client.Pages
 #endif
 
             Session.InitializeContext(Log);
-            await Session.GetSessions(Log);
+
+            try
+            {
+                await Session.GetSessions(Log);
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"Cannot get sessions: {ex.Message}");
+                ErrorMessage = "Error getting sessions";
+            }
+
             Log.LogInformation("OnInitializedAsync ->");
         }
     }

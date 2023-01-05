@@ -16,8 +16,10 @@ namespace Timekeeper.Client.Model
     {
         private readonly IConfiguration _config;
         private readonly string _hostName;
+        private readonly string _hostNameFree;
         private readonly HttpClient _http;
         private readonly ILocalStorageService _localStorage;
+        private string _token;
 
         public IList<SessionBase> CloudSessions
         {
@@ -65,19 +67,20 @@ namespace Timekeeper.Client.Model
             _config = config;
 
             _hostName = _config.GetValue<string>(Constants.HostNameKey);
+            _hostNameFree = _config.GetValue<string>(Constants.HostNameFreeKey);
         }
 
-        public async Task<bool> CheckSetNewSession(ILogger log)
+        public async Task<string> CheckSetNewSession(ILogger log)
         {
             var isValid = NewSessionEditContext.Validate();
             if (isValid)
             {
                 NewSession.Clocks.Add(new Clock());
                 await Save(NewSession, SignalRHost.HostSessionKey, log);
-                return true;
+                return NewSession.SessionId;
             }
 
-            return false;
+            return null;
         }
 
         public async Task DeleteFromStorage(
@@ -88,7 +91,35 @@ namespace Timekeeper.Client.Model
             await _localStorage.RemoveItemAsync(storageKey);
         }
 
-        public async Task<bool> Duplicate(string sessionId, ILogger log)
+        public async Task DeleteSession(string sessionId, ILogger log)
+        {
+            log.LogInformation("-> DeleteSession");
+
+            var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
+
+            if (selectedSession == null)
+            {
+                throw new ArgumentException($"Invalid sessionId {sessionId}");
+            }
+
+            foreach (var clock in selectedSession.Clocks)
+            {
+                clock.IsClockRunning = false;
+                clock.IsConfigDisabled = true;
+                clock.IsNudgeDisabled = true;
+                clock.IsPlayStopDisabled = true;
+                clock.IsSelected = false;
+                clock.ResetDisplay();
+            }
+
+            // TODO Send notify-delete message
+            // TODO Send delete message
+
+            await DeleteFromStorage(SignalRHost.HostSessionKey, log);
+            State = 2;
+        }
+
+        public async Task<string> Duplicate(string sessionId, ILogger log)
         {
             log.LogInformation("-> Duplicate");
 
@@ -120,9 +151,10 @@ namespace Timekeeper.Client.Model
             if (success)
             {
                 CloudSessions.Add(newSession);
+                return newSession.SessionId;
             }
 
-            return success;
+            return null;
         }
 
         public async Task<SessionBase> GetFromStorage(
@@ -135,7 +167,7 @@ namespace Timekeeper.Client.Model
             var json = await _localStorage.GetItemAsStringAsync(
                 storageKey);
 
-            log.LogDebug($"json: {json}");
+            //log.LogDebug($"json: {json}");
 
             if (string.IsNullOrEmpty(json))
             {
@@ -164,9 +196,9 @@ namespace Timekeeper.Client.Model
         }
 
         public async Task<IList<SessionBase>> GetSessions(
-                    ILogger log)
+            ILogger log)
         {
-            log.LogInformation("-> SessionHandler.GetSessions");
+            log.LogInformation("-> SessionHandler.Get");
 
             var branchId = _config.GetValue<string>(Constants.BranchIdKey);
             log.LogDebug($"branchId: {branchId}");
@@ -179,18 +211,19 @@ namespace Timekeeper.Client.Model
 
                 if (string.IsNullOrEmpty(json))
                 {
-                    log.LogTrace("Json is null");
                     return null;
                 }
 
-                CloudSessions = JsonConvert.DeserializeObject<IList<SessionBase>>(json);
-                log.LogDebug($"Found {CloudSessions.Count} sessions");
+                log.LogDebug(json);
+
+                var sessions = JsonConvert.DeserializeObject<IEnumerable<SessionBase>>(json);
+                CloudSessions = sessions.Where(s => s != null).ToList();
                 return CloudSessions;
             }
             catch (Exception ex)
             {
-                log.LogError($"Cannot get sessions: {ex.Message}");
-                return null;
+                ErrorStatus = "Unable to load sessions";
+                throw ex;
             }
         }
 
@@ -213,16 +246,41 @@ namespace Timekeeper.Client.Model
             string sessionStorageKey,
             ILogger log)
         {
-            await SaveToStorage(session, sessionStorageKey, log);
-
             var json = JsonConvert.SerializeObject(session);
             var content = new StringContent(json);
 
-            var saveSessionUrl = $"{_hostName}/session/{session.BranchId}/{session.SessionId}";
+            if (string.IsNullOrEmpty(_token))
+            {
+                var tokenUrl = $"{_hostName}/token";
+
+                try
+                {
+                    _token = await _http.GetStringAsync(tokenUrl);
+
+                    if (string.IsNullOrEmpty(_token))
+                    {
+                        log.LogError($"Cannot save session: cannot find token");
+                        ErrorStatus = "Error saving, please contact support@timekeeper.cloud";
+                        return false;
+                    }
+                }
+                catch
+                {
+                    log.LogError($"Cannot save session: cannot find token");
+                    ErrorStatus = "Error saving, please contact support@timekeeper.cloud";
+                    return false;
+                }
+            }
+
+            var saveSessionUrl = $"{_hostNameFree}/session/{session.BranchId}/{session.SessionId}";
             log.LogDebug($"saveSessionUrl: {saveSessionUrl}");
 
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, saveSessionUrl);
-            httpRequest.Content = content;
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, saveSessionUrl)
+            {
+                Content = content,
+            };
+
+            httpRequest.Headers.Add(Constants.TokenHeaderKey, _token);
 
             try
             {
@@ -232,6 +290,9 @@ namespace Timekeeper.Client.Model
                 {
                     log.LogDebug($"Saved session {session.SessionId} / {session.SessionName} to the cloud");
                     Status = "Session saved to the cloud";
+
+                    await SaveToStorage(session, sessionStorageKey, log);
+
                     return true;
                 }
                 else
@@ -256,41 +317,12 @@ namespace Timekeeper.Client.Model
         {
             log.LogInformation("-> SessionHandler.SaveToStorage");
 
-            var json = JsonConvert.SerializeObject(session);
+            var json = JsonConvert.SerializeObject(session, Formatting.Indented);
 
             await _localStorage.SetItemAsync(
                 sessionStorageKey,
                 json);
         }
-
-        public async Task DeleteSession(string sessionId, ILogger log)
-        {
-            log.LogInformation("-> DeleteSession");
-
-            var selectedSession = CloudSessions.FirstOrDefault(s => s.SessionId == sessionId);
-
-            if (selectedSession == null)
-            {
-                throw new ArgumentException($"Invalid sessionId {sessionId}");
-            }
-
-            foreach (var clock in selectedSession.Clocks)
-            {
-                clock.IsClockRunning = false;
-                clock.IsConfigDisabled = true;
-                clock.IsNudgeDisabled = true;
-                clock.IsPlayStopDisabled = true;
-                clock.IsSelected = false;
-                clock.ResetDisplay();
-            }
-
-            // TODO Send notify-delete message
-            // TODO Send delete message
-
-            await DeleteFromStorage(SignalRHost.HostSessionKey, log);
-            State = 2;
-        }
-
 
         public async Task SelectSession(string sessionId, ILogger log)
         {
@@ -313,7 +345,7 @@ namespace Timekeeper.Client.Model
                 clock.ResetDisplay();
             }
 
-            await SaveToStorage(selectedSession, SignalRHost.HostSessionKey, log);
+            await SaveToStorage(selectedSession, SignalRHostBase.HostSessionKey, log);
             State = 2;
         }
     }

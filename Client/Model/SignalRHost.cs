@@ -13,15 +13,10 @@ using Timekeeper.DataModel;
 
 namespace Timekeeper.Client.Model
 {
-    public class SignalRHost : SignalRHandler
+    public class SignalRHost : SignalRHostBase
     {
-        private NavigationManager _nav;
-        public const string HostSessionKey = "HostSessionKey";
         public const string StartAllClocksText = "Start all clocks";
         public const string StartSelectedClocksText = "Start selected clocks";
-
-        protected override string SessionKey => HostSessionKey;
-        protected override string PeerKey => "HostPeer";
 
         public int AnonymousGuests
         {
@@ -51,6 +46,8 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        private string _sessionId;
+
         public IList<PeerMessage> ConnectedPeers
         {
             get;
@@ -63,12 +60,6 @@ namespace Timekeeper.Client.Model
             set;
         }
 
-        public bool? IsAuthorized
-        {
-            get;
-            private set;
-        }
-
         public bool IsDeleteSessionWarningVisible
         {
             get;
@@ -76,12 +67,6 @@ namespace Timekeeper.Client.Model
         }
 
         public bool IsModifySessionDisabled
-        {
-            get;
-            private set;
-        }
-
-        public bool? IsOffline
         {
             get;
             private set;
@@ -112,41 +97,17 @@ namespace Timekeeper.Client.Model
         }
 
         public SignalRHost(
-                    IConfiguration config,
+            IConfiguration config,
             ILocalStorageService localStorage,
             ILogger log,
             HttpClient http,
             NavigationManager nav,
-            SessionHandler session) : base(config, localStorage, log, http, session)
+            SessionHandler session,
+            string sessionId = null) : base(config, localStorage, log, http, nav, session)
         {
-            _nav = nav;
+            _sessionId = sessionId;
             ConnectedPeers = new List<PeerMessage>();
             StartClocksButtonText = StartAllClocksText;
-        }
-
-        private async Task<bool> AnnounceName()
-        {
-            _log.LogInformation($"-> {nameof(AnnounceName)}");
-            _log.LogDebug($"UserId: {PeerInfo.Message.PeerId}");
-
-            var message = new PeerMessage
-            {
-                PeerId = PeerInfo.Message.PeerId,
-                IsHost = true
-            };
-
-            var json = JsonConvert.SerializeObject(message);
-            _log.LogDebug($"json: {json}");
-
-            return await AnnounceNameJson(json);
-        }
-
-        internal void SubscribeToClocks()
-        {
-            if (CurrentSession == null)
-            {
-                return;
-            }
         }
 
         private void ClockSelectionChanged(object sender, bool e)
@@ -225,7 +186,7 @@ namespace Timekeeper.Client.Model
 
         private async Task UpdateLocalHost(string json)
         {
-            _log.LogInformation("HIGHLIGHT-> SignalRHost.UpdateLocalHost");
+            _log.LogInformation("-> SignalRHost.UpdateLocalHost");
 
             try
             {
@@ -373,56 +334,6 @@ namespace Timekeeper.Client.Model
             IsDeleteSessionWarningVisible = false;
         }
 
-        public async Task CheckAuthorize()
-        {
-            _log.LogInformation("-> CheckAuthorize");
-
-            var versionUrl = $"{_hostName}/version";
-            _log.LogDebug($"versionUrl: {versionUrl}");
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, versionUrl);
-            HttpResponseMessage response;
-
-            try
-            {
-                response = await _http.SendAsync(httpRequest);
-            }
-            catch (Exception ex)
-            {
-                _log.LogError($"Connection refused: {ex.Message}");
-                IsOffline = true;
-                IsAuthorized = false;
-                Status = "Cannot communicate with functions";
-                return;
-            }
-
-            _log.LogDebug($"Response code: {response.StatusCode}");
-
-            switch (response.StatusCode)
-            {
-                case System.Net.HttpStatusCode.OK:
-                    _log.LogTrace("All ok");
-                    IsOffline = false;
-                    IsAuthorized = true;
-                    break;
-
-                case System.Net.HttpStatusCode.Forbidden:
-                    _log.LogTrace("Unauthorized");
-                    IsOffline = false;
-                    IsAuthorized = false;
-                    Status = "Unauthorized";
-                    break;
-
-                default:
-                    _log.LogTrace("Other error code");
-                    IsOffline = true;
-                    IsAuthorized = false;
-                    Status = "Cannot communicate with functions";
-                    _log.LogError($"Cannot communicate with functions: {response.StatusCode}");
-                    break;
-            }
-        }
-
         public async Task CheckState()
         {
             _log.LogInformation("-> CheckState");
@@ -441,11 +352,17 @@ namespace Timekeeper.Client.Model
                     await UnregisterFromPreviousGroup(session.SessionId);
                 }
 
-                await _session.DeleteFromStorage(SessionKey, _log);
+                //await _session.DeleteFromStorage(SessionKey, _log);
                 _session.State = 1;
                 _log.LogTrace("Deleted session and set state to 1");
                 return;
             }
+        }
+
+        public async Task ClearInputMessage()
+        {
+            InputMessage = "";
+            await SendMessage(" ");
         }
 
         public override async Task Connect()
@@ -453,15 +370,27 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("-> SignalRHost.Connect");
 
             IsBusy = true;
+            IsInError = false;
+            IsConnected = false;
 
             IsSendMessageDisabled = true;
             IsModifySessionDisabled = true;
 
-            var ok = await InitializeSession();
+            RaiseUpdateEvent();
+
+            var ok = await InitializeSession(_sessionId);
 
             if (!ok)
             {
-                _log.LogWarning("Interrupt after initializing session");
+                if (!IsInError)
+                {
+                    _log.LogWarning("Interrupt after initializing session");
+                    IsBusy = false;
+                    IsConnected = false;
+                    IsInError = false;
+                    RaiseUpdateEvent();
+                }
+
                 return;
             }
 
@@ -488,8 +417,6 @@ namespace Timekeeper.Client.Model
             if (ok)
             {
                 _log.LogTrace("CreateConnection and StartConnection OK");
-
-                IsConnected = true;
 
                 foreach (var clock in CurrentSession.Clocks)
                 {
@@ -536,19 +463,21 @@ namespace Timekeeper.Client.Model
                 if (!ok)
                 {
                     IsConnected = false;
+                    IsInError = true;
+                    IsBusy = false;
                     DisplayMessage("Error", true);
+                    return;
                 }
 
                 IsSendMessageDisabled = false;
                 IsModifySessionDisabled = false;
-                IsOffline = false;
                 Status = "Connected, your guests will only see clocks when you start them!";
+                IsConnected = true;
+                IsInError = false;
             }
             else
             {
                 _log.LogTrace("StartConnection NOT OK");
-
-                IsConnected = false;
 
                 foreach (var clock in CurrentSession.Clocks)
                 {
@@ -559,11 +488,13 @@ namespace Timekeeper.Client.Model
 
                 IsSendMessageDisabled = true;
                 IsModifySessionDisabled = false;
-                IsOffline = true;
                 Status = "Cannot connect";
+                IsConnected = false;
+                IsInError = true;
             }
 
             IsBusy = false;
+            RaiseUpdateEvent();
             _log.LogInformation("SignalRHost.Connect ->");
         }
 
@@ -589,6 +520,11 @@ namespace Timekeeper.Client.Model
             IsModifySessionDisabled = isOneClockRunning;
             _log.LogInformation("DeleteClock ->");
 
+        }
+
+        public async Task DeleteSessionFromStorage()
+        {
+            await _session.DeleteFromStorage(SessionKey, _log);
         }
 
         public void DeleteSession()
@@ -622,42 +558,86 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("DoDeleteSession ->");
         }
 
-        public async Task<bool> InitializeSession()
+        public async Task<bool> InitializeSession(string sessionId)
         {
             _log.LogInformation("-> SignalRHost.InitializeSession");
 
-            CurrentSession = await _session.GetFromStorage(SessionKey, _log);
+            _log.LogDebug($"SessionKey: {SessionKey}");
+            _log.LogDebug($"sessionId: {sessionId}");
 
-            if (CurrentSession == null)
+            if (string.IsNullOrEmpty(sessionId))
             {
-                _log.LogDebug("Session in storage is Null");
+                IsBusy = false;
+                IsInError = false;
+                IsConnected = false;
+                IsSessionUnknown = false;
                 _nav.NavigateTo("/session");
                 return false;
             }
-            else
-            {
-                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
-            }
 
-            if (CurrentSession != null)
-            {
-                // Refresh session
-                var sessions = await _session.GetSessions(_log);
+            CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
-                if (sessions != null)
+            _log.LogDebug($"CurrentSession is null: {CurrentSession == null}");
+
+            if (CurrentSession == null
+                || (!string.IsNullOrEmpty(sessionId)
+                    && CurrentSession.SessionId != sessionId))
+            {
+                try
                 {
-                    var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+                    var allSessions = await _session.GetSessions(_log);
+                    CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
 
-                    if (outSession != null)
+                    if (CurrentSession == null)
                     {
-                        CurrentSession = outSession;
+                        _log.LogWarning($"Cannot find a session for {sessionId}");
+                        IsBusy = false;
+                        IsInError = true;
+                        IsConnected = false;
+                        IsSessionUnknown = true;
+                        return false;
                     }
                 }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    IsSessionUnknown = false;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
-
-            if (CurrentSession == null)
+            else
             {
-                await MakeNewSession();
+                // Refresh session
+
+                try
+                {
+                    _log.LogDebug("Refreshing session");
+                    var sessions = await _session.GetSessions(_log);
+                    var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+
+                    if (outSession == null)
+                    {
+                        _log.LogDebug("outSession is null, navigating");
+                        _nav.NavigateTo("/session");
+                        return false;
+                    }
+
+                    CurrentSession = outSession;
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    IsSessionUnknown = false;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
 
             foreach (var clock in CurrentSession.Clocks)
@@ -674,21 +654,6 @@ namespace Timekeeper.Client.Model
 
             _log.LogInformation("SignalRHost.InitializeSession ->");
             return true;
-        }
-
-        private async Task MakeNewSession()
-        {
-            _log.LogInformation("-> SignalRHost.MakeNewSession");
-
-            CurrentSession = new SessionBase
-            {
-                BranchId = _config.GetValue<string>(Constants.BranchIdKey)
-            };
-            CurrentSession.Clocks.Add(new Clock());
-
-            _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
-            await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-            _log.LogTrace("Session saved to storage");
         }
 
         public async Task Nudge(Clock clock, int seconds)
@@ -776,7 +741,7 @@ namespace Timekeeper.Client.Model
         public async Task ReceiveGuestMessage(string json)
         {
             _log.LogInformation($"-> SignalRHost.{nameof(ReceiveGuestMessage)}");
-            _log.LogDebug(json);
+            //_log.LogDebug(json);
 
             var messagePeer = JsonConvert.DeserializeObject<PeerMessage>(json);
 
@@ -844,12 +809,6 @@ namespace Timekeeper.Client.Model
             await SendMessage(InputMessage.Trim());
         }
 
-        public async Task ClearInputMessage()
-        {
-            InputMessage = "";
-            await SendMessage(" ");
-        }
-
         public async Task SendMessage(string message)
         {
             _log.LogInformation($"-> {nameof(SendMessage)}");
@@ -875,9 +834,9 @@ namespace Timekeeper.Client.Model
 
                     if (index > -1)
                     {
-                        htmlMessage = htmlMessage.Substring(0, index)
+                        htmlMessage = htmlMessage[..index]
                             + (opening ? "<span style='color: red'>" : "</span>")
-                            + htmlMessage.Substring(index + 1);
+                            + htmlMessage[(index + 1)..];
 
                         opening = !opening;
                     }
@@ -1015,13 +974,14 @@ namespace Timekeeper.Client.Model
                     .Select(c =>
                     {
                         c.Message.SenderId = PeerInfo.Message.PeerId;
+                        c.Message.SessionName = CurrentSession.SessionName;
                         return c.Message;
                     })
                     .ToList());
 
                 var content = new StringContent(json);
 
-                _log.LogDebug($"json: {json}");
+                //_log.LogDebug($"json: {json}");
 
                 var startClockUrl = $"{_hostName}/start";
                 _log.LogDebug($"startClockUrl: {startClockUrl}");
