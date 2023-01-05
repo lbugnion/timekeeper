@@ -21,7 +21,7 @@ namespace Timekeeper
                 Route = "token")]
             HttpRequest req)
         {
-            return new OkObjectResult(Environment.GetEnvironmentVariable(Constants.TokenHeaderKey));
+            return new OkObjectResult(Environment.GetEnvironmentVariable(Constants.TimekeeperTokenVariableName));
         }
     }
 }
