@@ -27,11 +27,12 @@ namespace Timekeeper
         {
             log.LogInformation("-> NotifyDelete");
 
-            var verificationResult = Verification.Verify(branchId, sessionId, log);
+            var verificationResult = Verification.Verify(branchId, sessionId);
 
             if (verificationResult != null)
             {
-                return verificationResult;
+                log.LogError(verificationResult);
+                return new BadRequestObjectResult(verificationResult);
             }
 
             await queue.AddAsync(

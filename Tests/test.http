@@ -1,0 +1,16 @@
+### Negotiate
+GET {{function-url}}/negotiate
+x-functions-key: {{NegotiateKey}}
+x-timekeeper-userid: 1234
+
+### Get sessions
+GET {{function-url-protected}}/sessions/692B42A9-A940-4A11-AD68-43779AB1266D
+
+### Get version (free)
+GET {{function-url}}/version
+
+### Get version (protected)
+GET {{function-url-protected}}/version
+
+### Get QR Code
+GET {{function-url}}/qr?text=http%3A%2F%2Fmicrosoft.com

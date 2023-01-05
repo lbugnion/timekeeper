@@ -16,17 +16,26 @@ namespace Timekeeper
         [FunctionName("SaveSession")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(
-                AuthorizationLevel.Anonymous,
+                AuthorizationLevel.Function,
                 "post",
                 Route = "session/{branchId}/{sessionId}")]
             HttpRequest req,
             string branchId,
             string sessionId,
+            [Blob("sessions/{branchId}/{sessionId}.json", FileAccess.Read, Connection = "AzureStorage")]
+            Stream inSessionBlob,
             [Blob("sessions/{branchId}/{sessionId}.json", FileAccess.Write, Connection = "AzureStorage")]
-            Stream sessionBlob,
+            Stream outSessionBlob,
             ILogger log)
         {
             log.LogInformation("-> SaveSession");
+
+            var tokenOk = req.VerifyToken();
+
+            if (!tokenOk)
+            {
+                return new UnauthorizedObjectResult("Invalid token");
+            }
 
             var verificationResult = Verification.Verify(branchId, sessionId);
 
@@ -62,15 +71,51 @@ namespace Timekeeper
                 return new BadRequestObjectResult("Session IDs don't match");
             }
 
-            // Reserialize to ensure that the formatting is correct (easier to read when debugging)
-            var storageJson = JsonConvert.SerializeObject(session, Formatting.Indented);
+            SessionBase existingSession = null;
 
-            using (var writer = new StreamWriter(sessionBlob))
+            // Read existing session
+            if (inSessionBlob != null)
+            {
+                try
+                {
+                    using (var reader = new StreamReader(inSessionBlob))
+                    {
+                        var inJson = reader.ReadToEnd();
+
+                        if (!string.IsNullOrEmpty(inJson))
+                        {
+                            existingSession = JsonConvert.DeserializeObject<SessionBase>(inJson);
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            if (existingSession != null)
+            {
+                existingSession.Update(session);
+            }
+            else
+            {
+                existingSession = session;
+            }
+
+            if (existingSession.Clocks.Count == 0)
+            {
+                existingSession.Clocks.Add(new Clock());
+            }
+
+            // Reserialize to ensure that the formatting is correct (easier to read when debugging)
+            var storageJson = JsonConvert.SerializeObject(existingSession, Formatting.Indented);
+
+            using (var writer = new StreamWriter(outSessionBlob))
             {
                 writer.Write(storageJson);
             }
 
-            return new OkObjectResult("Saved to storage");
+            return new OkObjectResult("Saved to cloud");
         }
     }
 }
