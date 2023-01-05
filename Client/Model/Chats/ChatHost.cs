@@ -19,16 +19,12 @@ namespace Timekeeper.Client.Model.Chats
         private const string _secretKeyCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*():;.,/?{}[]";
         private string _sessionId;
 
+        public event EventHandler Ding;
+
         public ChatProxy ChatProxy { get; set; }
 
-        public bool IsSessionMismatch
-        {
-            get;
-            private set;
-        }
-
         public ChatHost(
-                            IConfiguration config,
+            IConfiguration config,
             ILocalStorageService localStorage,
             ILogger log,
             HttpClient http,
@@ -40,85 +36,23 @@ namespace Timekeeper.Client.Model.Chats
             ChatProxy = new ChatProxy(_http, _hostNameFree);
         }
 
-        private async Task<bool> DoPublishUnpublishPoll(Poll poll, bool mustPublish, bool? mustOpen = null)
-        {
-            Status = "Attempting to publish poll";
-            RaiseUpdateEvent();
-            string publishUnpublishUrl;
-
-            if (mustPublish)
-            {
-                publishUnpublishUrl = $"{_hostName}/publish-poll";
-            }
-            else
-            {
-                publishUnpublishUrl = $"{_hostName}/unpublish-poll";
-            }
-
-            _log.LogDebug($"publishUnpublishUrl: {publishUnpublishUrl}");
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, publishUnpublishUrl);
-            httpRequest.Headers.Add(Constants.GroupIdHeaderKey, CurrentSession.SessionId);
-
-            string json;
-
-            if (poll.IsVotingOpen)
-            {
-                json = JsonConvert.SerializeObject(poll.GetSafeCopy(), Formatting.Indented);
-            }
-            else
-            {
-                json = JsonConvert.SerializeObject(poll, Formatting.Indented);
-            }
-
-            httpRequest.Content = new StringContent(json);
-
-            poll.IsBroadcasting = true;
-            var response = await _http.SendAsync(httpRequest);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _log.LogError($"Cannot send message: {response.ReasonPhrase}");
-                poll.IsBroadcasting = false;
-                ErrorStatus = "Error publishing poll";
-            }
-            else
-            {
-                if (mustPublish)
-                {
-                    Status = "Poll published";
-                }
-                else
-                {
-                    Status = "Poll unpublished";
-                }
-
-                poll.IsPublished = mustPublish;
-
-                if (mustOpen != null)
-                {
-                    poll.IsVotingOpen = mustOpen.Value;
-                }
-
-                await _session.Save(CurrentSession, SessionKey, _log);
-            }
-
-            RaiseUpdateEvent();
-            poll.IsBroadcasting = false;
-            return response.IsSuccessStatusCode;
-        }
-
         private async Task ReceiveChats(string receivedJson)
         {
             _log.LogTrace("-> ChatHost.ReceiveChats(string)");
 
-            await ChatProxy.ReceiveChats(
+            var chatAdded = await ChatProxy.ReceiveChats(
                 RaiseUpdateEvent,
                 SaveSession,
                 receivedJson,
                 CurrentSession.Chats,
+                CurrentSession.SessionId,
                 PeerInfo.Message.PeerId,
                 _log);
+
+            if (chatAdded)
+            {
+                Ding?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private async Task LikeChat(string receivedJson)
@@ -232,40 +166,51 @@ namespace Timekeeper.Client.Model.Chats
 
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
-            if (CurrentSession == null)
+            _log.LogDebug($"CurrentSession is null: {CurrentSession == null}");
+
+            if (CurrentSession == null
+                || CurrentSession.SessionId != sessionId)
             {
-                _log.LogWarning("Session in storage is Null");
-                IsBusy = false;
-                IsInError = false;
-                IsConnected = false;
-                _nav.NavigateTo("/");
-                return false;
+                try
+                {
+                    var allSessions = await _session.GetSessions(_log);
+                    CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
+
+                    if (CurrentSession == null)
+                    {
+                        _log.LogWarning($"Cannot find a session for {sessionId}");
+                        IsBusy = false;
+                        IsInError = false;
+                        IsConnected = false;
+                        _nav.NavigateTo("/session");
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
+                    return false;
+                }
             }
             else
             {
-                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
-
-                if (CurrentSession.SessionId != sessionId)
-                {
-                    _log.LogTrace("Session ID mismatch");
-                    CurrentSession = null;
-                    ErrorStatus = "Session ID mismatch";
-                    IsBusy = false;
-                    IsInError = false;
-                    IsConnected = false;
-                    IsSessionMismatch = true;
-                    RaiseUpdateEvent();
-                    _log.LogTrace("Done informing user");
-                    return false;
-                }
-
                 // Refresh session
-                _log.LogTrace("Refreshing session");
 
                 try
                 {
                     var sessions = await _session.GetSessions(_log);
                     var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
+
+                    if (outSession == null)
+                    {
+                        _nav.NavigateTo("/session");
+                        return false;
+                    }
+
                     CurrentSession = outSession;
                 }
                 catch (Exception ex)
@@ -283,27 +228,6 @@ namespace Timekeeper.Client.Model.Chats
 
             _log.LogInformation("ChatHost.InitializeSession ->");
             return true;
-        }
-
-        public async Task<bool> PublishUnpublishPoll(Poll poll, bool mustPublish)
-        {
-            _log.LogTrace($"-> {nameof(PublishUnpublishPoll)} {mustPublish}");
-
-            if (poll == null
-                || poll.IsPublished && mustPublish
-                || !poll.IsPublished && !mustPublish)
-            {
-                _log.LogTrace($"Poll is already in the correct state");
-                return false;
-            }
-
-            poll.IsVotingOpen = mustPublish;
-            poll.SessionName = CurrentSession.SessionName;
-
-            var success = await DoPublishUnpublishPoll(poll, mustPublish);
-
-            _log.LogTrace($"{nameof(PublishUnpublishPoll)} ->");
-            return success;
         }
 
         public void RegenerateSecretKey()

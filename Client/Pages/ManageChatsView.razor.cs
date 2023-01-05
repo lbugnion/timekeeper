@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Timekeeper.Client.Model;
 using Timekeeper.Client.Model.Chats;
@@ -27,6 +28,7 @@ namespace Timekeeper.Client.Pages
                 {
                     _handler.UpdateUi -= HandlerUpdateUi;
                     _handler.RequestRefresh -= HandlerRequestRefresh;
+                    _handler.Ding -= HandlerDing;
                 }
 
                 _handler = value;
@@ -35,8 +37,14 @@ namespace Timekeeper.Client.Pages
                 {
                     _handler.UpdateUi += HandlerUpdateUi;
                     _handler.RequestRefresh += HandlerRequestRefresh;
+                    _handler.Ding += HandlerDing;
                 }
             }
+        }
+
+        private async void HandlerDing(object sender, EventArgs e)
+        {
+            await JSRuntime.InvokeVoidAsync("sound.ding");
         }
 
         private async void HandlerRequestRefresh(object sender, EventArgs e)
@@ -125,6 +133,7 @@ namespace Timekeeper.Client.Pages
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
                 Handler.RequestRefresh -= HandlerRequestRefresh;
+                Handler.Ding -= HandlerDing;
             }
 
             if (Handler.ChatProxy != null)

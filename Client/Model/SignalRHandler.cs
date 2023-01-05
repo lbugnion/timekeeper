@@ -100,6 +100,12 @@ namespace Timekeeper.Client.Model
             protected set;
         }
 
+        public bool IsSessionUnknown
+        {
+            get;
+            protected set;
+        }
+
         public bool IsTaskRunning
         {
             get;

@@ -1,4 +1,5 @@
 ﻿@page "/host"
+@page "/host/{SessionId}"
 @inject HttpClient Http
 @inject ILogger<Host> Log
 @inject IConfiguration Config
@@ -84,7 +85,7 @@
             <AuthorizeView>
                 <NotAuthorized>
                     <blockquote class="warning">
-                        Please <a href="/login">log in to use this page</a>.
+                        Please <a href="/login/host/@SessionId">log in to use this page</a>.
                     </blockquote>
                 </NotAuthorized>
                 <Authorized>
@@ -96,18 +97,28 @@
                     }
                     else
                     {
-                        @if (Handler.IsInError)
-                        {
+                       @if (Handler.IsSessionUnknown)
+                       {
                             <blockquote class="error">
-                                Unable to connect to timekeeper service.
-                                <br /><br /><strong>Try refreshing the page.</strong>
-                                <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+                                Unable to find this session.
+                                <br /><br />Please double check the link you clicked or go to the <a href="/session">Session selection page</a>!
                             </blockquote>
-                        }
-                        else
-                        {
-                            <HostView Handler="@Handler"
-                                      SessionName="@SessionName" />
+                       }
+                       else 
+                       {
+                            @if (Handler.IsInError)
+                            {
+                                <blockquote class="error">
+                                    Unable to connect to timekeeper service.
+                                    <br /><br /><strong>Try refreshing the page.</strong>
+                                    <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+                                </blockquote>
+                            }
+                            else
+                            {
+                                <HostView Handler="@Handler"
+                          SessionName="@SessionName" />
+                            }
                         }
                     }
                 </Authorized>
@@ -123,18 +134,28 @@
             }
             else
             {
-                @if (Handler.IsInError)
+                @if (Handler.IsSessionUnknown)
                 {
                     <blockquote class="error">
-                        Unable to connect to timekeeper service.
-                        <br /><br /><strong>Try refreshing the page.</strong>
-                        <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+                        Unable to find this session.
+                        <br /><br />Please double check the link you clicked or go to the <a href="/session">Session selection page</a>!
                     </blockquote>
                 }
                 else
                 {
-                    <HostView Handler="@Handler"
-                              SessionName="@SessionName" />
+                    @if (Handler.IsInError)
+                    {
+                        <blockquote class="error">
+                            Unable to connect to timekeeper service.
+                            <br /><br /><strong>Try refreshing the page.</strong>
+                            <br /><br />If this doesn't work, please contact <a href="mailto:support@timekeeper.cloud">support@timekeeper.cloud</a>
+                        </blockquote>
+                    }
+                    else
+                    {
+                        <HostView Handler="@Handler"
+                                  SessionName="@SessionName" />
+                    }
                 }
             }
         }

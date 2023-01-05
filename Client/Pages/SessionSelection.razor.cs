@@ -27,9 +27,11 @@ namespace Timekeeper.Client.Pages
 
         private async Task CheckSetNewSession()
         {
-            if (await Session.CheckSetNewSession(Log))
+            var newSessionId = await Session.CheckSetNewSession(Log);
+
+            if (!string.IsNullOrEmpty(newSessionId))
             {
-                Nav.NavigateTo("/host");
+                Nav.NavigateTo($"/host/{newSessionId}");
             }
         }
 
@@ -37,9 +39,11 @@ namespace Timekeeper.Client.Pages
         {
             try
             {
-                if (await Session.Duplicate(sessionId, Log))
+                var newSessionId = await Session.Duplicate(sessionId, Log);
+
+                if (!string.IsNullOrEmpty(newSessionId))
                 {
-                    Nav.NavigateTo("/host");
+                    Nav.NavigateTo($"/host/{newSessionId}");
                 }
             }
             catch (Exception ex)
@@ -65,7 +69,7 @@ namespace Timekeeper.Client.Pages
             try
             {
                 await Session.SelectSession(sessionId, Log);
-                Nav.NavigateTo("/host");
+                Nav.NavigateTo($"/host/{sessionId}");
             }
             catch (Exception ex)
             {

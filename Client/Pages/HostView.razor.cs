@@ -122,7 +122,7 @@ namespace Timekeeper.Client.Pages
         private async Task DoDeleteSession()
         {
             await Handler.DoDeleteSession();
-            Nav.NavigateTo("/host", forceLoad: true);
+            Nav.NavigateTo("/session", forceLoad: true);
         }
 
         protected override async Task OnInitializedAsync()
@@ -155,7 +155,7 @@ namespace Timekeeper.Client.Pages
 
         public void CreateNewSession()
         {
-            Nav.NavigateTo("/host", forceLoad: true);
+            Nav.NavigateTo("/session", forceLoad: true);
         }
 
         public async Task EditSessionName()

@@ -29,7 +29,7 @@ namespace Timekeeper.Client.Model.Chats
         public string Status { get; private set; }
 
         public ChatProxy(
-                    HttpClient http,
+            HttpClient http,
             string hostNameFree)
         {
             _http = http;
@@ -249,11 +249,12 @@ namespace Timekeeper.Client.Model.Chats
                 log);
         }
 
-        public async Task ReceiveChats(
+        public async Task<bool> ReceiveChats(
             Action raiseUpdateEvent,
             Func<Task> saveChats,
             string receivedChatJson,
             IList<Chat> allChats,
+            string sessionId,
             string peerId,
             ILogger log)
         {
@@ -268,36 +269,49 @@ namespace Timekeeper.Client.Model.Chats
             catch
             {
                 log.LogTrace("Error with received chat");
-                return;
+                return false;
             }
 
-            await ReceiveChats(
+            return await ReceiveChats(
                 raiseUpdateEvent,
                 saveChats,
                 receivedChats,
                 allChats,
+                sessionId,
                 peerId,
                 log);
         }
 
-        public async Task ReceiveChats(
+        public async Task<bool> ReceiveChats(
             Action raiseUpdateEvent,
             Func<Task> saveChats,
             ListOfChats receivedChats,
             IList<Chat> allChats,
+            string sessionId,
             string peerId,
             ILogger log)
         {
+            var chatAdded = false;
+
             log.LogTrace("-> ChatProxy.ReceiveChat(ListOfChats)");
 
             foreach (var receivedChat in receivedChats.Chats.OrderBy(c => c.MessageDateTime))
             {
                 log.LogDebug($"Received chat with MessageMarkdown '{receivedChat.MessageMarkdown}' and ID {receivedChat.UniqueId}");
 
+                if (receivedChat.SessionId != sessionId)
+                {
+                    // This should never happen except if this user didn't
+                    // unregister properly from a previous session with
+                    // a different session ID.
+                    log.LogError("Received chat with invalid session ID");
+                    continue;
+                }
+
                 if (receivedChat.Key != SecretKey)
                 {
                     log.LogError("Received chat with invalid key");
-                    return;
+                    return false;
                 }
 
                 UpdateChatStyles(receivedChat, peerId);
@@ -324,6 +338,8 @@ namespace Timekeeper.Client.Model.Chats
                         var index = allChats.IndexOf(nextChat);
                         allChats.Insert(index, receivedChat);
                     }
+
+                    chatAdded = true;
                 }
 
                 if (!string.IsNullOrEmpty(receivedChat.SessionName))
@@ -345,6 +361,8 @@ namespace Timekeeper.Client.Model.Chats
             {
                 await saveChats();
             }
+
+            return chatAdded;
         }
 
         public async Task<bool> SendChats(
@@ -361,6 +379,7 @@ namespace Timekeeper.Client.Model.Chats
             foreach (var chat in chats)
             {
                 chat.SessionName = null;
+                chat.SessionId = sessionId;
             }
 
             chats.First().SessionName = sessionName;

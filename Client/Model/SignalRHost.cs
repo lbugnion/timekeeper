@@ -46,6 +46,8 @@ namespace Timekeeper.Client.Model
             }
         }
 
+        private string _sessionId;
+
         public IList<PeerMessage> ConnectedPeers
         {
             get;
@@ -100,8 +102,10 @@ namespace Timekeeper.Client.Model
             ILogger log,
             HttpClient http,
             NavigationManager nav,
-            SessionHandler session) : base(config, localStorage, log, http, nav, session)
+            SessionHandler session,
+            string sessionId = null) : base(config, localStorage, log, http, nav, session)
         {
+            _sessionId = sessionId;
             ConnectedPeers = new List<PeerMessage>();
             StartClocksButtonText = StartAllClocksText;
         }
@@ -374,7 +378,7 @@ namespace Timekeeper.Client.Model
 
             RaiseUpdateEvent();
 
-            var ok = await InitializeSession();
+            var ok = await InitializeSession(_sessionId);
 
             if (!ok)
             {
@@ -554,53 +558,70 @@ namespace Timekeeper.Client.Model
             _log.LogInformation("DoDeleteSession ->");
         }
 
-        public async Task<bool> InitializeSession()
+        public async Task<bool> InitializeSession(string sessionId)
         {
             _log.LogInformation("-> SignalRHost.InitializeSession");
 
-            _log.LogDebug($"{SessionKey}");
-            
+            _log.LogDebug($"SessionKey: {SessionKey}");
+            _log.LogDebug($"sessionId: {sessionId}");
+
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                IsBusy = false;
+                IsInError = false;
+                IsConnected = false;
+                IsSessionUnknown = false;
+                _nav.NavigateTo("/session");
+                return false;
+            }
+
             CurrentSession = await _session.GetFromStorage(SessionKey, _log);
 
-            if (CurrentSession == null)
-            {
-                _log.LogDebug("Session in storage is Null");
+            _log.LogDebug($"CurrentSession is null: {CurrentSession == null}");
 
-                if (Branding.AllowSessionSelection)
+            if (CurrentSession == null
+                || (!string.IsNullOrEmpty(sessionId)
+                    && CurrentSession.SessionId != sessionId))
+            {
+                try
                 {
-                    _nav.NavigateTo("/session");
+                    var allSessions = await _session.GetSessions(_log);
+                    CurrentSession = allSessions.FirstOrDefault(s => s.SessionId == sessionId);
+
+                    if (CurrentSession == null)
+                    {
+                        _log.LogWarning($"Cannot find a session for {sessionId}");
+                        IsBusy = false;
+                        IsInError = true;
+                        IsConnected = false;
+                        IsSessionUnknown = true;
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Cannot get sessions: {ex.Message}");
+                    IsConnected = false;
+                    IsInError = true;
+                    IsSessionUnknown = false;
+                    ErrorStatus = "Error getting sessions";
+                    RaiseUpdateEvent();
                     return false;
                 }
             }
             else
             {
-                _log.LogDebug($"SessionId in Storage: {CurrentSession.SessionId}");
-            }
+                // Refresh session
 
-            if (CurrentSession == null)
-            {
-                _log.LogTrace("CurrentSession is null");
-
-                CurrentSession = new SessionBase
-                {
-                    BranchId = _config.GetValue<string>(Constants.BranchIdKey)
-                };
-                CurrentSession.Clocks.Add(new Clock());
-
-                _log.LogDebug($"New CurrentSession.SessionId: {CurrentSession.SessionId}");
-                await _session.SaveToStorage(CurrentSession, SessionKey, _log);
-                _log.LogTrace("Session saved to storage");
-            }
-            else
-            {
                 try
                 {
-                    // Refresh session
+                    _log.LogDebug("Refreshing session");
                     var sessions = await _session.GetSessions(_log);
                     var outSession = sessions.FirstOrDefault(s => s.SessionId == CurrentSession.SessionId);
 
                     if (outSession == null)
                     {
+                        _log.LogDebug("outSession is null, navigating");
                         _nav.NavigateTo("/session");
                         return false;
                     }
@@ -612,6 +633,7 @@ namespace Timekeeper.Client.Model
                     _log.LogError($"Cannot get sessions: {ex.Message}");
                     IsConnected = false;
                     IsInError = true;
+                    IsSessionUnknown = false;
                     ErrorStatus = "Error getting sessions";
                     RaiseUpdateEvent();
                     return false;
