@@ -66,8 +66,6 @@ namespace Timekeeper.DataModel
 
         public void Update(SessionBase session)
         {
-            // For now we only update the SessionName and the polls
-
             if (!string.IsNullOrEmpty(session.SessionName))
             {
                 SessionName = session.SessionName;
@@ -90,24 +88,23 @@ namespace Timekeeper.DataModel
                 }
             }
 
-            // TODO Also update the clocks
+            if (session.Clocks != null)
+            {
+                foreach (var clock in session.Clocks)
+                {
+                    var existingClock = Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
 
-            //if (session.Clocks != null)
-            //{
-            //    foreach (var clock in session.Clocks)
-            //    {
-            //        var existingClock = Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
-
-            //        if (existingClock != null)
-            //        {
-            //            existingClock.Update(clock);
-            //        }
-            //        else
-            //        {
-            //            Clocks.Add(clock);
-            //        }
-            //    }
-            //}
+                    if (existingClock != null)
+                    {
+                        existingClock.Update(clock.Message, false);
+                    }
+                    else
+                    {
+                        Clocks.Add(clock);
+                        clock.ResetDisplay();
+                    }
+                }
+            }
         }
     }
 }

@@ -1,11 +1,11 @@
 ### Create new session
-POST {{function-url}}/session/BCE4F196-D690-4E01-9AA4-09C829A37C59/FFA28184-F3F4-4B62-9BD6-8D39FCAAEE05
+POST {{function-url}}/session/BCE4F196-D690-4E01-9AA4-09C829A37C59/FFA28184-F3F4-4B62-9BD6-8D39FCAAEE06
 x-timekeeper-token: F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2
 
 {
     "BranchId" : "BCE4F196-D690-4E01-9AA4-09C829A37C59",
-    "SessionId" : "FFA28184-F3F4-4B62-9BD6-8D39FCAAEE05",
-    "SessionName" : "Creating from REST with clocks",
+    "SessionId" : "FFA28184-F3F4-4B62-9BD6-8D39FCAAEE06",
+    "SessionName" : "Creating from REST 3",
     "Clocks" : [
 
         {
@@ -18,6 +18,38 @@ x-timekeeper-token: F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2
                 "PayAttention":"00:10:00",
                 "PayAttentionColor":"#FFFB91",
                 "RunningColor":"#3AFFA9"
+            }
+        }
+
+    ],
+
+    "Polls" : [
+
+        {
+            "Uid": "72E7F852-5BE6-4A29-8AD1-2AFC15705378",
+
+            "Message" : {
+
+                "Question" : "What is your favorite color?",
+                "Answers" : [
+                    "Red",
+                    "Green",
+                    "Blue"
+                ]
+            }
+        },
+
+        {
+            "Uid": "3554F7B8-529D-4637-B3EF-FF97FE902017",
+
+            "Message" : {
+
+                "Question" : "What is your favorite animal?",
+                "Answers" : [
+                    "Dog",
+                    "Cat",
+                    "Bird"
+                ]
             }
         }
 
