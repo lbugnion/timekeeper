@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Markdig.Syntax;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -73,36 +74,29 @@ namespace Timekeeper.DataModel
 
             if (session.Polls != null)
             {
-                foreach (var poll in session.Polls)
-                {
-                    var existingPoll = Polls.FirstOrDefault(p => p.Uid == poll.Uid);
+                Polls = new List<Poll>(session.Polls);
 
-                    if (existingPoll != null)
+                foreach (var poll in Polls)
+                {
+                    poll.Reset();
+
+                    for (var index = 0; index < poll.Answers.Count; index++)
                     {
-                        existingPoll.Update(poll);
-                    }
-                    else
-                    {
-                        Polls.Add(poll);
+                        if (string.IsNullOrEmpty(poll.Answers[index].Letter))
+                        {
+                            poll.Answers[index].Letter = ((char)('A' + index)).ToString();
+                        }
                     }
                 }
             }
 
             if (session.Clocks != null)
             {
-                foreach (var clock in session.Clocks)
-                {
-                    var existingClock = Clocks.FirstOrDefault(c => c.Message.ClockId == clock.Message.ClockId);
+                Clocks = new List<Clock>(session.Clocks);
 
-                    if (existingClock != null)
-                    {
-                        existingClock.Update(clock.Message, false);
-                    }
-                    else
-                    {
-                        Clocks.Add(clock);
-                        clock.ResetDisplay();
-                    }
+                foreach (var clock in Clocks)
+                {
+                    clock.ResetDisplay();
                 }
             }
         }

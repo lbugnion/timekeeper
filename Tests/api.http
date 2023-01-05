@@ -5,7 +5,7 @@ x-timekeeper-token: F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2
 {
     "BranchId" : "BCE4F196-D690-4E01-9AA4-09C829A37C59",
     "SessionId" : "FFA28184-F3F4-4B62-9BD6-8D39FCAAEE06",
-    "SessionName" : "Creating from REST 3",
+    "SessionName" : "TEST Creating from REST 3",
     "Clocks" : [
 
         {
@@ -13,7 +13,7 @@ x-timekeeper-token: F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2
 
                 "AlmostDone":"00:02:00",
                 "AlmostDoneColor":"#FF6B77",
-                "CountDown":"01:30:00",
+                "CountDown":"01:40:00",
                 "Label":"Session",
                 "PayAttention":"00:10:00",
                 "PayAttentionColor":"#FFFB91",
@@ -28,29 +28,39 @@ x-timekeeper-token: F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2
         {
             "Uid": "72E7F852-5BE6-4A29-8AD1-2AFC15705378",
 
-            "Message" : {
-
-                "Question" : "What is your favorite color?",
-                "Answers" : [
-                    "Red",
-                    "Green",
-                    "Blue"
-                ]
-            }
+            "QuestionMarkdown" : "What is your favorite color?",
+            "Answers" : [
+                {
+                    "TitleMarkdown" : "Red",
+                },
+                {
+                    "TitleMarkdown" : "Blue",
+                },
+                {
+                    "TitleMarkdown" : "Green",
+                }
+            ],
+            "ExplanationMarkdown" : "This is an explanation"
         },
 
         {
             "Uid": "3554F7B8-529D-4637-B3EF-FF97FE902017",
 
-            "Message" : {
+            "QuestionMarkdown" : "What is your favorite animal?",
 
-                "Question" : "What is your favorite animal?",
-                "Answers" : [
-                    "Dog",
-                    "Cat",
-                    "Bird"
-                ]
-            }
+            "Answers" : [
+                {
+                    "TitleMarkdown" : "Dog",
+                },
+                {
+                    "TitleMarkdown" : "Cat",
+                },
+                {
+                    "TitleMarkdown" : "Bird",
+                }
+            ],
+
+            "ExplanationMarkdown" : "This is another explanation"
         }
 
     ]
