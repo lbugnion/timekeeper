@@ -72,13 +72,19 @@ namespace Timekeeper.DataModel
                 SessionName = session.SessionName;
             }
 
-            if (session.Polls != null)
+            if (session.Polls != null
+                && session.Polls.Count > 0)
             {
                 Polls = new List<Poll>(session.Polls);
 
                 foreach (var poll in Polls)
                 {
                     poll.Reset();
+
+                    if (string.IsNullOrEmpty(poll.Uid))
+                    {
+                        poll.Uid = Guid.NewGuid().ToString();
+                    }
 
                     for (var index = 0; index < poll.Answers.Count; index++)
                     {
@@ -90,7 +96,8 @@ namespace Timekeeper.DataModel
                 }
             }
 
-            if (session.Clocks != null)
+            if (session.Clocks != null
+                && session.Clocks.Count > 0)
             {
                 Clocks = new List<Clock>(session.Clocks);
 
