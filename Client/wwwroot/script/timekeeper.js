@@ -73,3 +73,14 @@ window.nosleep = {
         }
     }
 }
+
+window.sound = {
+
+    ding: () => {
+
+        var audio = new Audio('/sound/ding.wav');
+        audio.loop = false;
+        audio.volume = 0.1;
+        audio.play(); 
+    }
+}

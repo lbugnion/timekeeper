@@ -28,11 +28,12 @@ namespace Timekeeper
         {
             log.LogInformation("-> SaveSession");
 
-            var verificationResult = Verification.Verify(branchId, sessionId, log);
+            var verificationResult = Verification.Verify(branchId, sessionId);
 
             if (verificationResult != null)
             {
-                return verificationResult;
+                log.LogError(verificationResult);
+                return new BadRequestObjectResult(verificationResult);
             }
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();

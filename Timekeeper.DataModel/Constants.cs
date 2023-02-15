@@ -2,7 +2,7 @@
 {
     public class Constants
     {
-        public const string Version = "0.8.1.9999"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
+        public const string Version = "0.8.3.9999"; // Use x.x.x.8888 for Alpha; Use x.x.x.9999 for Beta
 
         public const string AzureStorageVariableName = "AzureStorage";
         public const string BranchIdKey = "BranchId";
@@ -37,6 +37,7 @@
         public const string You = " (you)";
         public const string YouName = "You";
         public const string LikeChatMessage = "like-chat";
+        public const string TimekeeperTokenVariableName = "TimekeeperToken";
 
         public const string OwnChatCss = "own-chat";
         public const string OthersChatCss = "others-chat";

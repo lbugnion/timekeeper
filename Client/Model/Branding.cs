@@ -21,7 +21,13 @@
         public const string GuestPageTitle = "Timekeeper Guest Page";
         public const string LoginPageTitle = "Timekeeper: Login";
         public const string MainPageTitle = "Timekeeper";
+
+#if DEBUG
         public const bool MustAuthorize = false;
+#else
+        public const bool MustAuthorize = false;
+#endif
+
         public const string PollsPageTitle = "Timekeeper Polls";
         public const string SessionPageTitle = "Timekeeper: Sessions";
         public const string WindowTitle = "Timekeeper";

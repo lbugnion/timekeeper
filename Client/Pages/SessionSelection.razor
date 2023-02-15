@@ -47,11 +47,10 @@
                                 @*<button class="session-button"
                                         title="Delete this session"><i class="fas fa-trash"></i></button>*@
                                 <button class="session-button"
-                                        title="Duplicate this session"
-                                    
+                                        title="Duplicate this session"                                    
                                         @onclick="@(e => Duplicate(session.SessionId))"><i class="far fa-clone"></i></button>
 
-                                <a href="#"
+                                <a href="/host/@session.SessionId"
                                    title="Select this session"
                                    @onclick="(e => SelectSession(session.SessionId))"
                                    @onclick:preventDefault>@session.SessionName</a>

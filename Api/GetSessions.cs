@@ -26,30 +26,32 @@ namespace Timekeeper
             string branchId,
             ILogger log)
         {
+            // TODO Investigate why this function is called twice
             log.LogInformation($"-> {nameof(GetSessions)}");
 
-            var verificationResult = Verification.Verify(branchId, null, log);
+            var verificationResult = Verification.Verify(branchId, null);
 
             if (verificationResult != null)
             {
-                return verificationResult;
+                log.LogError(verificationResult);
+                return new BadRequestObjectResult(verificationResult);
             }
-
-            branchId = branchId.ToLower();
-
-            var account = CloudStorageAccount.Parse(
-                Environment.GetEnvironmentVariable(
-                    Constants.AzureStorageVariableName));
-
-            var blobClient = account.CreateCloudBlobClient();
-            var blobHelper = new BlobHelper(blobClient, null);
-
-            var container = blobHelper.GetContainerFromName("sessions");
 
             var result = new List<SessionBase>();
 
             try
             {
+                branchId = branchId.ToLower();
+
+                var account = CloudStorageAccount.Parse(
+                    Environment.GetEnvironmentVariable(
+                        Constants.AzureStorageVariableName));
+
+                var blobClient = account.CreateCloudBlobClient();
+                var blobHelper = new BlobHelper(blobClient, null);
+
+                var container = blobHelper.GetContainerFromName("sessions");
+
                 BlobContinuationToken continuationToken = null;
 
                 do
@@ -63,7 +65,11 @@ namespace Timekeeper
                         {
                             var content = await blob.DownloadTextAsync();
                             var session = JsonConvert.DeserializeObject<SessionBase>(content);
-                            result.Add(session);
+
+                            if (session != null)
+                            {
+                                result.Add(session);
+                            }
                         }
                     }
                 }
@@ -72,6 +78,7 @@ namespace Timekeeper
             catch (Exception ex)
             {
                 log.LogWarning($"Error when loading sessions {ex.Message}");
+                return new UnprocessableEntityObjectResult(ex.Message);
             }
 
             return new OkObjectResult(result);

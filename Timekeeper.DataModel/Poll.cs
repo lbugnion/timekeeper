@@ -12,6 +12,8 @@ namespace Timekeeper.DataModel
         public event EventHandler OnEdit;
 
         private bool _isEdited;
+        private string _explanationMarkdown;
+        private string _questionMarkdown;
 
         [JsonIgnore]
         [Required(ErrorMessage = "You must enter at least one answer")]
@@ -27,7 +29,23 @@ namespace Timekeeper.DataModel
 
         public string ExplanationHtml { get; set; }
 
-        public string ExplanationMarkdown { get; set; }
+        public string ExplanationMarkdown
+        {
+            get => _explanationMarkdown;
+            set
+            {
+                _explanationMarkdown = value;
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    ExplanationHtml = string.Empty;
+                }
+                else
+                {
+                    ExplanationHtml = Markdown.ToHtml(_explanationMarkdown);
+                }
+            }
+        }
 
         public string GivenAnswer
         {
@@ -101,7 +119,24 @@ namespace Timekeeper.DataModel
         public string QuestionHtml { get; set; }
 
         [Required(ErrorMessage = "You must enter a question")]
-        public string QuestionMarkdown { get; set; }
+        public string QuestionMarkdown
+        {
+            get => _questionMarkdown;
+            
+            set
+            {
+                _questionMarkdown = value;
+
+                if (string.IsNullOrEmpty(_questionMarkdown))
+                {
+                    QuestionHtml = string.Empty;
+                }
+                else
+                {
+                    QuestionHtml = Markdown.ToHtml(value);
+                }
+            }
+        }
 
         public string SessionName { get; set; }
 

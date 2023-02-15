@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
@@ -22,6 +24,9 @@ namespace Timekeeper.Client.Pages
             get;
             private set;
         }
+
+        [Parameter]
+        public string SessionId { get; set; }
 
         public string SessionName
         {
@@ -94,7 +99,8 @@ namespace Timekeeper.Client.Pages
                     Log,
                     Http,
                     Nav,
-                    Session);
+                    Session,
+                    SessionId);
             }
             else
             {
@@ -141,6 +147,8 @@ namespace Timekeeper.Client.Pages
             {
                 Handler.UpdateUi -= HandlerUpdateUi;
                 Handler.RequestRefresh -= HandlerRequestRefresh;
+
+                Session.State = 1;
 
                 if (Program.ClockToConfigure == null)
                 {

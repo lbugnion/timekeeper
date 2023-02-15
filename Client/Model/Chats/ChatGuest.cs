@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -13,6 +14,8 @@ namespace Timekeeper.Client.Model.Chats
     public class ChatGuest : SignalRGuestBase
     {
         protected override string SessionKey => "ChatGuestSession";
+
+        public event EventHandler Ding;
 
         public ChatProxy ChatProxy { get; set; }
 
@@ -39,11 +42,12 @@ namespace Timekeeper.Client.Model.Chats
                 CurrentSession.Chats = new List<Chat>();
             }
 
-            await ChatProxy.ReceiveChats(
+            var chatAdded = await ChatProxy.ReceiveChats(
                 RaiseUpdateEvent,
                 null, // Do not save messages in the guest, they always need a Host to be online.
                 receivedJson,
                 CurrentSession.Chats,
+                CurrentSession.SessionId,
                 PeerInfo.Message.PeerId,
                 _log);
 
@@ -57,6 +61,11 @@ namespace Timekeeper.Client.Model.Chats
             }
 
             _log.LogTrace("ChatGuest.ReceiveChats(string) ->");
+
+            if (chatAdded)
+            {
+                Ding?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private async Task LikeChat(string receivedJson)
@@ -83,7 +92,7 @@ namespace Timekeeper.Client.Model.Chats
 
             var ok = await InitializeSession(_sessionId)
                 && await InitializePeerInfo()
-                && await UnregisterFromPreviousGroup(_unregisterFromGroup)
+                //&& await UnregisterFromPreviousGroup(_unregisterFromGroup)
                 && await CreateConnection();
 
             if (ok)
