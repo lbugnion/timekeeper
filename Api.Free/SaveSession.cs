@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Timekeeper.DataModel;
 using Timekeeper.Model;
