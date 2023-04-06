@@ -79,8 +79,6 @@ namespace Timekeeper.DataModel
 
                 foreach (var poll in Polls)
                 {
-                    poll.Reset();
-
                     if (string.IsNullOrEmpty(poll.Uid))
                     {
                         poll.Uid = Guid.NewGuid().ToString();
