@@ -1,4 +1,4 @@
-name: MAIN Non secured API deploy
+name: MAIN Non secured API deploy new
 
 on:
   push:
@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_NAME: timekeep
+  AZURE_FUNCTIONAPP_NAME: timekeep-public
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'Api.Free'
   DOTNET_VERSION: '3.1'
 
