@@ -1,14 +1,24 @@
-name: Azure Static Web Apps CI/CD new deployment
+name: MAIN Client and secured API to static web (new)
 
 on:
   push:
     branches:
       - main
+    paths:
+    - 'Api/**'
+    - 'Client/**'
+    - 'Timekeeper.DataModel/**'
+    - 'Timekeeper.DataModel.Standard/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
-
+    paths:
+    - 'Api/**'
+    - 'Client/**'
+    - 'Timekeeper.DataModel/**'
+    - 'Timekeeper.DataModel.Standard/**'
+    
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
