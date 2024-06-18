@@ -14,10 +14,10 @@ on:
     branches:
       - learnlive
     paths:
-    - 'Api/**'
-    - 'Client/**'
-    - 'Timekeeper.DataModel/**'
-    - 'Timekeeper.DataModel.Standard/**'
+      - 'Api/**'
+      - 'Client/**'
+      - 'Timekeeper.DataModel/**'
+      - 'Timekeeper.DataModel.Standard/**'
 
   workflow_dispatch:
 
