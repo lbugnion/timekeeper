@@ -1,62 +1,67 @@
 ### Create new session
-POST http://localhost:7072/api/session/BCE4F196-D690-4E01-9AA4-09C829A37C59/13a8d158-f012-4fdf-9d43-3dc8a2491918
+POST {{function-url}}/session/BCE4F196-D690-4E01-9AA4-09C829A37C59/FFA28184-F3F4-4B62-9BD6-8D39FCAAEE06
 x-timekeeper-token: F97D3E9D-BD66-4E47-89FB-EA6B8D0780A2
 
 {
-  "BranchId": "BCE4F196-D690-4E01-9AA4-09C829A37C59",
-  "SessionId": "13a8d158-f012-4fdf-9d43-3dc8a2491918",
-  "SessionName": null,
-  "Polls": [
-    {
-      "Uid": null,
-      "Answers": [
+    "BranchId" : "BCE4F196-D690-4E01-9AA4-09C829A37C59",
+    "SessionId" : "FFA28184-F3F4-4B62-9BD6-8D39FCAAEE06",
+    "SessionName" : "TEST Creating from REST 3",
+    "Clocks" : [
+
         {
-          "TitleMarkdown": "Use separate workload identities for each environment."
-        },
-        {
-          "TitleMarkdown": "Add a condition to deploy only when the environment name is Production."
-        },
-        {
-          "TitleMarkdown": "Create a new Azure role definition."
+            "Message" : {
+
+                "AlmostDone":"00:02:00",
+                "AlmostDoneColor":"#FF6B77",
+                "CountDown":"01:40:00",
+                "Label":"Session",
+                "PayAttention":"00:10:00",
+                "PayAttentionColor":"#FFFB91",
+                "RunningColor":"#3AFFA9"
+            }
         }
-      ],
-      "QuestionMarkdown": "How can you improve the security of this workflow? ",
-      "ExplanationMarkdown": "Explanation: Correct. It's good security practice to use separate workload identities to deploy to each environment.",
-      "SlideName": "slide55"
-    },
-    {
-      "Uid": null,
-      "Answers": [
+
+    ],
+
+    "Polls" : [
+
         {
-          "TitleMarkdown": "Add a new caller workflow file."
+            "Uid": "72E7F852-5BE6-4A29-8AD1-2AFC15705378",
+
+            "QuestionMarkdown" : "What is your favorite color?",
+            "Answers" : [
+                {
+                    "TitleMarkdown" : "Red",
+                },
+                {
+                    "TitleMarkdown" : "Blue",
+                },
+                {
+                    "TitleMarkdown" : "Green",
+                }
+            ],
+            "ExplanationMarkdown" : "This is an explanation"
         },
+
         {
-          "TitleMarkdown": "Add a new called workflow file."
-        },
-        {
-          "TitleMarkdown": "Add a new Bicep parameters file."
+            "Uid": "3554F7B8-529D-4637-B3EF-FF97FE902017",
+
+            "QuestionMarkdown" : "What is your favorite animal?",
+
+            "Answers" : [
+                {
+                    "TitleMarkdown" : "Dog",
+                },
+                {
+                    "TitleMarkdown" : "Cat",
+                },
+                {
+                    "TitleMarkdown" : "Bird",
+                }
+            ],
+
+            "ExplanationMarkdown" : "This is another explanation"
         }
-      ],
-      "QuestionMarkdown": "You need to add a new environment named Integration to the workflow. Which of these actions should you take as part of adding the new environment? ",
-      "ExplanationMarkdown": "Explanation: Correct. You need to create a new Bicep parameters file named *parameters.Integration.json* and commit it to your Git repository.",
-      "SlideName": "slide56"
-    },
-    {
-      "Uid": null,
-      "Answers": [
-        {
-          "TitleMarkdown": "Define a variable in the workflow.yml file."
-        },
-        {
-          "TitleMarkdown": "Define a secret in the GitHub web interface."
-        },
-        {
-          "TitleMarkdown": "Add the parameter to the parameters.ENVIRONMENT_NAME.json files."
-        }
-      ],
-      "QuestionMarkdown": "You need to add a new parameter to your deployment that contains a connection string and password to access a database. Which of these approaches should you consider? ",
-      "ExplanationMarkdown": "Explanation: Correct. Secrets are designed to be used for secure data like passwords.",
-      "SlideName": "slide57"
-    }
-  ]
+
+    ]
 }

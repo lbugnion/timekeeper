@@ -17,7 +17,6 @@ namespace Timekeeper.Client
 {
     public class Program
     {
-        // TODO Use dependency injection?
         public static ConfigureClock ClockToConfigure
         {
             get;
@@ -33,7 +32,7 @@ namespace Timekeeper.Client
                     .GetName()
                     .Version;
 
-                return version.Build == 9999;
+                return version.Revision == 9999;
             }
         }
 
@@ -46,7 +45,7 @@ namespace Timekeeper.Client
                     .GetName()
                     .Version;
 
-                return version.Build == 8888;
+                return version.Revision == 8888;
             }
         }
 
