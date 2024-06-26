@@ -6,7 +6,7 @@
       "connectionId": "AzureWebJobsStorage"
     },
     "appInsights1": {
-      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/microsoft.insights/components/timekeeper-public",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/microsoft.insights/components/Timekeeper",
       "type": "appInsights.azure",
       "connectionId": "APPLICATIONINSIGHTS_CONNECTION_STRING"
     }

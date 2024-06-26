@@ -12,7 +12,7 @@
     },
     "resourceGroupLocation": {
       "type": "string",
-      "defaultValue": "eastus2",
+      "defaultValue": "westeurope",
       "metadata": {
         "_parameterType": "location",
         "description": "Location of the resource group. Resource groups could have different location than resources."
@@ -53,7 +53,7 @@
                 "name": "Standard_LRS",
                 "tier": "Standard"
               },
-              "kind": "Storage",
+              "kind": "StorageV2",
               "name": "timekeeperstorepublic",
               "type": "Microsoft.Storage/storageAccounts",
               "location": "[parameters('resourceLocation')]",

@@ -12,7 +12,7 @@
     },
     "resourceGroupLocation": {
       "type": "string",
-      "defaultValue": "eastus2",
+      "defaultValue": "westeurope",
       "metadata": {
         "_parameterType": "location",
         "description": "Location of the resource group. Resource groups could have different location than resources."
@@ -36,7 +36,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('timekeeper-public', subscription().subscriptionId)))]",
+      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('Timekeeper', subscription().subscriptionId)))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "apiVersion": "2019-10-01",
       "dependsOn": [
@@ -49,10 +49,10 @@
           "contentVersion": "1.0.0.0",
           "resources": [
             {
-              "name": "timekeeper-public",
+              "kind": "web",
+              "name": "Timekeeper",
               "type": "microsoft.insights/components",
               "location": "[parameters('resourceLocation')]",
-              "kind": "web",
               "properties": {},
               "apiVersion": "2015-05-01"
             }

@@ -4,7 +4,7 @@ x-functions-key: {{NegotiateKey}}
 x-timekeeper-userid: 1234
 
 ### Get sessions
-GET {{function-url-protected}}/sessions/692B42A9-A940-4A11-AD68-43779AB1266D
+GET {{function-url-protected}}/sessions/
 
 ### Get version (free)
 GET {{function-url}}/version
